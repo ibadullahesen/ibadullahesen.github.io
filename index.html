@@ -64,11 +64,6 @@
             text-align: left;
             background-color: #4a5568; /* Boz */
         }
-        .chat-message.admin-reply { /* Bu rol artıq istifadə olunmayacaq, çünki cavablar saxlanmır */
-            text-align: left;
-            background-color: #6366f1; /* Mavi rəngdə cavab */
-            border-left: 5px solid #a78bfa;
-        }
     </style>
 </head>
 <body class="relative">
@@ -262,10 +257,10 @@
         </div>
         <div id="chat-history" class="flex-grow overflow-y-auto p-4 text-left">
             <!-- Söhbət mesajları buraya əlavə olunacaq -->
-            <p class="chat-message system">Salam! AxtarGet Bot haqqında suallarınızı verə bilərsiniz. Mesajlarınız e-poçt vasitəsilə cavablandırılacaq.</p>
+            <p class="chat-message system">Salam! AxtarGet Bot haqqında suallarınızı verə bilərsiniz. Admin cavablarını buradan ala biləcəksiniz.</p>
         </div>
         <div class="p-4 border-t border-gray-700">
-            <input type="email" id="user-email" placeholder="E-poçt ünvanınız (cavab üçün)..." class="w-full p-2 mb-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
+            <input type="text" id="user-name" placeholder="Adınız..." class="w-full p-2 mb-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
             <div class="flex gap-2">
                 <input type="text" id="user-question" placeholder="Sualınızı bura yazın..." class="flex-grow p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
                 <button id="ask-button" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-300">
@@ -280,11 +275,11 @@
 
     <!-- Əsas JavaScript -->
     <script>
-        // DOM elementləri (səhifə yüklənəndə əlçatan olmalıdır)
+        // DOM elementləri
         const chatBubble = document.getElementById('chat-bubble');
         const chatWindow = document.getElementById('chat-window');
         const closeChatButton = document.getElementById('close-chat');
-        const userEmailInput = document.getElementById('user-email');
+        const userNameInput = document.getElementById('user-name'); // Ad inputu
         const userQuestionInput = document.getElementById('user-question');
         const askButton = document.getElementById('ask-button');
         const chatHistoryDiv = document.getElementById('chat-history');
@@ -355,17 +350,12 @@
 
         // `askBot` funksiyası (Firebase və AI olmadan)
         async function askBot() {
+            const userName = userNameInput.value.trim();
             const question = userQuestionInput.value.trim();
-            const email = userEmailInput.value.trim();
 
-            if (!email) {
-                alert("Zəhmət olmasa, e-poçt ünvanınızı daxil edin.");
-                userEmailInput.focus();
-                return;
-            }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                alert("Zəhmət olmasa, düzgün e-poçt ünvanı daxil edin.");
-                userEmailInput.focus();
+            if (!userName) {
+                alert("Zəhmət olmasa, adınızı daxil edin.");
+                userNameInput.focus();
                 return;
             }
             if (!question) {
@@ -379,19 +369,18 @@
             
             loadingIndicator.classList.remove('hidden');
             askButton.disabled = true;
-            userEmailInput.disabled = true;
+            userNameInput.disabled = true;
 
             try {
-                // Firebase-ə yazmaq yoxdur. Sadəcə cavab mesajı göstəririk.
-                // Admin panelində bu mesajı görmək üçün Firebase-ə ehtiyac var.
-                // Bu dəyişikliklərdə məqsəd, Firebase-dən imtina etməkdir.
+                // Bu hissədə normalda Firebase-ə məlumat göndəriləcəkdi.
+                // Lakin Firebase silindiyi üçün bu məlumatlar heç yerdə saxlanmır.
+                // Admin panelində də görünməyəcək.
                 
-                const responseMessage = `Mesajınız qəbul edildi. E-poçt (${email}) vasitəsilə cavablandırılacaq. Təşəkkür edirik!`;
+                const responseMessage = `Mesajınız qəbul edildi. Tezliklə admin tərəfindən cavablandırılacaq. Təşəkkür edirik!`;
                 appendMessage(responseMessage, 'system'); 
                 
-                // Hal-hazırda bu məlumatı (email və sualı) əl ilə yoxlamaq üçün
-                // konsola yazırıq. Bunu serverə göndərmək üçün əlavə iş lazımdır.
-                console.log(`İstifadəçi e-poçtu: ${email}, Sual: ${question}`); 
+                // Məlumatı əl ilə yoxlamağınız üçün konsola yazırıq:
+                console.log(`İstifadəçi adı: ${userName}, Sual: ${question}`); 
 
             } catch (error) {
                 console.error("Mesaj göndərmə xətası:", error);
@@ -399,7 +388,7 @@
             } finally {
                 loadingIndicator.classList.add('hidden');
                 askButton.disabled = false;
-                userEmailInput.disabled = false;
+                userNameInput.disabled = false;
                 chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
             }
         }
@@ -409,8 +398,7 @@
             chatBubble.addEventListener('click', () => {
                 chatWindow.classList.toggle('hidden');
                 if (!chatWindow.classList.contains('hidden')) {
-                    // Pəncərə açıldıqda fokuslan
-                    userEmailInput.focus(); 
+                    userNameInput.focus(); 
                 }
             });
         }
