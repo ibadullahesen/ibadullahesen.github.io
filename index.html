@@ -49,9 +49,204 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #059669; /* Hover zamanı tünd yaşıl */
         }
+        /* Sual-Cavab hissəsi üçün əlavə stil */
+        .chat-message {
+            background-color: #2d3748;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .chat-message.user {
+            text-align: right;
+            background-color: #059669; /* Açıq yaşıl */
+        }
+        .chat-message.bot {
+            text-align: left;
+            background-color: #4a5568; /* Boz */
+        }
+        .chat-message.admin-reply {
+            text-align: left;
+            background-color: #6366f1; /* Mavi rəngdə cavab */
+            border-left: 5px solid #a78bfa;
+        }
     </style>
 </head>
 <body class="relative">
+
+    <!-- Firebase SDK-ları və Başlatma (İlk Yüklənir) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, Timestamp, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase-i başlat (Canvas-dan gələn qlobal dəyişənlər)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let userId = null; // İstifadəçinin Firebase ID-si
+
+        // Firebase dəyişənlərini global edirik ki, digər skriptlər istifadə edə bilsin
+        window.firebaseApp = app;
+        window.firestoreDb = db;
+        window.firebaseAuth = auth;
+        window.appIdGlobal = appId;
+        window.firebaseUserId = userId; // Başlanğıcda null olacaq
+
+        // Anonim daxil ol və ya mövcud istifadəçi ID-sini əldə et
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                userId = user.uid;
+            } else {
+                try {
+                    const userCredential = await signInAnonymously(auth);
+                    userId = userCredential.user.uid;
+                } catch (error) {
+                    console.error("Anonim daxil olarkən xəta:", error);
+                }
+            }
+            window.firebaseUserId = userId; // userId-ni yeniləyirik
+            console.log("Firebase User ID:", userId);
+
+            // İstifadəçi ID-si əldə edildikdən sonra söhbət funksionallığını başladırıq
+            if (userId && typeof window.initChatFunctionality === 'function') {
+                window.initChatFunctionality();
+            } else {
+                console.warn("Firebase User ID hələ əlçatan deyil və ya initChatFunctionality funksiyası yoxdur.");
+            }
+        });
+
+        // Söhbət funksionallığı üçün helper funksiyaları (global olaraq təyin olunur)
+        window.appendMessage = function(message, sender) {
+            const chatHistoryDiv = document.getElementById('chat-history');
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${sender} p-3 rounded-lg max-w-full overflow-wrap break-word`;
+            
+            const encodedMessage = message.replace(/&/g, '&amp;')
+                                          .replace(/</g, '&lt;')
+                                          .replace(/>/g, '&gt;')
+                                          .replace(/"/g, '&quot;')
+                                          .replace(/'/g, '&#039;');
+
+            messageElement.innerHTML = `<span>${encodedMessage}</span>`;
+            if (chatHistoryDiv) { // Elementin mövcudluğunu yoxla
+                chatHistoryDiv.appendChild(messageElement);
+                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            }
+        };
+
+        window.listenToQAMessages = function(currentUserId) {
+            if (!window.firestoreDb || !window.appIdGlobal) {
+                console.warn("Firestore və ya appId mövcud deyil. Mesajlar dinlənilə bilməz.");
+                return;
+            }
+            const q = query(collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`), orderBy("last_update", "asc"));
+
+            onSnapshot(q, (snapshot) => {
+                const chatHistoryDiv = document.getElementById('chat-history');
+                if (chatHistoryDiv) chatHistoryDiv.innerHTML = ''; // Söhbət tarixini təmizlə
+
+                snapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId === currentUserId && data.messages) {
+                        data.messages.forEach(msg => {
+                            window.appendMessage(msg.text, msg.role);
+                        });
+                    }
+                });
+            }, (error) => {
+                console.error("Mesajları dinlərkən xəta:", error);
+            });
+        };
+
+        window.askBot = async function() {
+            const userQuestionInput = document.getElementById('user-question');
+            const askButton = document.getElementById('ask-button');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const question = userQuestionInput ? userQuestionInput.value.trim() : '';
+
+            if (!question || !window.firebaseUserId || !window.firestoreDb || !window.appIdGlobal) {
+                console.error("Firebase və ya istifadəçi məlumatları yoxdur. Sual göndərilə bilməz.");
+                if (userQuestionInput) userQuestionInput.value = ''; // Inputu təmizlə
+                return;
+            }
+
+            window.appendMessage(question, 'user');
+            if (userQuestionInput) userQuestionInput.value = '';
+            if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+            if (askButton) askButton.disabled = true;
+
+            try {
+                const qnaCollectionRef = collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`);
+                const q = query(qnaCollectionRef, where("userId", "==", window.firebaseUserId));
+                const snapshot = await getDocs(q);
+
+                let docRef;
+                let existingMessages = [];
+
+                if (!snapshot.empty) {
+                    const doc = snapshot.docs[0];
+                    docRef = doc.ref;
+                    existingMessages = doc.data().messages || [];
+                } else {
+                    docRef = await addDoc(qnaCollectionRef, {
+                        userId: window.firebaseUserId,
+                        created_at: Timestamp.now(),
+                        messages: [],
+                        last_update: Timestamp.now()
+                    });
+                }
+                
+                existingMessages.push({ role: "user", text: question, timestamp: Timestamp.now() });
+                await updateDoc(docRef, { 
+                    messages: existingMessages,
+                    last_update: Timestamp.now()
+                });
+
+                let chatHistoryForAI = [];
+                chatHistoryForAI.push({ role: "user", parts: [{ text: `AxtarGet Bot haqqında sual: ${question}. Yalnız botun funksiyaları, məqsədi, necə istifadə olunması, əlaqə məlumatları və premium xüsusiyyətləri ilə bağlı suallara cavab ver. Əgər sual botla əlaqəli deyilsə, lütfən istifadəçiyə bot haqqında sual verməsini xahiş et.` }] });
+                
+                const payload = { contents: chatHistoryForAI };
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                let botResponseText = "Cavab əldə etmək mümkün olmadı. Zəhmət olmasa, bir az sonra yenidən cəhd edin.";
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    botResponseText = result.candidates[0].content.parts[0].text;
+                } 
+                window.appendMessage(botResponseText, 'bot');
+
+                existingMessages.push({ role: "bot", text: botResponseText, timestamp: Timestamp.now() });
+                await updateDoc(docRef, { 
+                    messages: existingMessages,
+                    last_update: Timestamp.now()
+                });
+
+            } catch (error) {
+                console.error("API və ya Firestore xətası:", error);
+                window.appendMessage("Bir xəta baş verdi. Zəhmət olmasa, bir az sonra yenidən cəhd edin.", 'bot');
+            } finally {
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+                if (askButton) askButton.disabled = false;
+                const chatHistoryDiv = document.getElementById('chat-history');
+                if (chatHistoryDiv) chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+            }
+        };
+
+    </script>
 
     <!-- Başlıq hissəsi -->
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full z-10">
@@ -64,6 +259,8 @@
             <nav class="hidden md:flex space-x-8">
                 <a href="#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
                 <a href="#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
+                <a href="xidmet-axtarisi.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Xidmət Axtarışı</a>
+                <a href="admin.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Admin</a>
                 <a href="#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
                 <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 hover-grow">
                     <i class="fab fa-telegram-plane text-lg"></i>
@@ -79,6 +276,8 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
             <a href="#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
             <a href="#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
+            <a href="xidmet-axtarisi.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Xidmət Axtarışı</a>
+            <a href="admin.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Admin</a>
             <a href="#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
             <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
         </div>
@@ -178,7 +377,7 @@
     </section>
 
     <!-- Əlaqə Bölməsi -->
-    <section id="contact" class="section-padding bg-gray-900 text-center fade-in">
+    <section id="contact" class="section-padding bg-gray-800 text-center fade-in">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Bizimlə Əlaqə</h2>
             <p class="text-lg leading-relaxed mb-6">
@@ -203,7 +402,7 @@
     </section>
 
     <!-- Yeni Layihələr Bölməsi -->
-    <section class="section-padding bg-gray-800 text-center fade-in">
+    <section class="section-padding bg-gray-900 text-center fade-in">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Yeni Layihələrimiz</h2>
             <p class="text-xl leading-relaxed text-gray-300 mb-6">
@@ -223,7 +422,46 @@
         </div>
     </footer>
 
+    <!-- Floating Chat Bubble -->
+    <div id="chat-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50">
+        <i class="fas fa-comment-dots text-3xl"></i>
+    </div>
+
+    <!-- Chat Window -->
+    <div id="chat-window" class="fixed bottom-24 right-8 w-80 bg-gray-900 rounded-lg shadow-xl hidden z-40 flex flex-col max-h-96">
+        <div class="flex justify-between items-center p-4 bg-gray-800 rounded-t-lg">
+            <h3 class="text-lg font-semibold text-white">AxtarGet Bot Q&A</h3>
+            <button id="close-chat" class="text-gray-400 hover:text-white transition-colors duration-300">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="chat-history" class="flex-grow overflow-y-auto p-4 text-left">
+            <!-- Söhbət mesajları buraya əlavə olunacaq -->
+        </div>
+        <div class="p-4 border-t border-gray-700">
+            <div class="flex gap-2">
+                <input type="text" id="user-question" placeholder="Sualınızı bura yazın..." class="flex-grow p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
+                <button id="ask-button" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-300">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div id="loading-indicator" class="hidden mt-2 text-green-400 text-sm">
+                <i class="fas fa-spinner fa-spin mr-1"></i> Cavab hazırlanır...
+            </div>
+        </div>
+    </div>
+
+    <!-- Əsas JavaScript -->
     <script>
+        // DOM elementləri (səhifə yüklənəndə əlçatan olmalıdır)
+        const chatBubble = document.getElementById('chat-bubble');
+        const chatWindow = document.getElementById('chat-window');
+        const closeChatButton = document.getElementById('close-chat');
+        const userQuestionInput = document.getElementById('user-question');
+        const askButton = document.getElementById('ask-button');
+        const chatHistoryDiv = document.getElementById('chat-history');
+        const loadingIndicator = document.getElementById('loading-indicator');
+
         // Naviqasiya linkləri üçün hamar sürüşmə
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -231,7 +469,6 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
-                // Linkə kliklədikdən sonra mobil menyunu bağlamaq
                 document.getElementById('mobile-menu').classList.add('hidden');
             });
         });
@@ -254,7 +491,7 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('appear');
-                    observer.unobserve(entry.target); // Görünən olduqdan sonra müşahidəni dayandırmaq
+                    observer.unobserve(entry.target);
                 }
             });
         }, observerOptions);
@@ -269,6 +506,60 @@
             link.href = 'https://t.me/AxtarGetbot';
         });
 
+        // Söhbət funksionallığını başladan funksiya
+        window.initChatFunctionality = function() {
+            console.log("Söhbət funksionallığı başladılır...");
+
+            // Firebase dəyişənlərinin mövcudluğunu yoxla
+            if (!window.firebaseApp || !window.firestoreDb || !window.firebaseAuth || !window.firebaseUserId || !window.appIdGlobal) {
+                console.error("Firebase dəyişənləri tam yüklənməyib. Söhbət başladılmır.");
+                return;
+            }
+
+            window.listenToQAMessages(window.firebaseUserId);
+
+            if (chatBubble) {
+                chatBubble.addEventListener('click', () => {
+                    chatWindow.classList.toggle('hidden');
+                    if (!chatWindow.classList.contains('hidden')) {
+                        chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
+                        userQuestionInput.focus();
+                    }
+                });
+            }
+
+            if (closeChatButton) {
+                closeChatButton.addEventListener('click', () => {
+                    chatWindow.classList.add('hidden');
+                });
+            }
+
+            if (askButton) {
+                askButton.addEventListener('click', window.askBot); // window.askBot çağırılır
+            }
+
+            if (userQuestionInput) {
+                userQuestionInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        window.askBot(); // window.askBot çağırılır
+                    }
+                });
+            }
+        };
+
+        // Əgər DOMContentLoaded artıq baş veribsə və Firebase User ID artıq mövcuddursa, funksionallığı başlat.
+        // Əks halda, Firebase auth.onAuthStateChanged bunu çağıracaq.
+        if (document.readyState === 'complete' && window.firebaseUserId) {
+            window.initChatFunctionality();
+        } else {
+            // Document hazır olduqda, lakin Firebase hələ də istifadəçi ID-sini təyin etməyib
+            document.addEventListener('DOMContentLoaded', () => {
+                if (window.firebaseUserId) { // Əgər DOM hazır olanda artıq user ID varsa
+                    window.initChatFunctionality();
+                }
+                // Əks halda, auth.onAuthStateChanged avtomatik olaraq çağıracaq
+            });
+        }
     </script>
 </body>
 </html>
