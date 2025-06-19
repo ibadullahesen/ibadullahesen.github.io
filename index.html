@@ -79,9 +79,17 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, Timestamp, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase-i başlat (Canvas-dan gələn qlobal dəyişənlər)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        // Firebase-i başlat - BURANI ÖZ MƏLUMATLARINIZLA DƏYİŞDİRİN
+        // Firebase Console -> Project settings (tənzimləmələr) -> Your apps (tətbiqləriniz) hissəsindən əldə edin
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY", // Öz apiKey-inizi bura yazın
+            authDomain: "YOUR_AUTH_DOMAIN", // Öz authDomain-inizi bura yazın
+            projectId: "YOUR_PROJECT_ID", // Öz projectId-nizi bura yazın
+            storageBucket: "YOUR_STORAGE_BUCKET", // Öz storageBucket-inizi bura yazın
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Öz messagingSenderId-nizi bura yazın
+            appId: "YOUR_APP_ID" // Öz appId-nizi bura yazın
+        };
+        const appId = firebaseConfig.appId; // appId-ni firebaseConfig-dən götürürük
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -210,7 +218,7 @@
                 chatHistoryForAI.push({ role: "user", parts: [{ text: `AxtarGet Bot haqqında sual: ${question}. Yalnız botun funksiyaları, məqsədi, necə istifadə olunması, əlaqə məlumatları və premium xüsusiyyətləri ilə bağlı suallara cavab ver. Əgər sual botla əlaqəli deyilsə, lütfən istifadəçiyə bot haqqında sual verməsini xahiş et.` }] });
                 
                 const payload = { contents: chatHistoryForAI };
-                const apiKey = "";
+                const apiKey = ""; // API açarı boş qalsın
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
                 const response = await fetch(apiUrl, {
