@@ -40,7 +40,7 @@
             text-align: center;
             box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
         }
-        /* Mesaj görünüşü üçün */
+        /* Mesaj görünüşü üçün ( Firebase olmadan istifadə edilmir) */
         .message-card {
             background-color: #2d3748;
             padding: 1rem;
@@ -48,179 +48,9 @@
             margin-bottom: 1rem;
             border: 1px solid #4a5568;
         }
-        .message-card.unread {
-            border-left: 5px solid #ef4444; /* Qırmızı çubuq */
-        }
-        .message-card.read {
-            border-left: 5px solid #10b981; /* Yaşıl çubuq */
-        }
-        .message-content p {
-            margin-bottom: 0.5rem;
-        }
-        .reply-box {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
     </style>
 </head>
 <body class="relative">
-
-    <!-- Firebase SDK-ları və Başlatma (İlk Yüklənir) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, orderBy, onSnapshot, updateDoc, doc, Timestamp, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Firebase-i başlat (Canvas-dan gələn qlobal dəyişənlər)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        let adminUserId = null; // Adminin Firebase ID-si
-
-        // Firebase dəyişənlərini global edirik ki, digər skriptlər istifadə edə bilsin
-        window.firebaseApp = app;
-        window.firestoreDb = db;
-        window.firebaseAuth = auth;
-        window.appIdGlobal = appId;
-        window.firebaseAdminUserId = adminUserId; // Başlanğıcda null olacaq
-
-        // Anonim daxil ol (admin paneli üçün)
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                adminUserId = user.uid;
-            } else {
-                try {
-                    const userCredential = await signInAnonymously(auth);
-                    adminUserId = userCredential.user.uid;
-                } catch (error) {
-                    console.error("Admin daxil olarkən xəta:", error);
-                }
-            }
-            window.firebaseAdminUserId = adminUserId; // adminUserId-ni yeniləyirik
-            console.log("Admin Firebase User ID:", adminUserId);
-
-            // İstifadəçi ID-si əldə edildikdən sonra Admin Panel funksionallığını başladırıq
-            // initAdminPanel funksiyası DOMContentLoaded-dan sonra təyin olunur.
-            // Bu halda, authStateChanged hadisəsi DOMContentLoaded-dan sonra baş verə bilər.
-            // Ona görə də, DOM-un tam hazır olduğundan əmin olmaq üçün əlavə yoxlama lazımdır.
-            if (adminUserId && typeof window.initAdminPanel === 'function') {
-                if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                    window.initAdminPanel();
-                } else {
-                    document.addEventListener('DOMContentLoaded', window.initAdminPanel);
-                }
-            } else {
-                console.warn("Admin Firebase User ID hələ əlçatan deyil və ya initAdminPanel funksiyası yoxdur.");
-            }
-        });
-
-        // Admin Panel funksionallığı üçün helper funksiyaları (global olaraq təyin olunur)
-        window.createMessageCard = function(docId, data) {
-            const qnaMessagesContainer = document.getElementById('qna-messages-list');
-            const card = document.createElement('div');
-            card.className = `message-card p-4 rounded-lg shadow-md border ${data.is_read ? 'read' : 'unread'}`;
-            card.dataset.docId = docId;
-
-            const userIdDisplay = data.userId ? data.userId.substring(0, 8) + '...' : 'Anonim İstifadəçi';
-            card.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <p class="text-gray-300 text-sm">İstifadəçi ID: <span class="font-bold">${userIdDisplay}</span></p>
-                    <p class="text-gray-300 text-sm">${data.last_update ? new Date(data.last_update.toDate()).toLocaleString() : 'Naməlum vaxt'}</p>
-                </div>
-                <div class="message-content space-y-2 mb-4">
-                    <!-- Söhbət mesajları -->
-                </div>
-                <div class="reply-section">
-                    <textarea class="reply-input w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600 mb-2" placeholder="Cavabınızı yazın..."></textarea>
-                    <button class="send-reply-btn px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300">Cavablandır</button>
-                    <button class="mark-as-read-btn px-4 py-2 ml-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-300">${data.is_read ? 'Oxunmamış kimi İşarələ' : 'Oxunmuş kimi İşarələ'}</button>
-                </div>
-            `;
-
-            const messageContentDiv = card.querySelector('.message-content');
-            data.messages.forEach(msg => {
-                const msgP = document.createElement('p');
-                msgP.className = `p-2 rounded-lg my-1 ${msg.role === 'user' ? 'bg-indigo-700 text-right' : msg.role === 'bot' ? 'bg-gray-700 text-left' : 'bg-blue-700 text-left'}`;
-                msgP.innerHTML = `<strong>${msg.role === 'user' ? 'İstifadəçi' : msg.role === 'bot' ? 'Bot' : 'Admin'}:</strong> ${msg.text}`;
-                messageContentDiv.appendChild(msgP);
-            });
-
-            if (qnaMessagesContainer) {
-                qnaMessagesContainer.appendChild(card);
-            }
-
-            const sendReplyBtn = card.querySelector('.send-reply-btn');
-            const replyInput = card.querySelector('.reply-input');
-            const markAsReadBtn = card.querySelector('.mark-as-read-btn');
-
-            if (sendReplyBtn) sendReplyBtn.addEventListener('click', () => window.sendReply(docId, replyInput.value));
-            if (markAsReadBtn) markAsReadBtn.addEventListener('click', () => window.toggleReadStatus(docId, !data.is_read));
-        };
-
-        window.loadQAMessages = function() {
-            const qnaMessagesContainer = document.getElementById('qna-messages-list');
-            if (!window.firestoreDb || !window.appIdGlobal) {
-                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-red-400">Mesajları yükləmək mümkün olmadı. Firebase düzgün qurulmayıb.</p>';
-                console.warn("Firestore və ya appId mövcud deyil. Mesajlar yüklənilə bilməz.");
-                return;
-            }
-
-            const q = query(collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`), orderBy("last_update", "desc"));
-            
-            onSnapshot(q, (snapshot) => {
-                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = ''; 
-                if (snapshot.empty) {
-                    if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-gray-400 text-center">Hələ heç bir sual və ya cavab yoxdur.</p>';
-                    return;
-                }
-                snapshot.docs.forEach(doc => {
-                    window.createMessageCard(doc.id, doc.data());
-                });
-            }, (error) => {
-                console.error("Q&A mesajlarını yüklərkən xəta:", error);
-                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-red-400">Mesajları yükləmə zamanı xəta baş verdi.</p>';
-            });
-        };
-
-        window.sendReply = async function(docId, replyText) {
-            if (!replyText.trim() || !window.firestoreDb || !window.appIdGlobal) return;
-
-            const docRef = doc(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`, docId);
-            
-            const docSnap = await getDocs(query(collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`), where("__name__", "==", docId)));
-            if (docSnap.empty) {
-                console.error("Sənəd tapılmadı:", docId);
-                return;
-            }
-            const currentMessages = docSnap.docs[0].data().messages || [];
-
-            currentMessages.push({ role: "admin_reply", text: replyText.trim(), timestamp: Timestamp.now() });
-
-            await updateDoc(docRef, { 
-                messages: currentMessages,
-                is_read: true, 
-                last_update: Timestamp.now()
-            });
-
-            const replyInput = document.querySelector(`.message-card[data-doc-id="${docId}"] .reply-input`);
-            if (replyInput) replyInput.value = '';
-        };
-
-        window.toggleReadStatus = async function(docId, isRead) {
-            if (!window.firestoreDb || !window.appIdGlobal) return;
-            const docRef = doc(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`, docId);
-            await updateDoc(docRef, { 
-                is_read: isRead,
-                last_update: Timestamp.now()
-            });
-        };
-
-    </script>
 
     <!-- Başlıq hissəsi -->
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full z-10">
@@ -266,13 +96,12 @@
             <div class="space-y-8 text-left">
                 <!-- İstifadəçi Sayı -->
                 <div>
-                    <h3 class="text-2xl font-semibold text-white mb-4">Ümumi İstifadəçi Sayı: <span id="user-count" class="text-green-400">Yüklənir...</span></h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4">Ümumi İstifadəçi Sayı: <span id="user-count" class="text-green-400">Bilinməyən</span></h3>
                     <p class="text-lg text-gray-300">
-                        Bu, Firebase Firestore-da qeydə alınmış unikal istifadəçi ID-lərinin sayıdır.
-                        Hər dəfə yeni bir istifadəçi vebsayta daxil olduqda və ya AI söhbətindən istifadə etdikdə, onların anonim ID-si qeydə alınır.
+                        Bu vebsaytda istifadəçi sayını avtomatik izləmək mümkün deyil, çünki verilənlər bazası istifadə edilmir.
                     </p>
                     <p class="text-gray-400 mt-2">
-                        *Qeyd: Bu, vebsayta daxil olan unikal istifadəçilərin sayını əks etdirir, Telegram botunuzdakı istifadəçi sayından fərqli ola bilər.*
+                        *Qeyd: Bu məlumatı əldə etmək üçün Google Analytics kimi analitika alətlərindən istifadə edə bilərsiniz.*
                     </p>
                 </div>
 
@@ -280,11 +109,13 @@
                 <div>
                     <h3 class="text-2xl font-semibold text-white mb-4">Gələn Mesajlar:</h3>
                     <div id="qna-messages-list" class="bg-gray-700 p-4 rounded-lg max-h-96 overflow-y-auto border border-gray-600">
-                        <!-- Mesajlar buraya JavaScript tərəfindən yüklənəcək -->
-                        <p class="text-gray-400 text-center">Mesajlar yüklənir...</p>
+                        <!-- Mesajlar buraya göstərilməyəcək -->
+                        <p class="text-gray-400 text-center">Mesajlar burada saxlanılmır.</p>
+                        <p class="text-gray-400 text-center mt-2">İstifadəçilər sizə adlarını və suallarını göndərir. Bu məlumatları görmək üçün vebsaytın konsolunu yoxlaya bilərsiniz (F12, Console tabı).</p>
+                        <p class="text-gray-400 text-center mt-2">Onlara cavab vermək üçün isə istifadəçinin daxil etdiyi əlaqə məlumatından (əgər soruşsanız) istifadə etməlisiniz.</p>
                     </div>
                     <p class="text-gray-400 mt-4">
-                        *Mesajlara buradan cavab yaza bilərsiniz. Cavablarınız Firestore-a saxlanacaq və istifadəçi tərəfindən vebsayt söhbət pəncərəsində görünəcək.*
+                        *Mesajlara buradan cavab yaza bilməzsiniz, çünki onlar heç bir yerdə saxlanılmır və əlaqə yoxdur.*
                     </p>
                 </div>
 
@@ -339,22 +170,9 @@
             if (passwordInput.value === correctPassword) {
                 passwordModal.classList.add('hidden');
                 adminContent.classList.remove('hidden'); // Admin panelini göstər
-                // Firebase dəyişənləri mövcud olduqdan sonra admin funksionallığını başlat
-                // `window.firebaseApp` kimi qlobal dəyişənlərin moduldan yükləndiyini gözləyirik.
-                if (window.firebaseApp && window.firestoreDb && window.firebaseAuth && window.appIdGlobal) {
-                    window.initAdminPanel();
-                } else {
-                    console.warn("Firebase hazır deyil, admin paneli tam işləməyə bilər. Bir az gözlənilir...");
-                    // Bir az gözləyib yenidən cəhd edin
-                    setTimeout(() => {
-                        if (window.firebaseApp && window.firestoreDb && window.firebaseAuth && window.appIdGlobal) {
-                            window.initAdminPanel();
-                        } else {
-                            qnaMessagesContainer.innerHTML = '<p class="text-red-400">Firebase yüklənmədi. Admin paneli işləmir.</p>';
-                            userCountSpan.textContent = 'Xəta!';
-                        }
-                    }, 2000); // 2 saniyə gözlə
-                }
+                // Firebase yoxdur, ona görə statik mesajlar göstərilir
+                userCountSpan.textContent = 'Bilinməyən'; // Statik olaraq
+                qnaMessagesContainer.innerHTML = '<p class="text-gray-400 text-center">Mesajlar burada saxlanılmır.</p><p class="text-gray-400 text-center mt-2">İstifadəçilər sizə adlarını və suallarını göndərir. Bu məlumatları görmək üçün vebsaytın konsolunu yoxlaya bilərsiniz (F12, Console tabı).</p><p class="text-gray-400 text-center mt-2">Onlara cavab vermək üçün isə istifadəçinin daxil etdiyi əlaqə məlumatından (əgər soruşsanız) istifadə etməlisiniz.</p>';
             } else {
                 errorMessage.classList.remove('hidden');
                 passwordInput.value = ''; // Şifrəni təmizlə
@@ -371,18 +189,16 @@
 
         // Navbar linkləri (admin.html üçün nisbi yollar)
         document.querySelectorAll('nav a').forEach(link => {
-            // Əgər link mövcud səhifəyə (admin.html) aid deyilsə və anchor linkidirsə
             if (link.getAttribute('href').startsWith('index.html#') || link.getAttribute('href').startsWith('xidmet-axtarisi.html') || link.getAttribute('href').startsWith('https://t.me/')) {
                  link.addEventListener('click', function(e) {
-                    // Yalnız daxili linklər üçün preventDefault (Telegram linki üçün yox)
                     if (this.getAttribute('href').startsWith('index.html#') || this.getAttribute('href').startsWith('xidmet-axtarisi.html')) {
                         e.preventDefault();
                         window.location.href = this.getAttribute('href');
                     }
-                    // Mobil menyunu bağla (əgər açıqdırsa)
                     document.getElementById('mobile-menu').classList.add('hidden');
                 });
             }
+           
         });
 
         // Mobil menyunu aç/bağla
@@ -390,39 +206,6 @@
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenu.classList.toggle('hidden');
         });
-
-        // Admin Paneli funksionallığını başladan funksiya
-        window.initAdminPanel = function() {
-            console.log("Admin Paneli funksionallığı başladılır...");
-            window.loadQAMessages(); // Mesajları yüklə
-            window.loadUserCount(); // İstifadəçi sayını yüklə
-        };
-
-        // İstifadəçi sayını yükləmək üçün funksiya
-        window.loadUserCount = async function() {
-            if (!window.firestoreDb || !window.appIdGlobal) {
-                if (userCountSpan) userCountSpan.textContent = 'Xəta!';
-                console.warn("Firestore və ya appId mövcud deyil. İstifadəçi sayı yüklənilə bilməz.");
-                return;
-            }
-            try {
-                // Söhbət sənədlərindən unikal istifadəçi ID-lərini toplayırıq
-                const qnaCollectionRef = collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`);
-                const snapshot = await getDocs(qnaCollectionRef);
-                const uniqueUserIds = new Set();
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (data.userId) {
-                        uniqueUserIds.add(data.userId);
-                    }
-                });
-                if (userCountSpan) userCountSpan.textContent = uniqueUserIds.size;
-            } catch (error) {
-                console.error("İstifadəçi sayı yüklənərkən xəta:", error);
-                if (userCountSpan) userCountSpan.textContent = 'Xəta!';
-            }
-        };
-
     </script>
 </body>
 </html>
