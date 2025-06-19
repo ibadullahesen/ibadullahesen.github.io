@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Paneli - AxtarGet Bot</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Tünd qara/boz fon */
+            color: #e2e8f0; /* Kontrast üçün açıq boz mətn */
+            overflow-x: hidden; /* Üfüqi sürüşməni qarşısını almaq */
+        }
+        .section-padding {
+            padding: 6rem 0;
+        }
+        /* Şifrə modalı üçün stil */
+        #password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        #password-modal.hidden {
+            display: none;
+        }
+        .modal-content {
+            background-color: #2d3748;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.5);
+        }
+        /* Mesaj görünüşü üçün */
+        .message-card {
+            background-color: #2d3748;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #4a5568;
+        }
+        .message-card.unread {
+            border-left: 5px solid #ef4444; /* Qırmızı çubuq */
+        }
+        .message-card.read {
+            border-left: 5px solid #10b981; /* Yaşıl çubuq */
+        }
+        .message-content p {
+            margin-bottom: 0.5rem;
+        }
+        .reply-box {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <!-- Firebase SDK-ları və Başlatma (İlk Yüklənir) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot, updateDoc, doc, Timestamp, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase-i başlat (Canvas-dan gələn qlobal dəyişənlər)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let adminUserId = null; // Adminin Firebase ID-si
+
+        // Firebase dəyişənlərini global edirik ki, digər skriptlər istifadə edə bilsin
+        window.firebaseApp = app;
+        window.firestoreDb = db;
+        window.firebaseAuth = auth;
+        window.appIdGlobal = appId;
+        window.firebaseAdminUserId = adminUserId; // Başlanğıcda null olacaq
+
+        // Anonim daxil ol (admin paneli üçün)
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                adminUserId = user.uid;
+            } else {
+                try {
+                    const userCredential = await signInAnonymously(auth);
+                    adminUserId = userCredential.user.uid;
+                } catch (error) {
+                    console.error("Admin daxil olarkən xəta:", error);
+                }
+            }
+            window.firebaseAdminUserId = adminUserId; // adminUserId-ni yeniləyirik
+            console.log("Admin Firebase User ID:", adminUserId);
+
+            // İstifadəçi ID-si əldə edildikdən sonra Admin Panel funksionallığını başladırıq
+            // initAdminPanel funksiyası DOMContentLoaded-dan sonra təyin olunur.
+            // Bu halda, authStateChanged hadisəsi DOMContentLoaded-dan sonra baş verə bilər.
+            // Ona görə də, DOM-un tam hazır olduğundan əmin olmaq üçün əlavə yoxlama lazımdır.
+            if (adminUserId && typeof window.initAdminPanel === 'function') {
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    window.initAdminPanel();
+                } else {
+                    document.addEventListener('DOMContentLoaded', window.initAdminPanel);
+                }
+            } else {
+                console.warn("Admin Firebase User ID hələ əlçatan deyil və ya initAdminPanel funksiyası yoxdur.");
+            }
+        });
+
+        // Admin Panel funksionallığı üçün helper funksiyaları (global olaraq təyin olunur)
+        window.createMessageCard = function(docId, data) {
+            const qnaMessagesContainer = document.getElementById('qna-messages-list');
+            const card = document.createElement('div');
+            card.className = `message-card p-4 rounded-lg shadow-md border ${data.is_read ? 'read' : 'unread'}`;
+            card.dataset.docId = docId;
+
+            const userIdDisplay = data.userId ? data.userId.substring(0, 8) + '...' : 'Anonim İstifadəçi';
+            card.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-gray-300 text-sm">İstifadəçi ID: <span class="font-bold">${userIdDisplay}</span></p>
+                    <p class="text-gray-300 text-sm">${data.last_update ? new Date(data.last_update.toDate()).toLocaleString() : 'Naməlum vaxt'}</p>
+                </div>
+                <div class="message-content space-y-2 mb-4">
+                    <!-- Söhbət mesajları -->
+                </div>
+                <div class="reply-section">
+                    <textarea class="reply-input w-full p-2 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600 mb-2" placeholder="Cavabınızı yazın..."></textarea>
+                    <button class="send-reply-btn px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-300">Cavablandır</button>
+                    <button class="mark-as-read-btn px-4 py-2 ml-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors duration-300">${data.is_read ? 'Oxunmamış kimi İşarələ' : 'Oxunmuş kimi İşarələ'}</button>
+                </div>
+            `;
+
+            const messageContentDiv = card.querySelector('.message-content');
+            data.messages.forEach(msg => {
+                const msgP = document.createElement('p');
+                msgP.className = `p-2 rounded-lg my-1 ${msg.role === 'user' ? 'bg-indigo-700 text-right' : msg.role === 'bot' ? 'bg-gray-700 text-left' : 'bg-blue-700 text-left'}`;
+                msgP.innerHTML = `<strong>${msg.role === 'user' ? 'İstifadəçi' : msg.role === 'bot' ? 'Bot' : 'Admin'}:</strong> ${msg.text}`;
+                messageContentDiv.appendChild(msgP);
+            });
+
+            if (qnaMessagesContainer) {
+                qnaMessagesContainer.appendChild(card);
+            }
+
+            const sendReplyBtn = card.querySelector('.send-reply-btn');
+            const replyInput = card.querySelector('.reply-input');
+            const markAsReadBtn = card.querySelector('.mark-as-read-btn');
+
+            if (sendReplyBtn) sendReplyBtn.addEventListener('click', () => window.sendReply(docId, replyInput.value));
+            if (markAsReadBtn) markAsReadBtn.addEventListener('click', () => window.toggleReadStatus(docId, !data.is_read));
+        };
+
+        window.loadQAMessages = function() {
+            const qnaMessagesContainer = document.getElementById('qna-messages-list');
+            if (!window.firestoreDb || !window.appIdGlobal) {
+                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-red-400">Mesajları yükləmək mümkün olmadı. Firebase düzgün qurulmayıb.</p>';
+                console.warn("Firestore və ya appId mövcud deyil. Mesajlar yüklənilə bilməz.");
+                return;
+            }
+
+            const q = query(collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`), orderBy("last_update", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = ''; 
+                if (snapshot.empty) {
+                    if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-gray-400 text-center">Hələ heç bir sual və ya cavab yoxdur.</p>';
+                    return;
+                }
+                snapshot.docs.forEach(doc => {
+                    window.createMessageCard(doc.id, doc.data());
+                });
+            }, (error) => {
+                console.error("Q&A mesajlarını yüklərkən xəta:", error);
+                if (qnaMessagesContainer) qnaMessagesContainer.innerHTML = '<p class="text-red-400">Mesajları yükləmə zamanı xəta baş verdi.</p>';
+            });
+        };
+
+        window.sendReply = async function(docId, replyText) {
+            if (!replyText.trim() || !window.firestoreDb || !window.appIdGlobal) return;
+
+            const docRef = doc(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`, docId);
+            
+            const docSnap = await getDocs(query(collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`), where("__name__", "==", docId)));
+            if (docSnap.empty) {
+                console.error("Sənəd tapılmadı:", docId);
+                return;
+            }
+            const currentMessages = docSnap.docs[0].data().messages || [];
+
+            currentMessages.push({ role: "admin_reply", text: replyText.trim(), timestamp: Timestamp.now() });
+
+            await updateDoc(docRef, { 
+                messages: currentMessages,
+                is_read: true, 
+                last_update: Timestamp.now()
+            });
+
+            const replyInput = document.querySelector(`.message-card[data-doc-id="${docId}"] .reply-input`);
+            if (replyInput) replyInput.value = '';
+        };
+
+        window.toggleReadStatus = async function(docId, isRead) {
+            if (!window.firestoreDb || !window.appIdGlobal) return;
+            const docRef = doc(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`, docId);
+            await updateDoc(docRef, { 
+                is_read: isRead,
+                last_update: Timestamp.now()
+            });
+        };
+
+    </script>
+
+    <!-- Başlıq hissəsi -->
+    <header class="bg-gray-900 shadow-lg py-4 fixed w-full z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="img/logo.png" alt="AxtarGet Logosu" class="rounded-full shadow-md w-10 h-10 object-cover">
+                <a href="https://axtarget.xyz" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+            </div>
+            <nav class="hidden md:flex space-x-8">
+                <a href="index.html#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
+                <a href="index.html#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
+                <a href="xidmet-axtarisi.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Xidmət Axtarışı</a>
+                <a href="admin.html" class="text-green-400 transition-colors duration-300 font-semibold">Admin</a>
+                <a href="index.html#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
+                <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 hover-grow">
+                    <i class="fab fa-telegram-plane text-lg"></i>
+                    <span>Botu İndi Sına</span>
+                </a>
+            </nav>
+            <!-- Mobil Menyü Düyməsi -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            </button>
+        </div>
+        <!-- Mobil Menyü -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
+            <a href="index.html#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
+            <a href="index.html#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
+            <a href="xidmet-axtarisi.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Xidmət Axtarışı</a>
+            <a href="admin.html" class="block px-4 py-2 text-green-400 hover:bg-gray-700 font-semibold">Admin</a>
+            <a href="index.html#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
+            <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
+        </div>
+    </header>
+
+    <main class="min-h-screen flex items-center justify-center text-center px-4 bg-gray-900 pt-24 pb-8">
+        <div id="admin-content" class="bg-gray-800 p-8 md:p-12 rounded-lg shadow-xl max-w-2xl mx-auto border border-green-600 hidden">
+            <h1 class="text-4xl font-bold mb-6 text-green-400">Admin Paneli</h1>
+            <p class="text-lg leading-relaxed mb-8 text-gray-300">
+                AxtarGet Botunun admin paneli.
+            </p>
+
+            <div class="space-y-8 text-left">
+                <!-- İstifadəçi Sayı -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-white mb-4">Ümumi İstifadəçi Sayı: <span id="user-count" class="text-green-400">Yüklənir...</span></h3>
+                    <p class="text-lg text-gray-300">
+                        Bu, Firebase Firestore-da qeydə alınmış unikal istifadəçi ID-lərinin sayıdır.
+                        Hər dəfə yeni bir istifadəçi vebsayta daxil olduqda və ya AI söhbətindən istifadə etdikdə, onların anonim ID-si qeydə alınır.
+                    </p>
+                    <p class="text-gray-400 mt-2">
+                        *Qeyd: Bu, vebsayta daxil olan unikal istifadəçilərin sayını əks etdirir, Telegram botunuzdakı istifadəçi sayından fərqli ola bilər.*
+                    </p>
+                </div>
+
+                <!-- Gələn Mesajlar -->
+                <div>
+                    <h3 class="text-2xl font-semibold text-white mb-4">Gələn Mesajlar:</h3>
+                    <div id="qna-messages-list" class="bg-gray-700 p-4 rounded-lg max-h-96 overflow-y-auto border border-gray-600">
+                        <!-- Mesajlar buraya JavaScript tərəfindən yüklənəcək -->
+                        <p class="text-gray-400 text-center">Mesajlar yüklənir...</p>
+                    </div>
+                    <p class="text-gray-400 mt-4">
+                        *Mesajlara buradan cavab yaza bilərsiniz. Cavablarınız Firestore-a saxlanacaq və istifadəçi tərəfindən vebsayt söhbət pəncərəsində görünəcək.*
+                    </p>
+                </div>
+
+                <a href="index.html" class="inline-flex items-center px-8 py-4 bg-gray-700 text-white text-xl font-semibold rounded-full shadow-lg hover:bg-gray-600 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50 mt-4">
+                    <i class="fas fa-home mr-3 text-xl"></i>
+                    Əsas Səhifəyə Qayıt
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Şifrə Modalı -->
+    <div id="password-modal" class="hidden">
+        <div class="modal-content w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-6 text-green-400">Admin Girişi</h2>
+            <input type="password" id="password-input" placeholder="Şifrəni daxil edin" class="w-full p-3 mb-4 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
+            <button id="login-button" class="w-full px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg font-semibold">
+                Daxil Ol
+            </button>
+            <p id="error-message" class="text-red-500 mt-4 hidden">Yanlış şifrə. Zəhmət olmasa yenidən cəhd edin.</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-8 text-center text-gray-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p>&copy; 2025 AxtarGet Bot. Bütün hüquqlar qorunur.</p>
+            <p class="mt-2 text-sm">Created by Ibadulla Hasanov</p>
+        </div>
+    </footer>
+
+    <!-- Əsas JavaScript -->
+    <script>
+        // Admin Girişi Məntiqi
+        const correctPassword = "1213İbad_"; // Şifrə
+        const passwordModal = document.getElementById('password-modal');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-button');
+        const errorMessage = document.getElementById('error-message');
+        const adminContent = document.getElementById('admin-content');
+        const userCountSpan = document.getElementById('user-count');
+        const qnaMessagesContainer = document.getElementById('qna-messages-list');
+
+
+        // Səhifə yükləndikdə modalı göstər
+        document.addEventListener('DOMContentLoaded', () => {
+            passwordModal.classList.remove('hidden');
+            passwordInput.focus(); // Input sahəsinə fokuslan
+        });
+
+        function checkPassword() {
+            if (passwordInput.value === correctPassword) {
+                passwordModal.classList.add('hidden');
+                adminContent.classList.remove('hidden'); // Admin panelini göstər
+                // Firebase dəyişənləri mövcud olduqdan sonra admin funksionallığını başlat
+                // `window.firebaseApp` kimi qlobal dəyişənlərin moduldan yükləndiyini gözləyirik.
+                if (window.firebaseApp && window.firestoreDb && window.firebaseAuth && window.appIdGlobal) {
+                    window.initAdminPanel();
+                } else {
+                    console.warn("Firebase hazır deyil, admin paneli tam işləməyə bilər. Bir az gözlənilir...");
+                    // Bir az gözləyib yenidən cəhd edin
+                    setTimeout(() => {
+                        if (window.firebaseApp && window.firestoreDb && window.firebaseAuth && window.appIdGlobal) {
+                            window.initAdminPanel();
+                        } else {
+                            qnaMessagesContainer.innerHTML = '<p class="text-red-400">Firebase yüklənmədi. Admin paneli işləmir.</p>';
+                            userCountSpan.textContent = 'Xəta!';
+                        }
+                    }, 2000); // 2 saniyə gözlə
+                }
+            } else {
+                errorMessage.classList.remove('hidden');
+                passwordInput.value = ''; // Şifrəni təmizlə
+                passwordInput.focus(); // Yenidən fokuslan
+            }
+        }
+
+        loginButton.addEventListener('click', checkPassword);
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Navbar linkləri (admin.html üçün nisbi yollar)
+        document.querySelectorAll('nav a').forEach(link => {
+            // Əgər link mövcud səhifəyə (admin.html) aid deyilsə və anchor linkidirsə
+            if (link.getAttribute('href').startsWith('index.html#') || link.getAttribute('href').startsWith('xidmet-axtarisi.html') || link.getAttribute('href').startsWith('https://t.me/')) {
+                 link.addEventListener('click', function(e) {
+                    // Yalnız daxili linklər üçün preventDefault (Telegram linki üçün yox)
+                    if (this.getAttribute('href').startsWith('index.html#') || this.getAttribute('href').startsWith('xidmet-axtarisi.html')) {
+                        e.preventDefault();
+                        window.location.href = this.getAttribute('href');
+                    }
+                    // Mobil menyunu bağla (əgər açıqdırsa)
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            }
+        });
+
+        // Mobil menyunu aç/bağla
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Admin Paneli funksionallığını başladan funksiya
+        window.initAdminPanel = function() {
+            console.log("Admin Paneli funksionallığı başladılır...");
+            window.loadQAMessages(); // Mesajları yüklə
+            window.loadUserCount(); // İstifadəçi sayını yüklə
+        };
+
+        // İstifadəçi sayını yükləmək üçün funksiya
+        window.loadUserCount = async function() {
+            if (!window.firestoreDb || !window.appIdGlobal) {
+                if (userCountSpan) userCountSpan.textContent = 'Xəta!';
+                console.warn("Firestore və ya appId mövcud deyil. İstifadəçi sayı yüklənilə bilməz.");
+                return;
+            }
+            try {
+                // Söhbət sənədlərindən unikal istifadəçi ID-lərini toplayırıq
+                const qnaCollectionRef = collection(window.firestoreDb, `artifacts/${window.appIdGlobal}/public/data/qna_messages`);
+                const snapshot = await getDocs(qnaCollectionRef);
+                const uniqueUserIds = new Set();
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId) {
+                        uniqueUserIds.add(data.userId);
+                    }
+                });
+                if (userCountSpan) userCountSpan.textContent = uniqueUserIds.size;
+            } catch (error) {
+                console.error("İstifadəçi sayı yüklənərkən xəta:", error);
+                if (userCountSpan) userCountSpan.textContent = 'Xəta!';
+            }
+        };
+
+    </script>
+</body>
+</html>
