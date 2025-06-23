@@ -628,9 +628,10 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
-                // Close modal immediately, then reload after a short delay
-                closeAuthModal(); 
-                setTimeout(() => { 
+                // Modalı bağla və səhifəni yenilə
+                // Giriş statusunun tam yenilənməsi üçün səhifəni yeniləyirik
+                setTimeout(() => { // Qısa gecikmə, alert mesajının görünməsi üçün
+                    closeAuthModal(); 
                     window.location.reload(); // Səhifəni yeniləyin ki, Firebase statusu yenilənsin
                 }, 500); // 0.5 saniyəlik gecikmə
                 
