@@ -114,10 +114,10 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase konfiqurasiyası - provided by the user
+        // Firebase konfiqurasiyası
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
@@ -150,6 +150,7 @@
             alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
             alertBox.textContent = message;
             
+            // Mövcud alertləri silin (təkrar görünüşlərin qarşısını almaq üçün)
             const existingAlerts = document.querySelectorAll('.alert-message');
             existingAlerts.forEach(alert => alert.remove());
 
@@ -199,18 +200,17 @@
                 const user = userCredential.user;
 
                 // Firestore-a istifadəçi adı əlavə et (users kolleksiyasında)
-                await setDoc(doc(db, `users`, user.uid), { // users kolleksiyası Firebase konsolunda təhlükəsizlik qaydalarına uyğun olmalıdır
+                await setDoc(doc(db, `users`, user.uid), {
                     username: username,
                     email: email,
                     createdAt: new Date()
                 });
 
                 showAlert("Uğurla qeydiyyatdan keçdiniz! Yönləndirilirsiniz...", 'success');
-                // Qeydiyyatdan sonra avtomatik giriş edin və əsas səhifəyə yönləndirin
-                // signInWithEmailAndPassword(auth, email, password) artıq userCredential tərəfindən idarə olunur.
+                // Qısa gecikmə ilə yönləndir
                 setTimeout(() => {
                     window.location.href = 'share-business.html'; // Biznes paylaşım səhifəsinə yönləndir
-                }, 1500);
+                }, 1000); // 1 saniyə gecikmə
 
             } catch (error) {
                 console.error("Qeydiyyat xətası:", error);
