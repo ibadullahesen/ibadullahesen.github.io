@@ -192,49 +192,6 @@
             margin-top: 5px;
             text-align: right;
         }
-
-        /* Auth Modal Styles */
-        .auth-modal-content {
-            background-color: #2d3748;
-            margin: auto;
-            padding: 20px;
-            border-radius: 0.75rem;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        /* Profile Dropdown Styles */
-        .profile-dropdown {
-            position: absolute;
-            top: 60px; /* Adjust as needed based on header height */
-            right: 1rem;
-            background-color: #2d3748;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            z-index: 100;
-            width: 200px;
-        }
-        .profile-initials {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #10b981;
-            color: white;
-            font-weight: bold;
-            font-size: 1.25rem;
-            cursor: pointer;
-            transition: transform 0.2s ease-in-out;
-            margin-left: 1rem; /* Adjust spacing from right nav items */
-        }
-        .profile-initials:hover {
-            transform: scale(1.1);
-        }
     </style>
 </head>
 <body class="relative">
@@ -249,12 +206,9 @@
             <nav class="hidden md:flex space-x-8 items-center">
                 <a href="index.html#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
                 <a href="index.html#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
-                <!-- "Xidmət Axtarışı" linki ləğv edildi -->
                 <a href="share-business.html" class="text-green-400 font-semibold transition-colors duration-300">Biznesini Paylaş</a>
-                <!-- "Admin" linki ləğv edildi -->
                 <a href="index.html#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
-                <!-- Profile Initials/Button added here -->
-                <div id="profile-initials" class="profile-initials ml-4 hidden">U</div> 
+                <!-- Profile Initials/Button removed -->
             </nav>
             <!-- Mobil Menyü Düyməsi -->
             <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
@@ -265,22 +219,13 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
             <a href="index.html#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
             <a href="index.html#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
-            <!-- "Xidmət Axtarışı" linki mobil menyudan ləğv edildi -->
             <a href="share-business.html" class="block px-4 py-2 text-green-400 font-semibold hover:bg-gray-700">Biznesini Paylaş</a>
-            <!-- "Admin" linki mobil menyudan ləğv edildi -->
             <a href="index.html#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
             <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
         </div>
     </header>
 
-    <!-- User Profile Dropdown -->
-    <div id="user-profile-dropdown" class="profile-dropdown hidden">
-        <p class="text-white text-lg font-semibold mb-2" id="dropdown-username"></p>
-        <p class="text-gray-400 text-sm mb-4" id="dropdown-email"></p>
-        <button id="logout-button" class="w-full py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-300">
-            Çıxış Et
-        </button>
-    </div>
+    <!-- User Profile Dropdown removed -->
 
     <!-- Biznesini Paylaş Forması Bölməsi -->
     <section id="share-form-section" class="flex-grow flex items-center justify-center py-20 px-4 bg-gray-800" style="padding-top: 8rem;">
@@ -428,38 +373,10 @@
         </div>
     </div>
 
-    <!-- Auth Modal (İndi yalnız Giriş Üçündür) -->
-    <div id="auth-modal" class="modal hidden">
-        <div class="auth-modal-content">
-            <span class="close-button" id="close-auth-modal">&times;</span>
-            <h3 class="text-2xl font-bold text-white mb-6 text-center">Daxil Ol</h3>
-            <form id="auth-form" class="space-y-4">
-                <div>
-                    <label for="auth-email" class="block text-white text-lg font-semibold mb-2">E-poçt</label>
-                    <input type="email" id="auth-email" placeholder="E-poçt ünvanınız" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
-                </div>
-                <div>
-                    <label for="auth-password" class="block text-white text-lg font-semibold mb-2">Şifrə</label>
-                    <input type="password" id="auth-password" placeholder="Şifrəniz" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
-                </div>
-                <button type="submit" id="login-button" class="w-full py-3 bg-green-600 text-white text-xl font-semibold rounded-lg shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
-                    Daxil Ol
-                </button>
-                <p class="text-center text-gray-400 mt-4">
-                    Hesabınız yoxdur? <a href="register.html" class="link-text">Qeydiyyatdan Keçin</a>
-                </p>
-                <div id="auth-loading-indicator" class="hidden mt-4 text-center text-green-400">
-                    <i class="fas fa-spinner fa-spin mr-2"></i> Yüklənir...
-                </div>
-            </form>
-        </div>
-    </div>
-
-
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; // signOut əlavə edildi
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
         import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Firebase konfiqurasiyası - provided by the user
@@ -514,22 +431,6 @@
         const postCommentBtn = document.getElementById('post-comment-btn');
         let currentBusinessId = null; // Currently viewed business for comments
 
-        // Auth Modal Elements
-        const authModal = document.getElementById('auth-modal');
-        const closeAuthModalButton = document.getElementById('close-auth-modal');
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
-        const loginButton = document.getElementById('login-button');
-        const authLoadingIndicator = document.getElementById('auth-loading-indicator');
-
-        // Profile Elements
-        const profileInitials = document.getElementById('profile-initials');
-        const userProfileDropdown = document.getElementById('user-profile-dropdown');
-        const dropdownUsername = document.getElementById('dropdown-username');
-        const dropdownEmail = document.getElementById('dropdown-email');
-        const logoutButton = document.getElementById('logout-button');
-
-
         // Custom Alert Function (instead of alert())
         function showAlert(message, type = 'error') {
             const alertBox = document.createElement('div');
@@ -557,25 +458,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                // İstifadəçi adını və e-poçtunu yalnız anonim olmayan istifadəçilər üçün yüklə
-                if (!user.isAnonymous) {
-                    const userDocRef = doc(db, 'users', user.uid);
-                    const userDocSnap = await getDoc(userDocRef);
-                    if (userDocSnap.exists()) {
-                        currentUserName = userDocSnap.data().username;
-                    } else {
-                        // Əgər user sənədi yoxdursa, UID-dən istifadəçi adı yarat (daha aydın olmaq üçün)
-                        currentUserName = "İstifadəçi " + user.uid.substring(0, 6); // UID-nin ilk 6 simvolu
-                    }
-                    // Update profile initials and show
-                    profileInitials.textContent = currentUserName.charAt(0).toUpperCase();
-                    profileInitials.classList.remove('hidden');
-                    dropdownUsername.textContent = currentUserName;
-                    dropdownEmail.textContent = user.email;
-                } else {
-                    currentUserName = "Anonim İstifadəçi";
-                    profileInitials.classList.add('hidden'); // Hide for anonymous users
-                }
+                currentUserName = "Anonim İstifadəçi " + user.uid.substring(0, 6); // Anonim istifadəçilər üçün ad
                 
                 console.log("Firebase Authentication successful. User ID:", currentUserId, "Username:", currentUserName);
                 // Load businesses after successful authentication
@@ -583,9 +466,8 @@
             } else {
                 console.log("Firebase Authentication failed. Attempting anonymous sign-in.");
                 currentUserId = null;
-                currentUserName = "Anonim İstifadəçi";
-                profileInitials.classList.add('hidden'); // Hide for logged out users
-                userProfileDropdown.classList.add('hidden'); // Hide dropdown if user logs out
+                currentUserName = "Anonim İstifadəçi"; // İstifadəçi adı
+                
                 // If no user is signed in, attempt anonymous sign-in
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in error:", error);
@@ -594,76 +476,17 @@
             }
         });
 
-        // Open/Close Auth Modal
-        function openAuthModal() {
-            authModal.classList.remove('hidden');
-        }
-
-        function closeAuthModal() {
-            authModal.classList.add('hidden');
-            authEmailInput.value = '';
-            authPasswordInput.value = '';
-            authLoadingIndicator.classList.add('hidden');
-            loginButton.disabled = false;
-        }
-
-        closeAuthModalButton.addEventListener('click', closeAuthModal);
-        authModal.addEventListener('click', (event) => {
-            if (event.target === authModal) {
-                closeAuthModal();
-            }
-        });
-
-        // Login Button Click Handler
-        loginButton.addEventListener('click', async (e) => {
-            e.preventDefault(); // Prevent form submission
-
-            const email = authEmailInput.value.trim();
-            const password = authPasswordInput.value.trim();
-
-            if (!email || !password) {
-                showAlert("E-poçt və şifrə boş ola bilməz.", 'error');
-                return;
-            }
-
-            authLoadingIndicator.classList.remove('hidden');
-            loginButton.disabled = true;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showAlert("Uğurla daxil oldunuz!", 'success');
-                console.log("Giriş uğurludur. Modalı bağlayır və səhifəni yeniləyir.");
-                // Modalı dərhal bağla
-                closeAuthModal(); 
-                // Səhifəni qısa gecikmədən sonra yeniləyin ki, Firebase statusu yenilənsin
-                setTimeout(() => { 
-                    window.location.reload(); 
-                }, 500); // 0.5 saniyəlik gecikmə
-                
-            } catch (error) {
-                console.error("Giriş xətası:", error); // Check console for more details on the error
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
-                    showAlert("Yanlış e-poçt və ya şifrə. Zəhmət olmasa, düzgün daxil edin.", 'error');
-                } else {
-                    showAlert("Giriş zamanı xəta baş verdi: " + error.message, 'error');
-                }
-            } finally {
-                authLoadingIndicator.classList.add('hidden');
-                loginButton.disabled = false;
-            }
-        });
-
-
         // Business Share Form Submission Handler
         businessShareForm.addEventListener('submit', async function(e) {
             e.preventDefault(); // Prevent page reload
 
-            // Proceed only if user is authenticated (anonymous is okay for viewing, but not for sharing)
-            if (!auth.currentUser || auth.currentUser.isAnonymous) {
-                openAuthModal();
-                showAlert("Biznes paylaşmaq üçün daxil olmalısınız.", 'error');
-                return;
+            // Artıq qeydiyyat/giriş tələbi yoxdur, sadəcə anonim daxil olub-olmadığını yoxlayırıq.
+            if (!auth.currentUser) { // Anonim daxil olub-olmadığını yoxlayın
+                 showAlert("Məlumat paylaşmaq üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
+                 console.error("Sistemdə autentifikasiya olunmuş istifadəçi yoxdur.");
+                 return;
             }
+
 
             // Validate form fields
             const businessName = businessNameInput.value.trim();
@@ -672,14 +495,14 @@
             const businessAbout = businessAboutTextarea.value.trim();
             const contactNumber = contactNumberInput.value.trim();
             const instagramLink = instagramLinkInput.value.trim();
-            const termsAccepted = termsCheckbox.checked;
+            const termsCheckbox = document.getElementById('terms-checkbox');
 
             if (!businessName || !businessCategory || !businessRegion || !businessAbout || !contactNumber) {
                 showAlert("Please fill in all required fields.", 'error');
                 return;
             }
 
-            if (!termsAccepted) {
+            if (!termsCheckbox.checked) {
                 showAlert("You must accept the terms to share your business.", 'error');
                 return;
             }
@@ -779,10 +602,9 @@
             // Like Button
             businessPostsContainer.querySelectorAll('.like-button').forEach(button => {
                 button.onclick = async (e) => {
-                    // Only authenticated users can like
-                    if (!auth.currentUser || auth.currentUser.isAnonymous) {
-                        openAuthModal();
-                        showAlert("Biznesi bəyənmək üçün daxil olmalısınız.", 'error');
+                    // Anonim istifadəçilər də bəyənə bilər
+                    if (!auth.currentUser) { 
+                        showAlert("Biznesi bəyənmək üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
                         return;
                     }
 
@@ -806,10 +628,9 @@
             // Comment Button
             businessPostsContainer.querySelectorAll('.comment-button').forEach(button => {
                 button.onclick = async (e) => {
-                    // Only authenticated users can comment
-                    if (!auth.currentUser || auth.currentUser.isAnonymous) {
-                        openAuthModal();
-                        showAlert("Şərh yazmaq üçün daxil olmalısınız.", 'error');
+                    // Anonim istifadəçilər də şərh yaza bilər
+                    if (!auth.currentUser) { 
+                        showAlert("Şərh yazmaq üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
                         return;
                     }
                     currentBusinessId = e.currentTarget.dataset.id;
@@ -833,14 +654,10 @@
                                 url: shareUrl,
                             });
                             console.log('Successfully shared');
-                        } catch (error) {
-                            console.error('Sharing failed:', error);
-                            showAlert('Sharing failed.', 'error');
                         }
-                    } else {
-                        // Fallback if Web Share API is not supported
-                        const shareText = `Discover ${businessName} on AxtarGet Bot! ${businessAbout}. More details: ${shareUrl}`;
-                        prompt("You can copy and share this link:", shareText);
+                    } catch (error) {
+                        console.error('Sharing failed:', error);
+                        showAlert('Sharing failed.', 'error');
                     }
                 };
             });
@@ -886,11 +703,10 @@
                 return;
             }
 
-            // Only authenticated users can comment
-            if (!auth.currentUser || auth.currentUser.isAnonymous) {
-                showAlert("Şərh yazmaq üçün daxil olmalısınız.", 'error');
-                commentModal.classList.add('hidden'); // Close modal
-                openAuthModal(); // Open authentication modal
+            // Anonim istifadəçilər də şərh yaza bilər
+            if (!auth.currentUser) { 
+                showAlert("Şərh yazmaq üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
+                commentModal.classList.add('hidden'); 
                 return;
             }
 
@@ -934,33 +750,6 @@
                 behavior: 'smooth'
             });
         });
-
-        // Profile Initials click to toggle dropdown
-        profileInitials.addEventListener('click', (event) => {
-            event.stopPropagation(); // Prevent document click from immediately closing
-            userProfileDropdown.classList.toggle('hidden');
-        });
-
-        // Logout Button click
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showAlert("Uğurla çıxış etdiniz!", 'success');
-                userProfileDropdown.classList.add('hidden'); // Hide dropdown
-                window.location.reload(); // Reload page to reflect logout state
-            } catch (error) {
-                console.error("Çıxış zamanı xəta:", error);
-                showAlert("Çıxış zamanı xəta baş verdi.", 'error');
-            }
-        });
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', (event) => {
-            if (!userProfileDropdown.contains(event.target) && !profileInitials.contains(event.target)) {
-                userProfileDropdown.classList.add('hidden');
-            }
-        });
-
 
         // Smooth scrolling for header navigation links (mainly for returning to main page sections)
         document.querySelectorAll('a[href^="index.html#"]').forEach(anchor => {
