@@ -575,7 +575,11 @@
                 // E-poçt təsdiqi ləğv edildiyi üçün burada yoxlanılmır.
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
-                closeAuthModal(); // Modalı bağla
+                // Modalı bağla və səhifəni yenilə
+                setTimeout(() => {
+                    closeAuthModal(); 
+                    window.location.reload(); 
+                }, 1000); // 1 saniyəlik gecikmə
             } catch (error) {
                 console.error("Giriş xətası:", error); // Check console for more details on the error
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
