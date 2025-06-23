@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AxtarGet Bot - Admin Paneli</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Tünd qara/boz fon */
+            color: #e2e8f0; /* Kontrast üçün açıq boz mətn */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .admin-container {
+            background-color: #2d3748;
+            padding: 2.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.25);
+            max-width: 800px;
+            width: 95%;
+            border: 1px solid #10b981;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            background-color: #4a5568;
+            color: #e2e8f0;
+            border: 1px solid #6b7280;
+            focus:outline-none focus:ring-2 focus:ring-green-500;
+        }
+        .submit-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            background-color: #10b981;
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+        .submit-button:hover {
+            background-color: #059669;
+        }
+        .alert-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #dc2626; /* Red background */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .alert-message.show {
+            opacity: 1;
+        }
+        .business-item {
+            background-color: #1a202c;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            border: 1px solid #4a5568;
+            transition: background-color 0.2s ease;
+        }
+        .business-item:hover {
+            background-color: #2d3748;
+        }
+        .details-modal {
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .details-modal-content {
+            background-color: #2d3748;
+            margin: auto;
+            padding: 20px;
+            border-radius: 0.75rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .modal-close-button:hover {
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="relative">
+
+    <div id="login-section" class="admin-container">
+        <h2 class="text-3xl font-bold text-center text-white mb-8">Admin Paneli Girişi</h2>
+        <form id="admin-login-form" class="space-y-5">
+            <div>
+                <label for="password-input" class="block text-white text-lg font-semibold mb-2">Şifrə</label>
+                <input type="password" id="password-input" placeholder="Şifrənizi daxil edin" class="input-field">
+            </div>
+            <button type="submit" id="login-button" class="submit-button">Daxil Ol</button>
+        </form>
+        <p id="login-error-message" class="text-red-400 text-center mt-4 hidden">Yanlış şifrə.</p>
+    </div>
+
+    <div id="admin-panel-section" class="admin-container hidden">
+        <h2 class="text-3xl font-bold text-center text-white mb-8">Gözləmədə Olan Bizneslər</h2>
+        <div id="pending-businesses-list" class="space-y-3">
+            <!-- Pending businesses will be loaded here -->
+            <p class="text-center text-gray-400">Yüklənir...</p>
+        </div>
+        <p id="no-pending-businesses" class="text-center text-gray-400 text-xl mt-8 hidden">
+            Gözləmədə olan biznes yoxdur.
+        </p>
+    </div>
+
+    <!-- Business Details Modal -->
+    <div id="business-details-modal" class="details-modal hidden">
+        <div class="details-modal-content">
+            <span class="modal-close-button" id="details-modal-close">&times;</span>
+            <h3 class="text-2xl font-bold text-white mb-4" id="detail-business-name"></h3>
+            <div class="space-y-3 text-gray-300">
+                <p><strong>Göndərən İstifadəçi:</strong> <span id="detail-username"></span> (<span id="detail-userid"></span>)</p>
+                <p><strong>E-poçt:</strong> <span id="detail-email"></span></p>
+                <p><strong>Kateqoriya:</strong> <span id="detail-category"></span></p>
+                <p><strong>Bölgə:</strong> <span id="detail-region"></span></p>
+                <p><strong>Əlaqə Nömrəsi:</strong> <span id="detail-contact"></span></p>
+                <p><strong>Instagram Linki:</strong> <a id="detail-instagram" class="text-blue-400 hover:underline" target="_blank"></a></p>
+                <p><strong>Haqqında:</strong> <span id="detail-about"></span></p>
+                <p><strong>Göndərilmə Tarixi:</strong> <span id="detail-created-at"></span></p>
+                <p><strong>Hazırkı Status:</strong> <span id="detail-status"></span></p>
+            </div>
+            <div class="flex justify-end space-x-4 mt-6">
+                <button id="approve-button" class="submit-button bg-green-600 hover:bg-green-700">Təsdiqlə</button>
+                <button id="delete-button" class="submit-button bg-red-600 hover:bg-red-700">Sil</button>
+            </div>
+            <div id="action-loading-indicator" class="hidden mt-4 text-center text-green-400">
+                <i class="fas fa-spinner fa-spin mr-2"></i> Əməliyyat aparılır...
+            </div>
+        </div>
+    </div>
+
+    <div id="alert-container"></div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, query, where, onSnapshot, doc, getDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase konfiqurasiyası
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+            authDomain: "axtargetbotwebsite.firebaseapp.com",
+            projectId: "axtargetbotwebsite",
+            storageBucket: "axtargetbotwebsite.firebasestorage.app",
+            messagingSenderId: "808698399196",
+            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
+            measurementId: "G-VLWZG4Q5TD"
+        };
+        const firebaseProjectId = firebaseConfig.projectId;
+
+        // Firebase-i Başlat
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Admin şifrəsi (Çox Təhlükəsiz deyil, yalnız client-side qorumadır)
+        const ADMIN_PASSWORD = "0606006162..1";
+        // Admin hesabı e-poçtu (Firestore qaydaları üçün istifadə olunur)
+        // Bu e-poçt Firebase Authentication-da qeydiyyatlı olmalı və Firestore users/{uid} sənədində isAdmin: true olmalıdır.
+        const ADMIN_EMAIL = "admin@axtarget.com"; // Buraya öz admin e-poçtunuzu yazın
+
+        // DOM Elementləri
+        const loginSection = document.getElementById('login-section');
+        const adminPanelSection = document.getElementById('admin-panel-section');
+        const passwordInput = document.getElementById('password-input');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const loginErrorMessage = document.getElementById('login-error-message');
+        const pendingBusinessesList = document.getElementById('pending-businesses-list');
+        const noPendingBusinessesMessage = document.getElementById('no-pending-businesses');
+
+        const businessDetailsModal = document.getElementById('business-details-modal');
+        const detailsModalCloseButton = document.getElementById('details-modal-close');
+        const detailBusinessName = document.getElementById('detail-business-name');
+        const detailUsername = document.getElementById('detail-username');
+        const detailUserid = document.getElementById('detail-userid');
+        const detailEmail = document.getElementById('detail-email');
+        const detailCategory = document.getElementById('detail-category');
+        const detailRegion = document.getElementById('detail-region');
+        const detailContact = document.getElementById('detail-contact');
+        const detailInstagram = document.getElementById('detail-instagram');
+        const detailAbout = document.getElementById('detail-about');
+        const detailCreatedAt = document.getElementById('detail-created-at');
+        const detailStatus = document.getElementById('detail-status');
+        const approveButton = document.getElementById('approve-button');
+        const deleteButton = document.getElementById('delete-button');
+        const actionLoadingIndicator = document.getElementById('action-loading-indicator');
+
+        // Custom Alert Funksiyası
+        function showAlert(message, type = 'error') {
+            const alertBox = document.createElement('div');
+            alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
+            alertBox.textContent = message;
+            
+            const existingAlerts = document.querySelectorAll('.alert-message');
+            existingAlerts.forEach(alert => alert.remove());
+
+            if (type === 'success') {
+                alertBox.classList.remove('bg-red-600');
+                alertBox.classList.add('bg-green-600');
+            }
+            document.body.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.classList.add('show');
+            }, 10);
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+                alertBox.addEventListener('transitionend', () => alertBox.remove(), { once: true });
+            }, 3000);
+        }
+
+        let currentAdminUser = null; // Firebase tərəfindən autentifikasiya olunmuş admin istifadəçisi
+
+        // Admin Login
+        adminLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = passwordInput.value.trim();
+
+            if (password !== ADMIN_PASSWORD) {
+                loginErrorMessage.classList.remove('hidden');
+                showAlert("Yanlış şifrə.", 'error');
+                return;
+            } else {
+                loginErrorMessage.classList.add('hidden');
+            }
+
+            // Client-side şifrə yoxlamasından sonra Firebase ilə admin kimi daxil ol
+            try {
+                // ADMIN_EMAIL vasitəsilə daxil olmaq üçün Firebase Authentication-da bu e-poçt qeydiyyatlı olmalıdır
+                // və bu e-poçtun şifrəsini də buraya yazmalısınız.
+                // Qeyd: Bu şifrə kodda açıq şəkildə görünməməlidir! Bu, təhlükəsizlik zəifliyidir.
+                // Daha təhlükəsiz bir yanaşma üçün Firebase Admin SDK və ya Cloud Functions istifadə olunmalıdır.
+                await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD); // DİQQƏT: Buraya ADMIN_EMAIL-in şifrəsini daxil etməlisiniz!
+                
+                // Admin kimi daxil olduqdan sonra, istifadəçinin admin olub olmadığını yoxlayın
+                onAuthStateChanged(auth, async (user) => {
+                    if (user && user.email === ADMIN_EMAIL) {
+                        const userDocRef = doc(db, 'users', user.uid);
+                        const userDocSnap = await getDoc(userDocRef);
+                        if (userDocSnap.exists() && userDocSnap.data().isAdmin === true) {
+                            currentAdminUser = user; // Admin kimi təyin et
+                            loginSection.classList.add('hidden');
+                            adminPanelSection.classList.remove('hidden');
+                            showAlert("Admin panelə uğurla daxil oldunuz!", 'success');
+                            loadPendingBusinesses(); // Gözləmədə olan biznesləri yüklə
+                        } else {
+                            // İstifadəçi admin deyil
+                            await auth.signOut();
+                            showAlert("Giriş uğursuz oldu: Siz admin deyilsiniz.", 'error');
+                            passwordInput.value = '';
+                        }
+                    } else if (user) {
+                        // Başqa bir istifadəçi daxil olubsa, çıxış etdir
+                        await auth.signOut();
+                        showAlert("Bu panelə yalnız adminlər daxil ola bilər.", 'error');
+                        passwordInput.value = '';
+                    }
+                });
+
+            } catch (error) {
+                console.error("Admin giriş xətası:", error);
+                showAlert("Giriş zamanı xəta baş verdi: " + error.message, 'error');
+                passwordInput.value = '';
+            }
+        });
+
+        // Gözləmədə olan biznesləri yüklə
+        function loadPendingBusinesses() {
+            pendingBusinessesList.innerHTML = '<p class="text-center text-gray-400">Yüklənir...</p>'; // Yüklənmə mesajı
+            const businessesColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`);
+            const q = query(businessesColRef, where("status", "==", "pending"));
+
+            onSnapshot(q, async (snapshot) => {
+                pendingBusinessesList.innerHTML = ''; // Mövcud məzmunu təmizlə
+                const businesses = [];
+                if (snapshot.empty) {
+                    noPendingBusinessesMessage.classList.remove('hidden');
+                } else {
+                    noPendingBusinessesMessage.classList.add('hidden');
+                    for (const docSnapshot of snapshot.docs) {
+                        const businessData = { id: docSnapshot.id, ...docSnapshot.data() };
+                        
+                        // İstifadəçi adını yüklə (əgər varsa)
+                        let userName = "Bilinməyən İstifadəçi";
+                        if (businessData.userId) {
+                            const userDocRef = doc(db, 'users', businessData.userId);
+                            const userDocSnap = await getDoc(userDocRef);
+                            if (userDocSnap.exists()) {
+                                userName = userDocSnap.data().username || `UID: ${businessData.userId.substring(0, 5)}...`;
+                            } else {
+                                userName = `Anonim UID: ${businessData.userId.substring(0, 5)}...`;
+                            }
+                        }
+                        businessData.submitterUsername = userName;
+                        businesses.push(businessData);
+                    }
+
+                    businesses.forEach(business => {
+                        const businessItem = document.createElement('div');
+                        businessItem.className = 'business-item flex justify-between items-center';
+                        businessItem.innerHTML = `
+                            <div class="flex-grow">
+                                <h3 class="text-xl font-semibold text-white uppercase">${business.businessName}</h3>
+                                <p class="text-sm text-gray-400">Kateqoriya: ${business.businessCategory} | Bölgə: ${business.businessRegion}</p>
+                                <p class="text-sm text-gray-500">Göndərən: ${business.submitterUsername}</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button data-id="${business.id}" data-action="details" class="submit-button bg-blue-600 hover:bg-blue-700 text-sm">Detallar</button>
+                            </div>
+                        `;
+                        pendingBusinessesList.appendChild(businessItem);
+                    });
+                    addAdminActionListeners(); // Detay düymələrinə dinləyiciləri əlavə et
+                }
+            }, (error) => {
+                console.error("Gözləmədə olan biznesləri yükləyərkən xəta:", error);
+                showAlert("Gözləmədə olan biznesləri yükləmək mümkün olmadı.", 'error');
+            });
+        }
+
+        // Admin hərəkət dinləyiciləri (Detaylar, Təsdiqlə, Sil)
+        function addAdminActionListeners() {
+            pendingBusinessesList.querySelectorAll('button[data-action="details"]').forEach(button => {
+                button.onclick = async (e) => {
+                    const businessId = e.currentTarget.dataset.id;
+                    await showBusinessDetails(businessId);
+                };
+            });
+        }
+
+        // Detalları göstər modal
+        async function showBusinessDetails(businessId) {
+            actionLoadingIndicator.classList.add('hidden'); // Gizlət
+            const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
+            const docSnap = await getDoc(businessRef);
+
+            if (docSnap.exists()) {
+                const business = { id: docSnap.id, ...docSnap.data() };
+                
+                // İstifadəçi adını və e-poçtunu yüklə
+                let submitterUsername = "Bilinməyən İstifadəçi";
+                let submitterEmail = "Bilinməyən E-poçt";
+
+                if (business.userId) {
+                    const userDocRef = doc(db, 'users', business.userId);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        submitterUsername = userDocSnap.data().username || `UID: ${business.userId.substring(0, 5)}...`;
+                        submitterEmail = userDocSnap.data().email || 'Yoxdur';
+                    } else {
+                        submitterUsername = `Anonim UID: ${business.userId.substring(0, 5)}...`;
+                        submitterEmail = 'Anonim (qeydiyyat yoxdur)';
+                    }
+                }
+
+                detailBusinessName.textContent = business.businessName.toUpperCase();
+                detailUsername.textContent = submitterUsername;
+                detailUserid.textContent = business.userId;
+                detailEmail.textContent = submitterEmail;
+                detailCategory.textContent = business.businessCategory;
+                detailRegion.textContent = business.businessRegion;
+                detailContact.textContent = business.contactNumber;
+                detailInstagram.textContent = business.instagramLink || 'Yoxdur';
+                if (business.instagramLink) {
+                    detailInstagram.href = business.instagramLink;
+                } else {
+                    detailInstagram.removeAttribute('href');
+                }
+                detailAbout.textContent = business.businessAbout;
+                detailCreatedAt.textContent = business.createdAt ? new Date(business.createdAt.toDate()).toLocaleString() : 'Yoxdur';
+                detailStatus.textContent = business.status;
+
+                approveButton.dataset.id = business.id;
+                deleteButton.dataset.id = business.id;
+
+                businessDetailsModal.classList.remove('hidden');
+            } else {
+                showAlert("Biznes məlumatları tapılmadı.", 'error');
+            }
+        }
+
+        // Detal modalını bağla
+        detailsModalCloseButton.addEventListener('click', () => {
+            businessDetailsModal.classList.add('hidden');
+        });
+        businessDetailsModal.addEventListener('click', (event) => {
+            if (event.target === businessDetailsModal) {
+                businessDetailsModal.classList.add('hidden');
+            }
+        });
+
+        // Biznesi Təsdiqlə düyməsi
+        approveButton.addEventListener('click', async (e) => {
+            const businessId = e.currentTarget.dataset.id;
+            actionLoadingIndicator.classList.remove('hidden');
+            approveButton.disabled = true;
+            deleteButton.disabled = true;
+
+            try {
+                const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
+                await updateDoc(businessRef, { status: 'approved' });
+                showAlert("Biznes uğurla təsdiqləndi!", 'success');
+                businessDetailsModal.classList.add('hidden'); // Modalı bağla
+            } catch (error) {
+                console.error("Biznesi təsdiqləyərkən xəta:", error);
+                showAlert("Biznesi təsdiqləyərkən xəta baş verdi.", 'error');
+            } finally {
+                actionLoadingIndicator.classList.add('hidden');
+                approveButton.disabled = false;
+                deleteButton.disabled = false;
+            }
+        });
+
+        // Biznesi Sil düyməsi
+        deleteButton.addEventListener('click', async (e) => {
+            const businessId = e.currentTarget.dataset.id;
+            actionLoadingIndicator.classList.remove('hidden');
+            approveButton.disabled = true;
+            deleteButton.disabled = true;
+
+            if (!confirm("Bu biznesi silmək istədiyinizə əminsiniz?")) { // Təsdiq sorğusu
+                actionLoadingIndicator.classList.add('hidden');
+                approveButton.disabled = false;
+                deleteButton.disabled = false;
+                return;
+            }
+
+            try {
+                const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
+                await deleteDoc(businessRef);
+                showAlert("Biznes uğurla silindi!", 'success');
+                businessDetailsModal.classList.add('hidden'); // Modalı bağla
+            } catch (error) {
+                console.error("Biznesi silərkən xəta:", error);
+                showAlert("Biznesi silərkən xəta baş verdi.", 'error');
+            } finally {
+                actionLoadingIndicator.classList.add('hidden');
+                approveButton.disabled = false;
+                deleteButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
