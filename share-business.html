@@ -426,15 +426,15 @@
         
         // Firebase konfiqurasiyası - provided by the user
         const firebaseConfig = {
-            apiKey: "AIzaSyAAbLWwzSE9WgqFKK_n9hqsl5mokZlNacM",
-            authDomain: "axtargetbot.firebaseapp.com",
-            projectId: "axtargetbot",
-            storageBucket: "axtargetbot.firebasestorage.app",
-            messagingSenderId: "509543495829",
-            appId: "1:509543495829:web:833feb9c271328f8e4039c",
-            measurementId: "G-DS98Q6L5WF"
+            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+            authDomain: "axtargetbotwebsite.firebaseapp.com",
+            projectId: "axtargetbotwebsite",
+            storageBucket: "axtargetbotwebsite.firebasestorage.app", // DİQQƏT: Bu dəyəri Firebase konsolunuzdakı Storage URL-ə uyğun dəyişdirin
+            messagingSenderId: "808698399196",
+            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
+            measurementId: "G-VLWZG4Q5TD"
         };
-        const appId = firebaseConfig.appId.split(':')[1]; // Extract app ID from the full appId string
+        const firebaseProjectId = firebaseConfig.projectId; // Firebase Project ID-ni istifadə edin
 
         // Firebase-i Başlat
         const app = initializeApp(firebaseConfig);
@@ -665,7 +665,7 @@
 
             try {
                 // Add business data to Firestore
-                await addDoc(collection(db, `artifacts/${appId}/public/data/businesses`), {
+                await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`), {
                     userId: currentUserId,
                     businessName: businessName,
                     businessCategory: businessCategory,
@@ -695,7 +695,7 @@
 
         // Load and Display Businesses from Firestore
         function loadBusinesses() {
-            const businessesColRef = collection(db, `artifacts/${appId}/public/data/businesses`);
+            const businessesColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`);
             const q = query(businessesColRef);
 
             onSnapshot(q, (snapshot) => {
@@ -760,7 +760,7 @@
                     }
 
                     const businessId = e.currentTarget.dataset.id;
-                    const businessRef = doc(db, `artifacts/${appId}/public/data/businesses`, businessId);
+                    const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
                     const docSnap = await getDoc(businessRef);
                     if (docSnap.exists()) {
                         const currentLikes = docSnap.data().likes || [];
@@ -822,7 +822,7 @@
         // Load Comments and Display in Modal
         async function loadComments(businessId) {
             modalCommentList.innerHTML = ''; // Clear comment list
-            const businessRef = doc(db, `artifacts/${appId}/public/data/businesses`, businessId);
+            const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
             const docSnap = await getDoc(businessRef);
 
             if (docSnap.exists()) {
@@ -868,7 +868,7 @@
             }
 
             try {
-                const businessRef = doc(db, `artifacts/${appId}/public/data/businesses`, currentBusinessId);
+                const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, currentBusinessId);
                 await updateDoc(businessRef, {
                     comments: arrayUnion({
                         author: auth.currentUser.email || auth.currentUser.uid, // Use user's email or UID
