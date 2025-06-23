@@ -73,14 +73,15 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <!-- Bot Logosu/Adı -->
-                <img src="img/logo.png" alt="AxtarGet Logosu" class="rounded-full shadow-md w-10 h-10 object-cover">
+                <img src="https://placehold.co/40x40/10b981/ffffff?text=AG" alt="AxtarGet Logosu" class="rounded-full shadow-md w-10 h-10 object-cover">
                 <a href="https://axtarget.xyz" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
             </div>
             <nav class="hidden md:flex space-x-8">
                 <a href="#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
                 <a href="#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
-                <a href="xidmet-axtarisi.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Xidmət Axtarışı</a>
-                <a href="admin.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Admin</a>
+                <!-- "Xidmət Axtarışı" linki ləğv edildi -->
+                <a href="share-business.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Biznesini Paylaş</a>
+                <!-- "Admin" linki ləğv edildi -->
                 <a href="#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
                 <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 hover-grow">
                     <i class="fab fa-telegram-plane text-lg"></i>
@@ -96,8 +97,9 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
             <a href="#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
             <a href="#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
-            <a href="xidmet-axtarisi.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Xidmət Axtarışı</a>
-            <a href="admin.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Admin</a>
+            <!-- "Xidmət Axtarışı" linki mobil menyudan ləğv edildi -->
+            <a href="share-business.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Biznesini Paylaş</a>
+            <!-- "Admin" linki mobil menyudan ləğv edildi -->
             <a href="#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
             <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
         </div>
@@ -193,6 +195,20 @@
                     </p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <!-- Yeni: Biznesinizi Paylaşın Bölməsi -->
+    <section id="share-business-promo" class="section-padding bg-gray-900 text-center fade-in">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold mb-8 text-green-400">Biznesinizi Bizimlə Paylaşın!</h2>
+            <p class="text-xl leading-relaxed text-gray-300 mb-6">
+                Öz xidmətinizi və ya mağazanızı AxtarGet botunun böyük istifadəçi bazası ilə paylaşın. Sizin üçün yeni müştərilərə çatmaq daha asan olacaq!
+            </p>
+            <a href="share-business.html" class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-xl font-semibold rounded-full shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
+                <i class="fas fa-share-alt mr-3 text-2xl"></i>
+                Biznesimi Paylaş
+            </a>
         </div>
     </section>
 
@@ -336,10 +352,10 @@
             messageElement.className = `chat-message ${actualSenderClass} p-3 rounded-lg max-w-full overflow-wrap break-word`;
             
             const encodedMessage = message.replace(/&/g, '&amp;')
-                                          .replace(/</g, '&lt;')
-                                          .replace(/>/g, '&gt;')
-                                          .replace(/"/g, '&quot;')
-                                          .replace(/'/g, '&#039;');
+                                     .replace(/</g, '&lt;')
+                                     .replace(/>/g, '&gt;')
+                                     .replace(/"/g, '&quot;')
+                                     .replace(/'/g, '&#039;');
 
             messageElement.innerHTML = `<span>${encodedMessage}</span>`;
             if (chatHistoryDiv) {
@@ -353,13 +369,24 @@
             const userName = userNameInput.value.trim();
             const question = userQuestionInput.value.trim();
 
+            // Custom "alert" implementation
+            function showAlert(message) {
+                const alertBox = document.createElement('div');
+                alertBox.className = 'fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red-600 text-white p-4 rounded-lg shadow-xl z-[9999]';
+                alertBox.textContent = message;
+                document.body.appendChild(alertBox);
+                setTimeout(() => {
+                    alertBox.remove();
+                }, 3000); // Remove after 3 seconds
+            }
+
             if (!userName) {
-                alert("Zəhmət olmasa, adınızı daxil edin.");
+                showAlert("Zəhmət olmasa, adınızı daxil edin.");
                 userNameInput.focus();
                 return;
             }
             if (!question) {
-                alert("Zəhmət olmasa, sualınızı yazın.");
+                showAlert("Zəhmət olmasa, sualınızı yazın.");
                 userQuestionInput.focus();
                 return;
             }
@@ -377,10 +404,10 @@
                 // Admin panelində də görünməyəcək.
                 
                 const responseMessage = `Mesajınız qəbul edildi. Tezliklə admin tərəfindən cavablandırılacaq. Təşəkkür edirik!`;
-                appendMessage(responseMessage, 'system'); 
+                appendMessage(responseMessage, 'system');
                 
                 // Məlumatı əl ilə yoxlamağınız üçün konsola yazırıq:
-                console.log(`İstifadəçi adı: ${userName}, Sual: ${question}`); 
+                console.log(`İstifadəçi adı: ${userName}, Sual: ${question}`);
 
             } catch (error) {
                 console.error("Mesaj göndərmə xətası:", error);
@@ -398,7 +425,7 @@
             chatBubble.addEventListener('click', () => {
                 chatWindow.classList.toggle('hidden');
                 if (!chatWindow.classList.contains('hidden')) {
-                    userNameInput.focus(); 
+                    userNameInput.focus();
                 }
             });
         }
