@@ -209,8 +209,9 @@
                 showAlert("Uğurla qeydiyyatdan keçdiniz! Yönləndirilirsiniz...", 'success');
                 // Qısa gecikmə ilə yönləndir
                 setTimeout(() => {
+                    console.log("Qeydiyyat uğurlu, yönləndirilir:", 'share-business.html');
                     window.location.href = 'share-business.html'; // Biznes paylaşım səhifəsinə yönləndir
-                }, 1000); // 1 saniyə gecikmə
+                }, 500); // 0.5 saniyə gecikmə
 
             } catch (error) {
                 console.error("Qeydiyyat xətası:", error);
