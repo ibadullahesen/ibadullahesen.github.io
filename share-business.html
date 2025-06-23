@@ -204,6 +204,37 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
         }
+
+        /* Profile Dropdown Styles */
+        .profile-dropdown {
+            position: absolute;
+            top: 60px; /* Adjust as needed based on header height */
+            right: 1rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            z-index: 100;
+            width: 200px;
+        }
+        .profile-initials {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #10b981;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            margin-left: 1rem; /* Adjust spacing from right nav items */
+        }
+        .profile-initials:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="relative">
@@ -215,17 +246,13 @@
                 <img src="https://placehold.co/40x40/10b981/ffffff?text=AG" alt="AxtarGet Logosu" class="rounded-full shadow-md w-10 h-10 object-cover">
                 <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
             </div>
-            <nav class="hidden md:flex space-x-8">
+            <nav class="hidden md:flex space-x-8 items-center">
                 <a href="index.html#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
                 <a href="index.html#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
-                <!-- "Xidmət Axtarışı" linki ləğv edildi -->
                 <a href="share-business.html" class="text-green-400 font-semibold transition-colors duration-300">Biznesini Paylaş</a>
-                <!-- "Admin" linki ləğv edildi -->
                 <a href="index.html#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
-                <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 hover-grow">
-                    <i class="fab fa-telegram-plane text-lg"></i>
-                    <span>Botu İndi Sına</span>
-                </a>
+                <!-- Profile Initials/Button added here -->
+                <div id="profile-initials" class="profile-initials ml-4 hidden">U</div> 
             </nav>
             <!-- Mobil Menyü Düyməsi -->
             <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
@@ -236,13 +263,20 @@
         <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
             <a href="index.html#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
             <a href="index.html#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
-            <!-- "Xidmət Axtarışı" linki mobil menyudan ləğv edildi -->
             <a href="share-business.html" class="block px-4 py-2 text-green-400 font-semibold hover:bg-gray-700">Biznesini Paylaş</a>
-            <!-- "Admin" linki mobil menyudan ləğv edildi -->
             <a href="index.html#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
             <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
         </div>
     </header>
+
+    <!-- User Profile Dropdown -->
+    <div id="user-profile-dropdown" class="profile-dropdown hidden">
+        <p class="text-white text-lg font-semibold mb-2" id="dropdown-username"></p>
+        <p class="text-gray-400 text-sm mb-4" id="dropdown-email"></p>
+        <button id="logout-button" class="w-full py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-300">
+            Çıxış Et
+        </button>
+    </div>
 
     <!-- Biznesini Paylaş Forması Bölməsi -->
     <section id="share-form-section" class="flex-grow flex items-center justify-center py-20 px-4 bg-gray-800" style="padding-top: 8rem;">
@@ -421,7 +455,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; // signOut əlavə edildi
         import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Firebase konfiqurasiyası - provided by the user
@@ -482,8 +516,15 @@
         const authEmailInput = document.getElementById('auth-email');
         const authPasswordInput = document.getElementById('auth-password');
         const loginButton = document.getElementById('login-button');
-        // const registerButton = document.getElementById('register-button'); // Qeydiyyat düyməsi modalda ləğv edildi
         const authLoadingIndicator = document.getElementById('auth-loading-indicator');
+
+        // Profile Elements
+        const profileInitials = document.getElementById('profile-initials');
+        const userProfileDropdown = document.getElementById('user-profile-dropdown');
+        const dropdownUsername = document.getElementById('dropdown-username');
+        const dropdownEmail = document.getElementById('dropdown-email');
+        const logoutButton = document.getElementById('logout-button');
+
 
         // Custom Alert Function (instead of alert())
         function showAlert(message, type = 'error') {
@@ -512,7 +553,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                // İstifadəçi adını yalnız anonim olmayan istifadəçilər üçün yüklə
+                // İstifadəçi adını və e-poçtunu yalnız anonim olmayan istifadəçilər üçün yüklə
                 if (!user.isAnonymous) {
                     const userDocRef = doc(db, 'users', user.uid);
                     const userDocSnap = await getDoc(userDocRef);
@@ -522,8 +563,14 @@
                         // Əgər user sənədi yoxdursa, UID-dən istifadəçi adı yarat (daha aydın olmaq üçün)
                         currentUserName = "İstifadəçi " + user.uid.substring(0, 6); // UID-nin ilk 6 simvolu
                     }
+                    // Update profile initials and show
+                    profileInitials.textContent = currentUserName.charAt(0).toUpperCase();
+                    profileInitials.classList.remove('hidden');
+                    dropdownUsername.textContent = currentUserName;
+                    dropdownEmail.textContent = user.email;
                 } else {
                     currentUserName = "Anonim İstifadəçi";
+                    profileInitials.classList.add('hidden'); // Hide for anonymous users
                 }
                 
                 console.log("Firebase Authentication successful. User ID:", currentUserId, "Username:", currentUserName);
@@ -533,6 +580,8 @@
                 console.log("Firebase Authentication failed. Attempting anonymous sign-in.");
                 currentUserId = null;
                 currentUserName = "Anonim İstifadəçi";
+                profileInitials.classList.add('hidden'); // Hide for logged out users
+                userProfileDropdown.classList.add('hidden'); // Hide dropdown if user logs out
                 // If no user is signed in, attempt anonymous sign-in
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in error:", error);
@@ -579,10 +628,9 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
-                // Modalı bağla və səhifəni yenilə
-                // Giriş statusunun tam yenilənməsi üçün səhifəni yeniləyirik
-                setTimeout(() => { // Qısa gecikmə, alert mesajının görünməsi üçün
-                    closeAuthModal(); 
+                // Close modal immediately, then reload after a short delay
+                closeAuthModal(); 
+                setTimeout(() => { 
                     window.location.reload(); // Səhifəni yeniləyin ki, Firebase statusu yenilənsin
                 }, 500); // 0.5 saniyəlik gecikmə
                 
@@ -880,6 +928,33 @@
                 behavior: 'smooth'
             });
         });
+
+        // Profile Initials click to toggle dropdown
+        profileInitials.addEventListener('click', (event) => {
+            event.stopPropagation(); // Prevent document click from immediately closing
+            userProfileDropdown.classList.toggle('hidden');
+        });
+
+        // Logout Button click
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showAlert("Uğurla çıxış etdiniz!", 'success');
+                userProfileDropdown.classList.add('hidden'); // Hide dropdown
+                window.location.reload(); // Reload page to reflect logout state
+            } catch (error) {
+                console.error("Çıxış zamanı xəta:", error);
+                showAlert("Çıxış zamanı xəta baş verdi.", 'error');
+            }
+        });
+
+        // Close dropdown if clicked outside
+        document.addEventListener('click', (event) => {
+            if (!userProfileDropdown.contains(event.target) && !profileInitials.contains(event.target)) {
+                userProfileDropdown.classList.add('hidden');
+            }
+        });
+
 
         // Smooth scrolling for header navigation links (mainly for returning to main page sections)
         document.querySelectorAll('a[href^="index.html#"]').forEach(anchor => {
