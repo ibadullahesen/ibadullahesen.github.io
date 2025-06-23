@@ -429,7 +429,7 @@
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
             projectId: "axtargetbotwebsite",
-            storageBucket: "axtargetbotwebsite.firebasestorage.app", // DİQQƏT: Bu dəyəri Firebase konsolunuzdakı Storage URL-ə uyğun dəyişdirin
+            storageBucket: "axtargetbotwebsite.firebasestorage.app", 
             messagingSenderId: "808698399196",
             appId: "1:808698399196:web:61b6be0721b94f24c3a719",
             measurementId: "G-VLWZG4Q5TD"
@@ -512,15 +512,20 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                // İstifadəçi adını Firestore-dan yüklə
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    currentUserName = userDocSnap.data().username;
+                // İstifadəçi adını yalnız anonim olmayan istifadəçilər üçün yüklə
+                if (!user.isAnonymous) {
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDocSnap = await getDoc(userDocRef);
+                    if (userDocSnap.exists()) {
+                        currentUserName = userDocSnap.data().username;
+                    } else {
+                        // Əgər user sənədi yoxdursa, UID-dən istifadəçi adı yarat
+                        currentUserName = "İstifadəçi (" + user.uid.substring(0, 5) + "...)"; 
+                    }
                 } else {
-                    currentUserName = "Anonim İstifadəçi (" + user.uid.substring(0, 5) + "...)"; // Fallback username
+                    currentUserName = "Anonim İstifadəçi";
                 }
-
+                
                 console.log("Firebase Authentication successful. User ID:", currentUserId, "Username:", currentUserName);
                 // Load businesses after successful authentication
                 loadBusinesses();
@@ -576,10 +581,12 @@
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
                 // Modalı bağla və səhifəni yenilə
-                setTimeout(() => {
+                // Giriş statusunun tam yenilənməsi üçün səhifəni yeniləyirik
+                setTimeout(() => { // Qısa gecikmə, alert mesajının görünməsi üçün
                     closeAuthModal(); 
                     window.location.reload(); 
-                }, 1000); // 1 saniyəlik gecikmə
+                }, 500); // 0.5 saniyəlik gecikmə
+                
             } catch (error) {
                 console.error("Giriş xətası:", error); // Check console for more details on the error
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
