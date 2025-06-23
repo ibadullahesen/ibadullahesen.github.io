@@ -203,7 +203,7 @@
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Biznesinizi Bizimlə Paylaşın!</h2>
             <p class="text-xl leading-relaxed text-gray-300 mb-6">
-                Öz xidmətinizi və ya mağazanızı AxtarGet botunun böyük istifadəçi bazası ilə paylaşın. Sizin üçün yeni müştərilərə çatmaq daha asan olacaq!
+                Öz xidmətinizə və ya mağazanızı AxtarGet botunun böyük istifadəçi bazası ilə paylaşın. Sizin üçün yeni müştərilərə çatmaq daha asan olacaq!
             </p>
             <a href="share-business.html" class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-xl font-semibold rounded-full shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
                 <i class="fas fa-share-alt mr-3 text-2xl"></i>
@@ -255,6 +255,10 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p>&copy; 2025 AxtarGet Bot. Bütün hüquqlar qorunur.</p>
             <p class="mt-2 text-sm">Created by Ibadulla Hasanov</p>
+            <!-- Admin Paneli Linki -->
+            <p class="mt-4 text-sm">
+                <a href="admin.html" class="text-gray-500 hover:text-green-400 transition-colors duration-300">Admin Paneli</a>
+            </p>
         </div>
     </footer>
 
@@ -364,21 +368,21 @@
             }
         }
 
+        // Custom "alert" implementation
+        function showAlert(message) {
+            const alertBox = document.createElement('div');
+            alertBox.className = 'fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red-600 text-white p-4 rounded-lg shadow-xl z-[9999]';
+            alertBox.textContent = message;
+            document.body.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.remove();
+            }, 3000); // Remove after 3 seconds
+        }
+
         // `askBot` funksiyası (Firebase və AI olmadan)
         async function askBot() {
             const userName = userNameInput.value.trim();
             const question = userQuestionInput.value.trim();
-
-            // Custom "alert" implementation
-            function showAlert(message) {
-                const alertBox = document.createElement('div');
-                alertBox.className = 'fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red-600 text-white p-4 rounded-lg shadow-xl z-[9999]';
-                alertBox.textContent = message;
-                document.body.appendChild(alertBox);
-                setTimeout(() => {
-                    alertBox.remove();
-                }, 3000); // Remove after 3 seconds
-            }
 
             if (!userName) {
                 showAlert("Zəhmət olmasa, adınızı daxil edin.");
