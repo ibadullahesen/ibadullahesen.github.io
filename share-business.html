@@ -519,8 +519,8 @@
                     if (userDocSnap.exists()) {
                         currentUserName = userDocSnap.data().username;
                     } else {
-                        // Əgər user sənədi yoxdursa, UID-dən istifadəçi adı yarat
-                        currentUserName = "İstifadəçi (" + user.uid.substring(0, 5) + "...)"; 
+                        // Əgər user sənədi yoxdursa, UID-dən istifadəçi adı yarat (daha aydın olmaq üçün)
+                        currentUserName = "İstifadəçi " + user.uid.substring(0, 6); // UID-nin ilk 6 simvolu
                     }
                 } else {
                     currentUserName = "Anonim İstifadəçi";
@@ -577,14 +577,13 @@
             loginButton.disabled = true;
 
             try {
-                // E-poçt təsdiqi ləğv edildiyi üçün burada yoxlanılmır.
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
                 // Modalı bağla və səhifəni yenilə
                 // Giriş statusunun tam yenilənməsi üçün səhifəni yeniləyirik
                 setTimeout(() => { // Qısa gecikmə, alert mesajının görünməsi üçün
                     closeAuthModal(); 
-                    window.location.reload(); 
+                    window.location.reload(); // Səhifəni yeniləyin ki, Firebase statusu yenilənsin
                 }, 500); // 0.5 saniyəlik gecikmə
                 
             } catch (error) {
@@ -842,6 +841,9 @@
             }
 
             try {
+                // Log currentUserName before posting to debug
+                console.log("Posting comment with currentUserName:", currentUserName);
+
                 const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, currentBusinessId);
                 await updateDoc(businessRef, {
                     comments: arrayUnion({
