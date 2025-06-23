@@ -122,7 +122,6 @@
         .like-button.liked {
             color: #e53e3e; /* Red color for liked state */
         }
-        /* Comment Modal Styles (removed from HTML, but kept for reference if needed) */
     </style>
 </head>
 <body class="relative">
@@ -171,38 +170,14 @@
 
                 <div>
                     <label for="business-category" class="block text-white text-lg font-semibold mb-2">Kateqoriya <span class="text-red-400">*</span></label>
-                    <select id="business-category" name="business-category" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
-                        <option value="">Kateqoriya Seçin</option>
-                        <option value="Dərzi">Dərzi</option>
-                        <option value="Bərbər">Bərbər</option>
-                        <option value="Restoran">Restoran</option>
-                        <option value="Elektronika">Elektronika</option>
-                        <option value="Mebel">Mebel</option>
-                        <option value="Təhsil">Təhsil</option>
-                        <option value="Geyim">Geyim</option>
-                        <option value="Avtomobil Xidmətləri">Avtomobil Xidmətləri</option>
-                        <option value="Digər">Digər</option>
-                    </select>
+                    <!-- KATEGORIYA SEÇİMİ INPUT TYPE="TEXT" OLARAQ DƏYİŞDİRİLDİ -->
+                    <input type="text" id="business-category" name="business-category" placeholder="Məsələn: Restoran, Dərzi, Elektronika" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
                 </div>
 
                 <div>
                     <label for="business-region" class="block text-white text-lg font-semibold mb-2">Bölgə <span class="text-red-400">*</span></label>
-                    <select id="business-region" name="business-region" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
-                        <option value="">Bölgə Seçin</option>
-                        <option value="Bakı">Bakı</option>
-                        <option value="Naxçıvan">Naxçıvan</option>
-                        <option value="Gəncə">Gəncə</option>
-                        <option value="Sumqayıt">Sumqayıt</option>
-                        <option value="Lənkəran">Lənkəran</option>
-                        <option value="Mingəçevir">Mingəçevir</option>
-                        <option value="Şəki">Şəki</option>
-                        <option value="Quba">Quba</option>
-                        <option value="Şamaxı">Şamaxı</option>
-                        <option value="Bərdə">Bərdə</option>
-                        <option value="Xaçmaz">Xaçmaz</option>
-                        <option value="Tovuz">Tovuz</option>
-                        <option value="Digər">Digər</option>
-                    </select>
+                    <!-- BÖLGƏ SEÇİMİ INPUT TYPE="TEXT" OLARAQ DƏYİŞDİRİLDİ -->
+                    <input type="text" id="business-region" name="business-region" placeholder="Məsələn: Bakı, Gəncə, Naxçıvan" class="w-full p-3 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 border border-gray-600">
                 </div>
 
                 <div>
@@ -237,6 +212,9 @@
             <p class="text-sm text-gray-400 text-center mt-6">
                 <span class="text-red-400">*</span> İşarəsi olan sahələr məcburidir.
             </p>
+            <p id="telegram-add-message" class="text-center text-green-300 mt-4 text-lg hidden">
+                <i class="fas fa-check-circle mr-2"></i> Biznesiniz uğurla qəbul edildi! 1-5 saat ərzində Telegram botuna əlavə ediləcək.
+            </p>
         </div>
     </section>
 
@@ -265,7 +243,7 @@
                     </div>
                     <div class="interaction-bar">
                         <button class="interaction-button like-button"><i class="far fa-heart"></i> <span class="likes-count">0</span> Bəyənmə</button>
-                        <button class="interaction-button comment-button"><i class="far fa-comment"></i> <span class="comments-count">0</span> Şərh</button>
+                        <!-- ŞƏRH DÜYMƏSİ LƏĞV EDİLDİ -->
                         <button class="interaction-button share-button"><i class="fas fa-share-alt"></i> Paylaş</button>
                     </div>
                 </div>
@@ -286,26 +264,13 @@
 
     <div id="alert-container"></div>
 
-    <!-- Comment Modal -->
-    <div id="comment-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3 class="text-2xl font-bold text-white mb-4">Şərhlər</h3>
-            <div id="modal-comment-list" class="comment-list">
-                <!-- Comments will be loaded here -->
-            </div>
-            <div class="flex mt-4 gap-2">
-                <input type="text" id="comment-input" placeholder="Şərhinizi yazın..." class="flex-grow p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
-                <button id="post-comment-btn" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-300">Göndər</button>
-            </div>
-        </div>
-    </div>
+    <!-- COMMENT MODAL VƏ İLƏ BAĞLI BÜTÜN KOD LƏĞV EDİLDİ -->
 
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
         
         // Firebase konfiqurasiyası - provided by the user
         const firebaseConfig = {
@@ -338,31 +303,25 @@
         // DOM Elements
         const businessShareForm = document.getElementById('business-share-form');
         const businessNameInput = document.getElementById('business-name');
-        const businessCategorySelect = document.getElementById('business-category');
-        const businessRegionSelect = document.getElementById('business-region');
+        const businessCategoryInput = document.getElementById('business-category'); // Inputa dəyişdirildi
+        const businessRegionInput = document.getElementById('business-region');   // Inputa dəyişdirildi
         const businessAboutTextarea = document.getElementById('business-about');
         const contactNumberInput = document.getElementById('contact-number');
         const instagramLinkInput = document.getElementById('instagram-link');
         const termsCheckbox = document.getElementById('terms-checkbox');
         const submitButton = document.getElementById('submit-business');
         const loadingIndicator = document.getElementById('loading-indicator');
+        const telegramAddMessage = document.getElementById('telegram-add-message'); // Yeni mesaj elementi
         const alertContainer = document.getElementById('alert-container');
         const businessPostsContainer = document.getElementById('business-posts-container');
         const noBusinessesMessage = document.getElementById('no-businesses-message');
         const addYourBusinessBtn = document.getElementById('add-your-business-btn');
 
-        // Comment Modal Elements
-        const commentModal = document.getElementById('comment-modal');
-        const closeModalButton = commentModal.querySelector('.close-button');
-        const modalCommentList = document.getElementById('modal-comment-list');
-        const commentInput = document.getElementById('comment-input');
-        const postCommentBtn = document.getElementById('post-comment-btn');
-        let currentBusinessId = null; // Currently viewed business for comments
 
         // Custom Alert Function (instead of alert())
         function showAlert(message, type = 'error') {
             const alertBox = document.createElement('div');
-            alertBox.className = `alert-message ${type} fixed bottom-4 left-50per transform -translate-x-50per bg-red-600 text-white p-3 rounded-lg shadow-md z-50`; /* Fixed: Added 50per to transform */
+            alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
             alertBox.textContent = message;
             
             const existingAlerts = document.querySelectorAll('.alert-message');
@@ -418,8 +377,8 @@
 
             // Validate form fields
             const businessName = businessNameInput.value.trim();
-            const businessCategory = businessCategorySelect.value;
-            const businessRegion = businessRegionSelect.value;
+            const businessCategory = businessCategoryInput.value.trim(); // Inputdan dəyər alınır
+            const businessRegion = businessRegionInput.value.trim();     // Inputdan dəyər alınır
             const businessAbout = businessAboutTextarea.value.trim();
             const contactNumber = contactNumberInput.value.trim();
             const instagramLink = instagramLinkInput.value.trim();
@@ -439,9 +398,10 @@
             loadingIndicator.classList.remove('hidden');
             submitButton.disabled = true;
             submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            telegramAddMessage.classList.add('hidden'); // Yeni mesajı gizlət
 
             try {
-                // Add business data to Firestore
+                // Add business data to Firestore with 'pending' status
                 await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`), {
                     userId: currentUserId,
                     userName: currentUserName, // İstifadəçi adı əlavə edildi
@@ -451,15 +411,16 @@
                     businessAbout: businessAbout,
                     contactNumber: contactNumber,
                     instagramLink: instagramLink,
-                    likes: [], // List of user IDs who liked
-                    comments: [], // List of comments
-                    createdAt: serverTimestamp() // Timestamp of creation
+                    likes: [], 
+                    status: 'pending', // YENİ: Status sahəsi
+                    createdAt: serverTimestamp() 
                 });
 
-                showAlert("Your business has been successfully submitted! It will appear on the bot and this page after review.", 'success');
+                showAlert("Your business has been successfully submitted! Check message below.", 'success');
                 businessShareForm.reset(); // Clear the form
                 termsCheckbox.checked = false; // Uncheck checkbox
-
+                telegramAddMessage.classList.remove('hidden'); // Telegram mesajını göstər
+                
             } catch (error) {
                 console.error("Business submission error:", error);
                 showAlert("An error occurred while sharing your business. Please try again.", 'error');
@@ -471,13 +432,14 @@
             }
         });
 
-        // Load and Display Businesses from Firestore
+        // Load and Display Businesses from Firestore (Only 'approved' ones)
         function loadBusinesses() {
+            // Yalnız statusu 'approved' olan biznesləri yüklə
             const businessesColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`);
-            const q = query(businessesColRef);
+            const q = query(businessesColRef, where("status", "==", "approved")); // Yalnız 'approved' statuslu biznesləri filterləyir
 
             onSnapshot(q, (snapshot) => {
-                businessPostsContainer.innerHTML = ''; // Clear existing content
+                businessPostsContainer.innerHTML = ''; // Mövcud məzmunu təmizləyin
                 const businesses = [];
                 snapshot.forEach((doc) => {
                     businesses.push({ id: doc.id, ...doc.data() });
@@ -507,9 +469,7 @@
                                 <button class="interaction-button like-button ${business.likes && business.likes.includes(currentUserId) ? 'liked' : ''}" data-id="${business.id}">
                                     <i class="far fa-heart"></i> <span class="likes-count">${business.likes ? business.likes.length : 0}</span> Bəyənmə
                                 </button>
-                                <button class="interaction-button comment-button" data-id="${business.id}">
-                                    <i class="far fa-comment"></i> <span class="comments-count">${business.comments ? business.comments.length : 0}</span> Şərh
-                                </button>
+                                <!-- ŞƏRH DÜYMƏSİ LƏĞV EDİLDİ -->
                                 <button class="interaction-button share-button" data-id="${business.id}" data-name="${business.businessName}" data-about="${business.businessAbout}">
                                     <i class="fas fa-share-alt"></i> Paylaş
                                 </button>
@@ -553,19 +513,7 @@
                 };
             });
 
-            // Comment Button
-            businessPostsContainer.querySelectorAll('.comment-button').forEach(button => {
-                button.onclick = async (e) => {
-                    // Anonim istifadəçilər də şərh yaza bilər
-                    if (!auth.currentUser) { 
-                        showAlert("Şərh yazmaq üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
-                        return;
-                    }
-                    currentBusinessId = e.currentTarget.dataset.id;
-                    await loadComments(currentBusinessId);
-                    commentModal.classList.remove('hidden');
-                };
-            });
+            // Comment Button removed from here.
 
             // Share Button
             businessPostsContainer.querySelectorAll('.share-button').forEach(button => {
@@ -591,86 +539,16 @@
             });
         }
 
-        // Load Comments and Display in Modal
-        async function loadComments(businessId) {
-            modalCommentList.innerHTML = ''; // Clear comment list
-            const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
-            const docSnap = await getDoc(businessRef);
+        // Load Comments and Display in Modal (Removed from here and HTML)
 
-            if (docSnap.exists()) {
-                const comments = docSnap.data().comments || [];
-                if (comments.length === 0) {
-                    modalCommentList.innerHTML = '<p class="text-gray-400 text-center">Hələ heç bir şərh yoxdur.</p>';
-                } else {
-                    comments.forEach(comment => {
-                        const commentItem = document.createElement('div');
-                        commentItem.className = 'comment-item';
-                        const timestampDate = comment.timestamp ? new Date(comment.timestamp.toDate()) : new Date(); // Fallback for timestamp
-                        commentItem.innerHTML = `
-                            <p><span class="comment-author">${comment.author || 'Anonim İstifadəçi'}:</span> <span class="comment-text">${comment.text}</span></p>
-                            <p class="comment-timestamp">${timestampDate.toLocaleString()}</p>
-                        `;
-                        modalCommentList.appendChild(commentItem);
-                    });
-                }
-            } else {
-                modalCommentList.innerHTML = '<p class="text-red-400 text-center">Biznes tapılmadı.</p>';
-            }
-        }
-
-        // Post Comment
-        postCommentBtn.addEventListener('click', async () => {
-            const commentText = commentInput.value.trim();
-            if (!commentText) {
-                showAlert("Please write your comment.", 'error');
-                return;
-            }
-
-            if (!currentBusinessId) {
-                showAlert("No business selected to add comment.", 'error');
-                return;
-            }
-
-            // Anonim istifadəçilər də şərh yaza bilər
-            if (!auth.currentUser) { 
-                showAlert("Şərh yazmaq üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
-                commentModal.classList.add('hidden'); 
-                return;
-            }
-
-            try {
-                // Log currentUserName before posting to debug
-                console.log("Posting comment with currentUserName:", currentUserName);
-
-                const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, currentBusinessId);
-                await updateDoc(businessRef, {
-                    comments: arrayUnion({
-                        author: currentUserName, // İstifadəçi adı istifadə edildi
-                        text: commentText,
-                        timestamp: serverTimestamp()
-                    })
-                });
-                commentInput.value = ''; // Clear input
-                showAlert("Comment successfully added!", 'success');
-                // Comments will automatically refresh due to onSnapshot.
-            } catch (error) {
-                console.error("Error adding comment:", error);
-                showAlert("An error occurred while adding the comment.", 'error');
-            }
-        });
+        // Post Comment (Removed from here)
 
 
-        // Close Modal Events
-        closeModalButton.addEventListener('click', () => {
-            commentModal.classList.add('hidden');
-        });
+        // Close Modal Events (Only for comment modal now)
+        // closeAuthModalButton has been removed from HTML so no need to handle here.
 
-        window.addEventListener('click', (event) => {
-            if (event.target === commentModal) {
-                commentModal.classList.add('hidden');
-            }
-        });
-
+        // If you had an auth modal previously, ensure its HTML is completely gone.
+        // It was removed in a previous step, just double checking.
 
         // "Add Your Business" button click (for scrolling to form)
         addYourBusinessBtn.addEventListener('click', () => {
