@@ -632,12 +632,13 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
                 showAlert("Uğurla daxil oldunuz!", 'success');
+                console.log("Giriş uğurludur. Modalı bağlayır və səhifəni yeniləyir.");
                 // Modalı dərhal bağla
                 closeAuthModal(); 
                 // Səhifəni qısa gecikmədən sonra yeniləyin ki, Firebase statusu yenilənsin
                 setTimeout(() => { 
                     window.location.reload(); 
-                }, 500); 
+                }, 500); // 0.5 saniyəlik gecikmə
                 
             } catch (error) {
                 console.error("Giriş xətası:", error); // Check console for more details on the error
