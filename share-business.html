@@ -390,11 +390,11 @@
         </div>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- Auth Modal (İndi yalnız Giriş Üçündür) -->
     <div id="auth-modal" class="modal hidden">
         <div class="auth-modal-content">
             <span class="close-button" id="close-auth-modal">&times;</span>
-            <h3 class="text-2xl font-bold text-white mb-6 text-center">Giriş / Qeydiyyat</h3>
+            <h3 class="text-2xl font-bold text-white mb-6 text-center">Daxil Ol</h3>
             <form id="auth-form" class="space-y-4">
                 <div>
                     <label for="auth-email" class="block text-white text-lg font-semibold mb-2">E-poçt</label>
@@ -407,9 +407,9 @@
                 <button type="submit" id="login-button" class="w-full py-3 bg-green-600 text-white text-xl font-semibold rounded-lg shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
                     Daxil Ol
                 </button>
-                <button type="button" id="register-button" class="w-full py-3 bg-blue-600 text-white text-xl font-semibold rounded-lg shadow-lg hover:bg-blue-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 mt-2">
-                    Qeydiyyatdan Keç
-                </button>
+                <p class="text-center text-gray-400 mt-4">
+                    Hesabınız yoxdur? <a href="register.html" class="link-text">Qeydiyyatdan Keçin</a>
+                </p>
                 <div id="auth-loading-indicator" class="hidden mt-4 text-center text-green-400">
                     <i class="fas fa-spinner fa-spin mr-2"></i> Yüklənir...
                 </div>
@@ -421,7 +421,7 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Firebase konfiqurasiyası - provided by the user
@@ -450,6 +450,7 @@
 
 
         let currentUserId = null; // Authenticated user's ID
+        let currentUserName = "Anonim İstifadəçi"; // Default username
 
         // DOM Elements
         const businessShareForm = document.getElementById('business-share-form');
@@ -481,7 +482,7 @@
         const authEmailInput = document.getElementById('auth-email');
         const authPasswordInput = document.getElementById('auth-password');
         const loginButton = document.getElementById('login-button');
-        const registerButton = document.getElementById('register-button');
+        // const registerButton = document.getElementById('register-button'); // Qeydiyyat düyməsi modalda ləğv edildi
         const authLoadingIndicator = document.getElementById('auth-loading-indicator');
 
         // Custom Alert Function (instead of alert())
@@ -489,14 +490,14 @@
             const alertBox = document.createElement('div');
             alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
             alertBox.textContent = message;
+            
+            const existingAlerts = document.querySelectorAll('.alert-message');
+            existingAlerts.forEach(alert => alert.remove());
+
             if (type === 'success') {
                 alertBox.classList.remove('bg-red-600');
                 alertBox.classList.add('bg-green-600');
             }
-            // Ensure only one alert is visible at a time (optional, but good UX)
-            const existingAlerts = document.querySelectorAll('.alert-message');
-            existingAlerts.forEach(alert => alert.remove());
-
             alertContainer.appendChild(alertBox);
             setTimeout(() => {
                 alertBox.classList.add('show');
@@ -508,19 +509,29 @@
         }
 
         // Authentication State Change Listener
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                console.log("Firebase Authentication successful. User ID:", currentUserId, "Email verified:", user.emailVerified);
+                // İstifadəçi adını Firestore-dan yüklə
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    currentUserName = userDocSnap.data().username;
+                } else {
+                    currentUserName = "Anonim İstifadəçi (" + user.uid.substring(0, 5) + "...)"; // Fallback username
+                }
+
+                console.log("Firebase Authentication successful. User ID:", currentUserId, "Username:", currentUserName);
                 // Load businesses after successful authentication
                 loadBusinesses();
             } else {
                 console.log("Firebase Authentication failed. Attempting anonymous sign-in.");
                 currentUserId = null;
+                currentUserName = "Anonim İstifadəçi";
                 // If no user is signed in, attempt anonymous sign-in
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in error:", error);
-                    showAlert("Anonymous sign-in failed. Please refresh the page.", 'error');
+                    showAlert("Anonim girişdə xəta baş verdi. Zəhmət olmasa, səhifəni yeniləyin.", 'error');
                 });
             }
         });
@@ -536,53 +547,12 @@
             authPasswordInput.value = '';
             authLoadingIndicator.classList.add('hidden');
             loginButton.disabled = false;
-            registerButton.disabled = false;
         }
 
         closeAuthModalButton.addEventListener('click', closeAuthModal);
         authModal.addEventListener('click', (event) => {
             if (event.target === authModal) {
                 closeAuthModal();
-            }
-        });
-
-        // Register Button Click Handler
-        registerButton.addEventListener('click', async () => {
-            const email = authEmailInput.value.trim();
-            const password = authPasswordInput.value.trim();
-
-            if (!email || !password) {
-                showAlert("Email and password cannot be empty.", 'error');
-                return;
-            }
-            if (password.length < 6) {
-                showAlert("Password must be at least 6 characters long.", 'error');
-                return;
-            }
-
-            authLoadingIndicator.classList.remove('hidden');
-            loginButton.disabled = true;
-            registerButton.disabled = true;
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await sendEmailVerification(userCredential.user);
-                showAlert("Successfully registered! Please verify your email.", 'success');
-                closeAuthModal(); // Close modal
-            } catch (error) {
-                console.error("Registration error:", error); // Check console for more details on the error
-                if (error.code === 'auth/email-already-in-use') {
-                    showAlert("This email address is already in use. Please sign in.", 'error');
-                } else if (error.code === 'auth/weak-password') {
-                    showAlert("Password is too weak. Please choose a stronger password.", 'error');
-                }
-                else {
-                    showAlert("An error occurred during registration: " + error.message, 'error');
-                }
-            } finally {
-                authLoadingIndicator.classList.add('hidden');
-                loginButton.disabled = false;
-                registerButton.disabled = false;
             }
         });
 
@@ -594,36 +564,28 @@
             const password = authPasswordInput.value.trim();
 
             if (!email || !password) {
-                showAlert("Email and password cannot be empty.", 'error');
+                showAlert("E-poçt və şifrə boş ola bilməz.", 'error');
                 return;
             }
 
             authLoadingIndicator.classList.remove('hidden');
             loginButton.disabled = true;
-            registerButton.disabled = true;
 
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                if (!userCredential.user.emailVerified) {
-                    showAlert("Your account is not verified. Please verify your email.", 'error');
-                    await sendEmailVerification(userCredential.user); // Resend verification email
-                    showAlert("Verification email resent. Please check your inbox.", 'success');
-                    await auth.signOut(); // Sign out unverified user
-                    return;
-                }
-                showAlert("Successfully logged in!", 'success');
-                closeAuthModal(); // Close modal
+                // E-poçt təsdiqi ləğv edildiyi üçün burada yoxlanılmır.
+                await signInWithEmailAndPassword(auth, email, password);
+                showAlert("Uğurla daxil oldunuz!", 'success');
+                closeAuthModal(); // Modalı bağla
             } catch (error) {
-                console.error("Login error:", error); // Check console for more details on the error
+                console.error("Giriş xətası:", error); // Check console for more details on the error
                 if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
-                    showAlert("Incorrect email or password. Please try again.", 'error');
+                    showAlert("Yanlış e-poçt və ya şifrə. Zəhmət olmasa, düzgün daxil edin.", 'error');
                 } else {
-                    showAlert("An error occurred during login: " + error.message, 'error');
+                    showAlert("Giriş zamanı xəta baş verdi: " + error.message, 'error');
                 }
             } finally {
                 authLoadingIndicator.classList.add('hidden');
                 loginButton.disabled = false;
-                registerButton.disabled = false;
             }
         });
 
@@ -632,10 +594,10 @@
         businessShareForm.addEventListener('submit', async function(e) {
             e.preventDefault(); // Prevent page reload
 
-            // Proceed only if user is authenticated and email is verified
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
+            // Proceed only if user is authenticated (anonymous is okay for viewing, but not for sharing)
+            if (!auth.currentUser || auth.currentUser.isAnonymous) {
                 openAuthModal();
-                showAlert("To share a business, you must be logged in and verify your email.", 'error');
+                showAlert("Biznes paylaşmaq üçün daxil olmalısınız.", 'error');
                 return;
             }
 
@@ -667,6 +629,7 @@
                 // Add business data to Firestore
                 await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`), {
                     userId: currentUserId,
+                    userName: currentUserName, // İstifadəçi adı əlavə edildi
                     businessName: businessName,
                     businessCategory: businessCategory,
                     businessRegion: businessRegion,
@@ -753,9 +716,9 @@
             businessPostsContainer.querySelectorAll('.like-button').forEach(button => {
                 button.onclick = async (e) => {
                     // Only authenticated users can like
-                    if (!auth.currentUser || auth.currentUser.isAnonymous || !auth.currentUser.emailVerified) {
+                    if (!auth.currentUser || auth.currentUser.isAnonymous) {
                         openAuthModal();
-                        showAlert("To like a business, you must be logged in and verify your email.", 'error');
+                        showAlert("Biznesi bəyənmək üçün daxil olmalısınız.", 'error');
                         return;
                     }
 
@@ -780,9 +743,9 @@
             businessPostsContainer.querySelectorAll('.comment-button').forEach(button => {
                 button.onclick = async (e) => {
                     // Only authenticated users can comment
-                    if (!auth.currentUser || auth.currentUser.isAnonymous || !auth.currentUser.emailVerified) {
+                    if (!auth.currentUser || auth.currentUser.isAnonymous) {
                         openAuthModal();
-                        showAlert("To write a comment, you must be logged in and verify your email.", 'error');
+                        showAlert("Şərh yazmaq üçün daxil olmalısınız.", 'error');
                         return;
                     }
                     currentBusinessId = e.currentTarget.dataset.id;
@@ -828,21 +791,21 @@
             if (docSnap.exists()) {
                 const comments = docSnap.data().comments || [];
                 if (comments.length === 0) {
-                    modalCommentList.innerHTML = '<p class="text-gray-400 text-center">No comments yet.</p>';
+                    modalCommentList.innerHTML = '<p class="text-gray-400 text-center">Hələ heç bir şərh yoxdur.</p>';
                 } else {
                     comments.forEach(comment => {
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
                         const timestampDate = comment.timestamp ? new Date(comment.timestamp.toDate()) : new Date(); // Fallback for timestamp
                         commentItem.innerHTML = `
-                            <p><span class="comment-author">${comment.author || 'Anonymous User'}:</span> <span class="comment-text">${comment.text}</span></p>
+                            <p><span class="comment-author">${comment.author || 'Anonim İstifadəçi'}:</span> <span class="comment-text">${comment.text}</span></p>
                             <p class="comment-timestamp">${timestampDate.toLocaleString()}</p>
                         `;
                         modalCommentList.appendChild(commentItem);
                     });
                 }
             } else {
-                modalCommentList.innerHTML = '<p class="text-red-400 text-center">Business not found.</p>';
+                modalCommentList.innerHTML = '<p class="text-red-400 text-center">Biznes tapılmadı.</p>';
             }
         }
 
@@ -859,9 +822,9 @@
                 return;
             }
 
-            // Only authenticated and verified users can comment
-            if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showAlert("To write a comment, you must be logged in and verify your email.", 'error');
+            // Only authenticated users can comment
+            if (!auth.currentUser || auth.currentUser.isAnonymous) {
+                showAlert("Şərh yazmaq üçün daxil olmalısınız.", 'error');
                 commentModal.classList.add('hidden'); // Close modal
                 openAuthModal(); // Open authentication modal
                 return;
@@ -871,7 +834,7 @@
                 const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, currentBusinessId);
                 await updateDoc(businessRef, {
                     comments: arrayUnion({
-                        author: auth.currentUser.email || auth.currentUser.uid, // Use user's email or UID
+                        author: currentUserName, // İstifadəçi adı istifadə edildi
                         text: commentText,
                         timestamp: serverTimestamp()
                     })
@@ -904,15 +867,6 @@
                 behavior: 'smooth'
             });
         });
-
-        // Initialize anonymous authentication on page load (if no user is signed in)
-        // onAuthStateChanged already handles this.
-        if (!auth.currentUser) {
-             signInAnonymously(auth).catch(error => {
-                console.error("Initial anonymous sign-in error:", error);
-            });
-        }
-
 
         // Smooth scrolling for header navigation links (mainly for returning to main page sections)
         document.querySelectorAll('a[href^="index.html#"]').forEach(anchor => {
