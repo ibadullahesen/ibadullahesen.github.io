@@ -232,6 +232,11 @@
             font-size: 1.2rem;
             z-index: 1000;
             border: 2px solid #f97316;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .message-box.hidden {
+            opacity: 0;
+            pointer-events: none; /* Etkileşimi engelle */
         }
     </style>
 </head>
@@ -256,7 +261,7 @@
         </div>
 
         <div class="buttons">
-            <button id="draw-button" class="action-button">Çek (Yoxdur)</button>
+            <button id="draw-button" class="action-button">Çek</button>
             <button id="pass-button" class="action-button">Növbəni Keç</button>
             <button id="restart-button" class="action-button">Yenidən Başla</button>
         </div>
@@ -264,7 +269,7 @@
 
     <div id="message-box" class="message-box hidden">
         <p id="message-content"></p>
-        <button id="message-box-close-button" class="action-button mt-4">Tamam</button>
+        <!-- Tamam butonu kaldırıldı -->
     </div>
 
     <script>
@@ -280,6 +285,8 @@
         let opponentScore = 0;
         let selectedDomino = null;
         let selectedDominoIndex = -1;
+        let gameEnd = false; // Oyunun bitip bitmediğini takip etmek için
+        let passCount = 0; // İki oyuncunun da pas geçtiğini kontrol etmek için
 
         const playerHandEl = document.getElementById('player-hand');
         const opponentHandEl = document.getElementById('opponent-hand');
@@ -291,7 +298,15 @@
         const restartButton = document.getElementById('restart-button');
         const messageBox = document.getElementById('message-box');
         const messageContent = document.getElementById('message-content');
-        const messageBoxCloseButton = document.getElementById('message-box-close-button');
+
+        // Mesaj kutusunu göster ve otomatik gizle
+        function showMessageBox(message, duration = 3000) {
+            messageContent.textContent = message;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, duration);
+        }
 
         // Domino taşını temsil eden HTML öğesini oluştur
         function createDominoElement(domino, isHorizontal = false, isOpponent = false) {
@@ -352,6 +367,7 @@
             gameBoard = [];
             playerScore = 0;
             opponentScore = 0;
+            passCount = 0;
             
             // Her oyuncuya 7 domino dağıt
             for (let i = 0; i < 7; i++) {
@@ -361,37 +377,55 @@
 
             // İlk dominoyu tahtaya koy (genellikle en yüksek çift)
             let firstDomino = null;
-            // İlk olarak en yüksek çifti bul
-            for (let d = DOMINO_MAX_VALUE; d >= 0; d--) {
-                const playerDouble = playerHand.find(dom => dom[0] === d && dom[1] === d);
-                const opponentDouble = opponentHand.find(dom => dom[0] === d && dom[1] === d);
+            let startingPlayer = 0; // Kimin başlayacağını belirle
 
-                if (playerDouble) {
-                    firstDomino = playerDouble;
-                    playerHand.splice(playerHand.indexOf(firstDomino), 1);
-                    currentPlayer = 0; // Oyuncu başlar
+            // En yüksek çifti bul ve oyuna başla
+            for (let d = DOMINO_MAX_VALUE; d >= 0; d--) {
+                const playerDoubleIndex = playerHand.findIndex(dom => dom[0] === d && dom[1] === d);
+                const opponentDoubleIndex = opponentHand.findIndex(dom => dom[0] === d && dom[1] === d);
+
+                if (playerDoubleIndex !== -1) {
+                    firstDomino = playerHand[playerDoubleIndex];
+                    playerHand.splice(playerDoubleIndex, 1);
+                    startingPlayer = 0; // Oyuncu başlar
                     break;
-                } else if (opponentDouble) {
-                    firstDomino = opponentDouble;
-                    opponentHand.splice(opponentHand.indexOf(firstDomino), 1);
-                    currentPlayer = 1; // Rakip başlar
+                } else if (opponentDoubleIndex !== -1) {
+                    firstDomino = opponentHand[opponentDoubleIndex];
+                    opponentHand.splice(opponentDoubleIndex, 1);
+                    startingPlayer = 1; // Rakip başlar
                     break;
                 }
             }
+            
             // Eğer çift yoksa, rastgele bir domino koy (basitlik için)
-            if (!firstDomino && allDominos.length > 0) {
-                 firstDomino = playerHand.length > 0 ? playerHand.pop() : opponentHand.pop();
-                 currentPlayer = playerHand.includes(firstDomino) ? 0 : 1; // Başlangıç dominounun sahibini belirle
+            if (!firstDomino) {
+                if (playerHand.length > 0) {
+                    firstDomino = playerHand.pop();
+                    startingPlayer = 0;
+                } else if (opponentHand.length > 0) {
+                    firstDomino = opponentHand.pop();
+                    startingPlayer = 1;
+                } else if (allDominos.length > 0) {
+                    firstDomino = allDominos.pop();
+                    // Kimin başlayacağı rastgele seçilebilir veya ilk domino kime aitse o başlar
+                    startingPlayer = Math.random() < 0.5 ? 0 : 1;
+                } else {
+                    showMessageBox("Oyun başlatılamadı, domino kalmadı. Yeniden başlatılıyor.");
+                    restartGame();
+                    return;
+                }
             }
             
             if (firstDomino) {
                 gameBoard.push(firstDomino);
+                currentPlayer = startingPlayer;
             }
             
             updateUI();
             if (currentPlayer === 1) {
-                setTimeout(opponentTurn, 1000); // Rakibin ilk hamlesi
+                setTimeout(opponentTurn, 1500); // Rakibin ilk hamlesi
             }
+             showMessageBox(`Oyun başladı! Növbə ${currentPlayer === 0 ? 'səndədir' : 'rəqibdədir'}!`);
         }
 
         // UI güncellemeleri
@@ -427,6 +461,10 @@
 
             // Oynanabilir dominoları vurgula (sadece oyuncunun elinde)
             highlightPlayableDominos();
+
+            // Butonların durumunu güncelle
+            drawButton.disabled = gameEnd || currentPlayer !== 0 || allDominos.length === 0 || canPlayerMove(playerHand);
+            passButton.disabled = gameEnd || currentPlayer !== 0 || canPlayerMove(playerHand); // Eğer oynayacak domino varsa pas geçemez
         }
 
         // Oynanabilir dominoları vurgula
@@ -447,10 +485,15 @@
 
         // Domino seç
         function selectDomino(index) {
-            if (currentPlayer !== 0) {
-                showAlert("Növbə sənin deyil!");
+            if (gameEnd || currentPlayer !== 0) {
+                showMessageBox("Növbə sənin deyil!");
                 return;
             }
+            if (!playerHandEl.children[index].classList.contains('playable')) {
+                showMessageBox("Bu domino oynana bilməz!");
+                return;
+            }
+
             if (selectedDominoIndex === index) {
                 // Zaten seçiliyse seçimini kaldır
                 playerHandEl.children[selectedDominoIndex].classList.remove('selected');
@@ -462,10 +505,6 @@
                     playerHandEl.children[selectedDominoIndex].classList.remove('selected');
                 }
                 const dominoEl = playerHandEl.children[index];
-                if (!dominoEl.classList.contains('playable')) {
-                    showAlert("Bu domino oynana bilməz!");
-                    return;
-                }
                 dominoEl.classList.add('selected');
                 selectedDomino = playerHand[index];
                 selectedDominoIndex = index;
@@ -477,15 +516,17 @@
 
         // Tahtanın kenarlarına tıklanabilir olay dinleyicileri ekle
         function addBoardEndListeners() {
-            gameBoardEl.querySelectorAll('.domino').forEach(dominoEl => {
-                dominoEl.classList.remove('playable-end'); // Önceki vurguyu kaldır
-                dominoEl.removeEventListener('click', placeOnBoard); // Önceki dinleyiciyi kaldır
-            });
+            // Önceki tüm dinleyicileri kaldır
+            const cloneBoardEl = gameBoardEl.cloneNode(true);
+            gameBoardEl.parentNode.replaceChild(cloneBoardEl, gameBoardEl);
+            gameBoardEl = cloneBoardEl; // Referansı güncelle
+            
+            gameBoardEl.querySelectorAll('.playable-end').forEach(el => el.classList.remove('playable-end')); // Tüm vurguları kaldır
 
-            if (selectedDomino) {
+            if (selectedDomino && !gameEnd && currentPlayer === 0) {
                 if (gameBoard.length === 0) { // İlk domino ise herhangi yere tıklayabilir
-                    gameBoardEl.addEventListener('click', placeOnBoard, { once: true });
-                    gameBoardEl.classList.add('playable-end'); // Tahtanın genelini vurgula
+                    gameBoardEl.style.border = '2px dashed #34d399'; // Tahtayı vurgula
+                    gameBoardEl.addEventListener('click', () => placeOnBoard('initial'), { once: true });
                 } else {
                     const firstBoardDominoEl = gameBoardEl.firstElementChild;
                     const lastBoardDominoEl = gameBoardEl.lastElementChild;
@@ -506,10 +547,10 @@
                 }
             }
         }
-
+        
         // Tahtaya domino yerleştir
         function placeOnBoard(side = 'initial') {
-            if (!selectedDomino || currentPlayer !== 0) {
+            if (!selectedDomino || gameEnd || currentPlayer !== 0) {
                 return;
             }
 
@@ -552,17 +593,22 @@
                 checkGameEnd();
                 if (!gameEnd) { // Oyun bitmediyse sırayı değiştir
                     currentPlayer = 1;
-                    setTimeout(opponentTurn, 1000); // Rakibin hamlesi
+                    showMessageBox("Növbə rəqibdədir!");
+                    setTimeout(opponentTurn, 1500); // Rakibin hamlesi
                 }
+                passCount = 0; // Hamle yapıldığında pas sayacını sıfırla
             } else {
-                showAlert("Bu domino buraya yerleştirilemez. Başka bir yer seçin veya başka bir domino seçin.");
+                showMessageBox("Bu domino buraya yerleştirilemez. Başka bir yer seçin veya başka bir domino seçin.");
             }
-            // Board end listener'ları temizle
+            // Board end listener'ları ve vurguları temizle
+            gameBoardEl.style.border = ''; // Tahta vurgusunu kaldır
             gameBoardEl.querySelectorAll('.domino').forEach(dominoEl => {
                 dominoEl.classList.remove('playable-end');
-                dominoEl.removeEventListener('click', placeOnBoard);
             });
-            gameBoardEl.removeEventListener('click', placeOnBoard);
+            // Tıklama olay dinleyicilerini kaldır
+            const oldBoardEl = gameBoardEl;
+            gameBoardEl = oldBoardEl.cloneNode(true);
+            oldBoardEl.parentNode.replaceChild(gameBoardEl, oldBoardEl);
         }
         
         function resetSelectedDomino() {
@@ -581,75 +627,109 @@
             const rightEnd = gameBoard[gameBoard.length - 1][1];
             let currentScore = 0;
 
-            // Eğer oyunun her iki ucu da aynıysa (çift domino değilse), sadece bir ucu say
-            if (gameBoard.length === 1 && gameBoard[0][0] === gameBoard[0][1]) {
-                currentScore = gameBoard[0][0] + gameBoard[0][1];
-            } else if (gameBoard.length > 0) {
-                currentScore = leftEnd + rightEnd;
+            if (gameBoard.length > 0) {
+                 // Dört ucu da hesaba kat (eğer varsa)
+                if (gameBoard.length > 1) { // Birden fazla domino varsa
+                    currentScore = leftEnd + rightEnd;
+                } else { // Sadece bir domino varsa (ilk dominonun toplamı)
+                    currentScore = gameBoard[0][0] + gameBoard[0][1];
+                }
             }
             
-
             if (currentScore > 0 && currentScore % 5 === 0) {
                 if (currentPlayer === 0) {
                     playerScore += currentScore;
                 } else {
                     opponentScore += currentScore;
                 }
-                showAlert(`${currentScore} xal əlavə edildi!`);
+                showMessageBox(`${currentScore} xal əlavə edildi!`);
             }
         }
 
         // Rakibin hamlesi (Basit AI)
         async function opponentTurn() {
-            if (currentPlayer !== 1) return;
+            if (gameEnd || currentPlayer !== 1) return;
 
-            actionLoadingIndicator.classList.remove('hidden'); // Yüklənmə mesajı (varsa)
-            passButton.disabled = true; // Rakip sırasındayken pas geçme butonunu deaktive et
+            showMessageBox("Rəqib düşünür...");
+            passButton.disabled = true; 
+            drawButton.disabled = true;
             
-            await new Promise(resolve => setTimeout(resolve, 1500)); // Rakibin düşünmesi için biraz zaman
+            await new Promise(resolve => setTimeout(resolve, 1500)); 
 
             const leftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
             const rightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
 
             let played = false;
 
-            // Rakibin elindeki her dominoyu dene
-            for (let i = 0; i < opponentHand.length; i++) {
-                let domino = opponentHand[i];
-                let dominoToPlace = [...domino]; // Kopyasını al
+            // Rakibin oynayabileceği bir domino bul
+            let playableDominoIndex = -1;
+            let dominoToPlay = null;
+            let playSide = '';
 
-                if (gameBoard.length === 0) { // İlk domino ise rastgele birini koy
-                    gameBoard.push(dominoToPlace);
-                    opponentHand.splice(i, 1);
-                    played = true;
+            for (let i = 0; i < opponentHand.length; i++) {
+                let currentDomino = opponentHand[i];
+                if (gameBoard.length === 0) { // İlk domino
+                    dominoToPlay = currentDomino;
+                    playableDominoIndex = i;
+                    playSide = 'initial';
                     break;
                 } else {
-                    // Sol taraftan oynamayı dene
-                    if (dominoToPlace[0] === leftEnd) {
-                        dominoToPlace.reverse(); // Çevir
-                        gameBoard.unshift(dominoToPlace);
-                        opponentHand.splice(i, 1);
-                        played = true;
+                    if (currentDomino[0] === leftEnd) {
+                        dominoToPlay = [...currentDomino].reverse(); // Çevir
+                        playableDominoIndex = i;
+                        playSide = 'left';
                         break;
-                    } else if (dominoToPlace[1] === leftEnd) {
-                        gameBoard.unshift(dominoToPlace);
-                        opponentHand.splice(i, 1);
-                        played = true;
+                    } else if (currentDomino[1] === leftEnd) {
+                        dominoToPlay = currentDomino;
+                        playableDominoIndex = i;
+                        playSide = 'left';
                         break;
-                    }
-                    // Sağ taraftan oynamayı dene
-                    else if (dominoToPlace[0] === rightEnd) {
-                        gameBoard.push(dominoToPlace);
-                        opponentHand.splice(i, 1);
-                        played = true;
+                    } else if (currentDomino[0] === rightEnd) {
+                        dominoToPlay = currentDomino;
+                        playableDominoIndex = i;
+                        playSide = 'right';
                         break;
-                    } else if (dominoToPlace[1] === rightEnd) {
-                        dominoToPlace.reverse(); // Çevir
-                        gameBoard.push(dominoToPlace);
-                        opponentHand.splice(i, 1);
-                        played = true;
+                    } else if (currentDomino[1] === rightEnd) {
+                        dominoToPlay = [...currentDomino].reverse(); // Çevir
+                        playableDominoIndex = i;
+                        playSide = 'right';
                         break;
                     }
+                }
+            }
+
+            if (playableDominoIndex !== -1) {
+                // Domino oyna
+                if (playSide === 'left') {
+                    gameBoard.unshift(dominoToPlay);
+                } else if (playSide === 'right') {
+                    gameBoard.push(dominoToPlay);
+                } else { // 'initial'
+                    gameBoard.push(dominoToPlay);
+                }
+                opponentHand.splice(playableDominoIndex, 1);
+                played = true;
+            } else {
+                // Rakip oynayamadıysa çekmeye çalış
+                if (allDominos.length > 0) {
+                    const drawnDomino = allDominos.pop();
+                    opponentHand.push(drawnDomino);
+                    showMessageBox("Rəqib bir domino çəkdi.");
+                    updateUI(); // Çektiği dominoyu göstermek için UI güncelle
+                    // Çektiği dominoyla oynayabilir mi kontrol et
+                    if (canPlayerMove(opponentHand)) {
+                        // Eğer oynayabilirse, tekrar opponentTurn'ü çağır (recursive)
+                        setTimeout(opponentTurn, 1000);
+                        return; // Şu anki fonksiyonu bitir
+                    } else {
+                        // Çektiği dominoyla da oynayamadı
+                        showMessageBox("Rəqib çəkdiyi domino ilə də oynaya bilmədi.");
+                        passTurnLogic(1);
+                    }
+                } else {
+                    // Çekilecek domino kalmadıysa pas geç
+                    showMessageBox("Rəqib oynaya bilmədi, çəkməyə domino qalmadı.");
+                    passTurnLogic(1);
                 }
             }
 
@@ -658,34 +738,32 @@
                 updateUI();
                 checkGameEnd();
                 if (!gameEnd) {
-                    currentPlayer = 0; // Sırayı oyuncuya geçir
-                    showAlert("Növbə səndədir!");
+                    currentPlayer = 0; 
+                    showMessageBox("Növbə səndədir!");
                 }
-            } else {
-                showAlert("Rakip domino oynaya bilmədi, növbəni keçir.");
-                passTurn(); // Rakip oynayamadıysa pas geç
-            }
-            actionLoadingIndicator.classList.add('hidden'); // Yüklənmə mesajını gizlət
-            passButton.disabled = false; // Pas geçme butonunu aktifleştir
+                passCount = 0; // Hamle yapıldığında pas sayacını sıfırla
+            } 
+            drawButton.disabled = gameEnd || currentPlayer !== 0 || allDominos.length === 0 || canPlayerMove(playerHand);
+            passButton.disabled = gameEnd || currentPlayer !== 0 || canPlayerMove(playerHand);
         }
-        let gameEnd = false;
+        
         // Oyunun bitip bitmediğini kontrol et
         function checkGameEnd() {
             if (playerHand.length === 0) {
-                showAlert("Qazandın! Bütün dominoları bitirdin.");
+                showMessageBox("Qazandın! Bütün dominoları bitirdin.");
                 endGame(0);
             } else if (opponentHand.length === 0) {
-                showAlert("Məğlub oldun! Rəqib bütün dominoları bitirdi.");
+                showMessageBox("Məğlub oldun! Rəqib bütün dominoları bitirdi.");
                 endGame(1);
             } else if (playerScore >= WINNING_SCORE) {
-                showAlert(`Sən ${playerScore} xal ilə Qazandın!`);
+                showMessageBox(`Sən ${playerScore} xal ilə Qazandın!`);
                 endGame(0);
             } else if (opponentScore >= WINNING_SCORE) {
-                showAlert(`Rəqib ${opponentScore} xal ilə Qazandı!`);
+                showMessageBox(`Rəqib ${opponentScore} xal ilə Qazandı!`);
                 endGame(1);
             }
-             else if (!canPlayerMove(playerHand) && !canPlayerMove(opponentHand) && allDominos.length === 0) {
-                showAlert("Heç kim hərəkət edə bilməz. Oyun təkrar başlayır.");
+             else if (passCount >= 2) { // Her iki oyuncu da pas geçtiyse oyun biter
+                showMessageBox("Heç kim hərəkət edə bilməz. Oyun təkrar başlayır.");
                 endGame(-1); // Beraberlik veya çıkmaz durum
             }
         }
@@ -694,7 +772,7 @@
             const leftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
             const rightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
 
-            if (gameBoard.length === 0) return hand.length > 0; // Tahta boşsa her zaman oynanabilir domino vardır
+            if (gameBoard.length === 0) return hand.length > 0; 
 
             for (let i = 0; i < hand.length; i++) {
                 const domino = hand[i];
@@ -708,11 +786,26 @@
         function endGame(winner) {
             gameEnd = true;
             if (winner === 0) {
-                showAlert("Təbrik edirik! Oyunu qazandınız!");
+                showMessageBox("Təbrik edirik! Oyunu qazandınız!");
             } else if (winner === 1) {
-                showAlert("Oyunu itirdiniz. Bir daha cəhd edin.");
-            } else {
-                 showAlert("Oyun bitdi. Heç kim oynaya bilmədi.");
+                showMessageBox("Oyunu itirdiniz. Bir daha cəhd edin.");
+            } else if (winner === -1) {
+                 showMessageBox("Oyun bitdi. Heç kim oynaya bilmədi. Xallar yuvarlaqlaşdırılır.");
+                 // Kalan dominoları topla ve yuvarla
+                 let remainingPlayerScore = playerHand.reduce((sum, domino) => sum + domino[0] + domino[1], 0);
+                 let remainingOpponentScore = opponentHand.reduce((sum, domino) => sum + domino[0] + domino[1], 0);
+
+                 // Daha az puana sahip olan kazanır
+                 if (remainingPlayerScore < remainingOpponentScore) {
+                     playerScore += Math.round((opponentScore - playerScore) / 5) * 5; // En yakın 5'e yuvarla
+                     showMessageBox(`Sen kazandın! Kalan puan: ${remainingPlayerScore}. Toplam Puan: ${playerScore}`);
+                 } else if (remainingOpponentScore < remainingPlayerScore) {
+                     opponentScore += Math.round((playerScore - opponentScore) / 5) * 5; // En yakın 5'e yuvarla
+                     showMessageBox(`Rakip kazandı! Kalan puan: ${remainingOpponentScore}. Toplam Puan: ${opponentScore}`);
+                 } else {
+                     showMessageBox("Beraberlik! Kalan puanlar eşit.");
+                 }
+                 updateUI(); // Puanları güncelle
             }
             // Tüm butonları devre dışı bırak
             drawButton.disabled = true;
@@ -721,27 +814,65 @@
             playerHandEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'none');
         }
 
-        function passTurn() {
-            if (currentPlayer === 0) { // Oyuncu pas geçtiyse
+        function passTurnLogic(player) {
+             if (player === 0) { // Oyuncu pas geçtiyse
                 if (!canPlayerMove(playerHand) && allDominos.length === 0) {
-                    showAlert("Hərəkət edə bilmirsiniz və çəkmək üçün başqa domino yoxdur. Növbə rəqibə keçdi.");
+                    showMessageBox("Hərəkət edə bilmirsiniz və çəkmək üçün başqa domino yoxdur. Növbə rəqibə keçdi.");
+                    passCount++;
                     currentPlayer = 1;
                     setTimeout(opponentTurn, 1000);
                 } else if (!canPlayerMove(playerHand) && allDominos.length > 0) {
-                    // Normalde buradan çekme işlemi yapılmalıydı, demo olduğu için atlıyoruz
-                    showAlert("Hərəkət edə bilmirsiniz. Domino çəkməlisiniz (bu demo funksiyada yoxdur). Növbə rəqibə keçdi.");
-                    currentPlayer = 1;
-                    setTimeout(opponentTurn, 1000);
+                    showMessageBox("Hərəkət edə bilmirsiniz. Domino çəkməlisiniz.");
+                    // Oyuncu çekmek zorunda (ancak çekme fonksiyonu aşağıda)
+                    // Şimdilik pas geçme butonunu deaktive et
+                    drawButton.disabled = false; // Oyuncu çekebilmeli
+                    passButton.disabled = true;
                 } else {
-                     showAlert("Hərəkət edə biləcəyiniz domino var. Növbəni keçə bilməzsiniz.");
+                     showMessageBox("Hərəkət edə biləcəyiniz domino var. Növbəni keçə bilməzsiniz.");
                 }
-            } else { // Rakip pas geçtiyse (opponentTurn içinde zaten kontrol ediliyor)
+            } else { // Rakip pas geçtiyse
+                 passCount++;
                  currentPlayer = 0; // Sırayı oyuncuya geçir
-                 showAlert("Rakip oynaya bilmədi, növbə səndə!");
+                 showMessageBox("Rakip oynaya bilmədi, növbə səndə!");
             }
             updateUI();
             checkGameEnd(); // Oyunun bitip bitmediğini pas geçtikten sonra kontrol et
         }
+
+        function drawDomino() {
+            if (gameEnd || currentPlayer !== 0) {
+                showMessageBox("Növbə sənin deyil!", 1500);
+                return;
+            }
+            if (canPlayerMove(playerHand)) {
+                showMessageBox("Oynaya biləcəyiniz domino var, çəkə bilməzsiniz.", 2000);
+                return;
+            }
+            if (allDominos.length === 0) {
+                showMessageBox("Çəkmək üçün domino qalmadı. Növbəni keç.", 2000);
+                passButton.disabled = false; // Pas geçme butonunu aktifleştir
+                drawButton.disabled = true;
+                return;
+            }
+
+            const drawnDomino = allDominos.pop();
+            playerHand.push(drawnDomino);
+            showMessageBox("Bir domino çəkdiniz.", 1500);
+            updateUI();
+            
+            // Çektiği dominoyla oynayabilir mi kontrol et
+            if (canPlayerMove(playerHand)) {
+                showMessageBox("Çəkdiyin domino ilə oynaya bilərsən.", 2000);
+                passButton.disabled = true; // Oynayabilirse pas geçemez
+            } else {
+                showMessageBox("Çəkdiyin domino ilə də oynaya bilmədin, növbəni keç.", 2000);
+                passButton.disabled = false; // Oynayamazsa pas geçebilir
+                // Otomatik olarak rakibe geçirelim
+                passTurnLogic(0);
+            }
+             drawButton.disabled = true; // Bir kez çekince tekrar çekmesin
+        }
+
 
         function restartGame() {
             gameEnd = false;
@@ -749,17 +880,24 @@
             selectedDominoIndex = -1;
             drawButton.disabled = false;
             passButton.disabled = false;
-            gameBoardEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'auto');
-            playerHandEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'auto');
+            passCount = 0; // Pas sayacını sıfırla
+            // Tüm dominoları ve dinleyicileri sıfırla
+            gameBoardEl.innerHTML = ''; 
+            playerHandEl.innerHTML = '';
+            opponentHandEl.innerHTML = '';
+            gameBoardEl.style.border = ''; // Tahta vurgusunu kaldır
+            // Eski event listener'ları kaldırıp yenilerini eklemek için elementleri yeniden klonla
+            const oldBoardEl = gameBoardEl;
+            gameBoardEl = oldBoardEl.cloneNode(true);
+            oldBoardEl.parentNode.replaceChild(gameBoardEl, oldBoardEl);
+
             dealDominos();
-            showAlert("Yeni oyun başladı!");
         }
 
         // Event Listeners
-        drawButton.addEventListener('click', () => showAlert("Bu demo versiyada 'Çek' funksiyası aktiv deyil.", 'info'));
-        passButton.addEventListener('click', passTurn);
+        drawButton.addEventListener('click', drawDomino);
+        passButton.addEventListener('click', () => passTurnLogic(0)); // 0 = oyuncu
         restartButton.addEventListener('click', restartGame);
-        messageBoxCloseButton.addEventListener('click', () => messageBox.classList.add('hidden'));
 
         // Sayfa yüklendiğinde oyunu başlat
         window.onload = dealDominos;
