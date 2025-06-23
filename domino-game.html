@@ -161,9 +161,9 @@
         const DOMINO_MAX_VALUE = 6; // Max domino değeri (6'ya 6)
         const WINNING_SCORE = 365; // Kazanma skoru
         const DOMINO_WIDTH = 40;
-        const DOMINO_HEIGHT = 80;
+        const DOMINO_HEIGHT = 80; // Dikey domino boyutları
         const HORIZONTAL_DOMINO_WIDTH = 80;
-        const HORIZONTAL_DOMINO_HEIGHT = 40;
+        const HORIZONTAL_DOMINO_HEIGHT = 40; // Yatay domino boyutları
         const DOT_RADIUS = 3.5;
         const GAP = 5; // Dominolar arası boşluk
 
@@ -179,16 +179,14 @@
         let passCount = 0; // Ardışık pas geçme sayacı
 
         let selectedDomino = null; // Seçilen domino nesnesi
-        let selectedDominoOffset = { x: 0, y: 0 }; // Seçilen dominonun mouse'a göre offseti
+        let selectedDominoOffset = { x: 0, y: 0 }; // Seçilen dominonun mouse/touch'a göre offseti
         let isDragging = false; // Sürükleniyor mu?
 
         // Canvas ve Context
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
 
-        // UI Elementleri
-        const playerHandEl = document.getElementById('player-hand'); // Aslında DOM elementi kullanılmayacak ama referansı kaldı
-        const opponentHandEl = document.getElementById('opponent-hand'); // Aslında DOM elementi kullanılmayacak ama referansı kaldı
+        // UI Elementleri (DOM yerine Canvas üzerinde çizilecek)
         const playerScoreEl = document.getElementById('player-score');
         const opponentScoreEl = document.getElementById('opponent-score');
         const drawButton = document.getElementById('draw-button');
@@ -206,7 +204,16 @@
             }, duration);
         }
 
-        // Domino taşını çizme fonksiyonu
+        /**
+         * Domino taşını canvas üzerine çizer.
+         * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+         * @param {number[]} domino - [value1, value2] şeklinde domino değeri.
+         * @param {number} x - Domino'nun çizileceği x koordinatı.
+         * @param {number} y - Domino'nun çizileceği y koordinatı.
+         * @param {boolean} isHorizontal - Domino yatay mı çizilecek?
+         * @param {boolean} isSelected - Domino seçili mi? (Vurgu için)
+         * @param {boolean} isOpponent - Rakibin dominosu mu? (Arka plan rengi için)
+         */
         function drawDomino(ctx, domino, x, y, isHorizontal, isSelected = false, isOpponent = false) {
             ctx.save();
             ctx.translate(x, y);
@@ -220,127 +227,103 @@
             ctx.strokeStyle = '#718096';
             ctx.lineWidth = 1;
             ctx.beginPath();
+            // Yuvarlatılmış dikdörtgen
             ctx.roundRect(0, 0, width, height, borderRadius);
             ctx.fill();
             ctx.stroke();
 
-            // Seçili veya oynanabilir vurgusu
+            // Seçili vurgusu
             if (isSelected) {
-                ctx.strokeStyle = '#f97316'; // Seçili renk
+                ctx.strokeStyle = '#f97316'; // Seçili renk (turuncu)
                 ctx.lineWidth = 3;
                 ctx.stroke();
-            } else if (!isOpponent && canPlaceDomino(domino, isHorizontal, x, y, true)) { // Oynanabilir vurgusu
-                ctx.strokeStyle = '#34d399';
-                ctx.lineWidth = 2;
-                ctx.stroke();
             }
-
 
             // Ortadaki çizgi
+            ctx.beginPath();
             if (isHorizontal) {
-                ctx.beginPath();
                 ctx.moveTo(width / 2, 0);
                 ctx.lineTo(width / 2, height);
-                ctx.strokeStyle = '#718096';
-                ctx.lineWidth = 1;
-                ctx.stroke();
             } else {
-                ctx.beginPath();
                 ctx.moveTo(0, height / 2);
                 ctx.lineTo(width, height / 2);
-                ctx.strokeStyle = '#718096';
-                ctx.lineWidth = 1;
-                ctx.stroke();
             }
+            ctx.strokeStyle = '#1a202c'; // Siyah çizgi
+            ctx.lineWidth = 2;
+            ctx.stroke();
 
             // Noktaları çiz
-            drawDots(ctx, domino[0], width, height / 2, isHorizontal, true);
-            drawDots(ctx, domino[1], width, height / 2, isHorizontal, false);
+            drawDots(ctx, domino[0], width, height, isHorizontal, true); // İlk yarı için
+            drawDots(ctx, domino[1], width, height, isHorizontal, false); // İkinci yarı için
             
             ctx.restore();
         }
 
-        // Noktaları çizme fonksiyonu
-        function drawDots(ctx, count, dominoWidth, halfHeight, isHorizontal, isFirstHalf) {
-            ctx.fillStyle = '#1a202c'; // Nokta rengi
-            const margin = DOMINO_WIDTH / 6; // Kenarlardan boşluk
-            const positions = [];
+        /**
+         * Domino yarımına noktaları çizer.
+         * @param {CanvasRenderingContext2D} ctx - Canvas rendering context.
+         * @param {number} count - Nokta sayısı.
+         * @param {number} dominoWidth - Domino'nun toplam genişliği.
+         * @param {number} dominoHeight - Domino'nun toplam yüksekliği.
+         * @param {boolean} isHorizontal - Domino yatay mı?
+         * @param {boolean} isFirstHalf - İlk yarıya mı çiziliyor?
+         */
+        function drawDots(ctx, count, dominoWidth, dominoHeight, isHorizontal, isFirstHalf) {
+            ctx.fillStyle = '#1a202c'; // Nokta rengi (koyu)
+            const margin = isHorizontal ? DOMINO_HEIGHT / 4 : DOMINO_WIDTH / 4; // Nokta kenar boşluğu
+            const dotPositions = [];
+
+            let halfXOffset = 0;
+            let halfYOffset = 0;
+            let halfWidth = dominoWidth;
+            let halfHeight = dominoHeight / 2;
 
             if (isHorizontal) {
-                const halfWidth = dominoWidth / 2;
-                const halfX = isFirstHalf ? 0 : halfWidth;
-                
-                if (count === 1) positions.push({ x: halfX + halfWidth / 2, y: halfHeight });
-                else if (count === 2) {
-                    positions.push({ x: halfX + margin, y: margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight + halfHeight - margin });
-                } else if (count === 3) {
-                    positions.push({ x: halfX + margin, y: margin });
-                    positions.push({ x: halfX + halfWidth / 2, y: halfHeight });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight + halfHeight - margin });
-                } else if (count === 4) {
-                    positions.push({ x: halfX + margin, y: margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: margin });
-                    positions.push({ x: halfX + margin, y: halfHeight + halfHeight - margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight + halfHeight - margin });
-                } else if (count === 5) {
-                    positions.push({ x: halfX + margin, y: margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: margin });
-                    positions.push({ x: halfX + halfWidth / 2, y: halfHeight });
-                    positions.push({ x: halfX + margin, y: halfHeight + halfHeight - margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight + halfHeight - margin });
-                } else if (count === 6) {
-                    positions.push({ x: halfX + margin, y: margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: margin });
-                    positions.push({ x: halfX + margin, y: halfHeight });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight });
-                    positions.push({ x: halfX + margin, y: halfHeight + halfHeight - margin });
-                    positions.push({ x: halfX + halfWidth - margin, y: halfHeight + halfHeight - margin });
-                }
-
-                positions.forEach(p => {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-
+                halfWidth = dominoWidth / 2;
+                halfHeight = dominoHeight;
+                halfXOffset = isFirstHalf ? 0 : dominoWidth / 2;
+                halfYOffset = 0;
             } else { // Vertical
-                const halfY = isFirstHalf ? 0 : halfHeight;
-                
-                if (count === 1) positions.push({ x: dominoWidth / 2, y: halfY + halfHeight / 2 });
-                else if (count === 2) {
-                    positions.push({ x: margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight - margin });
-                } else if (count === 3) {
-                    positions.push({ x: margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth / 2, y: halfY + halfHeight / 2 });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight - margin });
-                } else if (count === 4) {
-                    positions.push({ x: margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + margin });
-                    positions.push({ x: margin, y: halfY + halfHeight - margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight - margin });
-                } else if (count === 5) {
-                    positions.push({ x: margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth / 2, y: halfY + halfHeight / 2 });
-                    positions.push({ x: margin, y: halfY + halfHeight - margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight - margin });
-                } else if (count === 6) {
-                    positions.push({ x: margin, y: halfY + margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + margin });
-                    positions.push({ x: margin, y: halfY + halfHeight / 2 });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight / 2 });
-                    positions.push({ x: margin, y: halfY + halfHeight - margin });
-                    positions.push({ x: dominoWidth - margin, y: halfY + halfHeight - margin });
-                }
-
-                positions.forEach(p => {
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2);
-                    ctx.fill();
-                });
+                halfXOffset = 0;
+                halfYOffset = isFirstHalf ? 0 : dominoHeight / 2;
             }
+
+            // Nokta konumlarını belirle
+            // Basitlik için yaygın desenler:
+            if (count === 1) {
+                dotPositions.push({ x: halfXOffset + halfWidth / 2, y: halfYOffset + halfHeight / 2 });
+            } else if (count === 2) {
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + halfHeight - margin });
+            } else if (count === 3) {
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + halfWidth / 2, y: halfYOffset + halfHeight / 2 });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + halfHeight - margin });
+            } else if (count === 4) {
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + halfHeight - margin });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + halfHeight - margin });
+            } else if (count === 5) {
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + margin });
+                dotPositions.push({ x: halfXOffset + halfWidth / 2, y: halfYOffset + halfHeight / 2 });
+                dotPositions.push({ x: halfXOffset + margin, y: halfYOffset + halfHeight - margin });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfYOffset + halfHeight - margin });
+            } else if (count === 6) {
+                dotPositions.push({ x: halfXOffset + margin, y: margin + halfYOffset });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: margin + halfYOffset });
+                dotPositions.push({ x: halfXOffset + margin, y: halfHeight / 2 + halfYOffset });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfHeight / 2 + halfYOffset });
+                dotPositions.push({ x: halfXOffset + margin, y: halfHeight - margin + halfYOffset });
+                dotPositions.push({ x: halfXOffset + halfWidth - margin, y: halfHeight - margin + halfYOffset });
+            }
+
+            dotPositions.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2);
+                ctx.fill();
+            });
         }
 
         // Domino setini oluştur
@@ -376,8 +359,8 @@
 
             // Her oyuncuya 7 domino dağıt
             for (let i = 0; i < 7; i++) {
-                playerHand.push(allDominos.pop());
-                opponentHand.push(allDominos.pop());
+                playerHand.push({ domino: allDominos.pop(), x: 0, y: 0, isHorizontal: false });
+                opponentHand.push({ domino: allDominos.pop(), x: 0, y: 0, isHorizontal: false });
             }
 
             // İlk dominoyu tahtaya koy (en yüksek çift)
@@ -385,16 +368,16 @@
             let startingPlayer = 0; 
 
             for (let d = DOMINO_MAX_VALUE; d >= 0; d--) {
-                const playerDoubleIndex = playerHand.findIndex(dom => dom[0] === d && dom[1] === d);
-                const opponentDoubleIndex = opponentHand.findIndex(dom => dom[0] === d && dom[1] === d);
+                const playerDoubleIndex = playerHand.findIndex(dom => dom.domino[0] === d && dom.domino[1] === d);
+                const opponentDoubleIndex = opponentHand.findIndex(dom => dom.domino[0] === d && dom.domino[1] === d);
 
                 if (playerDoubleIndex !== -1) {
-                    firstDomino = playerHand[playerDoubleIndex];
+                    firstDomino = playerHand[playerDoubleIndex].domino;
                     playerHand.splice(playerDoubleIndex, 1);
                     startingPlayer = 0; // Oyuncu başlar
                     break;
                 } else if (opponentDoubleIndex !== -1) {
-                    firstDomino = opponentHand[opponentDoubleIndex];
+                    firstDomino = opponentHand[opponentDoubleIndex].domino;
                     opponentHand.splice(opponentDoubleIndex, 1);
                     startingPlayer = 1; // Rakip başlar
                     break;
@@ -403,33 +386,33 @@
             
             if (!firstDomino) {
                 // Çift yoksa, en yüksek puanlı dominoyu bul
-                let maxPlayerDomino = [-1, -1];
-                let maxOpponentDomino = [-1, -1];
+                let maxPlayerDomino = { domino: [-1, -1] };
+                let maxOpponentDomino = { domino: [-1, -1] };
                 let maxPlayerSum = -1;
                 let maxOpponentSum = -1;
 
                 playerHand.forEach(dom => {
-                    const sum = dom[0] + dom[1];
+                    const sum = dom.domino[0] + dom.domino[1];
                     if (sum > maxPlayerSum) {
                         maxPlayerSum = sum;
                         maxPlayerDomino = dom;
                     }
                 });
                 opponentHand.forEach(dom => {
-                    const sum = dom[0] + dom[1];
+                    const sum = dom.domino[0] + dom.domino[1];
                     if (sum > maxOpponentSum) {
                         maxOpponentSum = sum;
                         maxOpponentDomino = dom;
                     }
                 });
 
-                if (maxPlayerSum >= maxOpponentSum && maxPlayerDomino[0] !== -1) {
-                    firstDomino = maxPlayerDomino;
-                    playerHand.splice(playerHand.indexOf(firstDomino), 1);
+                if (maxPlayerSum >= maxOpponentSum && maxPlayerDomino.domino[0] !== -1) {
+                    firstDomino = maxPlayerDomino.domino;
+                    playerHand.splice(playerHand.indexOf(maxPlayerDomino), 1);
                     startingPlayer = 0;
-                } else if (maxOpponentDomino[0] !== -1) {
-                    firstDomino = maxOpponentDomino;
-                    opponentHand.splice(opponentHand.indexOf(firstDomino), 1);
+                } else if (maxOpponentDomino.domino[0] !== -1) {
+                    firstDomino = maxOpponentDomino.domino;
+                    opponentHand.splice(opponentHand.indexOf(maxOpponentDomino), 1);
                     startingPlayer = 1;
                 } else {
                     // Hiçbir domino bulunamazsa (çok nadir)
@@ -443,7 +426,9 @@
                 domino: firstDomino,
                 x: canvas.width / 2 - HORIZONTAL_DOMINO_WIDTH / 2, // Merkeze yerleştir
                 y: canvas.height / 2 - HORIZONTAL_DOMINO_HEIGHT / 2,
-                isHorizontal: true
+                isHorizontal: true,
+                leftEnd: firstDomino[0],
+                rightEnd: firstDomino[1]
             });
             currentPlayer = startingPlayer;
             
@@ -456,54 +441,73 @@
             }
         }
 
-        // Oyun tahtasını ve elleri çiz
+        /**
+         * Oyun tahtasını ve elleri çizer.
+         * Her domino'nun konumunu yeniden hesaplar ve çizer.
+         */
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Canvası temizle
 
-            // Tahtadaki dominolar
-            let currentX = canvas.width / 2;
-            let currentY = canvas.height / 2;
-            
-            // İlk dominoyu çiz
+            // Tahtadaki dominoların konumlarını dinamik olarak ayarla
+            let currentBoardX = canvas.width / 2;
+            let currentBoardY = canvas.height / 2;
+
+            // Tahtadaki dominoların toplam genişliğini hesapla
+            let totalBoardWidth = 0;
             if (gameBoard.length > 0) {
-                const firstBoardDomino = gameBoard[0];
-                drawDomino(ctx, firstBoardDomino.domino, firstBoardDomino.x, firstBoardDomino.y, firstBoardDomino.isHorizontal);
+                // İlk dominoyu merkeze sabitleyelim
+                const firstDominoData = gameBoard[0];
+                firstDominoData.x = canvas.width / 2 - HORIZONTAL_DOMINO_WIDTH / 2;
+                firstDominoData.y = canvas.height / 2 - HORIZONTAL_DOMINO_HEIGHT / 2;
+                totalBoardWidth += HORIZONTAL_DOMINO_WIDTH;
+
+                let leftChainX = firstDominoData.x;
+                for (let i = 1; i < gameBoard.length; i++) {
+                    const dominoData = gameBoard[i];
+                    if (dominoData.side === 'left') {
+                        leftChainX -= (dominoData.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH) + GAP;
+                        dominoData.x = leftChainX;
+                        dominoData.y = currentBoardY - (dominoData.isHorizontal ? HORIZONTAL_DOMINO_HEIGHT / 2 : DOMINO_HEIGHT / 2);
+                        totalBoardWidth += (dominoData.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH) + GAP;
+                    } else if (dominoData.side === 'right') {
+                        // Sağ zincirdeki dominoların x'i, bir önceki sağdaki dominonun bitiş noktasından başlar
+                        const prevRightDomino = gameBoard.slice(0, i).reverse().find(d => d.side === 'right' || d === firstDominoData);
+                        let prevRightX = prevRightDomino ? prevRightDomino.x + (prevRightDomino.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH) : firstDominoData.x + HORIZONTAL_DOMINO_WIDTH;
+                        
+                        dominoData.x = prevRightX + GAP;
+                        dominoData.y = currentBoardY - (dominoData.isHorizontal ? HORIZONTAL_DOMINO_HEIGHT / 2 : DOMINO_HEIGHT / 2);
+                        totalBoardWidth += (dominoData.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH) + GAP;
+                    }
+                }
             }
 
-            // İlk dominodan sonraki dominoları sağa doğru çiz
-            let rightmostX = gameBoard.length > 0 ? gameBoard[0].x + HORIZONTAL_DOMINO_WIDTH : canvas.width / 2;
-            for (let i = 1; i < gameBoard.length; i++) {
-                const dominoData = gameBoard[i];
-                // Dominoyu doğru yönde döndürerek çizmek için hesaplama yapılmalı
-                // Şimdilik sadece yatay olarak yan yana diziyoruz
-                drawDomino(ctx, dominoData.domino, rightmostX + GAP, currentY - (dominoData.isHorizontal ? HORIZONTAL_DOMINO_HEIGHT / 2 : DOMINO_HEIGHT / 2), dominoData.isHorizontal);
-                rightmostX += (dominoData.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH) + GAP;
-            }
+
+            // Tüm dominoları çiz
+            gameBoard.forEach(dominoData => {
+                drawDomino(ctx, dominoData.domino, dominoData.x, dominoData.y, dominoData.isHorizontal);
+            });
 
             // Oyuncunun eli
             let handX = 20;
             let handY = canvas.height - DOMINO_HEIGHT - 20;
-            playerHand.forEach((domino, index) => {
-                let isSelected = (selectedDomino && selectedDomino[0] === domino[0] && selectedDomino[1] === domino[1]);
-                drawDomino(ctx, domino, handX, handY, false, isSelected, false);
-                // Domino nesnelerine pozisyonları kaydet
-                playerHand[index].x = handX;
-                playerHand[index].y = handY;
-                playerHand[index].width = DOMINO_WIDTH;
-                playerHand[index].height = DOMINO_HEIGHT;
-
+            playerHand.forEach(dominoData => {
+                dominoData.x = handX;
+                dominoData.y = handY;
+                dominoData.width = DOMINO_WIDTH;
+                dominoData.height = DOMINO_HEIGHT;
+                drawDomino(ctx, dominoData.domino, dominoData.x, dominoData.y, false, dominoData === selectedDomino, false);
                 handX += DOMINO_WIDTH + GAP;
             });
 
             // Rakibin eli (ters dönük)
             let oppHandX = 20;
             let oppHandY = 20;
-            opponentHand.forEach((domino, index) => {
+            opponentHand.forEach(dominoData => {
+                dominoData.x = oppHandX;
+                dominoData.y = oppHandY;
+                dominoData.width = DOMINO_WIDTH;
+                dominoData.height = DOMINO_HEIGHT;
                 drawDomino(ctx, [0,0], oppHandX, oppHandY, false, false, true); // Ters dönük domino
-                opponentHand[index].x = oppHandX;
-                opponentHand[index].y = oppHandY;
-                opponentHand[index].width = DOMINO_WIDTH;
-                opponentHand[index].height = DOMINO_HEIGHT;
                 oppHandX += DOMINO_WIDTH + GAP;
             });
 
@@ -539,15 +543,15 @@
             const mousePos = getMousePos(e);
 
             // Oyuncunun elindeki dominoları kontrol et
-            playerHand.forEach((domino, index) => {
-                if (mousePos.x > domino.x && mousePos.x < domino.x + domino.width &&
-                    mousePos.y > domino.y && mousePos.y < domino.y + domino.height) {
+            playerHand.forEach((dominoData, index) => {
+                if (mousePos.x > dominoData.x && mousePos.x < dominoData.x + dominoData.width &&
+                    mousePos.y > dominoData.y && mousePos.y < dominoData.y + dominoData.height) {
                     
-                    if (canPlaceDomino(domino, false, 0, 0, true)) { // Bu dominoyu oynayabilir miyim?
-                        selectedDomino = domino;
+                    if (canPlaceDomino(dominoData.domino)) { // Bu dominoyu oynayabilir miyim?
+                        selectedDomino = dominoData; // Domino nesnesinin tamamını ata
                         selectedDominoIndex = index;
-                        selectedDominoOffset.x = mousePos.x - domino.x;
-                        selectedDominoOffset.y = mousePos.y - domino.y;
+                        selectedDominoOffset.x = mousePos.x - dominoData.x;
+                        selectedDominoOffset.y = mousePos.y - dominoData.y;
                         isDragging = true;
                         canvas.classList.add('dragging');
                         drawGame(); // Seçili dominoyu vurgulamak için yeniden çiz
@@ -560,16 +564,19 @@
         }
 
         function handleMouseMove(e) {
-            if (!isDragging) return;
+            if (!isDragging || !selectedDomino) return;
 
             const mousePos = getMousePos(e);
             selectedDomino.x = mousePos.x - selectedDominoOffset.x;
             selectedDomino.y = mousePos.y - selectedDominoOffset.y;
             drawGame(); // Sürüklenen dominoyu sürekli güncelle
+
+            // Sürüklenen dominonun tahtanın hangi ucuna yakın olduğunu vurgula (isteğe bağlı)
+            highlightBoardEnds(mousePos);
         }
 
         function handleMouseUp(e) {
-            if (!isDragging) return;
+            if (!isDragging || !selectedDomino) return;
 
             isDragging = false;
             canvas.classList.remove('dragging');
@@ -582,6 +589,7 @@
             selectedDomino = null;
             selectedDominoIndex = -1;
             drawGame(); // Son durumu çiz
+            clearBoardEndHighlights(); // Vurguları kaldır
         }
 
         function handleTouchStart(e) {
@@ -602,58 +610,126 @@
             handleMouseUp({ clientX: touch.clientX, clientY: touch.clientY });
         }
 
-        // Dominoyu tahtaya yerleştirmeye çalış
-        function tryPlaceDominoOnBoard(domino, dropPos) {
-            if (!domino || gameEnd || currentPlayer !== 0) return false;
+        /**
+         * Sürüklenen dominonun tahta üzerindeki geçerli bırakma alanlarını vurgular.
+         * @param {object} mousePos - Güncel fare/dokunma konumu.
+         */
+        function highlightBoardEnds(mousePos) {
+            if (gameBoard.length === 0) {
+                // Tahta boşsa, ortayı vurgula
+                ctx.strokeStyle = '#34d399';
+                ctx.lineWidth = 4;
+                ctx.strokeRect(canvas.width / 2 - HORIZONTAL_DOMINO_WIDTH, canvas.height / 2 - DOMINO_HEIGHT, HORIZONTAL_DOMINO_WIDTH * 2, DOMINO_HEIGHT * 2);
+            } else {
+                const leftEndDomino = gameBoard[0];
+                const rightEndDomino = gameBoard[gameBoard.length - 1];
 
+                const leftEndValue = leftEndDomino.domino[0];
+                const rightEndValue = rightEndDomino.domino[1];
+
+                // Sol uç için vurgu
+                if (selectedDomino.domino.includes(leftEndValue)) {
+                    ctx.strokeStyle = '#34d399';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(leftEndDomino.x - DOMINO_WIDTH - GAP, leftEndDomino.y, DOMINO_WIDTH + GAP, DOMINO_HEIGHT);
+                }
+
+                // Sağ uç için vurgu
+                if (selectedDomino.domino.includes(rightEndValue)) {
+                    ctx.strokeStyle = '#34d399';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(rightEndDomino.x + HORIZONTAL_DOMINO_WIDTH + GAP, rightEndDomino.y, DOMINO_WIDTH + GAP, DOMINO_HEIGHT);
+                }
+            }
+        }
+
+        function clearBoardEndHighlights() {
+            drawGame(); // Sadece yeniden çizmek vurguları kaldırır
+        }
+
+        // Dominoyu tahtaya yerleştirmeye çalış
+        function tryPlaceDominoOnBoard(dominoData, dropPos) {
+            if (!dominoData || gameEnd || currentPlayer !== 0) return false;
+
+            const currentDomino = dominoData.domino;
             const leftEndValue = gameBoard.length > 0 ? gameBoard[0].domino[0] : null;
             const rightEndValue = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1].domino[1] : null;
 
             let placed = false;
-            let finalDomino = [...domino.domino]; // Orijinal domino değerlerini al
+            let targetSide = '';
+            let rotated = false;
 
             // Tahtaya ilk domino yerleştiriliyorsa
             if (gameBoard.length === 0) {
                 // Ortaya bırakıldıysa kabul et
                 if (dropPos.x > canvas.width / 2 - DOMINO_WIDTH && dropPos.x < canvas.width / 2 + DOMINO_WIDTH &&
                     dropPos.y > canvas.height / 2 - DOMINO_HEIGHT && dropPos.y < canvas.height / 2 + DOMINO_HEIGHT) {
+                    
                     gameBoard.push({
-                        domino: finalDomino,
+                        domino: currentDomino,
                         x: canvas.width / 2 - HORIZONTAL_DOMINO_WIDTH / 2,
                         y: canvas.height / 2 - HORIZONTAL_DOMINO_HEIGHT / 2,
-                        isHorizontal: true
+                        isHorizontal: true,
+                        leftEnd: currentDomino[0],
+                        rightEnd: currentDomino[1],
+                        side: 'initial'
                     });
                     placed = true;
                 }
             } else {
-                // Mevcut tahtadaki dominoların konumları ve uçları
+                // Belirli bir tolerans içinde mi
+                const tolerance = 50; 
                 const firstBoardDomino = gameBoard[0];
                 const lastBoardDomino = gameBoard[gameBoard.length - 1];
 
-                // Sürüklenen dominonun hangi uca yakın olduğuna karar ver
-                // Sol uca yakınsa
+                // Sola yerleştirme denemesi
                 const distToLeft = Math.abs(dropPos.x - firstBoardDomino.x);
-                // Sağ uca yakınsa
-                const distToRight = Math.abs(dropPos.x - (lastBoardDomino.x + (lastBoardDomino.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH)));
-                
-                // Belirli bir tolerans içinde mi
-                const tolerance = 50; // Piksel toleransı
-
-                if (distToLeft < distToRight && distToLeft < tolerance) { // Sol uca bırakıldı
-                    if (finalDomino[0] === leftEndValue) {
-                        gameBoard.unshift({ domino: finalDomino.reverse(), x: 0, y: 0, isHorizontal: true });
-                        placed = true;
-                    } else if (finalDomino[1] === leftEndValue) {
-                        gameBoard.unshift({ domino: finalDomino, x: 0, y: 0, isHorizontal: true });
+                if (distToLeft < tolerance) {
+                    if (currentDomino[0] === leftEndValue) {
+                        finalDomino = [...currentDomino].reverse();
+                        targetSide = 'left';
+                        rotated = true;
+                    } else if (currentDomino[1] === leftEndValue) {
+                        finalDomino = [...currentDomino];
+                        targetSide = 'left';
+                    }
+                    if (targetSide) {
+                         gameBoard.unshift({
+                            domino: finalDomino,
+                            x: 0, y: 0, // Konumlar drawGame'de hesaplanacak
+                            isHorizontal: true,
+                            leftEnd: finalDomino[0],
+                            rightEnd: finalDomino[1],
+                            side: targetSide
+                        });
                         placed = true;
                     }
-                } else if (distToRight < tolerance) { // Sağ uca bırakıldı
-                    if (finalDomino[0] === rightEndValue) {
-                        gameBoard.push({ domino: finalDomino, x: 0, y: 0, isHorizontal: true });
-                        placed = true;
-                    } else if (finalDomino[1] === rightEndValue) {
-                        gameBoard.push({ domino: finalDomino.reverse(), x: 0, y: 0, isHorizontal: true });
-                        placed = true;
+                } 
+                
+                // Sağa yerleştirme denemesi (sadece sol tarafa yerleşmediyse veya sağ taraf daha yakınsa)
+                if (!placed) {
+                    const distToRight = Math.abs(dropPos.x - (lastBoardDomino.x + (lastBoardDomino.isHorizontal ? HORIZONTAL_DOMINO_WIDTH : DOMINO_WIDTH)));
+                    if (distToRight < tolerance) {
+                        if (currentDomino[0] === rightEndValue) {
+                            finalDomino = [...currentDomino];
+                            targetSide = 'right';
+                        } else if (currentDomino[1] === rightEndValue) {
+                            finalDomino = [...currentDomino].reverse();
+                            targetSide = 'right';
+                            rotated = true;
+                        }
+
+                        if (targetSide) {
+                            gameBoard.push({
+                                domino: finalDomino,
+                                x: 0, y: 0, // Konumlar drawGame'de hesaplanacak
+                                isHorizontal: true,
+                                leftEnd: finalDomino[0],
+                                rightEnd: finalDomino[1],
+                                side: targetSide
+                            });
+                            placed = true;
+                        }
                     }
                 }
             }
@@ -678,13 +754,13 @@
         }
 
         // Bir domino oynanabilir mi?
-        function canPlaceDomino(domino, isHorizontal, x, y, checkOnlyPlayable = false) {
-            if (gameBoard.length === 0) return true; // Tahta boşsa her domino oynanabilir
+        function canPlaceDomino(dominoValue) {
+            if (gameBoard.length === 0) return true; // Tahta boşsa elindeki domino oynanabilir
 
             const leftEnd = gameBoard[0].domino[0];
             const rightEnd = gameBoard[gameBoard.length - 1].domino[1];
 
-            return domino.includes(leftEnd) || domino.includes(rightEnd);
+            return dominoValue.includes(leftEnd) || dominoValue.includes(rightEnd);
         }
 
         function resetSelectedDominoState() {
@@ -703,34 +779,25 @@
             
             let currentSum = leftEnd + rightEnd;
             
-            // Eğer oyunun ortasındaki son domino çiftse ve bu çiftin iki ucu da açıksa, o zaman toplamına ekle
-            // Örneğin: [3|3] ortadaysa ve uçlar açık değilse, sadece uçları say
-            // Ama [3|3] uçlardan biriyse, iki ucunu da say
-            if (gameBoard.length > 1) { // Eğer tek bir domino varsa, sadece 2 ucunu sayarız
-                const firstDomino = gameBoard[0].domino;
-                const lastDomino = gameBoard[gameBoard.length - 1].domino;
-
-                // Eğer ilk domino çift ve hala iki ucu da açıksa
-                if (gameBoard[0].isHorizontal && firstDomino[0] === firstDomino[1]) {
-                    // Bu senaryoda genellikle sadece bir ucun açık olması beklenir,
-                    // ancak domino kurallarına göre bir çiftin dört tarafı da oynanabilir hale gelebilir.
-                    // Şimdilik sadece görünen açık uçları topluyoruz.
-                }
-                // Eğer son domino çift ve hala iki ucu da açıksa
-                if (gameBoard[gameBoard.length - 1].isHorizontal && lastDomino[0] === lastDomino[1]) {
-                    // Benzer şekilde
-                }
+            // Eğer çift domino tahtanın ucundaysa ve sadece bir ucu bağlıysa, o çiftin her iki tarafındaki değer de hesaba katılır
+            // Bu genellikle "sniff" veya "spinner" denilen çift daşlar üçün keçərlidir.
+            // Sadəlik üçün, yalnız açıq ucların cəmini götürürük.
+            // Fotoğrafda 4 ucun da toplanması (köşe taşları) göründüyü için ona göre ayarlıyorum.
+            let totalBoardPoints = 0;
+            if (gameBoard.length === 1) {
+                totalBoardPoints = gameBoard[0].domino[0] + gameBoard[0].domino[1];
+            } else {
+                totalBoardPoints = leftEnd + rightEnd;
             }
-            
 
-            // Toplam 5'in katıysa skor ekle
-            if (currentSum > 0 && currentSum % 5 === 0) {
+            // Eğer toplam 5'in katıysa skor ekle
+            if (totalBoardPoints > 0 && totalBoardPoints % 5 === 0) {
                 if (currentPlayer === 0) {
-                    playerScore += currentSum;
+                    playerScore += totalBoardPoints;
                 } else {
-                    opponentScore += currentSum;
+                    opponentScore += totalBoardPoints;
                 }
-                showMessageBox(`${currentSum} xal əlavə edildi!`);
+                showMessageBox(`${totalBoardPoints} xal əlavə edildi!`);
             }
         }
 
@@ -752,35 +819,38 @@
 
             // Oynanabilir dominoları bul
             for (let i = 0; i < opponentHand.length; i++) {
-                let currentDomino = opponentHand[i];
+                let currentDomino = opponentHand[i].domino; // Domino değeri
                 if (gameBoard.length === 0) { // İlk domino ise herhangi birini oynayabilir
-                    bestPlay = { domino: currentDomino, index: i, side: 'initial', reversed: false };
+                    bestPlay = { dominoData: opponentHand[i], index: i, side: 'initial', reversed: false };
                     break;
                 } else {
                     if (currentDomino[0] === leftEndValue) {
-                        bestPlay = { domino: currentDomino, index: i, side: 'left', reversed: true };
+                        bestPlay = { dominoData: opponentHand[i], index: i, side: 'left', reversed: true };
                         break;
                     } else if (currentDomino[1] === leftEndValue) {
-                        bestPlay = { domino: currentDomino, index: i, side: 'left', reversed: false };
+                        bestPlay = { dominoData: opponentHand[i], index: i, side: 'left', reversed: false };
                         break;
                     } else if (currentDomino[0] === rightEndValue) {
-                        bestPlay = { domino: currentDomino, index: i, side: 'right', reversed: false };
+                        bestPlay = { dominoData: opponentHand[i], index: i, side: 'right', reversed: false };
                         break;
                     } else if (currentDomino[1] === rightEndValue) {
-                        bestPlay = { domino: currentDomino, index: i, side: 'right', reversed: true };
+                        bestPlay = { dominoData: opponentHand[i], index: i, side: 'right', reversed: true };
                         break;
                     }
                 }
             }
 
             if (bestPlay) {
-                let dominoToPlace = [...bestPlay.domino];
-                if (bestPlay.reversed) dominoToPlace.reverse();
+                let dominoToPlaceValue = [...bestPlay.dominoData.domino];
+                if (bestPlay.reversed) dominoToPlaceValue.reverse();
 
                 const newDominoData = {
-                    domino: dominoToPlace,
-                    x: 0, y: 0, // Konumları sonradan ayarlanacak
-                    isHorizontal: true
+                    domino: dominoToPlaceValue,
+                    x: 0, y: 0, // Konumlar drawGame'de hesaplanacak
+                    isHorizontal: true,
+                    leftEnd: dominoToPlaceValue[0],
+                    rightEnd: dominoToPlaceValue[1],
+                    side: bestPlay.side // Hangi tarafa yerleştirildiği
                 };
 
                 if (bestPlay.side === 'left') {
@@ -788,21 +858,22 @@
                 } else if (bestPlay.side === 'right') {
                     gameBoard.push(newDominoData);
                 } else { // initial
-                    gameBoard.push(newDominoData); // İlk domino her zaman merkeze konulacak
+                    // İlk domino her zaman merkeze konulacak
                     newDominoData.x = canvas.width / 2 - HORIZONTAL_DOMINO_WIDTH / 2;
                     newDominoData.y = canvas.height / 2 - HORIZONTAL_DOMINO_HEIGHT / 2;
+                    gameBoard.push(newDominoData); 
                 }
                 opponentHand.splice(bestPlay.index, 1);
                 played = true;
             } else {
                 // Rakip oynayamadıysa çekmeye çalış
                 if (allDominos.length > 0) {
-                    const drawnDomino = allDominos.pop();
-                    opponentHand.push(drawnDomino);
+                    const drawnDominoValue = allDominos.pop();
+                    opponentHand.push({ domino: drawnDominoValue, x: 0, y: 0, isHorizontal: false }); // Yeni çekilen domino
                     showMessageBox("Rəqib bir domino çəkdi.");
                     drawGame(); // UI güncelle
                     // Çektiği dominoyla oynayabilir mi tekrar kontrol et
-                    if (canPlayerMove(opponentHand)) {
+                    if (canPlayerMove(opponentHand.map(d => d.domino))) { // opponentHand'i sadece domino değerleri olarak gönder
                         setTimeout(opponentTurn, 1000); // Eğer oynayabilirse tekrar hamle yapsın
                         return;
                     } else {
@@ -857,9 +928,10 @@
 
             if (gameBoard.length === 0) return hand.length > 0; // Tahta boşsa elinde domino varsa oynayabilir
 
+            // Hand'deki her dominonun domino değerini kontrol et
             for (let i = 0; i < hand.length; i++) {
-                const domino = hand[i];
-                if (domino.includes(leftEnd) || domino.includes(rightEnd)) {
+                const dominoValue = hand[i].domino; // Domino değeri ([val1, val2])
+                if (dominoValue.includes(leftEnd) || dominoValue.includes(rightEnd)) {
                     return true;
                 }
             }
@@ -875,8 +947,8 @@
             } else if (winner === -1) {
                  showMessageBox("Oyun bitdi. Heç kim oynaya bilmədi. Xallar yuvarlaqlaşdırılır.");
                  // Kalan dominoları topla ve yuvarla
-                 let remainingPlayerScore = playerHand.reduce((sum, domino) => sum + domino[0] + domino[1], 0);
-                 let remainingOpponentScore = opponentHand.reduce((sum, domino) => sum + domino[0] + domino[1], 0);
+                 let remainingPlayerScore = playerHand.reduce((sum, dominoData) => sum + dominoData.domino[0] + dominoData.domino[1], 0);
+                 let remainingOpponentScore = opponentHand.reduce((sum, dominoData) => sum + dominoData.domino[0] + dominoData.domino[1], 0);
 
                  // Daha az puana sahip olan kalan puanlarını kazanır
                  if (remainingPlayerScore < remainingOpponentScore) {
@@ -941,12 +1013,12 @@
             }
 
             const drawnDomino = allDominos.pop();
-            playerHand.push(drawnDomino);
+            playerHand.push({ domino: drawnDomino, x: 0, y: 0, isHorizontal: false }); // Yeni çekilen domino nesnesi
             showMessageBox("Bir domino çəkdiniz.", 1500);
             drawGame(); // UI güncelle
             
             // Çektiği dominoyla oynayabilir mi kontrol et
-            if (canPlayerMove(playerHand)) {
+            if (canPlayerMove(playerHand.map(d => d.domino))) { // playerHand'i sadece domino değerleri olarak gönder
                 showMessageBox("Çəkdiyin domino ilə oynaya bilərsən.", 2000);
                 passButton.disabled = true; // Oynayabilirse pas geçemez
             } else {
