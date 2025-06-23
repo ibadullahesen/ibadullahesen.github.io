@@ -159,7 +159,7 @@
         <div class="max-w-3xl w-full gradient-form-bg rounded-lg shadow-2xl p-8 md:p-12 border border-green-700 hover-grow">
             <h2 class="text-4xl font-bold text-center mb-8 text-white">Biznesini Paylaş</h2>
             <p class="text-center text-gray-200 mb-8">
-                Biznesinizi geniş kütləyə çatdırmaq üçün aşağıdakı formu doldurun. Məlumatlarınız yoxlandıqdan sonra AxtarGet botunda və bu səhifədə görünəcək.
+                Biznesinizi geniş kütləyə çatdırmaq üçün aşağıdakı formu doldurun. Məlumatlarınız yoxlandıqdan sonra AxtarGet botuna əlavə ediləcək.
             </p>
 
             <form id="business-share-form" class="space-y-6">
@@ -218,39 +218,16 @@
         </div>
     </section>
 
-    <!-- İstifdəçi Paylaşımları Bölməsi (Instagram-a bənzər feed) -->
+    <!-- İstifadəçi Paylaşımları Bölməsi (İndi boş olacaq) -->
     <section id="user-posts-section" class="section-padding bg-gray-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold text-center mb-12 text-green-400">İstifadəçi Paylaşımları</h2>
-            <div class="text-center mb-8">
-                <button id="add-your-business-btn" class="inline-flex items-center px-6 py-3 bg-green-600 text-white text-lg font-semibold rounded-full shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
-                    <i class="fas fa-plus-circle mr-2"></i> Sən də Əlavə Et
-                </button>
-            </div>
-            <div id="business-posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Biznes paylaşımları buraya dinamik olaraq əlavə ediləcək -->
-                <div class="business-card p-4 text-center">
-                    <div class="business-card-content">
-                        <h3 class="business-card-title">YÜKLƏNİR...</h3>
-                        <p class="business-card-category-region">Kateqoriya: -, Bölgə: -</p>
-                        <p class="business-card-about">Məlumatlar yüklənir, zəhmət olmasa gözləyin.</p>
-                        <div class="business-card-contact">
-                            <i class="fas fa-phone-alt"></i> Əlaqə: -
-                        </div>
-                        <div class="business-card-contact">
-                            <i class="fab fa-instagram"></i> Instagram: -
-                        </div>
-                    </div>
-                    <div class="interaction-bar">
-                        <button class="interaction-button like-button"><i class="far fa-heart"></i> <span class="likes-count">0</span> Bəyənmə</button>
-                        <!-- ŞƏRH DÜYMƏSİ LƏĞV EDİLDİ -->
-                        <button class="interaction-button share-button"><i class="fas fa-share-alt"></i> Paylaş</button>
-                    </div>
-                </div>
-            </div>
-            <div id="no-businesses-message" class="hidden text-center text-gray-400 text-xl mt-8">
-                Hələ heç bir biznes paylaşılmayıb. İlk siz olun!
-            </div>
+            <p class="text-center text-gray-400 text-xl">Bu hissə yalnız təsdiqlənmiş bizneslər Telegram botuna əlavə edildikdən sonra aktiv olacaqdır.</p>
+            <!-- Bu hissə boş olacaq, çünki heç bir biznes veb-saytda göstərilmir. -->
+            <div id="business-posts-container" class="hidden"></div>
+            <p id="no-businesses-message" class="hidden text-center text-gray-400 text-xl mt-8">
+                Hələ heç bir biznes təsdiqlənməyib.
+            </p>
         </div>
     </section>
 
@@ -264,13 +241,11 @@
 
     <div id="alert-container"></div>
 
-    <!-- COMMENT MODAL VƏ İLƏ BAĞLI BÜTÜN KOD LƏĞV EDİLDİ -->
-
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"; 
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
         
         // Firebase konfiqurasiyası - provided by the user
         const firebaseConfig = {
@@ -313,7 +288,8 @@
         const loadingIndicator = document.getElementById('loading-indicator');
         const telegramAddMessage = document.getElementById('telegram-add-message'); // Yeni mesaj elementi
         const alertContainer = document.getElementById('alert-container');
-        const businessPostsContainer = document.getElementById('business-posts-container');
+        const userPostsSection = document.getElementById('user-posts-section'); // İstifadəçi Paylaşımları bölməsi
+        const businessPostsContainer = document.getElementById('business-posts-container'); // Gizlədilmiş div
         const noBusinessesMessage = document.getElementById('no-businesses-message');
         const addYourBusinessBtn = document.getElementById('add-your-business-btn');
 
@@ -348,8 +324,7 @@
                 currentUserName = "Anonim İstifadəçi " + user.uid.substring(0, 6); // Anonim istifadəçilər üçün ad
                 
                 console.log("Firebase Authentication successful. User ID:", currentUserId, "Username:", currentUserName);
-                // Load businesses after successful authentication
-                loadBusinesses();
+                // loadBusinesses() funksiyası artıq çağırılmır, çünki bizneslər bu səhifədə göstərilməyəcək.
             } else {
                 console.log("Firebase Authentication failed. Attempting anonymous sign-in.");
                 currentUserId = null;
@@ -411,7 +386,6 @@
                     businessAbout: businessAbout,
                     contactNumber: contactNumber,
                     instagramLink: instagramLink,
-                    likes: [], 
                     status: 'pending', // YENİ: Status sahəsi
                     createdAt: serverTimestamp() 
                 });
@@ -432,123 +406,8 @@
             }
         });
 
-        // Load and Display Businesses from Firestore (Only 'approved' ones)
-        function loadBusinesses() {
-            // Yalnız statusu 'approved' olan biznesləri yüklə
-            const businessesColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/businesses`);
-            const q = query(businessesColRef, where("status", "==", "approved")); // Yalnız 'approved' statuslu biznesləri filterləyir
-
-            onSnapshot(q, (snapshot) => {
-                businessPostsContainer.innerHTML = ''; // Mövcud məzmunu təmizləyin
-                const businesses = [];
-                snapshot.forEach((doc) => {
-                    businesses.push({ id: doc.id, ...doc.data() });
-                });
-
-                if (businesses.length === 0) {
-                    noBusinessesMessage.classList.remove('hidden');
-                } else {
-                    noBusinessesMessage.classList.add('hidden');
-                    businesses.forEach(business => {
-                        const businessCard = document.createElement('div');
-                        businessCard.className = 'business-card';
-                        businessCard.innerHTML = `
-                            <div class="business-card-content">
-                                <h3 class="business-card-title">${business.businessName.toUpperCase()}</h3>
-                                <p class="business-card-category-region">Kateqoriya: ${business.businessCategory} | Bölgə: ${business.businessRegion}</p>
-                                <p class="business-card-about">${business.businessAbout}</p>
-                                <div class="business-card-contact">
-                                    <i class="fas fa-phone-alt"></i> Əlaqə: <a href="tel:${business.contactNumber}" class="text-white hover:text-green-400">${business.contactNumber}</a>
-                                </div>
-                                ${business.instagramLink ? `
-                                <div class="business-card-contact">
-                                    <i class="fab fa-instagram"></i> Instagram: <a href="${business.instagramLink}" target="_blank" class="text-white hover:text-green-400">${business.instagramLink.split('/').pop() || 'Link'}</a>
-                                </div>` : ''}
-                            </div>
-                            <div class="interaction-bar">
-                                <button class="interaction-button like-button ${business.likes && business.likes.includes(currentUserId) ? 'liked' : ''}" data-id="${business.id}">
-                                    <i class="far fa-heart"></i> <span class="likes-count">${business.likes ? business.likes.length : 0}</span> Bəyənmə
-                                </button>
-                                <!-- ŞƏRH DÜYMƏSİ LƏĞV EDİLDİ -->
-                                <button class="interaction-button share-button" data-id="${business.id}" data-name="${business.businessName}" data-about="${business.businessAbout}">
-                                    <i class="fas fa-share-alt"></i> Paylaş
-                                </button>
-                            </div>
-                        `;
-                        businessPostsContainer.appendChild(businessCard);
-                    });
-                    addInteractionListeners(); // Add listeners to new cards
-                }
-            }, (error) => {
-                console.error("Error loading business data:", error);
-                showAlert("Could not load business data.", 'error');
-            });
-        }
-
-        // Event Listeners for Like, Comment, and Share Buttons
-        function addInteractionListeners() {
-            // Like Button
-            businessPostsContainer.querySelectorAll('.like-button').forEach(button => {
-                button.onclick = async (e) => {
-                    // Anonim istifadəçilər də bəyənə bilər
-                    if (!auth.currentUser) { 
-                        showAlert("Biznesi bəyənmək üçün xahiş edirik səhifəni yeniləyin və sistemin avtomatik giriş etməsini gözləyin.", 'error');
-                        return;
-                    }
-
-                    const businessId = e.currentTarget.dataset.id;
-                    const businessRef = doc(db, `artifacts/${firebaseProjectId}/public/data/businesses`, businessId);
-                    const docSnap = await getDoc(businessRef);
-                    if (docSnap.exists()) {
-                        const currentLikes = docSnap.data().likes || [];
-                        if (currentLikes.includes(currentUserId)) {
-                            // Already liked, so unlike
-                            const newLikes = currentLikes.filter(uid => uid !== currentUserId);
-                            await updateDoc(businessRef, { likes: newLikes });
-                        } else {
-                            // Not liked, so like
-                            await updateDoc(businessRef, { likes: arrayUnion(currentUserId) });
-                        }
-                    }
-                };
-            });
-
-            // Comment Button removed from here.
-
-            // Share Button
-            businessPostsContainer.querySelectorAll('.share-button').forEach(button => {
-                button.onclick = async (e) => {
-                    const businessName = e.currentTarget.dataset.name;
-                    const businessAbout = e.currentTarget.dataset.about;
-                    const shareUrl = window.location.href; // Share current page URL
-
-                    if (navigator.share) {
-                        try {
-                            await navigator.share({
-                                title: `AxtarGet Bot: ${businessName}`,
-                                text: `${businessName}: ${businessAbout}\nDiscover this business on AxtarGet Bot now!`,
-                                url: shareUrl,
-                            });
-                            console.log('Successfully shared');
-                        }
-                    } catch (error) {
-                        console.error('Sharing failed:', error);
-                        showAlert('Sharing failed.', 'error');
-                    }
-                };
-            });
-        }
-
-        // Load Comments and Display in Modal (Removed from here and HTML)
-
-        // Post Comment (Removed from here)
-
-
-        // Close Modal Events (Only for comment modal now)
-        // closeAuthModalButton has been removed from HTML so no need to handle here.
-
-        // If you had an auth modal previously, ensure its HTML is completely gone.
-        // It was removed in a previous step, just double checking.
+        // loadBusinesses() funksiyası ləğv edildi, çünki bizneslər bu səhifədə göstərilməyəcək.
+        // addInteractionListeners() funksiyası da ləğv edildi, çünki artıq istifadə olunmur.
 
         // "Add Your Business" button click (for scrolling to form)
         addYourBusinessBtn.addEventListener('click', () => {
