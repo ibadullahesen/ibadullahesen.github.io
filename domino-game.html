@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domino Oyunu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2e7d32; /* Koyu yeşil fon */
+            color: #e2e8f0;
+            margin: 0;
+            overflow: hidden; /* Dikey kaydırmayı engelle */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Responsive ve Yatay Yönlendirme için */
+        @media screen and (orientation: portrait) {
+            body::before {
+                content: "Lütfen cihazınızı yatay çevirin!";
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.9);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                text-align: center;
+                z-index: 9999;
+            }
+            .game-container {
+                display: none; /* Portre modda oyunu gizle */
+            }
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            max-width: 1200px; /* Max genişlik */
+            max-height: 600px; /* Max yükseklik */
+            background-color: #388e3c; /* Daha açık yeşil masa */
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .score-board div {
+            background-color: #1a202c;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #10b981;
+        }
+
+        .board {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap; /* Dominoları tek satırda tut */
+            overflow-x: auto; /* Yatay kaydırma gerekirse */
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .player-hands {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            height: 100px;
+        }
+
+        .player-hand, .opponent-hand {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #1a202c;
+            border-radius: 10px;
+            overflow-x: auto; /* Yatay kaydırma */
+            flex-shrink: 0;
+        }
+        .player-hand {
+            border: 2px solid #34d399;
+        }
+        .opponent-hand {
+            border: 2px solid #f97316;
+        }
+
+        /* Domino Taşı Stilleri */
+        .domino {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            width: 40px; /* Gerekirse küçült */
+            height: 80px; /* Gerekirse küçült */
+            background-color: #e2e8f0; /* Açık gri */
+            border: 1px solid #718096;
+            border-radius: 5px;
+            margin: 0 5px;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0; /* Taşı sıkıştırma */
+        }
+        .domino.horizontal {
+            flex-direction: row;
+            width: 80px;
+            height: 40px;
+        }
+
+        .domino-half {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 50%;
+            border-bottom: 1px solid #718096;
+            box-sizing: border-box;
+        }
+        .domino.horizontal .domino-half {
+            width: 50%;
+            height: 100%;
+            border-bottom: none;
+            border-right: 1px solid #718096;
+        }
+        .domino.horizontal .domino-half:last-child {
+            border-right: none;
+        }
+
+        .domino-dot {
+            width: 8px; /* Nokta boyutu */
+            height: 8px;
+            background-color: #1a202c;
+            border-radius: 50%;
+            margin: 2px;
+        }
+
+        /* Nokta Konumlandırma */
+        .dots-0 { visibility: hidden; }
+        .dots-1 { display: flex; justify-content: center; align-items: center; }
+        .dots-2 { display: flex; justify-content: space-between; }
+        .dots-2 .domino-dot:nth-child(1) { align-self: flex-start; }
+        .dots-2 .domino-dot:nth-child(2) { align-self: flex-end; }
+        .dots-3 { display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+        .dots-3 .domino-dot:nth-child(1) { align-self: flex-start; }
+        .dots-3 .domino-dot:nth-child(2) { align-self: center; }
+        .dots-3 .domino-dot:nth-child(3) { align-self: flex-end; }
+        .dots-4 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
+        .dots-5 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
+        .dots-5 .domino-dot:nth-child(odd) { align-self: flex-start; }
+        .dots-5 .domino-dot:nth-child(even) { align-self: flex-end; }
+        .dots-5 .domino-dot:nth-child(3) { align-self: center; }
+        .dots-6 { display: flex; flex-wrap: wrap; justify-content: space-between; align-content: space-between; }
+
+
+        .domino.selected {
+            border: 2px solid #f97316; /* Seçilen domino rengi */
+            transform: translateY(-5px);
+        }
+        .domino.playable {
+            border: 2px solid #34d399; /* Oynanabilir domino rengi */
+        }
+        .domino.played {
+            cursor: default;
+            opacity: 0.8;
+            box-shadow: none;
+        }
+        .domino.opponent {
+            background-color: #718096; /* Rakibin dominoları */
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .action-button {
+            background-color: #10b981;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .action-button:hover:not(:disabled) {
+            background-color: #059669;
+        }
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+            z-index: 1000;
+            border: 2px solid #f97316;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="score-board">
+            <div id="player-score">Sən: 0</div>
+            <div id="opponent-score">Rəqib: 0</div>
+        </div>
+
+        <div class="board" id="game-board">
+            <!-- Oyun tahtası dominoları buraya gelecek -->
+        </div>
+
+        <div class="player-hands">
+            <div class="opponent-hand" id="opponent-hand">
+                <!-- Rakibin dominoları buraya gelecek -->
+            </div>
+            <div class="player-hand" id="player-hand">
+                <!-- Oyuncunun dominoları buraya gelecek -->
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button id="draw-button" class="action-button">Çek (Yoxdur)</button>
+            <button id="pass-button" class="action-button">Növbəni Keç</button>
+            <button id="restart-button" class="action-button">Yenidən Başla</button>
+        </div>
+    </div>
+
+    <div id="message-box" class="message-box hidden">
+        <p id="message-content"></p>
+        <button id="message-box-close-button" class="action-button mt-4">Tamam</button>
+    </div>
+
+    <script>
+        const DOMINO_MAX_VALUE = 6;
+        const WINNING_SCORE = 365;
+
+        let allDominos = [];
+        let playerHand = [];
+        let opponentHand = [];
+        let gameBoard = [];
+        let currentPlayer = 0; // 0 for player, 1 for opponent
+        let playerScore = 0;
+        let opponentScore = 0;
+        let selectedDomino = null;
+        let selectedDominoIndex = -1;
+
+        const playerHandEl = document.getElementById('player-hand');
+        const opponentHandEl = document.getElementById('opponent-hand');
+        const gameBoardEl = document.getElementById('game-board');
+        const playerScoreEl = document.getElementById('player-score');
+        const opponentScoreEl = document.getElementById('opponent-score');
+        const drawButton = document.getElementById('draw-button');
+        const passButton = document.getElementById('pass-button');
+        const restartButton = document.getElementById('restart-button');
+        const messageBox = document.getElementById('message-box');
+        const messageContent = document.getElementById('message-content');
+        const messageBoxCloseButton = document.getElementById('message-box-close-button');
+
+        // Domino taşını temsil eden HTML öğesini oluştur
+        function createDominoElement(domino, isHorizontal = false, isOpponent = false) {
+            const dominoEl = document.createElement('div');
+            dominoEl.classList.add('domino');
+            if (isHorizontal) {
+                dominoEl.classList.add('horizontal');
+            }
+            if (isOpponent) {
+                dominoEl.classList.add('opponent');
+            }
+
+            // İlk yarı
+            const half1 = document.createElement('div');
+            half1.classList.add('domino-half', `dots-${domino[0]}`);
+            for (let i = 0; i < domino[0]; i++) {
+                half1.appendChild(document.createElement('div')).classList.add('domino-dot');
+            }
+
+            // İkinci yarı
+            const half2 = document.createElement('div');
+            half2.classList.add('domino-half', `dots-${domino[1]}`);
+            for (let i = 0; i < domino[1]; i++) {
+                half2.appendChild(document.createElement('div')).classList.add('domino-dot');
+            }
+
+            dominoEl.appendChild(half1);
+            dominoEl.appendChild(half2);
+
+            return dominoEl;
+        }
+
+        // Domino setini oluştur
+        function generateDominos() {
+            const dominos = [];
+            for (let i = 0; i <= DOMINO_MAX_VALUE; i++) {
+                for (let j = i; j <= DOMINO_MAX_VALUE; j++) {
+                    dominos.push([i, j]);
+                }
+            }
+            return dominos;
+        }
+
+        // Dominoları karıştır
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Dominoları dağıt ve oyunu başlat
+        function dealDominos() {
+            allDominos = shuffle(generateDominos());
+            playerHand = [];
+            opponentHand = [];
+            gameBoard = [];
+            playerScore = 0;
+            opponentScore = 0;
+            
+            // Her oyuncuya 7 domino dağıt
+            for (let i = 0; i < 7; i++) {
+                playerHand.push(allDominos.pop());
+                opponentHand.push(allDominos.pop());
+            }
+
+            // İlk dominoyu tahtaya koy (genellikle en yüksek çift)
+            let firstDomino = null;
+            // İlk olarak en yüksek çifti bul
+            for (let d = DOMINO_MAX_VALUE; d >= 0; d--) {
+                const playerDouble = playerHand.find(dom => dom[0] === d && dom[1] === d);
+                const opponentDouble = opponentHand.find(dom => dom[0] === d && dom[1] === d);
+
+                if (playerDouble) {
+                    firstDomino = playerDouble;
+                    playerHand.splice(playerHand.indexOf(firstDomino), 1);
+                    currentPlayer = 0; // Oyuncu başlar
+                    break;
+                } else if (opponentDouble) {
+                    firstDomino = opponentDouble;
+                    opponentHand.splice(opponentHand.indexOf(firstDomino), 1);
+                    currentPlayer = 1; // Rakip başlar
+                    break;
+                }
+            }
+            // Eğer çift yoksa, rastgele bir domino koy (basitlik için)
+            if (!firstDomino && allDominos.length > 0) {
+                 firstDomino = playerHand.length > 0 ? playerHand.pop() : opponentHand.pop();
+                 currentPlayer = playerHand.includes(firstDomino) ? 0 : 1; // Başlangıç dominounun sahibini belirle
+            }
+            
+            if (firstDomino) {
+                gameBoard.push(firstDomino);
+            }
+            
+            updateUI();
+            if (currentPlayer === 1) {
+                setTimeout(opponentTurn, 1000); // Rakibin ilk hamlesi
+            }
+        }
+
+        // UI güncellemeleri
+        function updateUI() {
+            playerHandEl.innerHTML = '';
+            opponentHandEl.innerHTML = '';
+            gameBoardEl.innerHTML = '';
+
+            // Oyuncu eli
+            playerHand.forEach((domino, index) => {
+                const dominoEl = createDominoElement(domino);
+                dominoEl.dataset.index = index;
+                dominoEl.addEventListener('click', () => selectDomino(index));
+                playerHandEl.appendChild(dominoEl);
+            });
+
+            // Rakip eli (sadece sayıları göster)
+            opponentHand.forEach(() => {
+                const dominoEl = createDominoElement([0,0], false, true); // Rakibin dominoları kapalı
+                opponentHandEl.appendChild(dominoEl);
+            });
+
+            // Oyun tahtası
+            gameBoard.forEach((domino, index) => {
+                const dominoEl = createDominoElement(domino, true); // Tahtadaki dominolar yatay
+                // Tahtadaki dominolar tıklanamaz
+                dominoEl.classList.add('played');
+                gameBoardEl.appendChild(dominoEl);
+            });
+
+            playerScoreEl.textContent = `Sən: ${playerScore}`;
+            opponentScoreEl.textContent = `Rəqib: ${opponentScore}`;
+
+            // Oynanabilir dominoları vurgula (sadece oyuncunun elinde)
+            highlightPlayableDominos();
+        }
+
+        // Oynanabilir dominoları vurgula
+        function highlightPlayableDominos() {
+            const leftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
+            const rightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
+
+            playerHandEl.querySelectorAll('.domino').forEach(dominoEl => {
+                dominoEl.classList.remove('playable', 'selected');
+                const index = parseInt(dominoEl.dataset.index);
+                const domino = playerHand[index];
+
+                if (domino && (leftEnd === null || domino.includes(leftEnd) || domino.includes(rightEnd))) {
+                    dominoEl.classList.add('playable');
+                }
+            });
+        }
+
+        // Domino seç
+        function selectDomino(index) {
+            if (currentPlayer !== 0) {
+                showAlert("Növbə sənin deyil!");
+                return;
+            }
+            if (selectedDominoIndex === index) {
+                // Zaten seçiliyse seçimini kaldır
+                playerHandEl.children[selectedDominoIndex].classList.remove('selected');
+                selectedDomino = null;
+                selectedDominoIndex = -1;
+            } else {
+                // Yeni domino seç
+                if (selectedDominoIndex !== -1) {
+                    playerHandEl.children[selectedDominoIndex].classList.remove('selected');
+                }
+                const dominoEl = playerHandEl.children[index];
+                if (!dominoEl.classList.contains('playable')) {
+                    showAlert("Bu domino oynana bilməz!");
+                    return;
+                }
+                dominoEl.classList.add('selected');
+                selectedDomino = playerHand[index];
+                selectedDominoIndex = index;
+
+                // Seçilen dominoyu yerleştirmek için tahtanın kenarlarını tıklanabilir hale getir
+                addBoardEndListeners();
+            }
+        }
+
+        // Tahtanın kenarlarına tıklanabilir olay dinleyicileri ekle
+        function addBoardEndListeners() {
+            gameBoardEl.querySelectorAll('.domino').forEach(dominoEl => {
+                dominoEl.classList.remove('playable-end'); // Önceki vurguyu kaldır
+                dominoEl.removeEventListener('click', placeOnBoard); // Önceki dinleyiciyi kaldır
+            });
+
+            if (selectedDomino) {
+                if (gameBoard.length === 0) { // İlk domino ise herhangi yere tıklayabilir
+                    gameBoardEl.addEventListener('click', placeOnBoard, { once: true });
+                    gameBoardEl.classList.add('playable-end'); // Tahtanın genelini vurgula
+                } else {
+                    const firstBoardDominoEl = gameBoardEl.firstElementChild;
+                    const lastBoardDominoEl = gameBoardEl.lastElementChild;
+
+                    // Sol taraf
+                    const leftEnd = gameBoard[0][0];
+                    if (selectedDomino.includes(leftEnd)) {
+                        firstBoardDominoEl.classList.add('playable-end');
+                        firstBoardDominoEl.addEventListener('click', () => placeOnBoard('left'), { once: true });
+                    }
+
+                    // Sağ taraf
+                    const rightEnd = gameBoard[gameBoard.length - 1][1];
+                    if (selectedDomino.includes(rightEnd)) {
+                        lastBoardDominoEl.classList.add('playable-end');
+                        lastBoardDominoEl.addEventListener('click', () => placeOnBoard('right'), { once: true });
+                    }
+                }
+            }
+        }
+
+        // Tahtaya domino yerleştir
+        function placeOnBoard(side = 'initial') {
+            if (!selectedDomino || currentPlayer !== 0) {
+                return;
+            }
+
+            const currentLeftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
+            const currentRightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
+
+            let placed = false;
+            let dominoToPlace = [...selectedDomino]; // Kopyasını al
+
+            if (gameBoard.length === 0) { // İlk domino
+                gameBoard.push(dominoToPlace);
+                placed = true;
+            } else {
+                if (side === 'left') {
+                    if (dominoToPlace[0] === currentLeftEnd) {
+                        dominoToPlace.reverse(); // Çevir
+                        gameBoard.unshift(dominoToPlace);
+                        placed = true;
+                    } else if (dominoToPlace[1] === currentLeftEnd) {
+                        gameBoard.unshift(dominoToPlace);
+                        placed = true;
+                    }
+                } else if (side === 'right') {
+                    if (dominoToPlace[0] === currentRightEnd) {
+                        gameBoard.push(dominoToPlace);
+                        placed = true;
+                    } else if (dominoToPlace[1] === currentRightEnd) {
+                        dominoToPlace.reverse(); // Çevir
+                        gameBoard.push(dominoToPlace);
+                        placed = true;
+                    }
+                }
+            }
+
+            if (placed) {
+                playerHand.splice(selectedDominoIndex, 1);
+                calculateScore();
+                resetSelectedDomino();
+                updateUI();
+                checkGameEnd();
+                if (!gameEnd) { // Oyun bitmediyse sırayı değiştir
+                    currentPlayer = 1;
+                    setTimeout(opponentTurn, 1000); // Rakibin hamlesi
+                }
+            } else {
+                showAlert("Bu domino buraya yerleştirilemez. Başka bir yer seçin veya başka bir domino seçin.");
+            }
+            // Board end listener'ları temizle
+            gameBoardEl.querySelectorAll('.domino').forEach(dominoEl => {
+                dominoEl.classList.remove('playable-end');
+                dominoEl.removeEventListener('click', placeOnBoard);
+            });
+            gameBoardEl.removeEventListener('click', placeOnBoard);
+        }
+        
+        function resetSelectedDomino() {
+            if (selectedDominoIndex !== -1 && playerHandEl.children[selectedDominoIndex]) {
+                 playerHandEl.children[selectedDominoIndex].classList.remove('selected');
+            }
+            selectedDomino = null;
+            selectedDominoIndex = -1;
+        }
+
+        // Xal hesapla
+        function calculateScore() {
+            if (gameBoard.length === 0) return;
+
+            const leftEnd = gameBoard[0][0];
+            const rightEnd = gameBoard[gameBoard.length - 1][1];
+            let currentScore = 0;
+
+            // Eğer oyunun her iki ucu da aynıysa (çift domino değilse), sadece bir ucu say
+            if (gameBoard.length === 1 && gameBoard[0][0] === gameBoard[0][1]) {
+                currentScore = gameBoard[0][0] + gameBoard[0][1];
+            } else if (gameBoard.length > 0) {
+                currentScore = leftEnd + rightEnd;
+            }
+            
+
+            if (currentScore > 0 && currentScore % 5 === 0) {
+                if (currentPlayer === 0) {
+                    playerScore += currentScore;
+                } else {
+                    opponentScore += currentScore;
+                }
+                showAlert(`${currentScore} xal əlavə edildi!`);
+            }
+        }
+
+        // Rakibin hamlesi (Basit AI)
+        async function opponentTurn() {
+            if (currentPlayer !== 1) return;
+
+            actionLoadingIndicator.classList.remove('hidden'); // Yüklənmə mesajı (varsa)
+            passButton.disabled = true; // Rakip sırasındayken pas geçme butonunu deaktive et
+            
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Rakibin düşünmesi için biraz zaman
+
+            const leftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
+            const rightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
+
+            let played = false;
+
+            // Rakibin elindeki her dominoyu dene
+            for (let i = 0; i < opponentHand.length; i++) {
+                let domino = opponentHand[i];
+                let dominoToPlace = [...domino]; // Kopyasını al
+
+                if (gameBoard.length === 0) { // İlk domino ise rastgele birini koy
+                    gameBoard.push(dominoToPlace);
+                    opponentHand.splice(i, 1);
+                    played = true;
+                    break;
+                } else {
+                    // Sol taraftan oynamayı dene
+                    if (dominoToPlace[0] === leftEnd) {
+                        dominoToPlace.reverse(); // Çevir
+                        gameBoard.unshift(dominoToPlace);
+                        opponentHand.splice(i, 1);
+                        played = true;
+                        break;
+                    } else if (dominoToPlace[1] === leftEnd) {
+                        gameBoard.unshift(dominoToPlace);
+                        opponentHand.splice(i, 1);
+                        played = true;
+                        break;
+                    }
+                    // Sağ taraftan oynamayı dene
+                    else if (dominoToPlace[0] === rightEnd) {
+                        gameBoard.push(dominoToPlace);
+                        opponentHand.splice(i, 1);
+                        played = true;
+                        break;
+                    } else if (dominoToPlace[1] === rightEnd) {
+                        dominoToPlace.reverse(); // Çevir
+                        gameBoard.push(dominoToPlace);
+                        opponentHand.splice(i, 1);
+                        played = true;
+                        break;
+                    }
+                }
+            }
+
+            if (played) {
+                calculateScore();
+                updateUI();
+                checkGameEnd();
+                if (!gameEnd) {
+                    currentPlayer = 0; // Sırayı oyuncuya geçir
+                    showAlert("Növbə səndədir!");
+                }
+            } else {
+                showAlert("Rakip domino oynaya bilmədi, növbəni keçir.");
+                passTurn(); // Rakip oynayamadıysa pas geç
+            }
+            actionLoadingIndicator.classList.add('hidden'); // Yüklənmə mesajını gizlət
+            passButton.disabled = false; // Pas geçme butonunu aktifleştir
+        }
+        let gameEnd = false;
+        // Oyunun bitip bitmediğini kontrol et
+        function checkGameEnd() {
+            if (playerHand.length === 0) {
+                showAlert("Qazandın! Bütün dominoları bitirdin.");
+                endGame(0);
+            } else if (opponentHand.length === 0) {
+                showAlert("Məğlub oldun! Rəqib bütün dominoları bitirdi.");
+                endGame(1);
+            } else if (playerScore >= WINNING_SCORE) {
+                showAlert(`Sən ${playerScore} xal ilə Qazandın!`);
+                endGame(0);
+            } else if (opponentScore >= WINNING_SCORE) {
+                showAlert(`Rəqib ${opponentScore} xal ilə Qazandı!`);
+                endGame(1);
+            }
+             else if (!canPlayerMove(playerHand) && !canPlayerMove(opponentHand) && allDominos.length === 0) {
+                showAlert("Heç kim hərəkət edə bilməz. Oyun təkrar başlayır.");
+                endGame(-1); // Beraberlik veya çıkmaz durum
+            }
+        }
+
+        function canPlayerMove(hand) {
+            const leftEnd = gameBoard.length > 0 ? gameBoard[0][0] : null;
+            const rightEnd = gameBoard.length > 0 ? gameBoard[gameBoard.length - 1][1] : null;
+
+            if (gameBoard.length === 0) return hand.length > 0; // Tahta boşsa her zaman oynanabilir domino vardır
+
+            for (let i = 0; i < hand.length; i++) {
+                const domino = hand[i];
+                if (domino.includes(leftEnd) || domino.includes(rightEnd)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function endGame(winner) {
+            gameEnd = true;
+            if (winner === 0) {
+                showAlert("Təbrik edirik! Oyunu qazandınız!");
+            } else if (winner === 1) {
+                showAlert("Oyunu itirdiniz. Bir daha cəhd edin.");
+            } else {
+                 showAlert("Oyun bitdi. Heç kim oynaya bilmədi.");
+            }
+            // Tüm butonları devre dışı bırak
+            drawButton.disabled = true;
+            passButton.disabled = true;
+            gameBoardEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'none');
+            playerHandEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'none');
+        }
+
+        function passTurn() {
+            if (currentPlayer === 0) { // Oyuncu pas geçtiyse
+                if (!canPlayerMove(playerHand) && allDominos.length === 0) {
+                    showAlert("Hərəkət edə bilmirsiniz və çəkmək üçün başqa domino yoxdur. Növbə rəqibə keçdi.");
+                    currentPlayer = 1;
+                    setTimeout(opponentTurn, 1000);
+                } else if (!canPlayerMove(playerHand) && allDominos.length > 0) {
+                    // Normalde buradan çekme işlemi yapılmalıydı, demo olduğu için atlıyoruz
+                    showAlert("Hərəkət edə bilmirsiniz. Domino çəkməlisiniz (bu demo funksiyada yoxdur). Növbə rəqibə keçdi.");
+                    currentPlayer = 1;
+                    setTimeout(opponentTurn, 1000);
+                } else {
+                     showAlert("Hərəkət edə biləcəyiniz domino var. Növbəni keçə bilməzsiniz.");
+                }
+            } else { // Rakip pas geçtiyse (opponentTurn içinde zaten kontrol ediliyor)
+                 currentPlayer = 0; // Sırayı oyuncuya geçir
+                 showAlert("Rakip oynaya bilmədi, növbə səndə!");
+            }
+            updateUI();
+            checkGameEnd(); // Oyunun bitip bitmediğini pas geçtikten sonra kontrol et
+        }
+
+        function restartGame() {
+            gameEnd = false;
+            selectedDomino = null;
+            selectedDominoIndex = -1;
+            drawButton.disabled = false;
+            passButton.disabled = false;
+            gameBoardEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'auto');
+            playerHandEl.querySelectorAll('.domino').forEach(d => d.style.pointerEvents = 'auto');
+            dealDominos();
+            showAlert("Yeni oyun başladı!");
+        }
+
+        // Event Listeners
+        drawButton.addEventListener('click', () => showAlert("Bu demo versiyada 'Çek' funksiyası aktiv deyil.", 'info'));
+        passButton.addEventListener('click', passTurn);
+        restartButton.addEventListener('click', restartGame);
+        messageBoxCloseButton.addEventListener('click', () => messageBox.classList.add('hidden'));
+
+        // Sayfa yüklendiğinde oyunu başlat
+        window.onload = dealDominos;
+    </script>
+</body>
+</html>
