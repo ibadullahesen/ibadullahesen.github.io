@@ -424,7 +424,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
-        // Firebase konfiqurasiyası
+        // Firebase konfiqurasiyası - provided by the user
         const firebaseConfig = {
             apiKey: "AIzaSyAAbLWwzSE9WgqFKK_n9hqsl5mokZlNacM",
             authDomain: "axtargetbot.firebaseapp.com",
@@ -434,16 +434,24 @@
             appId: "1:509543495829:web:833feb9c271328f8e4039c",
             measurementId: "G-DS98Q6L5WF"
         };
-        const appId = firebaseConfig.appId.split(':')[1]; // app ID-ni parçala
+        const appId = firebaseConfig.appId.split(':')[1]; // Extract app ID from the full appId string
 
         // Firebase-i Başlat
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUserId = null; // Autentifikasiya olunmuş istifadəçinin ID-si
+        // Log to confirm Firebase app initialization
+        if (app) {
+            console.log("Firebase App successfully loaded!");
+        } else {
+            console.error("Firebase App failed to load!");
+        }
 
-        // DOM elementləri
+
+        let currentUserId = null; // Authenticated user's ID
+
+        // DOM Elements
         const businessShareForm = document.getElementById('business-share-form');
         const businessNameInput = document.getElementById('business-name');
         const businessCategorySelect = document.getElementById('business-category');
@@ -459,7 +467,7 @@
         const noBusinessesMessage = document.getElementById('no-businesses-message');
         const addYourBusinessBtn = document.getElementById('add-your-business-btn');
 
-        // Comment Modal elements
+        // Comment Modal Elements
         const commentModal = document.getElementById('comment-modal');
         const closeModalButton = commentModal.querySelector('.close-button');
         const modalCommentList = document.getElementById('modal-comment-list');
@@ -467,7 +475,7 @@
         const postCommentBtn = document.getElementById('post-comment-btn');
         let currentBusinessId = null; // Currently viewed business for comments
 
-        // Auth Modal elements
+        // Auth Modal Elements
         const authModal = document.getElementById('auth-modal');
         const closeAuthModalButton = document.getElementById('close-auth-modal');
         const authEmailInput = document.getElementById('auth-email');
@@ -476,7 +484,7 @@
         const registerButton = document.getElementById('register-button');
         const authLoadingIndicator = document.getElementById('auth-loading-indicator');
 
-        // Custom alert funksiyası (alert() əvəzinə)
+        // Custom Alert Function (instead of alert())
         function showAlert(message, type = 'error') {
             const alertBox = document.createElement('div');
             alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
@@ -485,6 +493,10 @@
                 alertBox.classList.remove('bg-red-600');
                 alertBox.classList.add('bg-green-600');
             }
+            // Ensure only one alert is visible at a time (optional, but good UX)
+            const existingAlerts = document.querySelectorAll('.alert-message');
+            existingAlerts.forEach(alert => alert.remove());
+
             alertContainer.appendChild(alertBox);
             setTimeout(() => {
                 alertBox.classList.add('show');
@@ -495,25 +507,25 @@
             }, 3000); // Hide after 3 seconds
         }
 
-        // Autentifikasiya state-i dəyişdikdə currentUserId-i yeniləyir.
+        // Authentication State Change Listener
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUserId = user.uid;
-                console.log("Firebase Autentifikasiya uğurlu. İstifadəçi ID:", currentUserId);
-                // Autentifikasiyadan sonra biznesləri yüklə
+                console.log("Firebase Authentication successful. User ID:", currentUserId, "Email verified:", user.emailVerified);
+                // Load businesses after successful authentication
                 loadBusinesses();
             } else {
-                console.log("Firebase Autentifikasiya uğursuz. Anonim girişə cəhd edilir.");
+                console.log("Firebase Authentication failed. Attempting anonymous sign-in.");
                 currentUserId = null;
-                // Əgər heç bir istifadəçi daxil olmayıbsa, anonim olaraq daxil olun
+                // If no user is signed in, attempt anonymous sign-in
                 signInAnonymously(auth).catch(error => {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Anonim girişdə xəta baş verdi. Zəhmət olmasa, səhifəni yeniləyin.");
+                    console.error("Anonymous sign-in error:", error);
+                    showAlert("Anonymous sign-in failed. Please refresh the page.", 'error');
                 });
             }
         });
 
-        // Autentifikasiya modalını aç/bağla
+        // Open/Close Auth Modal
         function openAuthModal() {
             authModal.classList.remove('hidden');
         }
@@ -534,17 +546,17 @@
             }
         });
 
-        // Qeydiyyat düyməsi
+        // Register Button Click Handler
         registerButton.addEventListener('click', async () => {
             const email = authEmailInput.value.trim();
             const password = authPasswordInput.value.trim();
 
             if (!email || !password) {
-                showAlert("E-poçt və şifrə boş ola bilməz.");
+                showAlert("Email and password cannot be empty.", 'error');
                 return;
             }
             if (password.length < 6) {
-                showAlert("Şifrə ən azı 6 simvol olmalıdır.");
+                showAlert("Password must be at least 6 characters long.", 'error');
                 return;
             }
 
@@ -555,14 +567,17 @@
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await sendEmailVerification(userCredential.user);
-                showAlert("Uğurla qeydiyyatdan keçdiniz! Zəhmət olmasa, e-poçtunuzu təsdiqləyin.", 'success');
-                closeAuthModal(); // Modalı bağla
+                showAlert("Successfully registered! Please verify your email.", 'success');
+                closeAuthModal(); // Close modal
             } catch (error) {
-                console.error("Qeydiyyat xətası:", error);
+                console.error("Registration error:", error); // Check console for more details on the error
                 if (error.code === 'auth/email-already-in-use') {
-                    showAlert("Bu e-poçt ünvanı artıq istifadə olunur. Zəhmət olmasa, giriş edin.");
-                } else {
-                    showAlert("Qeydiyyat zamanı xəta baş verdi: " + error.message);
+                    showAlert("This email address is already in use. Please sign in.", 'error');
+                } else if (error.code === 'auth/weak-password') {
+                    showAlert("Password is too weak. Please choose a stronger password.", 'error');
+                }
+                else {
+                    showAlert("An error occurred during registration: " + error.message, 'error');
                 }
             } finally {
                 authLoadingIndicator.classList.add('hidden');
@@ -571,15 +586,15 @@
             }
         });
 
-        // Giriş düyməsi
+        // Login Button Click Handler
         loginButton.addEventListener('click', async (e) => {
-            e.preventDefault(); // Formun submit olunmasının qarşısını al
+            e.preventDefault(); // Prevent form submission
 
             const email = authEmailInput.value.trim();
             const password = authPasswordInput.value.trim();
 
             if (!email || !password) {
-                showAlert("E-poçt və şifrə boş ola bilməz.");
+                showAlert("Email and password cannot be empty.", 'error');
                 return;
             }
 
@@ -590,20 +605,20 @@
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 if (!userCredential.user.emailVerified) {
-                    showAlert("Hesabınız təsdiqlənməyib. Zəhmət olmasa, e-poçtunuzu təsdiqləyin.", 'error');
-                    await sendEmailVerification(userCredential.user); // Təsdiq e-poçtunu yenidən göndər
-                    showAlert("Təsdiq e-poçtu yenidən göndərildi. Zəhmət olmasa yoxlayın.", 'success');
-                    await auth.signOut(); // Təsdiqlənməmiş istifadəçini çıxart
+                    showAlert("Your account is not verified. Please verify your email.", 'error');
+                    await sendEmailVerification(userCredential.user); // Resend verification email
+                    showAlert("Verification email resent. Please check your inbox.", 'success');
+                    await auth.signOut(); // Sign out unverified user
                     return;
                 }
-                showAlert("Uğurla daxil oldunuz!", 'success');
-                closeAuthModal(); // Modalı bağla
+                showAlert("Successfully logged in!", 'success');
+                closeAuthModal(); // Close modal
             } catch (error) {
-                console.error("Giriş xətası:", error);
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    showAlert("Yanlış e-poçt və ya şifrə.");
+                console.error("Login error:", error); // Check console for more details on the error
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
+                    showAlert("Incorrect email or password. Please try again.", 'error');
                 } else {
-                    showAlert("Giriş zamanı xəta baş verdi: " + error.message);
+                    showAlert("An error occurred during login: " + error.message, 'error');
                 }
             } finally {
                 authLoadingIndicator.classList.add('hidden');
@@ -613,18 +628,18 @@
         });
 
 
-        // Form göndərmə hadisəsi
+        // Business Share Form Submission Handler
         businessShareForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Səhifənin yenilənməsinin qarşısını alır
+            e.preventDefault(); // Prevent page reload
 
-            // İstifadəçi daxil olubsa və e-poçtu təsdiqlənibsə davam et
+            // Proceed only if user is authenticated and email is verified
             if (!auth.currentUser || !auth.currentUser.emailVerified) {
                 openAuthModal();
-                showAlert("Biznes paylaşmaq üçün daxil olmalı və e-poçtunuzu təsdiqləməlisiniz.", 'error');
+                showAlert("To share a business, you must be logged in and verify your email.", 'error');
                 return;
             }
 
-            // Bütün sahələrin doldurulub-doldurulmadığını yoxlayın
+            // Validate form fields
             const businessName = businessNameInput.value.trim();
             const businessCategory = businessCategorySelect.value;
             const businessRegion = businessRegionSelect.value;
@@ -634,22 +649,22 @@
             const termsAccepted = termsCheckbox.checked;
 
             if (!businessName || !businessCategory || !businessRegion || !businessAbout || !contactNumber) {
-                showAlert("Xahiş edirik, bütün məcburi sahələri doldurun.");
+                showAlert("Please fill in all required fields.", 'error');
                 return;
             }
 
             if (!termsAccepted) {
-                showAlert("Biznesinizi paylaşmaq üçün şərtləri qəbul etməlisiniz.");
+                showAlert("You must accept the terms to share your business.", 'error');
                 return;
             }
 
-            // Məlumat göndərilmədən öncə yüklənmə göstəricisini aktivləşdirin və düyməni deaktiv edin
+            // Show loading indicator and disable button
             loadingIndicator.classList.remove('hidden');
             submitButton.disabled = true;
             submitButton.classList.add('opacity-50', 'cursor-not-allowed');
 
             try {
-                // Firestore-a məlumatları əlavə edin
+                // Add business data to Firestore
                 await addDoc(collection(db, `artifacts/${appId}/public/data/businesses`), {
                     userId: currentUserId,
                     businessName: businessName,
@@ -658,33 +673,33 @@
                     businessAbout: businessAbout,
                     contactNumber: contactNumber,
                     instagramLink: instagramLink,
-                    likes: [], // Bəyənən istifadəçi ID-lərinin siyahısı
-                    comments: [], // Şərhlər siyahısı
-                    createdAt: serverTimestamp() // Məlumatın nə vaxt yaradıldığını qeyd edin
+                    likes: [], // List of user IDs who liked
+                    comments: [], // List of comments
+                    createdAt: serverTimestamp() // Timestamp of creation
                 });
 
-                showAlert("Biznesiniz uğurla qəbul edildi! Yoxlamadan sonra botda və səhifədə görünəcək.", 'success');
-                businessShareForm.reset(); // Formu təmizləyin
-                termsCheckbox.checked = false; // Checkboxu sıfırla
+                showAlert("Your business has been successfully submitted! It will appear on the bot and this page after review.", 'success');
+                businessShareForm.reset(); // Clear the form
+                termsCheckbox.checked = false; // Uncheck checkbox
 
             } catch (error) {
-                console.error("Biznes göndərmə xətası:", error);
-                showAlert("Biznesinizi paylaşarkən bir xəta baş verdi. Zəhmət olmasa, yenidən cəhd edin.");
+                console.error("Business submission error:", error);
+                showAlert("An error occurred while sharing your business. Please try again.", 'error');
             } finally {
-                // Yüklənmə göstəricisini deaktiv edin və düyməni aktiv edin
+                // Hide loading indicator and enable button
                 loadingIndicator.classList.add('hidden');
                 submitButton.disabled = false;
                 submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
             }
         });
 
-        // Biznesləri Firestore-dan yükləyin və göstərin
+        // Load and Display Businesses from Firestore
         function loadBusinesses() {
             const businessesColRef = collection(db, `artifacts/${appId}/public/data/businesses`);
             const q = query(businessesColRef);
 
             onSnapshot(q, (snapshot) => {
-                businessPostsContainer.innerHTML = ''; // Mövcud məzmunu təmizləyin
+                businessPostsContainer.innerHTML = ''; // Clear existing content
                 const businesses = [];
                 snapshot.forEach((doc) => {
                     businesses.push({ id: doc.id, ...doc.data() });
@@ -724,23 +739,23 @@
                         `;
                         businessPostsContainer.appendChild(businessCard);
                     });
-                    addInteractionListeners(); // Yeni kartlara dinləyiciləri əlavə et
+                    addInteractionListeners(); // Add listeners to new cards
                 }
             }, (error) => {
-                console.error("Biznes məlumatlarını yükləyərkən xəta:", error);
-                showAlert("Biznes məlumatlarını yükləmək mümkün olmadı.", 'error');
+                console.error("Error loading business data:", error);
+                showAlert("Could not load business data.", 'error');
             });
         }
 
-        // Bəyənmə, şərh və paylaşma düymələri üçün hadisə dinləyiciləri
+        // Event Listeners for Like, Comment, and Share Buttons
         function addInteractionListeners() {
             // Like Button
             businessPostsContainer.querySelectorAll('.like-button').forEach(button => {
                 button.onclick = async (e) => {
-                    // Yalnız daxil olunmuş istifadəçilər bəyənə bilər
+                    // Only authenticated users can like
                     if (!auth.currentUser || auth.currentUser.isAnonymous || !auth.currentUser.emailVerified) {
                         openAuthModal();
-                        showAlert("Biznesi bəyənmək üçün daxil olmalı və e-poçtunuzu təsdiqləməlisiniz.", 'error');
+                        showAlert("To like a business, you must be logged in and verify your email.", 'error');
                         return;
                     }
 
@@ -764,10 +779,10 @@
             // Comment Button
             businessPostsContainer.querySelectorAll('.comment-button').forEach(button => {
                 button.onclick = async (e) => {
-                    // Yalnız daxil olunmuş istifadəçilər şərh yaza bilər
+                    // Only authenticated users can comment
                     if (!auth.currentUser || auth.currentUser.isAnonymous || !auth.currentUser.emailVerified) {
                         openAuthModal();
-                        showAlert("Şərh yazmaq üçün daxil olmalı və e-poçtunuzu təsdiqləməlisiniz.", 'error');
+                        showAlert("To write a comment, you must be logged in and verify your email.", 'error');
                         return;
                     }
                     currentBusinessId = e.currentTarget.dataset.id;
@@ -781,77 +796,74 @@
                 button.onclick = async (e) => {
                     const businessName = e.currentTarget.dataset.name;
                     const businessAbout = e.currentTarget.dataset.about;
-                    const shareUrl = window.location.href; // Cari səhifənin URL-ini paylaş
+                    const shareUrl = window.location.href; // Share current page URL
 
                     if (navigator.share) {
                         try {
                             await navigator.share({
                                 title: `AxtarGet Bot: ${businessName}`,
-                                text: `${businessName}: ${businessAbout}\nBiznesini indi AxtarGet Botunda kəşf et!`,
+                                text: `${businessName}: ${businessAbout}\nDiscover this business on AxtarGet Bot now!`,
                                 url: shareUrl,
                             });
                             console.log('Successfully shared');
                         } catch (error) {
                             console.error('Sharing failed:', error);
-                            showAlert('Paylaşım uğursuz oldu.', 'error');
+                            showAlert('Sharing failed.', 'error');
                         }
                     } else {
-                        // Web Share API dəstəklənmirsə, köhnə üsuldan istifadə edin
-                        const shareText = `AxtarGet Botda ${businessName} adlı biznesi kəşf et! ${businessAbout}. Ətraflı: ${shareUrl}`;
-                        prompt("Bu linki kopyalayıb paylaşa bilərsiniz:", shareText);
-                        // Və ya daha yaxşı: Sosial media iconları ilə popup açın
-                        // window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`, '_blank');
-                        // window.open(`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(businessName)}`, '_blank');
+                        // Fallback if Web Share API is not supported
+                        const shareText = `Discover ${businessName} on AxtarGet Bot! ${businessAbout}. More details: ${shareUrl}`;
+                        prompt("You can copy and share this link:", shareText);
                     }
                 };
             });
         }
 
-        // Şərhləri yükləmək və modalda göstərmək
+        // Load Comments and Display in Modal
         async function loadComments(businessId) {
-            modalCommentList.innerHTML = ''; // Şərh siyahısını təmizləyin
+            modalCommentList.innerHTML = ''; // Clear comment list
             const businessRef = doc(db, `artifacts/${appId}/public/data/businesses`, businessId);
             const docSnap = await getDoc(businessRef);
 
             if (docSnap.exists()) {
                 const comments = docSnap.data().comments || [];
                 if (comments.length === 0) {
-                    modalCommentList.innerHTML = '<p class="text-gray-400 text-center">Hələ heç bir şərh yoxdur.</p>';
+                    modalCommentList.innerHTML = '<p class="text-gray-400 text-center">No comments yet.</p>';
                 } else {
                     comments.forEach(comment => {
                         const commentItem = document.createElement('div');
                         commentItem.className = 'comment-item';
                         const timestampDate = comment.timestamp ? new Date(comment.timestamp.toDate()) : new Date(); // Fallback for timestamp
                         commentItem.innerHTML = `
-                            <p><span class="comment-author">${comment.author || 'Anonim İstifadəçi'}:</span> <span class="comment-text">${comment.text}</span></p>
+                            <p><span class="comment-author">${comment.author || 'Anonymous User'}:</span> <span class="comment-text">${comment.text}</span></p>
                             <p class="comment-timestamp">${timestampDate.toLocaleString()}</p>
                         `;
                         modalCommentList.appendChild(commentItem);
                     });
                 }
             } else {
-                modalCommentList.innerHTML = '<p class="text-red-400 text-center">Biznes tapılmadı.</p>';
+                modalCommentList.innerHTML = '<p class="text-red-400 text-center">Business not found.</p>';
             }
         }
 
-        // Şərh göndərmək
+        // Post Comment
         postCommentBtn.addEventListener('click', async () => {
             const commentText = commentInput.value.trim();
             if (!commentText) {
-                showAlert("Xahiş edirik, şərhinizi yazın.");
+                showAlert("Please write your comment.", 'error');
                 return;
             }
 
             if (!currentBusinessId) {
-                showAlert("Şərh əlavə ediləcək biznes seçilməyib.", 'error');
+                showAlert("No business selected to add comment.", 'error');
                 return;
             }
 
-            // İstifadəçi daxil olub və e-poçtu təsdiqlənibsə
+            // Only authenticated and verified users can comment
             if (!auth.currentUser || !auth.currentUser.emailVerified) {
-                showAlert("Şərh yazmaq üçün daxil olmalı və e-poçtunuzu təsdiqləməlisiniz.", 'error');
-                commentModal.classList.add('hidden'); // Modalı bağla
-                openAuthModal(); // Autentifikasiya modalını aç
+                showAlert("To write a comment, you must be logged in and verify your email.", 'error');
+                commentModal.classList.add('hidden'); // Close modal
+                openAuthModal(); // Open authentication modal
                 return;
             }
 
@@ -859,22 +871,22 @@
                 const businessRef = doc(db, `artifacts/${appId}/public/data/businesses`, currentBusinessId);
                 await updateDoc(businessRef, {
                     comments: arrayUnion({
-                        author: auth.currentUser.email || auth.currentUser.uid, // İstifadəçi e-poçtu və ya UID-si
+                        author: auth.currentUser.email || auth.currentUser.uid, // Use user's email or UID
                         text: commentText,
                         timestamp: serverTimestamp()
                     })
                 });
-                commentInput.value = ''; // Inputu təmizlə
-                showAlert("Şərh uğurla əlavə edildi!", 'success');
-                // Şərhlər onSnapshot sayəsində avtomatik yenilənəcək.
+                commentInput.value = ''; // Clear input
+                showAlert("Comment successfully added!", 'success');
+                // Comments will automatically refresh due to onSnapshot.
             } catch (error) {
-                console.error("Şərh əlavə edilərkən xəta:", error);
-                showAlert("Şərh əlavə edilərkən xəta baş verdi.", 'error');
+                console.error("Error adding comment:", error);
+                showAlert("An error occurred while adding the comment.", 'error');
             }
         });
 
 
-        // Modal bağlama hadisələri
+        // Close Modal Events
         closeModalButton.addEventListener('click', () => {
             commentModal.classList.add('hidden');
         });
@@ -886,23 +898,23 @@
         });
 
 
-        // "Sən də Əlavə Et" düyməsinə klikləmə hadisəsi (forma sürüşdürmək üçün)
+        // "Add Your Business" button click (for scrolling to form)
         addYourBusinessBtn.addEventListener('click', () => {
             document.getElementById('share-form-section').scrollIntoView({
                 behavior: 'smooth'
             });
         });
 
-        // Səhifə yükləndikdə anonim autentifikasiyanı başlat (Əgər heç bir giriş yoxdursa)
-        // onAuthStateChanged artıq bunu idarə edir.
+        // Initialize anonymous authentication on page load (if no user is signed in)
+        // onAuthStateChanged already handles this.
         if (!auth.currentUser) {
              signInAnonymously(auth).catch(error => {
-                console.error("Başlanğıc anonim girişdə xəta:", error);
+                console.error("Initial anonymous sign-in error:", error);
             });
         }
 
 
-        // Headerdəki naviqasiya linkləri üçün hamar sürüşmə (əsasən baş səhifəyə qayıtmaq üçün)
+        // Smooth scrolling for header navigation links (mainly for returning to main page sections)
         document.querySelectorAll('a[href^="index.html#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
