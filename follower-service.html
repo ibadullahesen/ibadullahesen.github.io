@@ -449,7 +449,7 @@
                     { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41 },
                     { id: 'instagram_az_like', name: 'Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 10.00 },
                     { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.12 },
-                    { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə �🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
+                    { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
                     { id: 'instagram_comment', name: 'Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1-2 saat', min: 1, max: 500, pricePerK: 12.00 },
                     { id: 'instagram_save', name: 'Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.06 },
                     { id: 'instagram_share', name: 'Instagram Paylaşma', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 6.00 },
@@ -676,10 +676,12 @@
         placeOrderButton.addEventListener('click', async () => {
             if (!currentUserId) {
                 showAlert("Sifariş vermək üçün sistemə daxil olmalısınız.", 'error');
+                console.error("Sifariş xətası: currentUserId boşdur.");
                 return;
             }
             if (!selectedService || !linkInput.value.trim() || !quantityInput.value.trim()) {
                 showAlert("Zəhmət olmasa, bütün sifariş detallarını doldurun.", 'error');
+                console.error("Sifariş xətası: Seçili xidmət, link və ya miqdar boşdur.");
                 return;
             }
 
@@ -689,17 +691,19 @@
 
             if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
                 showAlert(`Miqdar ${selectedService.min} ilə ${selectedService.max} arasında olmalıdır.`, 'error');
+                console.error(`Sifariş xətası: Miqdar ${quantity} aralıqdan kənardadır (${selectedService.min}-${selectedService.max}).`);
                 return;
             }
 
             if (userBalance < totalPrice) {
                 showAlert("Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.", 'error');
+                console.error(`Sifariş xətası: Balans yetərli deyil. Cari: ${userBalance}, Tələb olunan: ${totalPrice}.`);
                 return;
             }
 
             try {
-                // Sifariş detallarını Firebase'e kaydet (adminin manuel kontrolü için)
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), {
+                console.log("Sifariş Firebase'e gönderiliyor...");
+                console.log("Data:", {
                     userId: currentUserId,
                     serviceId: selectedService.id,
                     serviceName: selectedService.name,
@@ -709,10 +713,31 @@
                     totalPrice: totalPrice,
                     avgTime: selectedService.avgTime,
                     timestamp: serverTimestamp(),
-                    status: 'pending' // 'new', 'processing', 'completed', 'cancelled'
+                    status: 'pending'
                 });
 
-                // Kullanıcıya siparişin kaydedildiğini ve admini bilgilendirmesi gerektiğini söyle
+                // Sifariş detallarını Firebase'e kaydet
+                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), {
+                    userId: currentUserId,
+                    serviceId: selectedService.id,
+                    serviceName: selectedService.name,
+                    platform: selectedService.platform,
+                    link: linkInput.value.trim(),
+                    quantity: quantity,
+                    totalPrice: totalPrice,
+                    avgTime: selectedService.avgTime,
+                    timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
+                    status: 'pending'
+                });
+
+                // Balansı güncelle
+                const userDocRef = doc(db, `users`, currentUserId);
+                await updateDoc(userDocRef, {
+                    balance: userBalance - totalPrice
+                });
+                userBalance -= totalPrice;
+                userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
+
                 showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Zəhmət olmasa, adminə WhatsAppdan bu ID-ni göndərin: ${newOrderRef.id}`, 'success', 8000);
                 
                 resetOrderForm();
@@ -723,15 +748,17 @@
                 selectedService = null;
                 updateDescriptionBox(); // Sipariş sonrası açıklama kutusunu sıfırla/güncelle
 
+                // Sifariş tamamlandıqdan sonra orders.html səhifəsinə yönləndir
+                setTimeout(() => {
+                    window.location.href = 'orders.html'; 
+                }, 1000); // 1 saniyə gecikmə ilə yönləndir
+
             } catch (error) {
-                console.error("Sifariş yerləşdirmə xətası:", error);
-                // Firebase'den gelen hatayı daha detaylı göster
+                console.error("Sifariş yerləşdirmə xətası (catch blokunda):", error);
                 if (error.code) {
-                    showAlert(`Sifariş yerləşdirərkən xəta: ${error.code}. Zəhmət olmasa yenidən cəhd edin.`, 'error');
-                    console.error("Firebase Error Code:", error.code);
-                    console.error("Firebase Error Message:", error.message);
+                    showAlert(`Sifariş yerləşdirərkən xəta: ${error.code}. Detaylar üçün konsolu yoxlayın.`, 'error', 5000);
                 } else {
-                    showAlert("Sifariş yerləşdirərkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
+                    showAlert("Sifariş yerləşdirərkən gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
                 }
             }
         });
@@ -744,4 +771,3 @@
     </script>
 </body>
 </html>
-�
