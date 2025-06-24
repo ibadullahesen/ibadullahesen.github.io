@@ -409,14 +409,15 @@
         const allServices = [
             // TikTok Servisleri
             {
+                platform: 'TikTok', // Platform bilgisini doğrudan servise ekle
                 category: 'TikTok Takipçi Servisleri',
                 categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>', // Kategori ikonu
                 items: [
-                    // TikTok Takipçi güncellenmiş fiyatı ve ortalama süresi
                     { id: 'tiktok_foreign_follower', name: 'TikTok Xarici Takipçi', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '30-50 dəqiqə', min: 10, max: 10000000, pricePerK: 4.33 },
                 ]
             },
             {
+                platform: 'TikTok', // Platform bilgisini doğrudan servise ekle
                 category: 'TikTok Bəyəni Servisləri',
                 categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>', // Kategori ikonu
                 items: [
@@ -430,6 +431,7 @@
             },
             // Instagram Servisleri
             {
+                platform: 'Instagram', // Platform bilgisini doğrudan servise ekle
                 category: 'Instagram Takipçi Servisleri',
                 categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>', // Kategori ikonu
                 items: [
@@ -443,12 +445,13 @@
                 ]
             },
             {
+                platform: 'Instagram', // Platform bilgisini doğrudan servise ekle
                 category: 'Instagram Bəyəni Servisləri',
                 categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>', // Kategori ikonu
                 items: [
                     { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41 },
                     { id: 'instagram_az_like', name: 'Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 10.00 },
-                    { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.12 },
+                    { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.10 },
                     { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
                     { id: 'instagram_comment', name: 'Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1-2 saat', min: 1, max: 500, pricePerK: 12.00 },
                     { id: 'instagram_save', name: 'Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 7.00 },
@@ -556,7 +559,12 @@
         // Servis seçildiğinde fiyat ve min/max değerlerini göster
         serviceSelect.addEventListener('change', () => {
             const selectedServiceId = serviceSelect.value;
-            selectedService = selectedCategory ? selectedCategory.items.find(item => item.id === selectedServiceId) : null;
+            // Servis nesnesine platform bilgisini de ekleyerek bul
+            selectedService = selectedCategory ? { 
+                ...selectedCategory.items.find(item => item.id === selectedServiceId),
+                platform: selectedCategory.platform // Kategori'den platform bilgisini alıp servise ekle
+            } : null;
+
             resetOrderForm();
 
             if (selectedService) {
