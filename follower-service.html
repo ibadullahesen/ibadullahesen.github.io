@@ -703,32 +703,22 @@
 
             try {
                 console.log("Sifariş Firebase'e gönderiliyor...");
-                console.log("Data:", {
+                const orderData = {
                     userId: currentUserId,
                     serviceId: selectedService.id,
                     serviceName: selectedService.name,
-                    platform: selectedService.platform,
-                    link: linkInput.value.trim(),
-                    quantity: quantity,
-                    totalPrice: totalPrice,
-                    avgTime: selectedService.avgTime,
-                    timestamp: serverTimestamp(),
-                    status: 'pending'
-                });
-
-                // Sifariş detallarını Firebase'e kaydet
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), {
-                    userId: currentUserId,
-                    serviceId: selectedService.id,
-                    serviceName: selectedService.name,
-                    platform: selectedService.platform,
+                    platform: selectedService.platform, // platform alanı burada gönderilir
                     link: linkInput.value.trim(),
                     quantity: quantity,
                     totalPrice: totalPrice,
                     avgTime: selectedService.avgTime,
                     timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
                     status: 'pending'
-                });
+                };
+                console.log("Sifariş data-sı:", orderData);
+
+                // Sifariş detallarını Firebase'e kaydet
+                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
 
                 // Balansı güncelle
                 const userDocRef = doc(db, `users`, currentUserId);
