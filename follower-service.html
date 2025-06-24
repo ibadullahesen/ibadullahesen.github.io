@@ -438,7 +438,7 @@
                     { id: 'instagram_follower', name: 'Instagram Takipçi', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 0.69 },
                     { id: 'instagram_az_follower', name: 'Instagram Azərbaycanlı Takipçi 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 8.32 },
                     { id: 'instagram_tr_follower', name: 'Instagram Türk Takipçi 🇹🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 6.73 },
-                    { id: 'instagram_30day_guarantee', name: 'Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 3.22 },
+                    { id: 'instagram_30day_guarantee', name: 'Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 20.00 },
                     { id: 'instagram_100day_guarantee', name: 'Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 3.30 },
                     { id: 'instagram_365day_guarantee', name: 'Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 20 dəqiqə', min: 10, max: 50000, pricePerK: 40.00 },
                     { id: 'instagram_lifetime_guarantee', name: 'Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 3.89 },
@@ -534,7 +534,8 @@
         // Kategori seçildiğinde servis select'ini doldur
         categorySelect.addEventListener('change', () => {
             const selectedCategoryName = categorySelect.value;
-            selectedCategory = allServices.find(cat => cat.category === selectedCategoryName);
+            // Kategori seçimi kaldırılırsa selectedCategory null olur
+            selectedCategory = allServices.find(cat => cat.category === selectedCategoryName) || null;
             
             serviceSelect.innerHTML = '<option value="">Servis Seçin</option>';
             serviceSelect.disabled = true;
@@ -559,10 +560,11 @@
         // Servis seçildiğinde fiyat ve min/max değerlerini göster
         serviceSelect.addEventListener('change', () => {
             const selectedServiceId = serviceSelect.value;
-            // Servis nesnesine platform bilgisini de ekleyerek bul
+            // selectedService nesnesini bulurken selectedCategory'nin varlığını kontrol et
             selectedService = selectedCategory ? { 
                 ...selectedCategory.items.find(item => item.id === selectedServiceId),
-                platform: selectedCategory.platform // Kategori'den platform bilgisini alıp servise ekle
+                // platform bilgisi selectedCategory'den gelir
+                platform: selectedCategory.platform 
             } : null;
 
             resetOrderForm();
@@ -715,7 +717,7 @@
                     userId: currentUserId,
                     serviceId: selectedService.id,
                     serviceName: selectedService.name,
-                    platform: selectedService.platform, // platform alanı burada gönderilir
+                    platform: selectedService.platform, 
                     link: linkInput.value.trim(),
                     quantity: quantity,
                     totalPrice: totalPrice,
