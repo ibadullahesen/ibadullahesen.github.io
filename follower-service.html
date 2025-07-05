@@ -424,9 +424,9 @@
                 items: [
                     { id: 'tiktok_video_like', name: '4014 - TikTok Bəyəni ❤️ |10M | BEST', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 10000000, pricePerK: 1.51 },
                     { id: 'tiktok_video_view', name: 'TikTok Video İzlənmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 100000000, pricePerK: 0.05 },
-                    { id: 'tiktok_video_comment', name: 'TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1-2 saat', min: 1, max: 1000, pricePerK: 2.90 },
-                    { id: 'tiktok_video_save', name: 'TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 4.99 },
-                    { id: 'tiktok_video_share', name: 'TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 3.99 },
+                    { id: 'tiktok_video_comment', name: 'TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1-2 saat', min: 1, max: 1000, pricePerK: 10.00 },
+                    { id: 'tiktok_video_save', name: 'TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 5.00 },
+                    { id: 'tiktok_video_share', name: 'TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 4.00 },
                     { id: 'tiktok_profile_view', name: 'TikTok Profil Görüntüləmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.10 },
                 ]
             },
@@ -441,7 +441,7 @@
                     { id: 'instagram_tr_follower', name: 'Instagram Türk Takipçi 🇹🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 6.73 },
                     { id: 'instagram_30day_guarantee', name: 'Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 3.22 },
                     { id: 'instagram_100day_guarantee', name: 'Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 3.30 },
-                    { id: 'instagram_365day_guarantee', name: 'Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 20 dəqiqə', min: 10, max: 50000, pricePerK: 7.00 },
+                    { id: 'instagram_365day_guarantee', name: 'Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 20 dəqiqə', min: 10, max: 50000, pricePerK: 40.00 },
                     { id: 'instagram_lifetime_guarantee', name: 'Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 3.89 },
                 ]
             },
@@ -724,7 +724,8 @@
                     totalPrice: totalPrice,
                     avgTime: selectedService.avgTime,
                     timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
-                    status: 'pending'
+                    status: 'pending',
+                    isNew: true // Yeni: Sifarişin yeni olduğunu qeyd etmək üçün
                 };
                 console.log("Sifariş data-sı:", orderData);
 
