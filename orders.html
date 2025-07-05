@@ -38,6 +38,12 @@
             padding: 1rem;
             margin-bottom: 0.75rem;
             border: 1px solid #4a5568;
+            position: relative; /* Yeni etiketi için */
+            cursor: pointer; /* Tıklanabilir olması için */
+        }
+        .order-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
         .order-item-header {
             display: flex;
@@ -104,6 +110,51 @@
         .alert-message.show {
             opacity: 1;
         }
+        /* Yeni etiketi için stil */
+        .new-indicator {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #34d399; /* Yeşil renk */
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-top-right-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transform: translate(10%, -10%); /* Köşeye taşır */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Tab Navigasyon Stilleri */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            background-color: #2d3748;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 1px solid #4a5568;
+        }
+        .tab-item {
+            flex: 1;
+            padding: 0.75rem 0;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-right: 1px solid #4a5568;
+        }
+        .tab-item:last-child {
+            border-right: none;
+        }
+        .tab-item:hover {
+            background-color: #4a5568;
+        }
+        .tab-item.active {
+            background-color: #10b981;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +168,12 @@
 
     <div class="main-content pt-20">
         <div class="container">
+            <!-- Tab Navigasyon -->
+            <div class="tab-nav">
+                <div class="tab-item active" id="new-orders-tab" data-filter="new">Yeni Sifarişlər</div>
+                <div class="tab-item" id="all-orders-tab" data-filter="all">Bütün Sifarişlər</div>
+            </div>
+
             <div id="orders-list" class="space-y-4">
                 <p class="text-center text-gray-400">Sifarişlər yüklənir...</p>
                 <!-- Sifarişlər buraya yüklənəcək -->
@@ -156,7 +213,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, collection, query, where, onSnapshot, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Firebase konfiqurasiyası
         const firebaseConfig = {
@@ -177,11 +234,14 @@
 
         let currentUserId = null;
         const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Adminin WhatsApp nömrəsi
+        let currentFilter = 'new'; // 'new' veya 'all'
 
         // DOM Elementləri
         const ordersList = document.getElementById('orders-list');
         const noOrdersMessage = document.getElementById('no-orders-message');
         const alertContainer = document.getElementById('alert-container');
+        const newOrdersTab = document.getElementById('new-orders-tab');
+        const allOrdersTab = document.getElementById('all-orders-tab');
 
         // Custom Alert Funksiyası
         function showAlert(message, type = 'error', duration = 3000) {
@@ -210,11 +270,11 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                loadOrders(currentUserId);
+                loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
             } else {
                 signInAnonymously(auth).then(async (anonUserCredential) => {
                     currentUserId = anonUserCredential.user.uid;
-                    loadOrders(currentUserId);
+                    loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
                 }).catch(error => {
                     console.error("Anonim girişdə xəta:", error);
                     showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
@@ -223,12 +283,18 @@
         });
 
         // Sifarişləri yüklə və göstər
-        function loadOrders(userId) {
+        function loadOrders(userId, filter) {
             ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
             const ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
-            // Yalnız cari istifadəçinin sifarişlərini ID-yə görə filterlə
-            // Sifarişləri ən yenidən ən köhnəyə doğru sırala
-            const q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+            
+            let q;
+            if (filter === 'new') {
+                // Yalnız isNew: true olan yeni sifarişləri göstər
+                q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
+            } else {
+                // Bütün sifarişləri göstər
+                q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+            }
 
             onSnapshot(q, (snapshot) => {
                 ordersList.innerHTML = ''; // Mövcud məzmunu təmizlə
@@ -244,16 +310,24 @@
                         let statusClass = '';
                         switch(order.status) {
                             case 'pending': statusClass = 'status-pending'; break;
-                            case 'approved': statusClass = 'status-approved'; break; // Admin tərəfindən təsdiqlənmiş (balans çıxarılmış)
-                            case 'completed': statusClass = 'status-completed'; break; // Tamamlanmış
-                            case 'cancelled': statusClass = 'status-cancelled'; break; // Ləğv edilmiş
-                            case 'problem': statusClass = 'status-problem'; break;   // Problem yaranmış
+                            case 'approved': statusClass = 'status-approved'; break;
+                            case 'completed': statusClass = 'status-completed'; break;
+                            case 'cancelled': statusClass = 'status-cancelled'; break;
+                            case 'problem': statusClass = 'status-problem'; break;
                             default: statusClass = '';
                         }
 
                         const orderItem = document.createElement('div');
-                        orderItem.className = `order-item card`; // Tailwind card sınıfını kullan
+                        orderItem.className = `order-item card`;
+                        orderItem.dataset.orderId = orderId; // Sifariş ID'sini data attribute olarak kaydet
+
+                        let newIndicatorHtml = '';
+                        if (order.isNew) {
+                            newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
+                        }
+
                         orderItem.innerHTML = `
+                            ${newIndicatorHtml}
                             <div class="order-item-header">
                                 <span class="text-white text-lg">${order.serviceName}</span>
                                 <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
@@ -270,9 +344,28 @@
                         ordersList.appendChild(orderItem);
                     });
 
+                    // Sifariş elementlerine tıklama dinleyicisi ekle (isNew'i güncellemek için)
+                    ordersList.querySelectorAll('.order-item').forEach(item => {
+                        item.addEventListener('click', async (e) => {
+                            const clickedOrderId = item.dataset.orderId;
+                            const orderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/orders`, clickedOrderId);
+                            
+                            // isNew'i false olarak güncelle
+                            try {
+                                await updateDoc(orderRef, { isNew: false });
+                                console.log(`Sifariş ${clickedOrderId} oxunmuş kimi qeyd edildi.`);
+                                // UI otomatik olarak onSnapshot tarafından güncellenecek
+                            } catch (error) {
+                                console.error("Sifarişin isNew statusunu yeniləyərkən xəta:", error);
+                                showAlert("Sifarişin statusunu yeniləmək mümkün olmadı.", 'error');
+                            }
+                        });
+                    });
+
                     // Problem Bildir düyməsinə click listener əlavə et
                     ordersList.querySelectorAll('.report-problem-button').forEach(button => {
                         button.addEventListener('click', (e) => {
+                            e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
                             const orderIdToReport = e.target.dataset.orderId;
                             const whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Xahiş edirəm kömək edin. Mənim İstifadəçi ID-m: ${userId}`;
                             const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -281,11 +374,31 @@
                     });
                 }
             }, (error) => {
-                console.error("Sifarişləri yükləyərkən xəta:", error);
-                showAlert("Sifarişləri yükləmək mümkün olmadı.", 'error');
+                console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
+                let errorMessage = "Sifarişləri yükləmək mümkün olmadı.";
+                if (error.code) {
+                    errorMessage += ` Xəta kodu: ${error.code}.`;
+                }
+                showAlert(errorMessage, 'error', 5000);
             });
         }
         
+        // Tab Navigasyon İşlevselliği
+        newOrdersTab.addEventListener('click', () => {
+            newOrdersTab.classList.add('active');
+            allOrdersTab.classList.remove('active');
+            currentFilter = 'new';
+            loadOrders(currentUserId, currentFilter);
+        });
+
+        allOrdersTab.addEventListener('click', () => {
+            allOrdersTab.classList.add('active');
+            newOrdersTab.classList.remove('active');
+            currentFilter = 'all';
+            loadOrders(currentUserId, currentFilter);
+        });
+
+
         // Səhifə yükləndikdə (alt naviqasiyanın aktiv olması üçün)
         document.addEventListener('DOMContentLoaded', () => {
              document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
