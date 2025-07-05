@@ -40,6 +40,7 @@
             border: 1px solid #4a5568;
             position: relative; /* Yeni etiketi için */
             cursor: pointer; /* Tıklanabilir olması için */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
         .order-item:hover {
             transform: translateY(-2px);
@@ -209,7 +210,6 @@
 
     <div id="alert-container"></div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -318,7 +318,7 @@
                         }
 
                         const orderItem = document.createElement('div');
-                        orderItem.className = `order-item card`;
+                        orderItem.className = `order-item card`; // Tailwind card sınıfını kullan
                         orderItem.dataset.orderId = orderId; // Sifariş ID'sini data attribute olarak kaydet
 
                         let newIndicatorHtml = '';
