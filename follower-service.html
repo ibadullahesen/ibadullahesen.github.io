@@ -223,7 +223,7 @@
         /* Floating WhatsApp Bubble */
         #floating-whatsapp-bubble {
             position: fixed;
-            bottom: 100px; /* Footer'dan daha yukarı */
+            bottom: 100px; /* Footer'ın üstünde */
             right: 20px;
             background-color: #25D366; /* WhatsApp yeşili */
             color: white;
@@ -400,7 +400,8 @@
         // Medyabayim API Bilgileri (TƏHLÜKƏSİZ DEYİL - YALNIZ DEMO ÜÇÜN!)
         const MEDYABAYIM_API_KEY = "d17e31d847702984ad18808538b93386"; // Sizin API açarınız
         const MEDYABAYIM_API_URL = "https://medyabayim.com/api"; // Medyabayim API URL'si
-        const TL_TO_AZN_RATE = 0.50; // Örnek kur: 1 TL = 0.50 AZN (Gerçek kuru güncelleyin)
+        const REPLIT_API_ENDPOINT = "https://256a2640-1e7f-47a7-9653-8de1377f216e-00-18av7fbbegyy4.sisko.replit.dev/api/order"; // Sizin Replit API Endpoint'iniz
+
 
         // DOM Elementləri
         const userBalanceEl = document.getElementById('user-balance');
@@ -434,6 +435,7 @@
 
 
         // Servis Verileri (Demo amaçlı ve Medyabayim servis ID'leri ile eşleştirildi)
+        // Her servisin kendi Medyabayim Service ID'si ve platform bilgisi olmalıdır.
         const allServices = [
             // TikTok Servisleri
             {
@@ -751,27 +753,26 @@
             }
 
             try {
-                // Medyabayim API-nə sifariş göndərmə (real API çağırışı)
-                console.log("Medyabayim API-nə sifariş göndərilir...");
-                const medyabayimOrderData = new URLSearchParams();
-                medyabayimOrderData.append("key", MEDYABAYIM_API_KEY);
-                medyabayimOrderData.append("action", "add");
-                medyabayimOrderData.append("service", selectedService.medyabayimServiceId);
-                medyabayimOrderData.append("link", linkInput.value.trim());
-                medyabayimOrderData.append("quantity", quantity);
+                // Medyabayim API-nə sifariş göndərmə (Replit vasitəsilə)
+                console.log("Replit API endpoint'inə sifariş göndərilir...");
+                const orderPayload = {
+                    service: selectedService.medyabayimServiceId, // Medyabayim servis ID'si
+                    link: linkInput.value.trim(),
+                    quantity: quantity
+                };
 
-                const medyabayimResponse = await fetch(MEDYABAYIM_API_URL, {
+                const replitResponse = await fetch(REPLIT_API_ENDPOINT, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json', // JSON formatında gönderiyoruz
                     },
-                    body: medyabayimOrderData.toString()
+                    body: JSON.stringify(orderPayload)
                 });
 
-                const medyabayimResult = await medyabayimResponse.json();
-                console.log("Medyabayim API cavabı:", medyabayimResult);
+                const replitResult = await replitResponse.json();
+                console.log("Replit API cavabı:", replitResult);
 
-                if (medyabayimResult.order) { // Sifariş uğurlu olduqda
+                if (replitResponse.ok && replitResult.order) { // Sifariş Replit API tərəfindən uğurlu qeyd olunduqda
                     console.log("Sifariş Firebase'e gönderiliyor...");
                     const orderData = {
                         userId: currentUserId,
@@ -785,7 +786,7 @@
                         timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
                         status: 'pending', // Medyabayim'e gönderildiği için 'pending'
                         isNew: true,
-                        medyabayimOrderId: medyabayimResult.order // Medyabayim'den gelen sipariş ID'si
+                        medyabayimOrderId: replitResult.order // Medyabayim'den gelen sipariş ID'si
                     };
                     console.log("Sifariş data-sı:", orderData);
 
@@ -800,7 +801,7 @@
                     userBalance -= totalPrice;
                     userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
 
-                    showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Medyabayim Sifariş ID: ${medyabayimResult.order}.`, 'success', 10000);
+                    showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Medyabayim Sifariş ID: ${replitResult.order}.`, 'success', 10000);
                     
                     resetOrderForm();
                     categorySelect.value = "";
@@ -815,12 +816,12 @@
                         window.location.href = 'orders.html'; 
                     }, 1000);
 
-                } else if (medyabayimResult.error) { // Medyabayim API'den hata gelirse
-                    showAlert(`Medyabayim sifarişi yerləşdirilərkən xəta: ${medyabayimResult.error}. Balansınızdan pul çıxarılmadı.`, 'error', 8000);
-                    console.error("Medyabayim API xətası:", medyabayimResult.error);
+                } else if (replitResult.error) { // Replit API'den hata gelirse
+                    showAlert(`Sifariş yerləşdirilərkən xəta: ${replitResult.error}. Balansınızdan pul çıxarılmadı.`, 'error', 8000);
+                    console.error("Replit API xətası:", replitResult.error);
                 } else {
-                    showAlert("Medyabayim API-dən gözlənilməz cavab alındı. Balansınızdan pul çıxarılmadı.", 'error', 8000);
-                    console.error("Medyabayim API gözlənilməz cavab:", medyabayimResult);
+                    showAlert("Replit API-dən gözlənilməz cavab alındı. Balansınızdan pul çıxarılmadı.", 'error', 8000);
+                    console.error("Replit API gözlənilməz cavab:", replitResult);
                 }
 
             } catch (error) {
