@@ -247,11 +247,13 @@
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+            <!-- Başlıq ikonunu əlavə etdik -->
             <span class="text-xl font-semibold"><i class="fas fa-users mr-2 text-blue-400"></i>Takipçi Xidməti</span>
         </div>
     </header>
 
-    <div class="main-content pt-20"> <div class="container">
+    <div class="main-content pt-20"> <!-- Header boşluğu -->
+        <div class="container">
             <div class="balance-section">
                 <div class="flex flex-col items-start">
                     <span>Balansın: <span id="user-balance">0.00 AZN</span></span>
@@ -299,6 +301,7 @@
                 <button id="place-order-button" class="button-primary w-full" disabled>Sipariş Oluştur</button>
             </div>
 
+            <!-- Açıqlama Bölməsi -->
             <div class="description-box card">
                 <h4>Xidmət Haqqında Qeydlər:</h4>
                 <ul>
@@ -336,13 +339,17 @@
             <i class="fas fa-money-bill-wave"></i>
             <span>Balans əlavə et</span>
         </a>
-        </footer>
+        <!-- Dəstək linki ləğv edildi -->
+    </footer>
 
     <div id="alert-container"></div>
 
-    <div id="top-up-modal" class="modal hidden"> <div class="modal-content">
+    <!-- Balans Artır Modal -->
+    <div id="top-up-modal" class="modal hidden"> <!-- Modal başlangıçta gizli sinfi ile -->
+        <div class="modal-content">
             <span class="close-button" id="close-top-up-modal">&times;</span>
             <h3 class="text-2xl font-bold text-white mb-4">Balans Artır</h3>
+            <!-- Kapital Bank kartı şəkli -->
             <img src="https://placehold.co/250x150/000000/ffffff?text=Kapital+Bank+Kart%C4%B1" alt="Kapital Bank Kartı" class="payment-card-image">
             <p class="text-lg text-white mb-2">Ödəniş etmək üçün aşağıdakı kart nömrəsinə pul göndərin:</p>
             <p class="text-2xl font-bold text-green-400 mb-4" id="bank-card-number">4169 7388 7208 5778</p>
@@ -356,11 +363,13 @@
         </div>
     </div>
 
+    <!-- Floating WhatsApp Bubble -->
     <a href="#" id="floating-whatsapp-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Dəstək üçün WhatsApp">
         <i class="fab fa-whatsapp text-3xl"></i>
     </a>
 
 
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -388,14 +397,13 @@
         let selectedCategory = null; // Seçili kategori objesi
         let selectedService = null; // Seçili servis objesi
 
-        // Medyabayim API Bilgileri (TƏHLÜKƏSİZ DEYİL - YALNIZ DEMO ÜÇÜN!)
-        const MEDYABAYIM_API_KEY = "d17e31d847702984ad18808538b93386"; // Sizin API açarınız
-        // Önemli: Bu URL'i Replit'teki çalışan backend adresinizle değiştirin
+        // API Bilgileri (TƏHLÜKƏSİZ DEYİL - YALNIZ DEMO ÜÇÜN!)
+        // Medyabayim API açarı koddan silindi, yalnız Sosyalmedyam API açarı istifadə olunur.
+        const SOSYALMEDYAM_API_KEY = "b1ea82d5041bc6063d66c3b5810c7363"; // Sizin Sosyalmedyam API açarınız
         const REPLIT_API_ENDPOINT = "https://256a2640-1e7f-47a7-9653-8de1377f216e-00-18av7fbbegyy4.sisko.replit.dev/api/order"; // Sizin Replit API Endpoint'iniz
 
         // Medyabayim servis ID'leri ve fiyatları (TL cinsinden, yerel fiyatlandırma AZN'e çevriliyor)
         // Bu veriler doğrudan koddaki 'allServices' arrayinden alınmaktadır.
-        // allServices dizisindeki her bir service objesinde medyabayimServiceId bulunmalıdır.
         const TL_TO_AZN_RATE = 0.50; // Örnek kur: 1 TL = 0.50 AZN (Gerçek kuru güncelleyin)
 
 
@@ -430,45 +438,44 @@
         const PAYMENT_WHATSAPP_NUMBER = "994606006162"; // WhatsApp API için başında 994 olmalı
 
 
-        // Servis Verileri (Demo amaçlı ve Medyabayim servis ID'leri ile eşleştirildi)
-        // Her servisin kendi Medyabayim Service ID'si ve platform bilgisi olmalıdır.
+        // Servis Verileri (Demo amaçlı ve Sosyalmedyam servis ID'leri ile eşleştirildi)
+        // Her servisin kendi Sosyalmedyam Service ID'si ve platform bilgisi olmalıdır.
         const allServices = [
-            // TikTok Servisleri
+            // TikTok Servisleri (Sosyalmedyam'dan geldiği varsayılır)
             {
-                platform: 'TikTok', // Platform bilgisini doğrudan servise ekle
+                platform: 'TikTok', 
                 category: 'TikTok Takipçi Servisleri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>', // Kategori ikonu
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
                 items: [
-                    { id: 'tiktok_foreign_follower', name: 'TikTok Xarici Takipçi', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '30-50 dəqiqə', min: 10, max: 10000000, pricePerK: 4.33, medyabayimServiceId: 1 },
+                    { id: 'tiktok_foreign_follower', name: 'TikTok Xarici Takipçi', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '30-50 dəqiqə', min: 10, max: 10000000, pricePerK: 4.33, sosyalmedyamServiceId: 10823 }, // Updated sosyalmedyamServiceId
                 ]
             },
             {
-                platform: 'TikTok', // Platform bilgisini doğrudan servise ekle
+                platform: 'TikTok', 
                 category: 'TikTok Bəyəni Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>', // Kategori ikonu
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
                 items: [
-                    { id: 'tiktok_video_like', name: '4014 - TikTok Bəyəni ❤️ |10M | BEST', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 10000000, pricePerK: 1.51, medyabayimServiceId: 4014 },
-                    // Diğer TikTok servisleri için de medyabayimServiceId eklenmeli
-                    { id: 'tiktok_video_view', name: 'TikTok Video İzlənmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 100000000, pricePerK: 0.05, medyabayimServiceId: 2 },
-                    { id: 'tiktok_video_comment', name: 'TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1-2 saat', min: 1, max: 1000, pricePerK: 10.00, medyabayimServiceId: 3 },
-                    { id: 'tiktok_video_save', name: 'TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 5.00, medyabayimServiceId: 4 },
-                    { id: 'tiktok_video_share', name: 'TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 4.00, medyabayimServiceId: 5 },
-                    { id: 'tiktok_profile_view', name: 'TikTok Profil Görüntüləmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.10, medyabayimServiceId: 6 },
+                    { id: 'tiktok_video_like', name: '4014 - TikTok Bəyəni ❤️ |10M | BEST', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 10000000, pricePerK: 1.51, sosyalmedyamServiceId: 10917 }, // Updated sosyalmedyamServiceId
+                    { id: 'tiktok_video_view', name: 'TikTok Video İzlənmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 100000000, pricePerK: 0.05, sosyalmedyamServiceId: 5890 }, // Updated sosyalmedyamServiceId
+                    { id: 'tiktok_video_comment', name: 'TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1-2 saat', min: 1, max: 1000, pricePerK: 10.00, sosyalmedyamServiceId: 3 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'tiktok_video_save', name: 'TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 5.00, sosyalmedyamServiceId: 10582 }, // Updated sosyalmedyamServiceId
+                    { id: 'tiktok_video_share', name: 'TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-30 dəqiqə', min: 10, max: 1000000, pricePerK: 4.00, sosyalmedyamServiceId: 10804 }, // Updated sosyalmedyamServiceId
+                    { id: 'tiktok_profile_view', name: 'TikTok Profil Görüntüləmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.10, sosyalmedyamServiceId: 6 }, // Örnek ID, lütfen güncelleyin
                 ]
             },
-            // Instagram Servisleri
+            // Instagram Servisleri (Sosyalmedyam'dan geldiği varsayılır)
             {
-                platform: 'Instagram', // Platform bilgisini doğrudan servise ekle
+                platform: 'Instagram', 
                 category: 'Instagram Takipçi Servisleri',
-                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>', // Kategori ikonu
+                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
                 items: [
-                    { id: 'instagram_follower', name: 'Instagram Takipçi', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 0.69, medyabayimServiceId: 7 },
-                    { id: 'instagram_az_follower', name: 'Instagram Azərbaycanlı Takipçi 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 8.32, medyabayimServiceId: 8 },
-                    { id: 'instagram_tr_follower', name: 'Instagram Türk Takipçi 🇹🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 6.73, medyabayimServiceId: 9 },
-                    { id: 'instagram_30day_guarantee', name: 'Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 3.22, medyabayimServiceId: 10 },
-                    { id: 'instagram_100day_guarantee', name: 'Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 3.30, medyabayimServiceId: 11 },
-                    { id: 'instagram_365day_guarantee', name: 'Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 20 dəqiqə', min: 10, max: 50000, pricePerK: 40.00, medyabayimServiceId: 12 },
-                    { id: 'instagram_lifetime_guarantee', name: 'Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 3.89, medyabayimServiceId: 13 },
+                    { id: 'instagram_follower', name: 'Instagram Takipçi', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 0.69, sosyalmedyamServiceId: 7 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_az_follower', name: 'Instagram Azərbaycanlı Takipçi 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 8.32, sosyalmedyamServiceId: 8 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_tr_follower', name: 'Instagram Türk Takipçi 🇹🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 6.73, sosyalmedyamServiceId: 9 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_30day_guarantee', name: 'Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 3.22, sosyalmedyamServiceId: 9714 }, // Updated sosyalmedyamServiceId
+                    { id: 'instagram_100day_guarantee', name: 'Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 3.30, sosyalmedyamServiceId: 9715 }, // Updated sosyalmedyamServiceId
+                    { id: 'instagram_365day_guarantee', name: 'Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 20 dəqiqə', min: 10, max: 50000, pricePerK: 40.00, sosyalmedyamServiceId: 9716 },
+                    { id: 'instagram_lifetime_guarantee', name: 'Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 3.89, sosyalmedyamServiceId: 9716 }, // Same ID
                 ]
             },
             {
@@ -476,13 +483,13 @@
                 category: 'Instagram Bəyəni Servisləri',
                 categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
                 items: [
-                    { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41, medyabayimServiceId: 14 },
-                    { id: 'instagram_az_like', name: 'Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 10.00, medyabayimServiceId: 15 },
-                    { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.12, medyabayimServiceId: 16 },
-                    { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99, medyabayimServiceId: 17 },
-                    { id: 'instagram_comment', name: 'Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1-2 saat', min: 1, max: 500, pricePerK: 12.00, medyabayimServiceId: 18 },
-                    { id: 'instagram_save', name: 'Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.06, medyabayimServiceId: 19 },
-                    { id: 'instagram_share', name: 'Instagram Paylaşma', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 6.00, medyabayimServiceId: 20 },
+                    { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41, sosyalmedyamServiceId: 4488 },
+                    { id: 'instagram_az_like', name: 'Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 10.00, sosyalmedyamServiceId: 103 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.12, sosyalmedyamServiceId: 5890 },
+                    { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99, sosyalmedyamServiceId: 104 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_comment', name: 'Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '1-2 saat', min: 1, max: 500, pricePerK: 12.00, sosyalmedyamServiceId: 105 }, // Örnek ID, lütfen güncelleyin
+                    { id: 'instagram_save', name: 'Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.06, sosyalmedyamServiceId: 6420 },
+                    { id: 'instagram_share', name: 'Instagram Paylaşma', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 6.00, sosyalmedyamServiceId: 10546 },
                 ]
             },
         ];
@@ -749,18 +756,35 @@
             }
 
             try {
-                // Replit API endpointinə sifariş göndərmə
-                console.log("Replit API endpoint'inə sifariş göndərilir...");
+                // Hangi API sağlayıcısını kullanacağımızı belirle
+                let serviceIdToSend;
+                let apiProviderName;
+
+                // Seçilen servisin hangi API'ye ait olduğunu kontrol et
+                if (selectedService.medyabayimServiceId !== undefined) {
+                    serviceIdToSend = selectedService.medyabayimServiceId;
+                    apiProviderName = 'medyabayim';
+                } else if (selectedService.sosyalmedyamServiceId !== undefined) {
+                    serviceIdToSend = selectedService.sosyalmedyamServiceId;
+                    apiProviderName = 'sosyalmedyam';
+                } else {
+                    showAlert("API təminatçısı seçilməyib və ya yanlışdır.", 'error');
+                    console.error("API təminatçısı seçilməyib və ya yanlışdır.");
+                    return;
+                }
+
+                console.log(`Sifariş ${apiProviderName} API endpoint'inə göndərilir...`);
                 const orderPayload = {
-                    service: selectedService.medyabayimServiceId, // Medyabayim servis ID'si
+                    service: serviceIdToSend, // Doğru API'nin servis ID'si
                     link: linkInput.value.trim(),
-                    quantity: quantity
+                    quantity: quantity,
+                    apiProvider: apiProviderName // Backend'e hangi API'yi kullanacağını söyle
                 };
 
                 const replitResponse = await fetch(REPLIT_API_ENDPOINT, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json', // JSON formatında gönderiyoruz
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(orderPayload)
                 });
@@ -782,12 +806,13 @@
                         timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
                         status: 'pending', // Medyabayim'e gönderildiği için 'pending'
                         isNew: true, // Yeni: Sifarişin yeni olduğunu qeyd etmək üçün
-                        medyabayimOrderId: replitResult.order // Medyabayim'den gelen sipariş ID'si
+                        apiProvider: apiProviderName, // Siparişin hangi API'den verildiğini kaydet
+                        externalOrderId: replitResult.order // Medyabayim/Sosyalmedyam'dan gelen sipariş ID'si
                     };
                     console.log("Sifariş data-sı:", orderData);
 
                     // Sifariş detallarını Firebase'deki new_orders kolleksiyasına kaydet
-                    const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/new_orders`), orderData);
+                    const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
 
                     // Balansı güncelle (Firebase'de)
                     const userDocRef = doc(db, `users`, currentUserId);
@@ -797,7 +822,7 @@
                     userBalance -= totalPrice;
                     userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
 
-                    showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Medyabayim Sifariş ID: ${replitResult.order}.`, 'success', 10000);
+                    showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Xarici Sifariş ID: ${replitResult.order}.`, 'success', 10000);
                     
                     resetOrderForm();
                     categorySelect.value = "";
@@ -813,7 +838,7 @@
                     }, 1000);
 
                 } else if (replitResult.error) { // Replit API'den hata gelirse
-                    showAlert(`Medyabayim sifarişi yerləşdirilərkən xəta: ${replitResult.error}. Balansınızdan pul çıxarılmadı.`, 'error', 8000);
+                    showAlert(`Sifariş yerləşdirilərkən xəta: ${replitResult.error}. Balansınızdan pul çıxarılmadı.`, 'error', 8000);
                     console.error("Replit API xətası:", replitResult.error);
                 } else {
                     showAlert("Replit API-dən gözlənilməz cavab alındı. Balansınızdan pul çıxarılmadı.", 'error', 8000);
