@@ -1,426 +1,451 @@
-<!DOCTYPE html>
-<html lang="az">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxtarGet Bot - Sifarişlərim</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Koyu arka plan */
-            color: #e2e8f0; /* Açık gri metin */
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .main-content {
-            flex-grow: 1;
-            padding-bottom: 80px; /* Footer yüksekliği kadar boşluk */
-        }
-        .container {
-            max-width: 700px; /* Geniş konteyner */
-            margin: 0 auto;
-            padding: 1.5rem;
-        }
-        .card {
-            background-color: #2d3748; /* Kart arka planı */
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #4a5568;
-        }
-        .order-item {
-            background-color: #1a202c;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border: 1px solid #4a5568;
-            position: relative; /* Yeni etiketi için */
-            cursor: pointer; /* Tıklanabilir olması için */
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .order-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-        }
-        .order-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .order-item-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .status-pending { background-color: #f97316; color: white; } /* Turuncu */
-        .status-approved { background-color: #34d399; color: white; } /* Yeşil */
-        .status-completed { background-color: #10b981; color: white; } /* Koyu yeşil */
-        .status-cancelled { background-color: #dc2626; color: white; } /* Kırmızı */
-        .status-problem { background-color: #eab308; color: white; } /* Sarı */
-
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2d3748;
-            border-top: 1px solid #4a5568;
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem 0;
-            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 100;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #a0aec0;
-            font-size: 0.8rem;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-        .nav-item i {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-        .nav-item:hover, .nav-item.active {
-            color: #34d399;
-        }
-        .alert-message {
-            position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #dc2626;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        }
-        .alert-message.show {
-            opacity: 1;
-        }
-        /* Yeni etiketi için stil */
-        .new-indicator {
-            position: absolute;
-            top: 0;
-            right: 0;
-            background-color: #34d399; /* Yeşil renk */
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-top-right-radius: 0.5rem;
-            border-bottom-left-radius: 0.5rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            transform: translate(10%, -10%); /* Köşeye taşır */
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        /* Tab Navigasyon Stilleri */
-        .tab-nav {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-            background-color: #2d3748;
-            border-radius: 0.75rem;
-            overflow: hidden;
-            border: 1px solid #4a5568;
-        }
-        .tab-item {
-            flex: 1;
-            padding: 0.75rem 0;
-            text-align: center;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
-            border-right: 1px solid #4a5568;
-        }
-        .tab-item:last-child {
-            border-right: none;
-        }
-        .tab-item:hover:not(.active) { /* Sadece aktif olmayanlara hover efekti */
-            background-color: #4a5568;
-        }
-        .tab-item.active {
-            background-color: #10b981;
-            color: white;
-            cursor: default; /* Aktifken tıklanamaz kursor */
-        }
-    </style>
-</head>
-<body>
-
-    <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
-        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
-            <span class="text-xl font-semibold"><i class="fas fa-list-alt mr-2 text-blue-400"></i>Sifarişlərim</span>
-        </div>
-    </header>
-
-    <div class="main-content pt-20">
-        <div class="container">
-            <!-- Tab Navigasyon -->
-            <div class="tab-nav">
-                <div class="tab-item active" id="new-orders-tab" data-filter="new">Yeni Sifarişlər</div>
-                <div class="tab-item" id="all-orders-tab" data-filter="all">Bütün Sifarişlər</div>
-            </div>
-
-            <div id="orders-list" class="space-y-4">
-                <p class="text-center text-gray-400">Sifarişlər yüklənir...</p>
-                <!-- Sifarişlər buraya yüklənəcək -->
-            </div>
-            <p id="no-orders-message" class="text-center text-gray-400 text-xl mt-8 hidden">
-                Hələ heç bir sifarişiniz yoxdur.
-            </p>
-        </div>
-    </div>
-
-    <footer class="bottom-nav">
-        <a href="index.html" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Ana Səhifə</span>
-        </a>
-        <a href="follower-service.html" class="nav-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Yeni Sifariş</span>
-        </a>
-        <a href="orders.html" class="nav-item active">
-            <i class="fas fa-list-alt"></i>
-            <span>Sifarişlər</span>
-        </a>
-        <a href="follower-service.html" class="nav-item">
-            <i class="fas fa-money-bill-wave"></i>
-            <span>Balans əlavə et</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-headset"></i>
-            <span>Dəstək</span>
-        </a>
-    </footer>
-
-    <div id="alert-container"></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, query, where, onSnapshot, orderBy, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        
-        // Firebase konfiqurasiyası
-        const firebaseConfig = {
-            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
-            authDomain: "axtargetbotwebsite.firebaseapp.com",
-            projectId: "axtargetbotwebsite",
-            storageBucket: "axtargetbotwebsite.firebasestorage.app", 
-            messagingSenderId: "808698399196",
-            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
-            measurementId: "G-VLWZG4Q5TD"
-        };
-        const firebaseProjectId = firebaseConfig.projectId;
-
-        // Firebase'i Başlat
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUserId = null;
-        const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Adminin WhatsApp nömrəsi
-        let currentFilter = 'new'; // 'new' veya 'all'
-
-        // DOM Elementləri
-        const ordersList = document.getElementById('orders-list');
-        const noOrdersMessage = document.getElementById('no-orders-message');
-        const alertContainer = document.getElementById('alert-container');
-        const newOrdersTab = document.getElementById('new-orders-tab');
-        const allOrdersTab = document.getElementById('all-orders-tab');
-
-        // Custom Alert Funksiyası
-        function showAlert(message, type = 'error', duration = 3000) {
-            const alertBox = document.createElement('div');
-            alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
-            alertBox.innerHTML = message;
-            
-            const existingAlerts = document.querySelectorAll('.alert-message');
-            existingAlerts.forEach(alert => alert.remove());
-
-            if (type === 'success') {
-                alertBox.classList.remove('bg-red-600');
-                alertBox.classList.add('bg-green-600');
+    <!DOCTYPE html>
+    <html lang="az">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>AxtarGet Bot - Sifarişlərim</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: #1a202c; /* Koyu arka plan */
+                color: #e2e8f0; /* Açık gri metin */
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
             }
-            alertContainer.appendChild(alertBox);
-            setTimeout(() => {
-                alertBox.classList.add('show');
-            }, 10);
-            setTimeout(() => {
-                alertBox.classList.remove('show');
-                alertBox.addEventListener('transitionend', () => alertBox.remove(), { once: true });
-            }, duration);
-        }
+            .main-content {
+                flex-grow: 1;
+                padding-bottom: 80px; /* Footer yüksekliği kadar boşluk */
+            }
+            .container {
+                max-width: 700px; /* Geniş konteyner */
+                margin: 0 auto;
+                padding: 1.5rem;
+            }
+            .card {
+                background-color: #2d3748; /* Kart arka planı */
+                border-radius: 0.75rem;
+                padding: 1.5rem;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border: 1px solid #4a5568;
+            }
+            .order-item {
+                background-color: #1a202c;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+                border: 1px solid #4a5568;
+                position: relative; /* Yeni etiketi için */
+                cursor: pointer; /* Tıklanabilir olması için */
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+            .order-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            }
+            .order-item-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+            .order-item-status {
+                padding: 0.25rem 0.75rem;
+                border-radius: 0.5rem;
+                font-size: 0.8rem;
+                font-weight: bold;
+            }
+            .status-pending { background-color: #f97316; color: white; } /* Turuncu */
+            .status-approved { background-color: #34d399; color: white; } /* Yeşil */
+            .status-completed { background-color: #10b981; color: white; } /* Koyu yeşil */
+            .status-cancelled { background-color: #dc2626; color: white; } /* Kırmızı */
+            .status-problem { background-color: #eab308; color: white; } /* Sarı */
 
-        // Firebase Autentifikasiya və Sifarişlərin Yüklənməsi
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
-            } else {
-                signInAnonymously(auth).then(async (anonUserCredential) => {
-                    currentUserId = anonUserCredential.user.uid;
+            .bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+                background-color: #2d3748;
+                border-top: 1px solid #4a5568;
+                display: flex;
+                justify-content: space-around;
+                padding: 0.75rem 0;
+                box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+            }
+            .nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                color: #a0aec0;
+                font-size: 0.8rem;
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+            .nav-item i {
+                font-size: 1.5rem;
+                margin-bottom: 0.25rem;
+            }
+            .nav-item:hover, .nav-item.active {
+                color: #34d399;
+            }
+            .alert-message {
+                position: fixed;
+                bottom: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #dc2626;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                opacity: 0;
+                transition: opacity 0.3s ease-in-out;
+            }
+            .alert-message.show {
+                opacity: 1;
+            }
+            /* Yeni etiketi için stil */
+            .new-indicator {
+                position: absolute;
+                top: 0;
+                right: 0;
+                background-color: #34d399; /* Yeşil renk */
+                color: white;
+                padding: 0.25rem 0.5rem;
+                border-top-right-radius: 0.5rem;
+                border-bottom-left-radius: 0.5rem;
+                font-size: 0.7rem;
+                font-weight: bold;
+                transform: translate(10%, -10%); /* Köşeye taşır */
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            }
+
+            /* Tab Navigasyon Stilleri */
+            .tab-nav {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 1.5rem;
+                background-color: #2d3748;
+                border-radius: 0.75rem;
+                overflow: hidden;
+                border: 1px solid #4a5568;
+            }
+            .tab-item {
+                flex: 1;
+                padding: 0.75rem 0;
+                text-align: center;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease;
+                border-right: 1px solid #4a5568;
+            }
+            .tab-item:last-child {
+                border-right: none;
+            }
+            .tab-item:hover:not(.active) { /* Sadece aktif olmayanlara hover efekti */
+                background-color: #4a5568;
+            }
+            .tab-item.active {
+                background-color: #10b981;
+                color: white;
+                cursor: default; /* Aktifken tıklanamaz kursor */
+            }
+        </style>
+    </head>
+    <body>
+
+        <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+                <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+                <span class="text-xl font-semibold"><i class="fas fa-list-alt mr-2 text-blue-400"></i>Sifarişlərim</span>
+            </div>
+        </header>
+
+        <div class="main-content pt-20">
+            <div class="container">
+                <!-- Tab Navigasyon -->
+                <div class="tab-nav">
+                    <div class="tab-item active" id="new-orders-tab" data-filter="new">Yeni Sifarişlər</div>
+                    <div class="tab-item" id="all-orders-tab" data-filter="all">Bütün Sifarişlər</div>
+                </div>
+
+                <div id="orders-list" class="space-y-4">
+                    <p class="text-center text-gray-400">Sifarişlər yüklənir...</p>
+                    <!-- Sifarişlər buraya yüklənəcək -->
+                </div>
+                <p id="no-orders-message" class="text-center text-gray-400 text-xl mt-8 hidden">
+                    Hələ heç bir sifarişiniz yoxdur.
+                </p>
+            </div>
+        </div>
+
+        <footer class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Ana Səhifə</span>
+            </a>
+            <a href="follower-service.html" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Yeni Sifariş</span>
+            </a>
+            <a href="orders.html" class="nav-item active">
+                <i class="fas fa-list-alt"></i>
+                <span>Sifarişlər</span>
+            </a>
+            <a href="follower-service.html" class="nav-item">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Balans əlavə et</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-headset"></i>
+                <span>Dəstək</span>
+            </a>
+        </footer>
+
+        <div id="alert-container"></div>
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+            import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+            import { getFirestore, collection, query, where, onSnapshot, orderBy, doc, updateDoc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+            
+            // Firebase konfiqurasiyası
+            const firebaseConfig = {
+                apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+                authDomain: "axtargetbotwebsite.firebaseapp.com",
+                projectId: "axtargetbotwebsite",
+                storageBucket: "axtargetbotwebsite.firebasestorage.app", 
+                messagingSenderId: "808698399196",
+                appId: "1:808698399196:web:61b6be0721b94f24c3a719",
+                measurementId: "G-VLWZG4Q5TD"
+            };
+            const firebaseProjectId = firebaseConfig.projectId;
+
+            // Firebase'i Başlat
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            let currentUserId = null;
+            const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Adminin WhatsApp nömrəsi
+            let currentFilter = 'new'; // 'new' veya 'all'
+
+            // DOM Elementləri
+            const ordersList = document.getElementById('orders-list');
+            const noOrdersMessage = document.getElementById('no-orders-message');
+            const alertContainer = document.getElementById('alert-container');
+            const newOrdersTab = document.getElementById('new-orders-tab');
+            const allOrdersTab = document.getElementById('all-orders-tab');
+
+            // Custom Alert Funksiyası
+            function showAlert(message, type = 'error', duration = 3000) {
+                const alertBox = document.createElement('div');
+                alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
+                alertBox.innerHTML = message;
+                
+                const existingAlerts = document.querySelectorAll('.alert-message');
+                existingAlerts.forEach(alert => alert.remove());
+
+                if (type === 'success') {
+                    alertBox.classList.remove('bg-red-600');
+                    alertBox.classList.add('bg-green-600');
+                }
+                alertContainer.appendChild(alertBox);
+                setTimeout(() => {
+                    alertBox.classList.add('show');
+                }, 10);
+                setTimeout(() => {
+                    alertBox.classList.remove('show');
+                    alertBox.addEventListener('transitionend', () => alertBox.remove(), { once: true });
+                }, duration);
+            }
+
+            // Firebase Autentifikasiya və Sifarişlərin Yüklənməsi
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
                     loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
-                }).catch(error => {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                } else {
+                    signInAnonymously(auth).then(async (anonUserCredential) => {
+                        currentUserId = anonUserCredential.user.uid;
+                        loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
+                    }).catch(error => {
+                        console.error("Anonim girişdə xəta:", error);
+                        showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                    });
+                }
+            });
+
+            // Sifarişləri yüklə və göstər
+            async function loadOrders(userId, filter) {
+                ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
+                
+                let ordersColRef;
+                let q;
+
+                if (filter === 'new') {
+                    ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/new_orders`);
+                    q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+                } else { // filter === 'all'
+                    ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/all_orders`);
+                    q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+                }
+
+                onSnapshot(q, (snapshot) => {
+                    ordersList.innerHTML = ''; // Mövcud məzmunu təmizlə
+                    if (snapshot.empty) {
+                        noOrdersMessage.classList.remove('hidden');
+                    } else {
+                        noOrdersMessage.classList.add('hidden');
+                        snapshot.forEach(docSnapshot => { // doc yerine docSnapshot kullanıldı
+                            const order = docSnapshot.data(); // order.data() yerine docSnapshot.data()
+                            const orderId = docSnapshot.id; // order.id yerine docSnapshot.id
+                            const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
+                            
+                            let statusClass = '';
+                            switch(order.status) {
+                                case 'pending': statusClass = 'status-pending'; break;
+                                case 'approved': statusClass = 'status-approved'; break;
+                                case 'completed': statusClass = 'status-completed'; break;
+                                case 'cancelled': statusClass = 'status-cancelled'; break;
+                                case 'problem': statusClass = 'status-problem'; break;
+                                default: statusClass = '';
+                            }
+
+                            const orderItem = document.createElement('div');
+                            orderItem.className = `order-item card`; // Tailwind card sınıfını kullan
+                            orderItem.dataset.orderId = orderId; // Sifariş ID'sini data attribute olaraq kaydet
+                            orderItem.dataset.isNew = order.isNew; // isNew durumunu da kaydet
+
+                            let newIndicatorHtml = '';
+                            // Yalnız isNew true olduqda "YENİ" işarəsini göstər
+                            if (order.isNew && filter === 'new') { // Sadece "Yeni Sifarişlər" tabında görünür
+                                newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
+                            }
+
+
+                            orderItem.innerHTML = `
+                                ${newIndicatorHtml}
+                                <div class="order-item-header">
+                                    <span class="text-white text-lg">${order.serviceName}</span>
+                                    <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
+                                </div>
+                                <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
+                                <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
+                                <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
+                                <p class="text-gray-300 text-sm">Sifariş Tarihi: ${timestamp}</p>
+                                <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
+                                <button class="report-problem-button mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors duration-300" data-order-id="${orderId}">
+                                    Problem Bildir
+                                </button>
+                            `;
+                            ordersList.appendChild(orderItem);
+                        });
+
+                        // Sifariş elementlerine tıklama dinleyicisi ekle (isNew'i güncellemek ve taşımak için)
+                        ordersList.querySelectorAll('.order-item').forEach(item => {
+                            item.addEventListener('click', async (e) => {
+                                const clickedOrderId = item.dataset.orderId;
+                                const isNewOrder = item.dataset.isNew === 'true'; // string olarak gelir
+
+                                // Sadece "Yeni Sifarişlər" tabında ve isNew true ise işlem yap
+                                if (currentFilter === 'new' && isNewOrder) {
+                                    const newOrderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/new_orders`, clickedOrderId);
+                                    const allOrdersRef = doc(db, `artifacts/${firebaseProjectId}/public/data/all_orders`, clickedOrderId);
+
+                                    try {
+                                        // Yeni sifarişin datalarını al
+                                        const newOrderDoc = await getDoc(newOrderRef);
+                                        if (newOrderDoc.exists()) {
+                                            const orderDataToMove = newOrderDoc.data();
+                                            orderDataToMove.isNew = false; // Statusu false et
+                                            
+                                            // all_orders kolleksiyasına yaz
+                                            await setDoc(allOrdersRef, orderDataToMove);
+                                            
+                                            // new_orders kolleksiyasından sil
+                                            await deleteDoc(newOrderRef);
+
+                                            console.log(`Sifariş ${clickedOrderId} new_orders-dan all_orders-a köçürüldü və oxunmuş kimi qeyd edildi.`);
+                                            showAlert("Sifariş oxunmuş kimi qeyd edildi və bütün sifarişlərə köçürüldü!", 'success');
+                                            // UI otomatik olarak onSnapshot tarafından güncellenecek
+                                        } else {
+                                            console.warn(`Sifariş ${clickedOrderId} new_orders kolleksiyasında tapılmadı.`);
+                                        }
+                                    } catch (error) {
+                                        console.error("Sifarişi köçürərkən və ya isNew statusunu yeniləyərkən xəta:", error);
+                                        showAlert("Sifarişi köçürmək mümkün olmadı. Detaylar üçün konsolu yoxlayın.", 'error');
+                                    }
+                                }
+                            });
+                        });
+
+                        // Problem Bildir düyməsinə click listener əlavə et
+                        ordersList.querySelectorAll('.report-problem-button').forEach(button => {
+                            button.addEventListener('click', (e) => {
+                                e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
+                                const orderIdToReport = e.target.dataset.orderId;
+                                const whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Xahiş edirəm kömək edin. Mənim İstifadəçi ID-m: ${userId}`;
+                                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+                                window.open(whatsappUrl, '_blank');
+                            });
+                        });
+                    }
+                }, (error) => {
+                    console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
+                    let errorMessage = "Sifarişləri yükləmək mümkün olmadı.";
+                    if (error.code) {
+                        errorMessage += ` Xəta kodu: ${error.code}.`;
+                    }
+                    showAlert(errorMessage, 'error', 5000);
                 });
             }
-        });
-
-        // Sifarişləri yüklə və göstər
-        function loadOrders(userId, filter) {
-            ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
-            const ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
             
-            let q;
-            if (filter === 'new') {
-                // Yalnız isNew: true olan yeni sifarişləri göstər
-                q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
-            } else {
-                // Bütün sifarişləri göstər
-                q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
-            }
-
-            onSnapshot(q, (snapshot) => {
-                ordersList.innerHTML = ''; // Mövcud məzmunu təmizlə
-                if (snapshot.empty) {
-                    noOrdersMessage.classList.remove('hidden');
-                } else {
-                    noOrdersMessage.classList.add('hidden');
-                    snapshot.forEach(doc => {
-                        const order = doc.data();
-                        const orderId = doc.id; // Sifarişin ID-si
-                        const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
-                        
-                        let statusClass = '';
-                        switch(order.status) {
-                            case 'pending': statusClass = 'status-pending'; break;
-                            case 'approved': statusClass = 'status-approved'; break;
-                            case 'completed': statusClass = 'status-completed'; break;
-                            case 'cancelled': statusClass = 'status-cancelled'; break;
-                            case 'problem': statusClass = 'status-problem'; break;
-                            default: statusClass = '';
-                        }
-
-                        const orderItem = document.createElement('div');
-                        orderItem.className = `order-item card`; // Tailwind card sınıfını kullan
-                        orderItem.dataset.orderId = orderId; // Sifariş ID'sini data attribute olarak kaydet
-
-                        let newIndicatorHtml = '';
-                        if (order.isNew) {
-                            newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
-                        }
-
-                        orderItem.innerHTML = `
-                            ${newIndicatorHtml}
-                            <div class="order-item-header">
-                                <span class="text-white text-lg">${order.serviceName}</span>
-                                <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
-                            </div>
-                            <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
-                            <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
-                            <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
-                            <p class="text-gray-300 text-sm">Sifariş Tarihi: ${timestamp}</p>
-                            <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
-                            <button class="report-problem-button mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors duration-300" data-order-id="${orderId}">
-                                Problem Bildir
-                            </button>
-                        `;
-                        ordersList.appendChild(orderItem);
-                    });
-
-                    // Sifariş elementlerine tıklama dinleyicisi ekle (isNew'i güncellemek için)
-                    ordersList.querySelectorAll('.order-item').forEach(item => {
-                        item.addEventListener('click', async (e) => {
-                            const clickedOrderId = item.dataset.orderId;
-                            const orderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/orders`, clickedOrderId);
-                            
-                            // isNew'i false olarak güncelle
-                            try {
-                                await updateDoc(orderRef, { isNew: false });
-                                console.log(`Sifariş ${clickedOrderId} oxunmuş kimi qeyd edildi.`);
-                                // UI otomatik olarak onSnapshot tarafından güncellenecek (tab değişimi ile)
-                            } catch (error) {
-                                console.error("Sifarişin isNew statusunu yeniləyərkən xəta:", error);
-                                showAlert("Sifarişin statusunu yeniləmək mümkün olmadı.", 'error');
-                            }
-                        });
-                    });
-
-                    // Problem Bildir düyməsinə click listener əlavə et
-                    ordersList.querySelectorAll('.report-problem-button').forEach(button => {
-                        button.addEventListener('click', (e) => {
-                            e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
-                            const orderIdToReport = e.target.dataset.orderId;
-                            const whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Xahiş edirəm kömək edin. Mənim İstifadəçi ID-m: ${userId}`;
-                            const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
-                            window.open(whatsappUrl, '_blank');
-                        });
-                    });
+            // Tab Navigasyon İşlevselliği
+            newOrdersTab.addEventListener('click', () => {
+                // Eğer zaten aktifse bir şey yapma
+                if (newOrdersTab.classList.contains('active')) {
+                    return;
                 }
-            }, (error) => {
-                console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
-                let errorMessage = "Sifarişləri yükləmək mümkün olmadı.";
-                if (error.code) {
-                    errorMessage += ` Xəta kodu: ${error.code}.`;
-                }
-                showAlert(errorMessage, 'error', 5000);
+                newOrdersTab.classList.add('active');
+                allOrdersTab.classList.remove('active');
+                currentFilter = 'new';
+                loadOrders(currentUserId, currentFilter);
             });
-        }
-        
-        // Tab Navigasyon İşlevselliği
-        newOrdersTab.addEventListener('click', () => {
-            // Eğer zaten aktifse bir şey yapma
-            if (newOrdersTab.classList.contains('active')) {
-                return;
-            }
-            newOrdersTab.classList.add('active');
-            allOrdersTab.classList.remove('active');
-            currentFilter = 'new';
-            loadOrders(currentUserId, currentFilter);
-        });
 
-        allOrdersTab.addEventListener('click', () => {
-            // Eğer zaten aktifse bir şey yapma
-            if (allOrdersTab.classList.contains('active')) {
-                return;
-            }
-            allOrdersTab.classList.add('active');
-            newOrdersTab.classList.remove('active');
-            currentFilter = 'all';
-            loadOrders(currentUserId, currentFilter);
-        });
-
-
-        // Səhifə yükləndikdə (alt naviqasiyanın aktiv olması üçün)
-        document.addEventListener('DOMContentLoaded', () => {
-             document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-                const linkHref = item.getAttribute('href');
-                // Mevcut sayfa orders.html ise bu nav-item'ı aktif yap
-                if (window.location.pathname.includes('orders.html') && linkHref.includes('orders.html')) {
-                    item.classList.add('active');
-                } else if (window.location.pathname.includes('follower-service.html') && linkHref.includes('follower-service.html')) {
-                     item.classList.add('active'); // follower-service de açıldığında active olsun
+            allOrdersTab.addEventListener('click', () => {
+                // Eğer zaten aktifse bir şey yapma
+                if (allOrdersTab.classList.contains('active')) {
+                    return;
                 }
+                allOrdersTab.classList.add('active');
+                newOrdersTab.classList.remove('active');
+                currentFilter = 'all';
+                loadOrders(currentUserId, currentFilter);
             });
-        });
 
-    </script>
-</body>
-</html>
+
+            // Səhifə yükləndikdə (alt naviqasiyanın aktiv olması üçün)
+            document.addEventListener('DOMContentLoaded', () => {
+                 document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
+                    const linkHref = item.getAttribute('href');
+                    // Mevcut sayfa orders.html ise bu nav-item'ı aktif yap
+                    if (window.location.pathname.includes('orders.html') && linkHref.includes('orders.html')) {
+                        item.classList.add('active');
+                    } else if (window.location.pathname.includes('follower-service.html') && linkHref.includes('follower-service.html')) {
+                         item.classList.add('active'); // follower-service de açıldığında active olsun
+                    }
+                });
+            });
+
+        </script>
+    </body>
+    </html>
+    
