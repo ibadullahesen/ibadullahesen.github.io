@@ -338,13 +338,17 @@
             <i class="fas fa-money-bill-wave"></i>
             <span>Balans əlavə et</span>
         </a>
-        </footer>
+        <!-- Dəstək linki ləğv edildi -->
+    </footer>
 
     <div id="alert-container"></div>
 
-    <div id="top-up-modal" class="modal hidden"> <div class="modal-content">
+    <!-- Balans Artır Modal -->
+    <div id="top-up-modal" class="modal hidden"> <!-- Modal başlangıçta gizli sinfi ile -->
+        <div class="modal-content">
             <span class="close-button" id="close-top-up-modal">&times;</span>
             <h3 class="text-2xl font-bold text-white mb-4">Balans Artır</h3>
+            <!-- Kapital Bank kartı şəkli -->
             <img src="https://placehold.co/250x150/000000/ffffff?text=Kapital+Bank+Kart%C4%B1" alt="Kapital Bank Kartı" class="payment-card-image">
             <p class="text-lg text-white mb-2">Ödəniş etmək üçün aşağıdakı kart nömrəsinə pul göndərin:</p>
             <p class="text-2xl font-bold text-green-400 mb-4" id="bank-card-number">4169 7388 7208 5778</p>
@@ -358,11 +362,13 @@
         </div>
     </div>
 
+    <!-- Floating WhatsApp Bubble -->
     <a href="#" id="floating-whatsapp-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Dəstək üçün WhatsApp">
         <i class="fab fa-whatsapp text-3xl"></i>
     </a>
 
 
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
