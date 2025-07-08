@@ -301,7 +301,6 @@
                 <button id="place-order-button" class="button-primary w-full" disabled>Sipariş Oluştur</button>
             </div>
 
-            <!-- Açıqlama Bölməsi -->
             <div class="description-box card">
                 <h4>Xidmət Haqqında Qeydlər:</h4>
                 <ul>
@@ -483,7 +482,7 @@
                 category: 'Instagram Bəyəni Servisləri',
                 categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
                 items: [
-                    { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41, sosyalmedyamServiceId: 1468 }, // Updated sosyalmedyamServiceId
+                    { id: 'instagram_like', name: 'Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.41, sosyalmedyamServiceId: 1468 },
                     { id: 'instagram_az_like', name: 'Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 10.00, sosyalmedyamServiceId: 15 }, // Örnek ID, lütfen güncelleyin
                     { id: 'instagram_video_view', name: 'Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 100, max: 50000000, pricePerK: 0.12, sosyalmedyamServiceId: 5890 },
                     { id: 'instagram_az_video_view', name: 'Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99, sosyalmedyamServiceId: 17 }, // Örnek ID, lütfen güncelleyin
@@ -761,10 +760,7 @@
                 let apiProviderName;
 
                 // Seçilen servisin hangi API'ye ait olduğunu kontrol et
-                if (selectedService.medyabayimServiceId !== undefined) {
-                    serviceIdToSend = selectedService.medyabayimServiceId;
-                    apiProviderName = 'medyabayim';
-                } else if (selectedService.sosyalmedyamServiceId !== undefined) {
+                if (selectedService.sosyalmedyamServiceId !== undefined) { // Sadece Sosyalmedyam kontrolü
                     serviceIdToSend = selectedService.sosyalmedyamServiceId;
                     apiProviderName = 'sosyalmedyam';
                 } else {
@@ -804,15 +800,15 @@
                         totalPrice: totalPrice,
                         avgTime: selectedService.avgTime,
                         timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
-                        status: 'pending', // Medyabayim'e gönderildiği için 'pending'
+                        status: 'pending', // Sosyalmedyam'a gönderildiği için 'pending'
                         isNew: true, // Yeni: Sifarişin yeni olduğunu qeyd etmək üçün
                         apiProvider: apiProviderName, // Siparişin hangi API'den verildiğini kaydet
-                        externalOrderId: replitResult.order // Medyabayim/Sosyalmedyam'dan gelen sipariş ID'si
+                        externalOrderId: replitResult.order // Sosyalmedyam'dan gelen sipariş ID'si
                     };
                     console.log("Sifariş data-sı:", orderData);
 
                     // Sifariş detallarını Firebase'deki new_orders kolleksiyasına kaydet
-                    const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
+                    const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/new_orders`), orderData);
 
                     // Balansı güncelle (Firebase'de)
                     const userDocRef = doc(db, `users`, currentUserId);
