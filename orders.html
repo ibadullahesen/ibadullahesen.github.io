@@ -163,7 +163,7 @@
 
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet">AxtarGet</a>
             <span class="text-xl font-semibold"><i class="fas fa-list-alt mr-2 text-blue-400"></i>Sifarişlərim</span>
         </div>
     </header>
@@ -349,45 +349,8 @@
                         ordersList.appendChild(orderItem);
                     });
 
-                    // Sifariş elementlerine tıklama dinleyicisi ekle (isNew'i güncellemek ve taşımak için)
-                    ordersList.querySelectorAll('.order-item').forEach(item => {
-                        item.addEventListener('click', async (e) => {
-                            const clickedOrderId = item.dataset.orderId;
-                            const isNewOrder = item.dataset.isNew === 'true'; // string olarak gelir
-
-                            // Sadece "Yeni Sifarişlər" tabında ve isNew true ise işlem yap
-                            if (currentFilter === 'new' && isNewOrder) {
-                                const newOrderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/new_orders`, clickedOrderId);
-                                const allOrdersRef = doc(db, `artifacts/${firebaseProjectId}/public/data/all_orders`, clickedOrderId);
-
-                                try {
-                                    // Yeni sifarişin datalarını al
-                                    const newOrderDoc = await getDoc(newOrderRef);
-                                    if (newOrderDoc.exists()) {
-                                        const orderDataToMove = newOrderDoc.data();
-                                        orderDataToMove.isNew = false; // Statusu false et
-                                        
-                                        // all_orders kolleksiyasına yaz
-                                        await setDoc(allOrdersRef, orderDataToMove);
-                                        
-                                        // new_orders kolleksiyasından sil
-                                        await deleteDoc(newOrderRef);
-
-                                        console.log(`Sifariş ${clickedOrderId} new_orders-dan all_orders-a köçürüldü və oxunmuş kimi qeyd edildi.`);
-                                        showAlert("Sifariş oxunmuş kimi qeyd edildi və bütün sifarişlərə köçürüldü!", 'success');
-                                        // UI otomatik olarak onSnapshot tarafından güncellenecek
-                                    } else {
-                                        console.warn(`Sifariş ${clickedOrderId} new_orders kolleksiyasında tapılmadı.`);
-                                    }
-                                } catch (error) {
-                                    console.error("Sifarişi köçürərkən və ya isNew statusunu yeniləyərkən xəta:", error);
-                                    showAlert("Sifarişi köçürmək mümkün olmadı. Detaylar üçün konsolu yoxlayın.", 'error');
-                                }
-                            }
-                        });
-                    });
-
-                    // Problem Bildir düyməsinə click listener əlavə et
+                    // Sifariş elementlerine tıklama dinleyicisi artık isNew'i güncellemeyecek veya taşımayacak
+                    // Yalnızca "Problem Bildir" düyməsinə click listener əlavə et
                     ordersList.querySelectorAll('.report-problem-button').forEach(button => {
                         button.addEventListener('click', (e) => {
                             e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
