@@ -39,15 +39,12 @@
             margin-bottom: 0.75rem;
             border: 1px solid #4a5568;
             position: relative; /* Yeni etiketi için */
+            cursor: default; /* Artık tıklanabilir değil */
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        /* Yeni sipariş öğeleri için tıklanabilir ve hover efekti */
-        .order-item.new-clickable { /* Sadece yeni siparişlerin tıklanabilir olması için */
-            cursor: pointer;
-        }
-        .order-item.new-clickable:hover { /* Sadece yeni siparişlerin hover efekti */
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        .order-item:hover {
+            /* transform: translateY(-2px); -- Artık hover efekti yok */
+            /* box-shadow: 0 6px 12px rgba(0,0,0,0.2); -- Artık hover efekti yok */
         }
         .order-item-header {
             display: flex;
@@ -160,6 +157,26 @@
             color: white;
             cursor: default; /* Aktifken tıklanamaz kursor */
         }
+        /* Floating WhatsApp Bubble */
+        #floating-whatsapp-bubble {
+            position: fixed;
+            bottom: 100px; /* Footer'dan daha yukarı */
+            right: 20px;
+            background-color: #25D366; /* WhatsApp yeşili */
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #floating-whatsapp-bubble:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -206,13 +223,15 @@
             <i class="fas fa-money-bill-wave"></i>
             <span>Balans əlavə et</span>
         </a>
-        <a href="#" class="nav-item">
-            <i class="fas fa-headset"></i>
-            <span>Dəstək</span>
-        </a>
+        <!-- Dəstək linki ləğv edildi -->
     </footer>
 
     <div id="alert-container"></div>
+
+    <!-- Floating WhatsApp Bubble -->
+    <a href="#" id="floating-whatsapp-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Dəstək üçün WhatsApp">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -246,12 +265,13 @@
         const alertContainer = document.getElementById('alert-container');
         const newOrdersTab = document.getElementById('new-orders-tab');
         const allOrdersTab = document.getElementById('all-orders-tab');
+        const floatingWhatsappBubble = document.getElementById('floating-whatsapp-bubble'); // WhatsApp balonu
 
         // Custom Alert Funksiyası
         function showAlert(message, type = 'error', duration = 3000) {
             const alertBox = document.createElement('div');
             alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
-            alertBox.innerHTML = message;
+            alertBox.innerHTML = message; 
             
             const existingAlerts = document.querySelectorAll('.alert-message');
             existingAlerts.forEach(alert => alert.remove());
