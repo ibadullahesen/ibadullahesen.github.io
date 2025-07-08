@@ -764,8 +764,9 @@
                     serviceIdToSend = selectedService.sosyalmedyamServiceId;
                     apiProviderName = 'sosyalmedyam';
                 } else {
-                    showAlert("API təminatçısı seçilməyib və ya yanlışdır.", 'error');
-                    console.error("API təminatçısı seçilməyib və ya yanlışdır.");
+                    // Eğer servis ID'si tanımlı değilse, bu durumda Medyabayim veya Sosyalmedyam API çağrısı yapılmayacak.
+                    showAlert("Servis üçün API ID təyin edilməyib.", 'error');
+                    console.error("Servis üçün API ID təyin edilməyib.");
                     return;
                 }
 
