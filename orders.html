@@ -353,10 +353,8 @@
                         }
 
                         // Sifariş elementinin tıklanabilirliğini isNew durumuna göre ayarla
-                        // Yalnızca isNew true ise ve "Yeni Sifarişler" tabındaysa tıklanabilir
-                        if (order.isNew === true && filter === 'new') { 
-                            orderItem.classList.add('new-clickable');
-                        }
+                        // Artıq sifariş kartları ümumiyyətlə kliklənə bilməyəcək.
+                        // new-clickable sinfi əlavə edilmir.
 
 
                         orderItem.innerHTML = `
@@ -377,22 +375,8 @@
                         ordersList.appendChild(orderItem);
                     });
 
-                    // Sifariş elementlərinə tıklama dinləyicisi (isNew statusunu yeniləmək üçün)
-                    ordersList.querySelectorAll('.order-item.new-clickable').forEach(item => { // Sadece tıklanabilir olanlara ekle
-                        item.addEventListener('click', async (e) => {
-                            const clickedOrderId = item.dataset.orderId;
-                            const orderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/orders`, clickedOrderId);
-                            try {
-                                await updateDoc(orderRef, { isNew: false });
-                                console.log(`Sifariş ${clickedOrderId} oxunmuş kimi qeyd edildi (isNew: false).`);
-                                showAlert("Sifariş oxunmuş kimi qeyd edildi!", 'success');
-                                // UI otomatik olarak onSnapshot tarafından güncellenecek
-                            } catch (error) {
-                                console.error("Sifarişin isNew statusunu yeniləyərkən xəta:", error);
-                                showAlert("Sifarişin statusunu yeniləmək mümkün olmadı. Detaylar üçün konsolu yoxlayın.", 'error');
-                            }
-                        });
-                    });
+                    // Sifariş elementlərinə tıklama dinləyicisi tamamilə silindi
+                    // ordersList.querySelectorAll('.order-item.new-clickable').forEach(item => { /* ... */ });
 
                     // Problem Bildir düyməsinə click listener əlavə et
                     ordersList.querySelectorAll('.report-problem-button').forEach(button => {
@@ -451,6 +435,21 @@
                 }
             });
         });
+
+        // Floating WhatsApp Bubble'ı başlat
+        if (floatingWhatsappBubble) {
+            floatingWhatsappBubble.addEventListener('click', (e) => {
+                e.preventDefault();
+                // currentUserId'nin yüklendiğinden emin olmak için kontrol
+                if (currentUserId) {
+                    const whatsappMessage = `Salam, dəstəyə ehtiyacım var. İstifadəçi ID-m: ${currentUserId}.`;
+                    const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+                    window.open(whatsappUrl, '_blank');
+                } else {
+                    showAlert("İstifadəçi ID-si hələ yüklənməyib. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                }
+            });
+        }
 
     </script>
 </body>
