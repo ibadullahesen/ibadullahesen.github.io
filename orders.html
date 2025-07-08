@@ -39,12 +39,15 @@
             margin-bottom: 0.75rem;
             border: 1px solid #4a5568;
             position: relative; /* Yeni etiketi için */
-            /* cursor: pointer; -- Artık tıklanabilir değil */
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
-        .order-item:hover {
-            /* transform: translateY(-2px); -- Artık hover efekti yok */
-            /* box-shadow: 0 6px 12px rgba(0,0,0,0.2); -- Artık hover efekti yok */
+        /* Yeni sipariş öğeleri için tıklanabilir ve hover efekti */
+        .order-item.new-clickable { /* Sadece yeni siparişlerin tıklanabilir olması için */
+            cursor: pointer;
+        }
+        .order-item.new-clickable:hover { /* Sadece yeni siparişlerin hover efekti */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
         }
         .order-item-header {
             display: flex;
@@ -111,7 +114,7 @@
         .alert-message.show {
             opacity: 1;
         }
-        /* Yeni etiketi için stil */
+        /* Yeni etiketi üçün stil */
         .new-indicator {
             position: absolute;
             top: 0;
@@ -287,14 +290,14 @@
         async function loadOrders(userId, filter) {
             ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
             
-            let ordersColRef;
+            let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`); // Tek collection
             let q;
 
             if (filter === 'new') {
-                ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/new_orders`);
-                q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+                // Yalnız isNew: true olan yeni sifarişləri göstər
+                q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
             } else { // filter === 'all'
-                ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/all_orders`);
+                // Bütün sifarişləri göstər (isNew true veya false fark etmez)
                 q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
             }
 
@@ -304,9 +307,9 @@
                     noOrdersMessage.classList.remove('hidden');
                 } else {
                     noOrdersMessage.classList.add('hidden');
-                    snapshot.forEach(docSnapshot => { // doc yerine docSnapshot kullanıldı
-                        const order = docSnapshot.data(); // order.data() yerine docSnapshot.data()
-                        const orderId = docSnapshot.id; // order.id yerine docSnapshot.id
+                    snapshot.forEach(docSnapshot => { 
+                        const order = docSnapshot.data(); 
+                        const orderId = docSnapshot.id; 
                         const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
                         
                         let statusClass = '';
@@ -326,8 +329,14 @@
 
                         let newIndicatorHtml = '';
                         // Yalnız isNew true olduqda "YENİ" işarəsini göstər
-                        if (order.isNew && filter === 'new') { // Sadece "Yeni Sifarişlər" tabında görünür
+                        if (order.isNew) { // isNew true ise her zaman "YENİ" göster
                             newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
+                        }
+
+                        // Sifariş elementinin tıklanabilirliğini isNew durumuna göre ayarla
+                        // Yalnızca isNew true ise ve "Yeni Sifarişler" tabındaysa tıklanabilir
+                        if (order.isNew === true && filter === 'new') { 
+                            orderItem.classList.add('new-clickable');
                         }
 
 
@@ -349,8 +358,24 @@
                         ordersList.appendChild(orderItem);
                     });
 
-                    // Sifariş elementlerine tıklama dinleyicisi artık isNew'i güncellemeyecek veya taşımayacak
-                    // Yalnızca "Problem Bildir" düyməsinə click listener əlavə et
+                    // Sifariş elementlərinə tıklama dinləyicisi (isNew statusunu yeniləmək üçün)
+                    ordersList.querySelectorAll('.order-item.new-clickable').forEach(item => { // Sadece tıklanabilir olanlara ekle
+                        item.addEventListener('click', async (e) => {
+                            const clickedOrderId = item.dataset.orderId;
+                            const orderRef = doc(db, `artifacts/${firebaseProjectId}/public/data/orders`, clickedOrderId);
+                            try {
+                                await updateDoc(orderRef, { isNew: false });
+                                console.log(`Sifariş ${clickedOrderId} oxunmuş kimi qeyd edildi (isNew: false).`);
+                                showAlert("Sifariş oxunmuş kimi qeyd edildi!", 'success');
+                                // UI otomatik olarak onSnapshot tarafından güncellenecek
+                            } catch (error) {
+                                console.error("Sifarişin isNew statusunu yeniləyərkən xəta:", error);
+                                showAlert("Sifarişin statusunu yeniləmək mümkün olmadı. Detaylar üçün konsolu yoxlayın.", 'error');
+                            }
+                        });
+                    });
+
+                    // Problem Bildir düyməsinə click listener əlavə et
                     ordersList.querySelectorAll('.report-problem-button').forEach(button => {
                         button.addEventListener('click', (e) => {
                             e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
