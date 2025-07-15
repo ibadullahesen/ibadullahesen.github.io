@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxtarGet Bot - Mağaza və Xidmət Axtarışı</title>
+    <title>AxtarGet - Veb Sayt Qurulması Xidməti</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -14,22 +14,20 @@
             color: #e2e8f0; /* Kontrast üçün açıq boz mətn */
             overflow-x: hidden; /* Üfüqi sürüşməni qarşısını almaq */
         }
-        .gradient-bg {
-            background-image: linear-gradient(to right, #10b981, #34d399); /* Yaşıldan açıq yaşıl qradiyent */
-        }
         .section-padding {
             padding: 6rem 0; /* Bölmələr üçün ardıcıl şaquli boşluq */
         }
         .hover-grow {
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         }
         .hover-grow:hover {
-            transform: scale(1.05);
+            transform: scale(1.03); /* Yüngül böyümə */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); /* Kölgə effekti */
         }
         .fade-in {
             opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            transform: translateY(30px); /* Daha çox aşağıdan yuxarı */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Daha yavaş keçid */
         }
         .fade-in.appear {
             opacity: 1;
@@ -49,20 +47,113 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #059669; /* Hover zamanı tünd yaşıl */
         }
-        /* Sual-Cavab hissəsi üçün əlavə stil */
-        .chat-message {
+
+        /* Yeni: Düymə Parıltı Animasiyası */
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+                transform: scale(1);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+                transform: scale(1);
+            }
+        }
+        .pulse-glow-button {
+            animation: pulse-glow 2s infinite cubic-bezier(0.66, 0, 0.34, 1);
+        }
+
+        /* Hero bölməsi üçün overlay effekti */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9));
+            /* Yeni: Yüngül hərəkət edən qradiyent fon */
+            background-size: 400% 400%;
+            animation: gradient-anim 15s ease infinite;
+        }
+
+        @keyframes gradient-anim {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Hero mətni üçün daha dinamik görünüş */
+        .hero-text-shadow {
+            text-shadow: 0 4px 10px rgba(0,0,0,0.7);
+        }
+
+        /* Fırlanan Loqo Animasiyası (dayandırıldı) */
+        /* @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .spinning-logo {
+            animation: spin 4s linear infinite;
+        } */
+
+        /* Hamburger Menyu Stilleri */
+        .mobile-menu-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 250px;
+            height: 100%;
+            background-color: #0d121c; /* Sidebar ilə eyni fon */
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+            padding-top: 4rem; /* Header boşluğu */
+            overflow-y: auto; /* Sürüşməni aktivləşdir */
+        }
+        .mobile-menu-container.open {
+            transform: translateX(0);
+        }
+        .mobile-menu-container a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: #e2e8f0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #2d3748;
+            transition: background-color 0.2s ease;
+        }
+        .mobile-menu-container a:hover {
             background-color: #2d3748;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.75rem;
+            color: #34d399;
         }
-        .chat-message.user {
-            text-align: right;
-            background-color: #059669; /* Açıq yaşıl */
+        .mobile-menu-close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            color: #a0aec0;
+            cursor: pointer;
         }
-        .chat-message.system { /* Gözləmə mesajı üçün */
-            text-align: left;
-            background-color: #4a5568; /* Boz */
+        /* Floating WhatsApp Bubble */
+        #floating-whatsapp-bubble-index { /* Unikal ID */
+            position: fixed;
+            bottom: 20px; /* Ekranın altından 20px yukarıda */
+            right: 20px;
+            background-color: #25D366; /* WhatsApp yeşili */
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 90; /* Digər elementlərin üzərində olsun */
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #floating-whatsapp-bubble-index:hover {
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -73,130 +164,132 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <!-- Bot Logosu/Adı -->
+                <!-- spinning-logo sinfi silindi -->
                 <img src="https://placehold.co/40x40/10b981/ffffff?text=AG" alt="AxtarGet Logosu" class="rounded-full shadow-md w-10 h-10 object-cover">
-                <a href="https://axtarget.xyz" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+                <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
             </div>
-            <nav class="hidden md:flex space-x-8">
-                <a href="#about" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Haqqımızda</a>
-                <a href="#functions" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Funksiyalar</a>
-                <a href="share-business.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Biznesini Paylaş</a>
-                <a href="follower-service.html" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Takipçi Xidməti</a>
-                <a href="#contact" class="text-gray-300 hover:text-green-400 transition-colors duration-300">Əlaqə</a>
-                <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition-all duration-300 shadow-lg flex items-center space-x-2 hover-grow">
-                    <i class="fab fa-telegram-plane text-lg"></i>
-                    <span>Botu İndi Sına</span>
-                </a>
-            </nav>
-            <!-- Mobil Menyü Düyməsi -->
-            <button id="mobile-menu-button" class="md:hidden text-gray-300 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            <!-- Hamburger Menyu İkonu (Masaüstü və Mobil üçün) -->
+            <button id="hamburger-menu-button" class="text-gray-300 focus:outline-none text-2xl">
+                <i class="fas fa-bars"></i>
             </button>
-        </div>
-        <!-- Mobil Menyü -->
-        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 py-2">
-            <a href="#about" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Haqqımızda</a>
-            <a href="#functions" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Funksiyalar</a>
-            <a href="share-business.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Biznesini Paylaş</a>
-            <a href="follower-service.html" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Takipçi Xidməti</a>
-            <a href="#contact" class="block px-4 py-2 text-gray-300 hover:bg-gray-700">Əlaqə</a>
-            <a href="https://t.me/AxtarGetbot" target="_blank" class="block px-4 py-2 bg-green-600 text-white rounded-md mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">Botu İndi Sına</a>
         </div>
     </header>
 
-    <!-- Qəhrəman Bölməsi -->
-    <section class="relative h-screen flex items-center justify-center text-center overflow-hidden bg-cover bg-center" style="padding-top: 6rem;">
-        <div class="absolute inset-0 bg-black opacity-70"></div>
-        <div class="relative z-10 px-4 fade-in">
-            <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6">
-                AxtarGet Bot <br class="md:hidden"> ilə <span class="text-green-400">İstədiyini Tap!</span>
+    <!-- Hamburger Menyu (Gizli) -->
+    <div id="mobile-menu-container" class="mobile-menu-container">
+        <button id="mobile-menu-close-button" class="mobile-menu-close-button">
+            <i class="fas fa-times"></i>
+        </button>
+        <nav class="flex flex-col">
+            <a href="#hero">Ana Səhifə</a>
+            <a href="#about-us">Haqqımızda</a>
+            <a href="#services">Xidmətlər</a>
+            <a href="share-business.html">Biznesini Paylaş</a>
+            <a href="follower-service.html">Takipçi Xidməti</a>
+            <!-- Sifarişlər linki silindi -->
+            <!-- AxtarGet AI linki silindi -->
+            <a href="#">Rəqəmsal Məhsullar</a> <!-- Yeni əlavə olunan link -->
+            <a href="#contact">Əlaqə</a>
+            <a href="https://t.me/AxtarGetbot" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-full mx-4 my-2 text-center hover:bg-green-700 transition-all duration-300">
+                <i class="fab fa-telegram-plane mr-2"></i> Telegram Botuna Keç
+            </a>
+        </nav>
+    </div>
+
+    <section id="hero" class="relative h-screen flex items-center justify-center text-center overflow-hidden bg-cover bg-center" style="padding-top: 6rem;">
+        <div class="hero-overlay"></div> <div class="relative z-10 px-4 fade-in">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white leading-tight mb-6 hero-text-shadow">
+                Bizimlə <span class="text-green-400">Veb Saytınızı Qurun!</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                Mağazaları, xidmətləri və daha çoxunu saniyələr içində tapın. Region və kateqoriya əsasında axtarış funksiyası ilə həyatınızı asanlaşdırın.
+            <p class="text-lg md:text-xl text-gray-300 mb-8 max-w-2xl mx-auto hero-text-shadow">
+                Peşəkar veb sayt qurulması xidmətləri ilə biznesinizi rəqəmsal dünyada irəli aparın. Fərdi dizayn, mobil uyğunluq və SEO optimizasiyası.
             </p>
-            <a href="https://t.me/AxtarGetbot" target="_blank" class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-xl font-semibold rounded-full shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50">
-                <i class="fab fa-telegram-plane mr-3 text-2xl"></i>
-                Telegram Botuna Keç
+            <a href="#services" class="inline-flex items-center px-8 py-4 bg-green-600 text-white text-xl font-semibold rounded-full shadow-lg hover:bg-green-700 transform hover-grow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 pulse-glow-button">
+                <i class="fas fa-arrow-right mr-3 text-2xl"></i>
+                Xidmətlərimizə Bax
             </a>
         </div>
     </section>
 
-    <!-- Haqqımızda Bölməsi -->
-    <section id="about" class="section-padding bg-gray-900 text-center fade-in">
+    <section id="about-us" class="section-padding bg-gray-900 text-center fade-in">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Haqqımızda</h2>
             <p class="text-lg leading-relaxed mb-6">
-                AxtarGet Bot, İbadulla Həsənov tərəfindən yaradılmış qabaqcıl bir süni intellekt layihəsidir. Məqsədimiz, istifadəçilərimizə Azərbaycanda mövcud olan mağazalar, xidmətlər və müəssisələr haqqında dəqiq və ətraflı məlumat təqdim etməkdir. Bizim botumuzla, istədiyiniz məhsulu və ya xidməti tapmaq artıq daha asan və sürətlidir.
+                AxtarGet komandası olaraq, rəqəmsal həllər sahəsində illərin təcrübəsinə sahibik. Bizneslərin onlayn varlığını gücləndirmək üçün fərdi və innovativ veb saytlar yaradırıq. Məqsədimiz, müştərilərimizin hədəflərinə çatmalarına kömək edən funksional və estetik cəhətdən cəlbedici veb saytlar təqdim etməkdir.
             </p>
             <p class="text-lg leading-relaxed">
-                Biz hər zaman yeniliklər üzərində işləyir, bazamızı genişləndirir və sizə daha yaxşı xidmət göstərmək üçün botun funksionallığını artırırıq. AxtarGet Bot ilə vaxtınıza qənaət edin və ehtiyacınız olanı dərhal tapın!
+                Biz hər zaman yeniliklər üzərində işləyir, bazamızı genişləndirir və sizə daha yaxşı xidmət göstərmək üçün veb həllərimizi artırırıq. AxtarGet ilə rəqəmsal dünyada fərq yaradın!
             </p>
         </div>
     </section>
 
-    <!-- Bot Funksiyaları Bölməsi -->
-    <section id="functions" class="section-padding bg-gray-800 fade-in">
+    <section id="services" class="section-padding bg-gray-800 fade-in">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-12 text-green-400">Botun Funksiyaları</h2>
+            <h2 class="text-4xl font-bold text-center mb-12 text-green-400">Veb Sayt Xidmətlərimiz</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Funksiya Kartı 1: Bölgə Seçimi -->
-                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600">
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
                     <div class="text-green-400 text-5xl mb-4 text-center">
-                        <i class="fas fa-map-marked-alt"></i>
+                        <i class="fas fa-mobile-alt"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Bölgə Seçimi</h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Responsive Dizayn</h3>
                     <p class="text-gray-300 leading-relaxed text-center">
-                        Mağazaları və xidmətləri Bakı, Naxçıvan və digər şəhərlər kimi müxtəlif bölgələr üzrə axtarın. Genişlənən məlumat bazamızla, Azərbaycanda istədiyiniz yerdə axtarış edə bilərsiniz.
+                        Veb saytınızın hər cihazda (mobil, planşet, masaüstü) mükəmməl görünməsini və işləməsini təmin edirik.
                     </p>
                 </div>
 
-                <!-- Funksiya Kartı 2: Kateqoriya Filtrasiyası -->
-                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600">
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
                     <div class="text-green-400 text-5xl mb-4 text-center">
-                        <i class="fas fa-tags"></i>
+                        <i class="fas fa-search"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Kateqoriya Filtrasiyası</h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">SEO Optimizasiyası</h3>
                     <p class="text-gray-300 leading-relaxed text-center">
-                        Axtarışınızı Dərzi, Bərbər, Restoran, Elektronika, Mebel və s. kimi konkret kateqoriyalar üzrə dəqiqləşdirin. Lazım olanı daha tez tapın!
+                        Axtarış motorlarında daha yüksək sıralama əldə etmək üçün veb saytınızı optimallaşdırırıq.
                     </p>
                 </div>
 
-                <!-- Funksiya Kartı 3: Ətraflı Mağaza Məlumatı -->
-                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600">
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
                     <div class="text-green-400 text-5xl mb-4 text-center">
-                        <i class="fas fa-info-circle"></i>
+                        <i class="fas fa-shopping-cart"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Ətraflı Məlumat</h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">E-ticarət Həlləri</h3>
                     <p class="text-gray-300 leading-relaxed text-center">
-                        Hər mağaza və ya xidmət haqqında əlaqə nömrəsi, ünvan, haqqında qısa məlumat və Instagram linki kimi detallı məlumatlara anında daxil olun.
+                        Onlayn satış üçün təhlükəsiz və istifadəçi dostu e-ticarət platformaları qururuq.
                     </p>
                 </div>
 
-                <!-- Funksiya Kartı 4: Pulsuz/Premium Giriş -->
-                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600">
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
                     <div class="text-green-400 text-5xl mb-4 text-center">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-palette"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Pulsuz və Premium Giriş</h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Fərdi Dizayn</h3>
                     <p class="text-gray-300 leading-relaxed text-center">
-                        Botu pulsuz olaraq sınaqdan keçirin və ya daha çox sorğu limiti, üstün dəstək və gələcək əlavə funksiyalara daxil olmaq üçün premium istifadəçi olun.
+                        Brend kimliyinizi əks etdirən unikal və cəlbedici veb dizaynlar təklif edirik.
                     </p>
                 </div>
 
-                <!-- Funksiya Kartı 5: Asan Mağaza Əlavə Etmə -->
-                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600">
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
                     <div class="text-green-400 text-5xl mb-4 text-center">
-                        <i class="fas fa-plus-circle"></i>
+                        <i class="fas fa-tools"></i>
                     </div>
-                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Mağaza Əlavə Etmə</h3>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Texniki Dəstək</h3>
                     <p class="text-gray-300 leading-relaxed text-center">
-                        Ödənişsiz olaraq öz xidmətinizə və ya mağazanızı botun verilənlər bazasına əlavə edin. Potensial müştərilərə daha asan çatın.
+                        Veb saytınızın davamlı işləməsi üçün 7/24 texniki dəstək xidməti göstəririk.
+                    </p>
+                </div>
+
+                <div class="bg-gray-900 rounded-lg p-8 shadow-xl transform hover-grow transition-all duration-300 border border-green-600 fade-in">
+                    <div class="text-green-400 text-5xl mb-4 text-center">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold text-white mb-4 text-center">Sürət Optimizasiyası</h3>
+                    <p class="text-gray-300 leading-relaxed text-center">
+                        Veb saytınızın yüklənmə sürətini artıraraq istifadəçi təcrübəsini yaxşılaşdırırıq.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Yeni: Biznesinizi Paylaşın Bölməsi -->
     <section id="share-business-promo" class="section-padding bg-gray-900 text-center fade-in">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Biznesinizi Bizimlə Paylaşın!</h2>
@@ -210,23 +303,20 @@
         </div>
     </section>
 
-    <!-- Əlaqə Bölməsi -->
     <section id="contact" class="section-padding bg-gray-800 text-center fade-in">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold mb-8 text-green-400">Bizimlə Əlaqə</h2>
             <p class="text-lg leading-relaxed mb-6">
-                Bot haqqında ətraflı məlumat almaq, yeni xidmət əlavə etmək və ya hər hansı bir məsələ ilə bağlı bizimlə əlaqə saxlamaq üçün aşağıdakı vasitələrdən istifadə edə bilərsiniz.
+                Veb sayt qurulması xidmətlərimiz haqqında ətraflı məlumat almaq və ya layihənizlə bağlı bizimlə əlaqə saxlamaq üçün aşağıdakı vasitələrdən istifadə edə bilərsiniz.
             </p>
             <div class="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-8 flex-wrap">
                 <div class="flex items-center space-x-3 bg-gray-800 p-4 rounded-lg shadow-md border border-green-600 transform hover-grow">
-                    <i class="fab fa-whatsapp text-green-400 text-2xl"></i> <!-- WhatsApp ikonu -->
-                    <a href="https://wa.me/994606006162" target="_blank" class="text-xl font-semibold text-white hover:text-green-400 transition-colors duration-300">060-600-61-62</a>
+                    <i class="fab fa-whatsapp text-green-400 text-2xl"></i> <a href="https://wa.me/994606006162" target="_blank" class="text-xl font-semibold text-white hover:text-green-400 transition-colors duration-300">060-600-61-62</a>
                 </div>
                 <div class="flex items-center space-x-3 bg-gray-800 p-4 rounded-lg shadow-md border border-green-600 transform hover-grow">
                     <i class="fas fa-envelope text-green-400 text-2xl"></i>
                     <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="text-xl font-semibold text-white hover:text-green-400 transition-colors duration-300">ibadulla.hesen@gmail.com</a>
                 </div>
-                <!-- Instagram Linki əlavə edildi (kiçik ekranlar üçün yuxarıdan, orta ekranlar üçün soldan məsafə ilə) -->
                 <div class="flex items-center space-x-3 bg-gray-800 p-4 rounded-lg shadow-md border border-green-600 transform hover-grow mt-6 md:mt-0 md:ml-8">
                     <i class="fab fa-instagram text-green-400 text-2xl"></i>
                     <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="text-xl font-semibold text-white hover:text-green-400 transition-colors duration-300">ibadulla_hasanov_official</a>
@@ -235,73 +325,42 @@
         </div>
     </section>
 
-    <!-- Yeni Layihələr Bölməsi -->
-    <section class="section-padding bg-gray-900 text-center fade-in">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold mb-8 text-green-400">Yeni Layihələrimiz</h2>
-            <p class="text-xl leading-relaxed text-gray-300 mb-6">
-                AxtarGet komandası olaraq, daim inkişaf edir və yeni, maraqlı layihələr üzərində işləyirik. Tezliklə daha çox innovativ xidmət və funksiyalarla qarşınızda olacağıq!
-            </p>
-            <p class="text-xl font-semibold text-green-400 animate-bounce">
-                Bizi izləməyə davam edin!
-            </p>
-        </div>
-    </section>
-
-    <!-- Footer -->
     <footer class="bg-gray-900 py-8 text-center text-gray-400">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p>&copy; 2025 AxtarGet Bot. Bütün hüquqlar qorunur.</p>
+            <p>&copy; 2025 AxtarGet. Bütün hüquqlar qorunur.</p>
             <p class="mt-2 text-sm">Created by Ibadulla Hasanov</p>
-            <!-- Admin Paneli Linki -->
             <p class="mt-4 text-sm">
                 <a href="admin.html" class="text-gray-500 hover:text-green-400 transition-colors duration-300">Admin Paneli</a>
             </p>
         </div>
     </footer>
 
-    <!-- Floating Chat Bubble -->
-    <div id="chat-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50">
-        <i class="fas fa-comment-dots text-3xl"></i>
-    </div>
+    <!-- Floating WhatsApp Bubble -->
+    <a href="#" id="floating-whatsapp-bubble-main" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Bizimlə Əlaqə Saxlayın">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
 
-    <!-- Chat Window -->
-    <div id="chat-window" class="fixed bottom-24 right-8 w-80 bg-gray-900 rounded-lg shadow-xl hidden z-40 flex flex-col max-h-96">
-        <div class="flex justify-between items-center p-4 bg-gray-800 rounded-t-lg">
-            <h3 class="text-lg font-semibold text-white">Sual & Cavab</h3>
-            <button id="close-chat" class="text-gray-400 hover:text-white transition-colors duration-300">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div id="chat-history" class="flex-grow overflow-y-auto p-4 text-left">
-            <!-- Söhbət mesajları buraya əlavə olunacaq -->
-            <p class="chat-message system">Salam! AxtarGet Bot haqqında suallarınızı verə bilərsiniz. Admin cavablarını buradan ala biləcəksiniz.</p>
-        </div>
-        <div class="p-4 border-t border-gray-700">
-            <input type="text" id="user-name" placeholder="Adınız..." class="w-full p-2 mb-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
-            <div class="flex gap-2">
-                <input type="text" id="user-question" placeholder="Sualınızı bura yazın..." class="flex-grow p-2 rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-green-500 border border-gray-600">
-                <button id="ask-button" class="bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors duration-300">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-            <div id="loading-indicator" class="hidden mt-2 text-green-400 text-sm">
-                <i class="fas fa-spinner fa-spin mr-1"></i> Göndərilir...
-            </div>
-        </div>
-    </div>
-
-    <!-- Əsas JavaScript -->
     <script>
-        // DOM elementləri
-        const chatBubble = document.getElementById('chat-bubble');
-        const chatWindow = document.getElementById('chat-window');
-        const closeChatButton = document.getElementById('close-chat');
-        const userNameInput = document.getElementById('user-name'); // Ad inputu
-        const userQuestionInput = document.getElementById('user-question');
-        const askButton = document.getElementById('ask-button');
-        const chatHistoryDiv = document.getElementById('chat-history');
-        const loadingIndicator = document.getElementById('loading-indicator');
+        // WhatsApp nömrəsi (Adminin nömrəsi)
+        const ADMIN_WHATSAPP_NUMBER_MAIN = "994606006162"; 
+
+        // Hamburger menyu funksionallığı
+        document.getElementById('hamburger-menu-button').addEventListener('click', function() {
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            mobileMenuContainer.classList.add('open');
+        });
+
+        document.getElementById('mobile-menu-close-button').addEventListener('click', function() {
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            mobileMenuContainer.classList.remove('open');
+        });
+
+        // Menyu linklərinə kliklədikdə menyunu bağla
+        document.querySelectorAll('#mobile-menu-container a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('mobile-menu-container').classList.remove('open');
+            });
+        });
 
         // Naviqasiya linkləri üçün hamar sürüşmə
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -310,14 +369,7 @@
                 document.querySelector(this.getAttribute('href')).scrollIntoView({
                     behavior: 'smooth'
                 });
-                document.getElementById('mobile-menu').classList.add('hidden');
             });
-        });
-
-        // Mobil menyunu aç/bağla
-        document.getElementById('mobile-menu-button').addEventListener('click', function() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
         });
 
         // Görünüşə daxil olmaq üçün fade-in animasiyası üçün Intersection Observer
@@ -347,109 +399,14 @@
             link.href = 'https://t.me/AxtarGetbot';
         });
 
-        // Mesajı çata əlavə etmək üçün funksiya
-        function appendMessage(message, sender) {
-            const messageElement = document.createElement('div');
-            const actualSenderClass = (sender === 'bot') ? 'system' : sender;
-            messageElement.className = `chat-message ${actualSenderClass} p-3 rounded-lg max-w-full overflow-wrap break-word`;
-            
-            const encodedMessage = message.replace(/&/g, '&amp;')
-                                     .replace(/</g, '&lt;')
-                                     .replace(/>/g, '&gt;')
-                                     .replace(/"/g, '&quot;')
-                                     .replace(/'/g, '&#039;');
-
-            messageElement.innerHTML = `<span>${encodedMessage}</span>`;
-            if (chatHistoryDiv) {
-                chatHistoryDiv.appendChild(messageElement);
-                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-            }
-        }
-
-        // Custom "alert" implementation
-        function showAlert(message) {
-            const alertBox = document.createElement('div');
-            alertBox.className = 'fixed bottom-1/2 left-1/2 transform -translate-x-1/2 translate-y-1/2 bg-red-600 text-white p-4 rounded-lg shadow-xl z-[9999]';
-            alertBox.textContent = message;
-            document.body.appendChild(alertBox);
-            setTimeout(() => {
-                alertBox.remove();
-            }, 3000); // Remove after 3 seconds
-        }
-
-        // `askBot` funksiyası (Firebase və AI olmadan)
-        async function askBot() {
-            const userName = userNameInput.value.trim();
-            const question = userQuestionInput.value.trim();
-
-            if (!userName) {
-                showAlert("Zəhmət olmasa, adınızı daxil edin.");
-                userNameInput.focus();
-                return;
-            }
-            if (!question) {
-                showAlert("Zəhmət olmasa, sualınızı yazın.");
-                userQuestionInput.focus();
-                return;
-            }
-
-            appendMessage(question, 'user');
-            userQuestionInput.value = '';
-            
-            loadingIndicator.classList.remove('hidden');
-            askButton.disabled = true;
-            userNameInput.disabled = true;
-
-            try {
-                // Bu hissədə normalda Firebase-ə məlumat göndəriləcəkdi.
-                // Lakin Firebase silindiyi üçün bu məlumatlar heç yerdə saxlanmır.
-                // Admin panelində də görünməyəcək.
-                
-                const responseMessage = `Mesajınız qəbul edildi. Tezliklə admin tərəfindən cavablandırılacaq. Təşəkkür edirik!`;
-                appendMessage(responseMessage, 'system');
-                
-                // Məlumatı əl ilə yoxlamağınız üçün konsola yazırıq:
-                console.log(`İstifadəçi adı: ${userName}, Sual: ${question}`);
-
-            } catch (error) {
-                console.error("Mesaj göndərmə xətası:", error);
-                appendMessage("Bir xəta baş verdi. Zəhmət olmasa, bir az sonra yenidən cəhd edin.", 'system');
-            } finally {
-                loadingIndicator.classList.add('hidden');
-                askButton.disabled = false;
-                userNameInput.disabled = false;
-                chatHistoryDiv.scrollTop = chatHistoryDiv.scrollHeight;
-            }
-        }
-
-        // Söhbət balonuna klikləmə hadisəsi
-        if (chatBubble) {
-            chatBubble.addEventListener('click', () => {
-                chatWindow.classList.toggle('hidden');
-                if (!chatWindow.classList.contains('hidden')) {
-                    userNameInput.focus();
-                }
-            });
-        }
-
-        // Söhbət pəncərəsini bağlama düyməsi hadisəsi
-        if (closeChatButton) {
-            closeChatButton.addEventListener('click', () => {
-                chatWindow.classList.add('hidden');
-            });
-        }
-
-        // Göndər düyməsinə klikləmə hadisəsi
-        if (askButton) {
-            askButton.addEventListener('click', askBot);
-        }
-
-        // Enter düyməsinə basma hadisəsi
-        if (userQuestionInput) {
-            userQuestionInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    askBot();
-                }
+        // Floating WhatsApp Bubble (Ana səhifə)
+        const floatingWhatsappBubbleMain = document.getElementById('floating-whatsapp-bubble-main');
+        if (floatingWhatsappBubbleMain) {
+            floatingWhatsappBubbleMain.addEventListener('click', (e) => {
+                e.preventDefault();
+                const whatsappMessage = `Salam, veb sayt qurmaq isdəyirəm.`;
+                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER_MAIN}?text=${encodeURIComponent(whatsappMessage)}`;
+                window.open(whatsappUrl, '_blank');
             });
         }
     </script>
