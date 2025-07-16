@@ -92,216 +92,6 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(16, 185, 129, 0.7);
         }
-        /* Auth Modal Stilleri (artıq istifadə olunmur, lakin stil qalsın) */
-        .auth-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .auth-modal.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        .auth-modal-content {
-            background-color: #2d3748;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-            border: 1px solid #34d399; /* Neon çərçivə */
-            animation: modal-fade-in 0.3s ease-out;
-        }
-        @keyframes modal-fade-in {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .auth-modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 1.8rem;
-            color: #a0aec0;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .auth-modal-close:hover {
-            color: white;
-        }
-        .auth-input {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border-radius: 0.5rem;
-            background-color: #1a202c;
-            border: 1px solid #4a5568;
-            color: white;
-            outline: none;
-        }
-        .auth-input:focus {
-            border-color: #34d399;
-            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
-        }
-        .auth-button {
-            width: 100%;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
-        }
-        .auth-button.primary {
-            background-color: #34d399;
-            color: white;
-        }
-        .auth-button.primary:hover {
-            background-color: #10b981;
-        }
-        .auth-button.secondary {
-            background-color: #4a5568;
-            color: white;
-            margin-top: 0.75rem;
-        }
-        .auth-button.secondary:hover {
-            background-color: #6b7280;
-        }
-        .auth-switch-text {
-            font-size: 0.9rem;
-            color: #a0aec0;
-            margin-top: 1rem;
-        }
-        .auth-switch-text span {
-            color: #34d399;
-            cursor: pointer;
-            font-weight: 600;
-        }
-        /* Profil Menyu Stilleri (artıq istifadə olunmur, lakin stil qalsın) */
-        .profile-menu {
-            position: absolute;
-            top: 55px; /* Başlıqdan aşağı */
-            right: 1.5rem;
-            background-color: #2d3748;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            z-index: 90;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
-        }
-        .profile-menu.open {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        .profile-menu a, .profile-menu button {
-            display: block;
-            width: 100%;
-            padding: 0.75rem 1.5rem;
-            color: #e2e8f0;
-            font-size: 0.95rem;
-            text-align: left;
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-        .profile-menu a:hover, .profile-menu button:hover {
-            background-color: #1a202c;
-            color: #34d399;
-        }
-        .profile-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid #34d399; /* Neon çərçivə */
-            transition: transform 0.2s ease;
-        }
-        .profile-avatar:hover {
-            transform: scale(1.05);
-        }
-        .header-profile-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header-profile-section span {
-            font-weight: 600;
-        }
-        /* Content Overlay (Login tələb olunduqda) */
-        .content-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 999; /* Modalın altında, məzmunun üstündə */
-            display: none; /* Başlanğıcda gizli */
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5rem;
-            text-align: center;
-            cursor: default; /* Kliklənə bilən olduğunu göstərir */
-        }
-        .content-overlay.active {
-            display: flex;
-        }
-        /* Checkbox Stili */
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            justify-content: center; /* Ortalamak için */
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
-            color: #a0aec0;
-            font-size: 0.9rem;
-        }
-        .checkbox-container input {
-            margin-right: 0.5rem;
-            width: 16px;
-            height: 16px;
-            background-color: #1a202c;
-            border: 1px solid #4a5568;
-            border-radius: 4px;
-            appearance: none; /* Varsayılan checkbox stilini kaldır */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-            position: relative;
-            flex-shrink: 0;
-        }
-        .checkbox-container input:checked {
-            background-color: #34d399;
-            border-color: #34d399;
-        }
-        .checkbox-container input:checked::after {
-            content: '\2713'; /* Tik işareti */
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 12px;
-        }
-        .checkbox-container label {
-            cursor: pointer;
-        }
-
         /* Product Option Modal Stilleri */
         .product-options-modal {
             position: fixed;
@@ -333,6 +123,10 @@
             position: relative;
             border: 1px solid #34d399; /* Neon çərçivə */
             animation: modal-fade-in 0.3s ease-out;
+        }
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .product-options-close {
             position: absolute;
@@ -473,14 +267,15 @@
                     <i class="fas fa-shopping-basket"></i>
                     <span>Sifarişlər</span>
                 </a>
-                <!-- Profil şəkli və ya Giriş/Qeydiyyat düymələri buraya gələcək -->
-                <button id="login-register-button" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition-colors">Giriş / Qeydiyyat</button>
             </div>
         </div>
     </header>
 
     <div class="main-content">
         <div class="container">
+            <!-- İstifadəçi ID'si burada gösterilecek -->
+            <p class="text-center text-gray-400 text-sm mb-8">İstifadəçi ID: <span id="user-id-display" class="font-bold text-green-300">Yüklənir...</span></p>
+
             <h1 class="text-4xl font-bold text-center text-green-400 mb-8">Rəqəmsal Məhsullar</h1>
             <p class="text-center text-gray-400 mb-12">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin!</p>
 
@@ -517,33 +312,6 @@
         </div>
     </div>
 
-    <!-- Giriş/Qeydiyyat Modalı -->
-    <div id="auth-modal" class="auth-modal">
-        <div class="auth-modal-content">
-            <button id="auth-modal-close" class="auth-modal-close"><i class="fas fa-times"></i></button>
-            <h3 id="auth-modal-title" class="text-2xl font-bold text-white mb-6">Giriş</h3>
-            <input type="email" id="auth-email" class="auth-input" placeholder="Email">
-            <input type="text" id="auth-username" class="auth-input hidden" placeholder="İstifadəçi Adı"> <!-- Yeni Alan -->
-            <input type="password" id="auth-password" class="auth-input" placeholder="Şifrə">
-            <input type="password" id="auth-confirm-password" class="auth-input hidden" placeholder="Şifrəni Yenidən Yaz"> <!-- Yeni Alan -->
-            
-            <div id="remember-me-container" class="checkbox-container"> <!-- Yeni Checkbox -->
-                <input type="checkbox" id="remember-me">
-                <label for="remember-me">Məni xatırla</label>
-            </div>
-
-            <button id="auth-primary-button" class="auth-button primary mb-2">Giriş Yap</button>
-            <p class="auth-switch-text">Hesabınız yoxdur? <span id="switch-to-register">Qeydiyyatdan Keç</span></p>
-            <p class="auth-switch-text hidden" id="has-account-text">Hesabınız var? <span id="switch-to-login">Giriş Yap</span></p>
-        </div>
-    </div>
-
-    <!-- Profil Menyu -->
-    <div id="profile-menu" class="profile-menu">
-        <a href="#" id="change-password-link">Şifrəni Dəyişdir</a>
-        <button id="logout-button">Hesabdan Çıx</button>
-    </div>
-
     <!-- Məhsul Seçimləri Modalı -->
     <div id="product-options-modal" class="product-options-modal">
         <div class="product-options-content">
@@ -570,17 +338,13 @@
             <a id="whatsapp-topup-link" href="#" target="_blank" class="whatsapp-topup-button">
                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp-a Göndər
             </a>
+            <p class="text-xs text-gray-400 mt-4">Sizin İstifadəçi ID-niz: <span id="modal-user-id-display" class="font-bold text-green-300">Yüklənir...</span></p>
         </div>
-    </div>
-
-    <!-- Məzmun Overlay (Login tələb olunduqda) -->
-    <div id="content-overlay" class="content-overlay">
-        <p>Məhsullara baxmaq üçün zəhmət olmasa <br> Giriş edin və ya Qeydiyyatdan keçin.</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Firebase konfiqurasiyası
@@ -601,7 +365,6 @@
         const db = getFirestore(app);
 
         let currentUser = null; // Cari Firebase istifadəçisi obyekti
-        let isRegisterMode = false; // Qeydiyyat və ya Giriş rejimini izləyir
         let selectedProduct = null; // Seçilmiş məhsul (kart)
         let selectedOption = null; // Seçilmiş məhsul seçimi (məsələn, 1 aylıq Netflix)
         let userBalance = 0; // İstifadəçi balansı
@@ -636,9 +399,9 @@
         };
 
         // DOM Elementləri
-        const authStatusSection = document.getElementById('auth-status-section');
         const userBalanceEl = document.getElementById('user-balance'); // Balans elementi
-        const userIdDisplayEl = document.getElementById('user-id-display'); // İstifadəçi ID'sini göstərəcək element
+        const userIdDisplayEl = document.getElementById('user-id-display'); // İstifadəçi ID'sini göstərəcək element (əsas səhifədə)
+        const modalUserIdDisplayEl = document.getElementById('modal-user-id-display'); // İstifadəçi ID'sini modalda göstərəcək element
         const topUpButton = document.getElementById('top-up-button'); // Balans Artır düyməsi
         const digitalOrdersButton = document.getElementById('digital-orders-button'); 
 
@@ -654,9 +417,6 @@
         const bankCardNumberEl = document.getElementById('bank-card-number'); // Bank kartı nömrəsi elementi
         const PAYMENT_CARD_NUMBER = "4169 7388 7208 5778"; // Ödəniş kartı nömrəsi
         const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Admin WhatsApp nömrəsi
-
-        const contentOverlay = document.getElementById('content-overlay');
-        const mainContent = document.querySelector('.main-content'); 
 
         // --- Funksiyalar ---
 
@@ -715,10 +475,8 @@
         function toggleProductOptionsModal(open = true) {
             if (open) {
                 productOptionsModal.classList.add('open');
-                contentOverlay.classList.add('active'); // Overlay'ı aktif et
             } else {
                 productOptionsModal.classList.remove('open');
-                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
                 selectedOption = null; // Seçimi sıfırla
                 confirmProductOrderButton.disabled = true; // Düyməni deaktiv et
             }
@@ -728,17 +486,17 @@
         function toggleTopUpModal(open = true) {
             if (open) {
                 topUpModal.classList.add('open');
-                contentOverlay.classList.add('active'); // Overlay'ı aktif et
                 bankCardNumberEl.textContent = PAYMENT_CARD_NUMBER;
                 // currentUserId'nin yükləndiyindən əmin olun
                 if (currentUser && currentUser.uid) {
+                    modalUserIdDisplayEl.textContent = currentUser.uid;
                     whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, mənim İstifadəçi ID-m: ' + currentUser.uid + '. Balans artırmaq istəyirəm.')}`;
                 } else {
+                    modalUserIdDisplayEl.textContent = "Yüklənir..."; // Və ya "Anonim"
                     whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, balans artırmaq istəyirəm.')}`;
                 }
             } else {
                 topUpModal.classList.remove('open');
-                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
             }
         }
 
@@ -746,14 +504,14 @@
         async function updateUIForUser(user) {
             if (user) {
                 currentUser = user; // currentUser-u təyin et
-                userIdDisplayEl.textContent = user.uid; // İstifadəçi ID'sini göstər
+                // userIdDisplayEl.textContent = user.uid; // ID artıq başlıqda görünmür
                 await updateBalanceUI(); // Balansı yenilə
             } else {
                 // Anonim giriş et
                 try {
                     const anonUserCredential = await signInAnonymously(auth);
                     currentUser = anonUserCredential.user;
-                    userIdDisplayEl.textContent = currentUser.uid;
+                    // userIdDisplayEl.textContent = currentUser.uid; // ID artıq başlıqda görünmür
                     await updateBalanceUI();
                 } catch (error) {
                     console.error("Anonim girişdə xəta:", error);
@@ -819,7 +577,7 @@
         // Sifarişi Təsdiqlə düyməsi
         confirmProductOrderButton.addEventListener('click', async () => {
             if (!currentUser || !selectedProduct || !selectedOption) {
-                showAlert("Sifariş etmək üçün daxil olmalı və məhsul seçməlisiniz.", 'error');
+                showAlert("Sifariş etmək üçün daxil olmalısınız.", 'error'); // Bu mesaj görünməməli
                 return;
             }
             if (userBalance < selectedOption.price) {
