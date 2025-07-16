@@ -711,11 +711,6 @@
             });
         }
 
-        // Modalı aç/bağla (artıq Giriş/Qeydiyyat üçün istifadə olunmur)
-        // Bu funksiya artıq yuxarıdakı Giriş/Qeydiyyat modalını idarə etmək üçün istifadə olunmur.
-        // Lakin, adını dəyişib digər modallar üçün istifadə edə bilərik.
-        // Məhsul seçimləri və balans artırma modalları üçün ayrı funksiyalar var.
-
         // Məhsul seçimləri modalını aç/bağla
         function toggleProductOptionsModal(open = true) {
             if (open) {
@@ -746,7 +741,6 @@
                 contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
             }
         }
-
 
         // İstifadəçi UI-ni yenilə
         async function updateUIForUser(user) {
