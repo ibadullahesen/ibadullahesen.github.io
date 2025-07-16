@@ -92,7 +92,7 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(16, 185, 129, 0.7);
         }
-        /* Auth Modal Stilleri */
+        /* Auth Modal Stilleri (artıq istifadə olunmur, lakin stil qalsın) */
         .auth-modal {
             position: fixed;
             top: 0;
@@ -186,7 +186,7 @@
             cursor: pointer;
             font-weight: 600;
         }
-        /* Profil Menyu Stilleri */
+        /* Profil Menyu Stilleri (artıq istifadə olunmur, lakin stil qalsın) */
         .profile-menu {
             position: absolute;
             top: 55px; /* Başlıqdan aşağı */
@@ -256,7 +256,7 @@
             color: white;
             font-size: 1.5rem;
             text-align: center;
-            cursor: pointer; /* Kliklənə bilən olduğunu göstərir */
+            cursor: default; /* Kliklənə bilən olduğunu göstərir */
         }
         .content-overlay.active {
             display: flex;
@@ -390,6 +390,72 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        /* Balans Artır Modal Stilleri */
+        .top-up-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .top-up-modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .top-up-modal-content {
+            background-color: #2d3748;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            border: 1px solid #34d399;
+            animation: modal-fade-in 0.3s ease-out;
+        }
+        .top-up-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .top-up-modal-close:hover {
+            color: white;
+        }
+        .payment-card-image {
+            width: 100%;
+            max-width: 250px;
+            margin: 0 auto 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .whatsapp-topup-button {
+            background-color: #25D366;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        .whatsapp-topup-button:hover {
+            background-color: #1DA851;
+        }
     </style>
 </head>
 <body>
@@ -398,6 +464,10 @@
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
             <div id="auth-status-section" class="header-profile-section">
+                <!-- Balans göstəricisi -->
+                <span class="text-white text-lg font-semibold mr-4">Balans: <span id="user-balance">0.00 AZN</span></span>
+                <!-- Balans Artır düyməsi -->
+                <button id="top-up-button" class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-yellow-600 transition-colors mr-4">Balans Artır</button>
                 <!-- Sifarişlər düyməsi buraya əlavə edildi -->
                 <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
                     <i class="fas fa-shopping-basket"></i>
@@ -486,6 +556,23 @@
         </div>
     </div>
 
+    <!-- Balans Artır Modal -->
+    <div id="top-up-modal" class="top-up-modal">
+        <div class="top-up-modal-content">
+            <span class="top-up-modal-close" id="top-up-modal-close">&times;</span>
+            <h3 class="text-2xl font-bold text-white mb-4">Balans Artır</h3>
+            <img src="https://placehold.co/250x150/000000/ffffff?text=Kapital+Bank+Kart%C4%B1" alt="Kapital Bank Kartı" class="payment-card-image">
+            <p class="text-lg text-white mb-2">Ödəniş etmək üçün aşağıdakı kart nömrəsinə pul göndərin:</p>
+            <p class="text-2xl font-bold text-green-400 mb-4" id="bank-card-number">4169 7388 7208 5778</p>
+            <p class="text-sm text-yellow-300 font-semibold mb-4 p-2 bg-yellow-900 bg-opacity-30 rounded-md">
+                🎁 1-10 AZN balans artımı üçün 1% 💰 11-100 AZN arası balans artırma üçün 10% balans artımı bizdən hədiyyə!
+            </p>
+            <a id="whatsapp-topup-link" href="#" target="_blank" class="whatsapp-topup-button">
+                <i class="fab fa-whatsapp mr-2"></i> WhatsApp-a Göndər
+            </a>
+        </div>
+    </div>
+
     <!-- Məzmun Overlay (Login tələb olunduqda) -->
     <div id="content-overlay" class="content-overlay">
         <p>Məhsullara baxmaq üçün zəhmət olmasa <br> Giriş edin və ya Qeydiyyatdan keçin.</p>
@@ -494,7 +581,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Firebase konfiqurasiyası
         const firebaseConfig = {
@@ -515,35 +602,9 @@
 
         let currentUser = null; // Cari Firebase istifadəçisi obyekti
         let isRegisterMode = false; // Qeydiyyat və ya Giriş rejimini izləyir
-
-        // DOM Elementləri
-        const authStatusSection = document.getElementById('auth-status-section');
-        const loginRegisterButton = document.getElementById('login-register-button');
-        const authModal = document.getElementById('auth-modal');
-        const authModalClose = document.getElementById('auth-modal-close');
-        const authModalTitle = document.getElementById('auth-modal-title');
-        const authEmailInput = document.getElementById('auth-email');
-        const authUsernameInput = document.getElementById('auth-username'); 
-        const authPasswordInput = document.getElementById('auth-password');
-        const authConfirmPasswordInput = document.getElementById('auth-confirm-password'); 
-        const rememberMeCheckbox = document.getElementById('remember-me'); 
-        const rememberMeContainer = document.getElementById('remember-me-container'); 
-        const authPrimaryButton = document.getElementById('auth-primary-button');
-        const switchToRegisterText = document.getElementById('switch-to-register');
-        const hasAccountText = document.getElementById('has-account-text');
-        const switchToLoginText = document.getElementById('switch-to-login');
-        const profileMenu = document.getElementById('profile-menu');
-        const changePasswordLink = document.getElementById('change-password-link');
-        const logoutButton = document.getElementById('logout-button');
-        const contentOverlay = document.getElementById('content-overlay');
-        const mainContent = document.querySelector('.main-content'); 
-
-        const productOptionsModal = document.getElementById('product-options-modal');
-        const productOptionsClose = document.getElementById('product-options-close');
-        const productOptionsTitle = document.getElementById('product-options-title');
-        const productOptionsList = document.getElementById('product-options-list');
-        const confirmProductOrderButton = document.getElementById('confirm-product-order');
-        const digitalOrdersButton = document.getElementById('digital-orders-button'); // Yeni DOM elementi
+        let selectedProduct = null; // Seçilmiş məhsul (kart)
+        let selectedOption = null; // Seçilmiş məhsul seçimi (məsələn, 1 aylıq Netflix)
+        let userBalance = 0; // İstifadəçi balansı
 
         // Məhsul Məlumatları
         const productsData = {
@@ -574,6 +635,29 @@
             }
         };
 
+        // DOM Elementləri
+        const authStatusSection = document.getElementById('auth-status-section');
+        const userBalanceEl = document.getElementById('user-balance'); // Balans elementi
+        const userIdDisplayEl = document.getElementById('user-id-display'); // İstifadəçi ID'sini göstərəcək element
+        const topUpButton = document.getElementById('top-up-button'); // Balans Artır düyməsi
+        const digitalOrdersButton = document.getElementById('digital-orders-button'); 
+
+        const productOptionsModal = document.getElementById('product-options-modal');
+        const productOptionsClose = document.getElementById('product-options-close');
+        const productOptionsTitle = document.getElementById('product-options-title');
+        const productOptionsList = document.getElementById('product-options-list');
+        const confirmProductOrderButton = document.getElementById('confirm-product-order');
+        
+        const topUpModal = document.getElementById('top-up-modal'); // Balans Artır modalı
+        const topUpModalClose = document.getElementById('top-up-modal-close'); // Balans Artır modalı bağlama düyməsi
+        const whatsappTopUpLink = document.getElementById('whatsapp-topup-link'); // WhatsApp top-up linki
+        const bankCardNumberEl = document.getElementById('bank-card-number'); // Bank kartı nömrəsi elementi
+        const PAYMENT_CARD_NUMBER = "4169 7388 7208 5778"; // Ödəniş kartı nömrəsi
+        const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Admin WhatsApp nömrəsi
+
+        const contentOverlay = document.getElementById('content-overlay');
+        const mainContent = document.querySelector('.main-content'); 
+
         // --- Funksiyalar ---
 
         // Alert mesajı göstər
@@ -587,20 +671,50 @@
             }, duration);
         }
 
-        // Modalı aç/bağla
-        function toggleAuthModal(open = true) {
-            if (open) {
-                authModal.classList.add('open');
-                contentOverlay.classList.add('active'); // Overlay'ı aktif et
+        // Balansı UI-də yenilə
+        async function updateBalanceUI() {
+            if (currentUser) {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists() && userDocSnap.data().balance !== undefined) {
+                    userBalance = userDocSnap.data().balance;
+                } else {
+                    userBalance = 0;
+                    // Yeni anonim istifadəçi üçün balans sənədini yarat
+                    await setDoc(userDocRef, { balance: 0, createdAt: serverTimestamp(), username: `User_${currentUser.uid.substring(0, 6)}` }, { merge: true });
+                }
+                userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
             } else {
-                authModal.classList.remove('open');
-                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
-                authEmailInput.value = '';
-                authUsernameInput.value = ''; 
-                authPasswordInput.value = '';
-                authConfirmPasswordInput.value = ''; 
+                userBalanceEl.textContent = `0.00 AZN`;
             }
+            // Balansa görə "İndi Al" düymələrini aktiv/deaktiv et
+            updateBuyButtonsState();
         }
+
+        // "İndi Al" düymələrinin aktiv/deaktiv statusunu yenilə
+        function updateBuyButtonsState() {
+            document.querySelectorAll('.product-card .buy-button').forEach(button => {
+                const card = button.closest('.product-card');
+                const productId = card.dataset.productId;
+                const product = productsData[productId];
+                
+                // Ən ucuz seçimin qiymətini tap (balans yoxlaması üçün)
+                const minPrice = Math.min(...product.options.map(option => option.price));
+
+                if (!currentUser || userBalance < minPrice) {
+                    button.disabled = true;
+                    button.textContent = "Balans Yoxdur";
+                } else {
+                    button.disabled = false;
+                    button.textContent = "İndi Al";
+                }
+            });
+        }
+
+        // Modalı aç/bağla (artıq Giriş/Qeydiyyat üçün istifadə olunmur)
+        // Bu funksiya artıq yuxarıdakı Giriş/Qeydiyyat modalını idarə etmək üçün istifadə olunmur.
+        // Lakin, adını dəyişib digər modallar üçün istifadə edə bilərik.
+        // Məhsul seçimləri və balans artırma modalları üçün ayrı funksiyalar var.
 
         // Məhsul seçimləri modalını aç/bağla
         function toggleProductOptionsModal(open = true) {
@@ -615,64 +729,42 @@
             }
         }
 
-        // Qeydiyyat/Giriş rejimini dəyişdir
-        function switchAuthMode(toRegister) {
-            isRegisterMode = toRegister;
-            if (isRegisterMode) {
-                authModalTitle.textContent = "Qeydiyyat";
-                authPrimaryButton.textContent = "Qeydiyyatdan Keç";
-                authUsernameInput.classList.remove('hidden'); 
-                authConfirmPasswordInput.classList.remove('hidden'); 
-                rememberMeContainer.classList.add('hidden'); 
-                switchToRegisterText.parentElement.classList.add('hidden');
-                hasAccountText.classList.remove('hidden');
+        // Balans Artır modalını aç/bağla
+        function toggleTopUpModal(open = true) {
+            if (open) {
+                topUpModal.classList.add('open');
+                contentOverlay.classList.add('active'); // Overlay'ı aktif et
+                bankCardNumberEl.textContent = PAYMENT_CARD_NUMBER;
+                // currentUserId'nin yükləndiyindən əmin olun
+                if (currentUser && currentUser.uid) {
+                    whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, mənim İstifadəçi ID-m: ' + currentUser.uid + '. Balans artırmaq istəyirəm.')}`;
+                } else {
+                    whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, balans artırmaq istəyirəm.')}`;
+                }
             } else {
-                authModalTitle.textContent = "Giriş";
-                authPrimaryButton.textContent = "Giriş Yap";
-                authUsernameInput.classList.add('hidden'); 
-                authConfirmPasswordInput.classList.add('hidden'); 
-                rememberMeContainer.classList.remove('hidden'); 
-                switchToRegisterText.parentElement.classList.remove('hidden');
-                hasAccountText.classList.add('hidden');
+                topUpModal.classList.remove('open');
+                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
             }
         }
+
 
         // İstifadəçi UI-ni yenilə
         async function updateUIForUser(user) {
             if (user) {
-                // İstifadəçi adını Firestore-dan al
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                let username = user.email ? user.email.split('@')[0] : 'İstifadəçi'; // Varsayılan
-                if (userDocSnap.exists() && userDocSnap.data().username) {
-                    username = userDocSnap.data().username;
-                }
-
-                authStatusSection.innerHTML = `
-                    <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
-                        <i class="fas fa-shopping-basket"></i>
-                        <span>Sifarişlər</span>
-                    </a>
-                    <img src="https://placehold.co/40x40/34d399/ffffff?text=${username[0].toUpperCase()}" alt="Profil Şəkli" class="profile-avatar" id="profile-avatar">
-                    <span class="text-white">${username}</span>
-                `;
-                document.getElementById('profile-avatar').addEventListener('click', () => {
-                    profileMenu.classList.toggle('open');
-                });
-                toggleAuthModal(false); // Modalı bağla
-                contentOverlay.classList.remove('active'); // Məzmunu görünür et
+                currentUser = user; // currentUser-u təyin et
+                userIdDisplayEl.textContent = user.uid; // İstifadəçi ID'sini göstər
+                await updateBalanceUI(); // Balansı yenilə
             } else {
-                authStatusSection.innerHTML = `
-                    <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
-                        <i class="fas fa-shopping-basket"></i>
-                        <span>Sifarişlər</span>
-                    </a>
-                    <button id="login-register-button" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition-colors">Giriş / Qeydiyyat</button>
-                `;
-                document.getElementById('login-register-button').addEventListener('click', () => toggleAuthModal(true));
-                profileMenu.classList.remove('open'); // Profil menyusunu bağla
-                contentOverlay.classList.remove('active'); // Başlanğıcda overlay'ı gizli saxla
-                // Məhsul kartlarına klikləmə hadisəsini burada əlavə etmirik, aşağıda ümumi listener var
+                // Anonim giriş et
+                try {
+                    const anonUserCredential = await signInAnonymously(auth);
+                    currentUser = anonUserCredential.user;
+                    userIdDisplayEl.textContent = currentUser.uid;
+                    await updateBalanceUI();
+                } catch (error) {
+                    console.error("Anonim girişdə xəta:", error);
+                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                }
             }
         }
 
@@ -680,124 +772,21 @@
 
         // Autentifikasiya statusu dəyişdikdə
         onAuthStateChanged(auth, (user) => {
-            currentUser = user;
+            // İlk yükləmədə və ya status dəyişdikdə işləyir
             updateUIForUser(user);
         });
 
-        // Giriş/Qeydiyyat düyməsi
-        // Bu listener authStatusSection içindeki dinamik login-register-button için
-        document.getElementById('auth-status-section').addEventListener('click', (e) => {
-            if (e.target.id === 'login-register-button') {
-                toggleAuthModal(true);
-            }
-        });
+        // Balans Artır düyməsi
+        topUpButton.addEventListener('click', () => toggleTopUpModal(true));
+        topUpModalClose.addEventListener('click', () => toggleTopUpModal(false));
 
-        // Modalı bağla
-        authModalClose.addEventListener('click', () => toggleAuthModal(false));
+        // Məhsul seçimləri modalını bağla
         productOptionsClose.addEventListener('click', () => toggleProductOptionsModal(false));
-
-        // Qeydiyyat/Giriş rejimini dəyişdir
-        switchToRegisterText.addEventListener('click', () => switchAuthMode(true));
-        switchToLoginText.addEventListener('click', () => switchAuthMode(false));
-
-        // Əsas autentifikasiya düyməsi (Giriş/Qeydiyyat)
-        authPrimaryButton.addEventListener('click', async () => {
-            const email = authEmailInput.value.trim();
-            const username = authUsernameInput.value.trim(); 
-            const password = authPasswordInput.value.trim();
-            const confirmPassword = authConfirmPasswordInput.value.trim(); 
-            const rememberMe = rememberMeCheckbox.checked; 
-
-            if (!email || !password) {
-                showAlert("Email və şifrə boş ola bilməz.", 'error');
-                return;
-            }
-
-            try {
-                if (isRegisterMode) {
-                    // Qeydiyyat
-                    if (!username) {
-                        showAlert("İstifadəçi adı boş ola bilməz.", 'error');
-                        return;
-                    }
-                    if (password !== confirmPassword) {
-                        showAlert("Şifrələr uyğun gəlmir.", 'error');
-                        return;
-                    }
-                    if (password.length < 6) {
-                        showAlert("Şifrə ən az 6 simvol olmalıdır.", 'error');
-                        return;
-                    }
-
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await setDoc(doc(db, 'users', userCredential.user.uid), {
-                        email: userCredential.user.email,
-                        username: username, 
-                        balance: 0,
-                        createdAt: new Date(),
-                    });
-                    showAlert("Qeydiyyat uğurlu oldu! İndi daxil ola bilərsiniz.", 'success');
-                    switchAuthMode(false); 
-                } else {
-                    // Giriş
-                    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showAlert("Giriş uğurlu oldu!", 'success');
-                }
-            } catch (error) {
-                console.error("Autentifikasiya xətətası:", error);
-                let errorMessage = "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.";
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = "Bu email artıq qeydiyyatdan keçib.";
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = "Yanlış email formatı.";
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = "Şifrə ən az 6 simvol olmalıdır.";
-                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                    errorMessage = "Yanlış email və ya şifrə.";
-                }
-                showAlert(errorMessage, 'error');
-            }
-        });
-
-        // Şifrəni Dəyişdir linki
-        changePasswordLink.addEventListener('click', async (e) => {
-            e.preventDefault();
-            profileMenu.classList.remove('open'); 
-            const newPassword = prompt("Yeni şifrənizi daxil edin:");
-            if (newPassword && newPassword.length >= 6) {
-                try {
-                    await updatePassword(currentUser, newPassword);
-                    showAlert("Şifrə uğurla dəyişdirildi!", 'success');
-                } catch (error) {
-                    console.error("Şifrə dəyişdirilərkən xəta:", error);
-                    showAlert("Şifrəni dəyişdirmək mümkün olmadı. Zəhmət olmasa yenidən daxil olub cəhd edin.", 'error');
-                }
-            } else if (newPassword !== null) {
-                showAlert("Şifrə ən az 6 simvol olmalıdır.", 'error');
-            }
-        });
-
-        // Hesabdan Çıx düyməsi
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showAlert("Hesabdan çıxdınız.", 'success');
-            } catch (error) {
-                console.error("Çıxış zamanı xəta:", error);
-                showAlert("Hesabdan çıxmaq mümkün olmadı.", 'error');
-            }
-        });
 
         // Məhsul kartlarına klikləmə hadisəsi
         document.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (event) => {
-                if (!currentUser) {
-                    event.stopPropagation(); // Kartın içindeki düğme tıklamasını engelle
-                    toggleAuthModal(true); // Giriş/Qeydiyyat modalını aç
-                    return;
-                }
-                // İstifadəçi daxil olubsa, məhsul seçimləri modalını aç
+                // Hər zaman məhsul seçimləri modalını aç
                 selectedProduct = productsData[card.dataset.productId];
                 if (selectedProduct) {
                     productOptionsTitle.textContent = selectedProduct.name + " Seçimləri";
@@ -818,7 +807,13 @@
                             // Seçilənə "selected" sinfini əlavə et
                             optionDiv.classList.add('selected');
                             selectedOption = option; // Seçimi qeyd et
-                            confirmProductOrderButton.disabled = false; // Düyməni aktiv et
+                            // Balans yoxlaması
+                            if (userBalance >= selectedOption.price) {
+                                confirmProductOrderButton.disabled = false; // Düyməni aktiv et
+                            } else {
+                                confirmProductOrderButton.disabled = true;
+                                showAlert("Balansınız yetərli deyil.", 'error', 3000);
+                            }
                         });
                         productOptionsList.appendChild(optionDiv);
                     });
@@ -831,6 +826,10 @@
         confirmProductOrderButton.addEventListener('click', async () => {
             if (!currentUser || !selectedProduct || !selectedOption) {
                 showAlert("Sifariş etmək üçün daxil olmalı və məhsul seçməlisiniz.", 'error');
+                return;
+            }
+            if (userBalance < selectedOption.price) {
+                showAlert("Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.", 'error');
                 return;
             }
 
@@ -846,6 +845,14 @@
                     isNew: true // Admin üçün yeni sifariş
                 };
                 await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/digital_product_orders`), orderData);
+                
+                // Balansdan çıxar
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userDocRef, {
+                    balance: userBalance - selectedOption.price
+                });
+                await updateBalanceUI(); // Balansı UI-də yenilə
+
                 showAlert("Sifarişiniz uğurla qeydə alındı! 5-12 saat ərzində hesabınız yaradılacaqdır.", 'success', 7000);
                 toggleProductOptionsModal(false); // Modalı bağla
             } catch (error) {
@@ -856,7 +863,10 @@
 
         // Səhifə yükləndikdə (başlanğıc UI-ni təyin etmək üçün)
         document.addEventListener('DOMContentLoaded', () => {
-            // onAuthStateChanged artıq bunu idarə edir
+            // Autentifikasiya statusunu yoxla və UI-ni yenilə
+            onAuthStateChanged(auth, (user) => {
+                updateUIForUser(user);
+            });
         });
 
     </script>
