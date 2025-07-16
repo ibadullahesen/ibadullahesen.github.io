@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AxtarGet - Rəqəmsal Məhsullar</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Tünd qara/boz fon */
+            color: #e2e8f0; /* Kontrast üçün açıq boz mətn */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding-top: 6rem; /* Header boşluğu */
+            padding-bottom: 2rem;
+            position: relative; /* Modal overlay üçün */
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .product-card {
+            background-color: #2d3748;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #4a5568;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(52, 211, 153, 0.7); /* Neon parıltı */
+            border-color: #34d399;
+        }
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(52, 211, 153, 0.1) 0%, transparent 70%);
+            transform: rotate(45deg);
+            transition: transform 0.5s ease-out;
+            opacity: 0;
+        }
+        .product-card:hover::before {
+            transform: rotate(0deg);
+            opacity: 1;
+        }
+        .product-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #34d399;
+            text-shadow: 0 0 10px #34d399; /* Neon ikon kölgəsi */
+        }
+        .product-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f97316; /* Narıncı qiymət */
+            margin-bottom: 1rem;
+        }
+        .buy-button {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .buy-button:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(16, 185, 129, 0.7);
+        }
+        /* Auth Modal Stilleri */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .auth-modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .auth-modal-content {
+            background-color: #2d3748;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            border: 1px solid #34d399; /* Neon çərçivə */
+            animation: modal-fade-in 0.3s ease-out;
+        }
+        @keyframes modal-fade-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .auth-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .auth-modal-close:hover {
+            color: white;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            background-color: #1a202c;
+            border: 1px solid #4a5568;
+            color: white;
+            outline: none;
+        }
+        .auth-input:focus {
+            border-color: #34d399;
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
+        }
+        .auth-button {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .auth-button.primary {
+            background-color: #34d399;
+            color: white;
+        }
+        .auth-button.primary:hover {
+            background-color: #10b981;
+        }
+        .auth-button.secondary {
+            background-color: #4a5568;
+            color: white;
+            margin-top: 0.75rem;
+        }
+        .auth-button.secondary:hover {
+            background-color: #6b7280;
+        }
+        .auth-switch-text {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            margin-top: 1rem;
+        }
+        .auth-switch-text span {
+            color: #34d399;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        /* Profil Menyu Stilleri */
+        .profile-menu {
+            position: absolute;
+            top: 55px; /* Başlıqdan aşağı */
+            right: 1.5rem;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            z-index: 90;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        }
+        .profile-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .profile-menu a, .profile-menu button {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            text-align: left;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .profile-menu a:hover, .profile-menu button:hover {
+            background-color: #1a202c;
+            color: #34d399;
+        }
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #34d399; /* Neon çərçivə */
+            transition: transform 0.2s ease;
+        }
+        .profile-avatar:hover {
+            transform: scale(1.05);
+        }
+        .header-profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-profile-section span {
+            font-weight: 600;
+        }
+        /* Content Overlay (Login tələb olunduqda) */
+        .content-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999; /* Modalın altında, məzmunun üstündə */
+            display: none; /* Başlanğıcda gizli */
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            cursor: pointer; /* Kliklənə bilən olduğunu göstərir */
+        }
+        .content-overlay.active {
+            display: flex;
+        }
+        /* Checkbox Stili */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Ortalamak için */
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        .checkbox-container input {
+            margin-right: 0.5rem;
+            width: 16px;
+            height: 16px;
+            background-color: #1a202c;
+            border: 1px solid #4a5568;
+            border-radius: 4px;
+            appearance: none; /* Varsayılan checkbox stilini kaldır */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .checkbox-container input:checked {
+            background-color: #34d399;
+            border-color: #34d399;
+        }
+        .checkbox-container input:checked::after {
+            content: '\2713'; /* Tik işareti */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+        }
+        .checkbox-container label {
+            cursor: pointer;
+        }
+
+        /* Product Option Modal Stilleri */
+        .product-options-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .product-options-modal.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .product-options-content {
+            background-color: #2d3748;
+            padding: 2.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            border: 1px solid #34d399; /* Neon çərçivə */
+            animation: modal-fade-in 0.3s ease-out;
+        }
+        .product-options-close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 1.8rem;
+            color: #a0aec0;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .product-options-close:hover {
+            color: white;
+        }
+        .option-item {
+            background-color: #1a202c;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid #4a5568;
+            cursor: pointer;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .option-item:hover {
+            background-color: #2d3748;
+            border-color: #34d399;
+        }
+        .option-item.selected {
+            background-color: #34d399;
+            border-color: #10b981;
+            box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
+        }
+        .option-item span {
+            font-weight: 600;
+        }
+        .option-item .price {
+            color: #f97316;
+        }
+        .order-confirm-button {
+            background-color: #10b981;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        .order-confirm-button:hover:not(:disabled) {
+            background-color: #059669;
+        }
+        .order-confirm-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+            <div id="auth-status-section" class="header-profile-section">
+                <!-- Sifarişlər düyməsi buraya əlavə edildi -->
+                <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span>Sifarişlər</span>
+                </a>
+                <!-- Profil şəkli və ya Giriş/Qeydiyyat düymələri buraya gələcək -->
+                <button id="login-register-button" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition-colors">Giriş / Qeydiyyat</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <h1 class="text-4xl font-bold text-center text-green-400 mb-8">Rəqəmsal Məhsullar</h1>
+            <p class="text-center text-gray-400 mb-12">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin!</p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Netflix Kartı -->
+                <div class="product-card text-center" data-product-id="netflix">
+                    <i class="fas fa-film product-icon"></i>
+                    <h2 class="product-title">Netflix Hesab Satışı</h2>
+                    <p class="text-gray-300 mb-4">Premium keyfiyyətdə filmlər və seriallar izləyin.</p>
+                    <p class="product-price">Başlayan Qiymət: 5 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- Exxen Kartı -->
+                <div class="product-card text-center" data-product-id="exxen">
+                    <i class="fas fa-tv product-icon"></i>
+                    <h2 class="product-title">Exxen Hesab Satışı</h2>
+                    <p class="text-gray-300 mb-4">Türkiyənin ən populyar platformasından məzmunlar.</p>
+                    <p class="product-price">Başlayan Qiymət: 4 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- ChatGPT Kartı -->
+                <div class="product-card text-center" data-product-id="chatgpt">
+                    <i class="fas fa-comments product-icon"></i>
+                    <h2 class="product-title">ChatGPT Hesab Satışı</h2>
+                    <p class="text-gray-300 mb-4">Süni intellektin gücündən istifadə edin.</p>
+                    <p class="product-price">Başlayan Qiymət: 10 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- Digər Məhsullar (əlavə edə bilərsiniz) -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Giriş/Qeydiyyat Modalı -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <button id="auth-modal-close" class="auth-modal-close"><i class="fas fa-times"></i></button>
+            <h3 id="auth-modal-title" class="text-2xl font-bold text-white mb-6">Giriş</h3>
+            <input type="email" id="auth-email" class="auth-input" placeholder="Email">
+            <input type="text" id="auth-username" class="auth-input hidden" placeholder="İstifadəçi Adı"> <!-- Yeni Alan -->
+            <input type="password" id="auth-password" class="auth-input" placeholder="Şifrə">
+            <input type="password" id="auth-confirm-password" class="auth-input hidden" placeholder="Şifrəni Yenidən Yaz"> <!-- Yeni Alan -->
+            
+            <div id="remember-me-container" class="checkbox-container"> <!-- Yeni Checkbox -->
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">Məni xatırla</label>
+            </div>
+
+            <button id="auth-primary-button" class="auth-button primary mb-2">Giriş Yap</button>
+            <p class="auth-switch-text">Hesabınız yoxdur? <span id="switch-to-register">Qeydiyyatdan Keç</span></p>
+            <p class="auth-switch-text hidden" id="has-account-text">Hesabınız var? <span id="switch-to-login">Giriş Yap</span></p>
+        </div>
+    </div>
+
+    <!-- Profil Menyu -->
+    <div id="profile-menu" class="profile-menu">
+        <a href="#" id="change-password-link">Şifrəni Dəyişdir</a>
+        <button id="logout-button">Hesabdan Çıx</button>
+    </div>
+
+    <!-- Məhsul Seçimləri Modalı -->
+    <div id="product-options-modal" class="product-options-modal">
+        <div class="product-options-content">
+            <button id="product-options-close" class="product-options-close"><i class="fas fa-times"></i></button>
+            <h3 id="product-options-title" class="text-2xl font-bold text-white mb-6">Məhsul Seçimləri</h3>
+            <div id="product-options-list" class="space-y-3 mb-4">
+                <!-- Seçimlər buraya dinamik yüklənəcək -->
+            </div>
+            <button id="confirm-product-order" class="order-confirm-button" disabled>Sifarişi Təsdiqlə</button>
+        </div>
+    </div>
+
+    <!-- Məzmun Overlay (Login tələb olunduqda) -->
+    <div id="content-overlay" class="content-overlay">
+        <p>Məhsullara baxmaq üçün zəhmət olmasa <br> Giriş edin və ya Qeydiyyatdan keçin.</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase konfiqurasiyası
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+            authDomain: "axtargetbotwebsite.firebaseapp.com",
+            projectId: "axtargetbotwebsite",
+            storageBucket: "axtargetbotwebsite.firebasestorage.app", 
+            messagingSenderId: "808698399196",
+            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
+            measurementId: "G-VLWZG4Q5TD"
+        };
+        const firebaseProjectId = firebaseConfig.projectId;
+
+        // Firebase'i Başlat
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null; // Cari Firebase istifadəçisi obyekti
+        let isRegisterMode = false; // Qeydiyyat və ya Giriş rejimini izləyir
+
+        // DOM Elementləri
+        const authStatusSection = document.getElementById('auth-status-section');
+        const loginRegisterButton = document.getElementById('login-register-button');
+        const authModal = document.getElementById('auth-modal');
+        const authModalClose = document.getElementById('auth-modal-close');
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const authEmailInput = document.getElementById('auth-email');
+        const authUsernameInput = document.getElementById('auth-username'); 
+        const authPasswordInput = document.getElementById('auth-password');
+        const authConfirmPasswordInput = document.getElementById('auth-confirm-password'); 
+        const rememberMeCheckbox = document.getElementById('remember-me'); 
+        const rememberMeContainer = document.getElementById('remember-me-container'); 
+        const authPrimaryButton = document.getElementById('auth-primary-button');
+        const switchToRegisterText = document.getElementById('switch-to-register');
+        const hasAccountText = document.getElementById('has-account-text');
+        const switchToLoginText = document.getElementById('switch-to-login');
+        const profileMenu = document.getElementById('profile-menu');
+        const changePasswordLink = document.getElementById('change-password-link');
+        const logoutButton = document.getElementById('logout-button');
+        const contentOverlay = document.getElementById('content-overlay');
+        const mainContent = document.querySelector('.main-content'); 
+
+        const productOptionsModal = document.getElementById('product-options-modal');
+        const productOptionsClose = document.getElementById('product-options-close');
+        const productOptionsTitle = document.getElementById('product-options-title');
+        const productOptionsList = document.getElementById('product-options-list');
+        const confirmProductOrderButton = document.getElementById('confirm-product-order');
+        const digitalOrdersButton = document.getElementById('digital-orders-button'); // Yeni DOM elementi
+
+        // Məhsul Məlumatları
+        const productsData = {
+            netflix: {
+                name: "Netflix Hesab Satışı",
+                icon: "fas fa-film",
+                options: [
+                    { duration: "1 Aylıq", price: 5 },
+                    { duration: "3 Aylıq", price: 10 },
+                    { duration: "6 Aylıq", price: 18 }
+                ]
+            },
+            exxen: {
+                name: "Exxen Hesab Satışı",
+                icon: "fas fa-tv",
+                options: [
+                    { duration: "1 Aylıq", price: 4 },
+                    { duration: "3 Aylıq", price: 9 }
+                ]
+            },
+            chatgpt: {
+                name: "ChatGPT Hesab Satışı",
+                icon: "fas fa-comments",
+                options: [
+                    { duration: "1 Aylıq", price: 10 },
+                    { duration: "3 Aylıq", price: 25 }
+                ]
+            }
+        };
+
+        // --- Funksiyalar ---
+
+        // Alert mesajı göstər
+        function showAlert(message, type = 'error', duration = 3000) {
+            const alertBox = document.createElement('div');
+            alertBox.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-${type === 'success' ? 'green' : 'red'}-600 text-white p-3 rounded-lg shadow-md z-[1001]`;
+            alertBox.innerHTML = message;
+            document.body.appendChild(alertBox);
+            setTimeout(() => {
+                alertBox.remove();
+            }, duration);
+        }
+
+        // Modalı aç/bağla
+        function toggleAuthModal(open = true) {
+            if (open) {
+                authModal.classList.add('open');
+                contentOverlay.classList.add('active'); // Overlay'ı aktif et
+            } else {
+                authModal.classList.remove('open');
+                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
+                authEmailInput.value = '';
+                authUsernameInput.value = ''; 
+                authPasswordInput.value = '';
+                authConfirmPasswordInput.value = ''; 
+            }
+        }
+
+        // Məhsul seçimləri modalını aç/bağla
+        function toggleProductOptionsModal(open = true) {
+            if (open) {
+                productOptionsModal.classList.add('open');
+                contentOverlay.classList.add('active'); // Overlay'ı aktif et
+            } else {
+                productOptionsModal.classList.remove('open');
+                contentOverlay.classList.remove('active'); // Overlay'ı deaktif et
+                selectedOption = null; // Seçimi sıfırla
+                confirmProductOrderButton.disabled = true; // Düyməni deaktiv et
+            }
+        }
+
+        // Qeydiyyat/Giriş rejimini dəyişdir
+        function switchAuthMode(toRegister) {
+            isRegisterMode = toRegister;
+            if (isRegisterMode) {
+                authModalTitle.textContent = "Qeydiyyat";
+                authPrimaryButton.textContent = "Qeydiyyatdan Keç";
+                authUsernameInput.classList.remove('hidden'); 
+                authConfirmPasswordInput.classList.remove('hidden'); 
+                rememberMeContainer.classList.add('hidden'); 
+                switchToRegisterText.parentElement.classList.add('hidden');
+                hasAccountText.classList.remove('hidden');
+            } else {
+                authModalTitle.textContent = "Giriş";
+                authPrimaryButton.textContent = "Giriş Yap";
+                authUsernameInput.classList.add('hidden'); 
+                authConfirmPasswordInput.classList.add('hidden'); 
+                rememberMeContainer.classList.remove('hidden'); 
+                switchToRegisterText.parentElement.classList.remove('hidden');
+                hasAccountText.classList.add('hidden');
+            }
+        }
+
+        // İstifadəçi UI-ni yenilə
+        async function updateUIForUser(user) {
+            if (user) {
+                // İstifadəçi adını Firestore-dan al
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                let username = user.email ? user.email.split('@')[0] : 'İstifadəçi'; // Varsayılan
+                if (userDocSnap.exists() && userDocSnap.data().username) {
+                    username = userDocSnap.data().username;
+                }
+
+                authStatusSection.innerHTML = `
+                    <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
+                        <i class="fas fa-shopping-basket"></i>
+                        <span>Sifarişlər</span>
+                    </a>
+                    <img src="https://placehold.co/40x40/34d399/ffffff?text=${username[0].toUpperCase()}" alt="Profil Şəkli" class="profile-avatar" id="profile-avatar">
+                    <span class="text-white">${username}</span>
+                `;
+                document.getElementById('profile-avatar').addEventListener('click', () => {
+                    profileMenu.classList.toggle('open');
+                });
+                toggleAuthModal(false); // Modalı bağla
+                contentOverlay.classList.remove('active'); // Məzmunu görünür et
+            } else {
+                authStatusSection.innerHTML = `
+                    <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
+                        <i class="fas fa-shopping-basket"></i>
+                        <span>Sifarişlər</span>
+                    </a>
+                    <button id="login-register-button" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-green-700 transition-colors">Giriş / Qeydiyyat</button>
+                `;
+                document.getElementById('login-register-button').addEventListener('click', () => toggleAuthModal(true));
+                profileMenu.classList.remove('open'); // Profil menyusunu bağla
+                contentOverlay.classList.remove('active'); // Başlanğıcda overlay'ı gizli saxla
+                // Məhsul kartlarına klikləmə hadisəsini burada əlavə etmirik, aşağıda ümumi listener var
+            }
+        }
+
+        // --- Hadisə Dinləyiciləri ---
+
+        // Autentifikasiya statusu dəyişdikdə
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateUIForUser(user);
+        });
+
+        // Giriş/Qeydiyyat düyməsi
+        // Bu listener authStatusSection içindeki dinamik login-register-button için
+        document.getElementById('auth-status-section').addEventListener('click', (e) => {
+            if (e.target.id === 'login-register-button') {
+                toggleAuthModal(true);
+            }
+        });
+
+        // Modalı bağla
+        authModalClose.addEventListener('click', () => toggleAuthModal(false));
+        productOptionsClose.addEventListener('click', () => toggleProductOptionsModal(false));
+
+        // Qeydiyyat/Giriş rejimini dəyişdir
+        switchToRegisterText.addEventListener('click', () => switchAuthMode(true));
+        switchToLoginText.addEventListener('click', () => switchAuthMode(false));
+
+        // Əsas autentifikasiya düyməsi (Giriş/Qeydiyyat)
+        authPrimaryButton.addEventListener('click', async () => {
+            const email = authEmailInput.value.trim();
+            const username = authUsernameInput.value.trim(); 
+            const password = authPasswordInput.value.trim();
+            const confirmPassword = authConfirmPasswordInput.value.trim(); 
+            const rememberMe = rememberMeCheckbox.checked; 
+
+            if (!email || !password) {
+                showAlert("Email və şifrə boş ola bilməz.", 'error');
+                return;
+            }
+
+            try {
+                if (isRegisterMode) {
+                    // Qeydiyyat
+                    if (!username) {
+                        showAlert("İstifadəçi adı boş ola bilməz.", 'error');
+                        return;
+                    }
+                    if (password !== confirmPassword) {
+                        showAlert("Şifrələr uyğun gəlmir.", 'error');
+                        return;
+                    }
+                    if (password.length < 6) {
+                        showAlert("Şifrə ən az 6 simvol olmalıdır.", 'error');
+                        return;
+                    }
+
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    await setDoc(doc(db, 'users', userCredential.user.uid), {
+                        email: userCredential.user.email,
+                        username: username, 
+                        balance: 0,
+                        createdAt: new Date(),
+                    });
+                    showAlert("Qeydiyyat uğurlu oldu! İndi daxil ola bilərsiniz.", 'success');
+                    switchAuthMode(false); 
+                } else {
+                    // Giriş
+                    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showAlert("Giriş uğurlu oldu!", 'success');
+                }
+            } catch (error) {
+                console.error("Autentifikasiya xətətası:", error);
+                let errorMessage = "Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.";
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = "Bu email artıq qeydiyyatdan keçib.";
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = "Yanlış email formatı.";
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = "Şifrə ən az 6 simvol olmalıdır.";
+                } else if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                    errorMessage = "Yanlış email və ya şifrə.";
+                }
+                showAlert(errorMessage, 'error');
+            }
+        });
+
+        // Şifrəni Dəyişdir linki
+        changePasswordLink.addEventListener('click', async (e) => {
+            e.preventDefault();
+            profileMenu.classList.remove('open'); 
+            const newPassword = prompt("Yeni şifrənizi daxil edin:");
+            if (newPassword && newPassword.length >= 6) {
+                try {
+                    await updatePassword(currentUser, newPassword);
+                    showAlert("Şifrə uğurla dəyişdirildi!", 'success');
+                } catch (error) {
+                    console.error("Şifrə dəyişdirilərkən xəta:", error);
+                    showAlert("Şifrəni dəyişdirmək mümkün olmadı. Zəhmət olmasa yenidən daxil olub cəhd edin.", 'error');
+                }
+            } else if (newPassword !== null) {
+                showAlert("Şifrə ən az 6 simvol olmalıdır.", 'error');
+            }
+        });
+
+        // Hesabdan Çıx düyməsi
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showAlert("Hesabdan çıxdınız.", 'success');
+            } catch (error) {
+                console.error("Çıxış zamanı xəta:", error);
+                showAlert("Hesabdan çıxmaq mümkün olmadı.", 'error');
+            }
+        });
+
+        // Məhsul kartlarına klikləmə hadisəsi
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', (event) => {
+                if (!currentUser) {
+                    event.stopPropagation(); // Kartın içindeki düğme tıklamasını engelle
+                    toggleAuthModal(true); // Giriş/Qeydiyyat modalını aç
+                    return;
+                }
+                // İstifadəçi daxil olubsa, məhsul seçimləri modalını aç
+                selectedProduct = productsData[card.dataset.productId];
+                if (selectedProduct) {
+                    productOptionsTitle.textContent = selectedProduct.name + " Seçimləri";
+                    productOptionsList.innerHTML = ''; // Əvvəlki seçimləri təmizlə
+                    selectedOption = null; // Seçimi sıfırla
+                    confirmProductOrderButton.disabled = true;
+
+                    selectedProduct.options.forEach((option, index) => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option-item`;
+                        optionDiv.innerHTML = `
+                            <span>${option.duration}</span>
+                            <span class="price">${option.price} AZN</span>
+                        `;
+                        optionDiv.addEventListener('click', () => {
+                            // Bütün seçimlərdən "selected" sinfini qaldır
+                            document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+                            // Seçilənə "selected" sinfini əlavə et
+                            optionDiv.classList.add('selected');
+                            selectedOption = option; // Seçimi qeyd et
+                            confirmProductOrderButton.disabled = false; // Düyməni aktiv et
+                        });
+                        productOptionsList.appendChild(optionDiv);
+                    });
+                    toggleProductOptionsModal(true);
+                }
+            });
+        });
+
+        // Sifarişi Təsdiqlə düyməsi
+        confirmProductOrderButton.addEventListener('click', async () => {
+            if (!currentUser || !selectedProduct || !selectedOption) {
+                showAlert("Sifariş etmək üçün daxil olmalı və məhsul seçməlisiniz.", 'error');
+                return;
+            }
+
+            // Firebase'ə sifarişi əlavə et
+            try {
+                const orderData = {
+                    userId: currentUser.uid,
+                    productName: selectedProduct.name,
+                    option: selectedOption.duration,
+                    price: selectedOption.price,
+                    timestamp: serverTimestamp(),
+                    status: 'pending', // Gözləmədə
+                    isNew: true // Admin üçün yeni sifariş
+                };
+                await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/digital_product_orders`), orderData);
+                showAlert("Sifarişiniz uğurla qeydə alındı! 5-12 saat ərzində hesabınız yaradılacaqdır.", 'success', 7000);
+                toggleProductOptionsModal(false); // Modalı bağla
+            } catch (error) {
+                console.error("Sifariş qeydə alınarkən xəta:", error);
+                showAlert("Sifariş qeydə alınarkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
+            }
+        });
+
+        // Səhifə yükləndikdə (başlanğıc UI-ni təyin etmək üçün)
+        document.addEventListener('DOMContentLoaded', () => {
+            // onAuthStateChanged artıq bunu idarə edir
+        });
+
+    </script>
+</body>
+</html>
