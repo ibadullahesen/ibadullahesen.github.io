@@ -257,25 +257,17 @@
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
-            <div id="auth-status-section" class="header-profile-section">
-                <!-- Balans göstəricisi -->
-                <span class="text-white text-lg font-semibold mr-4">Balans: <span id="user-balance">0.00 AZN</span></span>
-                <!-- Balans Artır düyməsi -->
-                <button id="top-up-button" class="bg-yellow-500 text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-yellow-600 transition-colors mr-4">Balans Artır</button>
-                <!-- Sifarişlər düyməsi buraya əlavə edildi -->
-                <a href="digital-product-orders.html" id="digital-orders-button" class="text-green-400 hover:text-green-500 transition-colors duration-300 text-lg font-semibold flex items-center space-x-2 mr-4">
-                    <i class="fas fa-shopping-basket"></i>
-                    <span>Sifarişlər</span>
-                </a>
+            <div id="header-right-section" class="flex items-center space-x-4">
+                <!-- Balans göstəricisi və Balans Artır düyməsi silindi -->
+                <!-- Sifarişlər düyməsi silindi -->
             </div>
         </div>
     </header>
 
     <div class="main-content">
         <div class="container">
-            <!-- İstifadəçi ID'si burada gösterilecek -->
-            <p class="text-center text-gray-400 text-sm mb-8">İstifadəçi ID: <span id="user-id-display" class="font-bold text-green-300">Yüklənir...</span></p>
-
+            <!-- İstifadəçi ID'si də silindi -->
+            
             <h1 class="text-4xl font-bold text-center text-green-400 mb-8">Rəqəmsal Məhsullar</h1>
             <p class="text-center text-gray-400 mb-12">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin!</p>
 
@@ -320,34 +312,17 @@
             <div id="product-options-list" class="space-y-3 mb-4">
                 <!-- Seçimlər buraya dinamik yüklənəcək -->
             </div>
-            <button id="confirm-product-order" class="order-confirm-button" disabled>Sifarişi Təsdiqlə</button>
-        </div>
-    </div>
-
-    <!-- Balans Artır Modal -->
-    <div id="top-up-modal" class="top-up-modal">
-        <div class="top-up-modal-content">
-            <span class="top-up-modal-close" id="top-up-modal-close">&times;</span>
-            <h3 class="text-2xl font-bold text-white mb-4">Balans Artır</h3>
-            <img src="https://placehold.co/250x150/000000/ffffff?text=Kapital+Bank+Kart%C4%B1" alt="Kapital Bank Kartı" class="payment-card-image">
-            <p class="text-lg text-white mb-2">Ödəniş etmək üçün aşağıdakı kart nömrəsinə pul göndərin:</p>
-            <p class="text-2xl font-bold text-green-400 mb-4" id="bank-card-number">4169 7388 7208 5778</p>
-            <p class="text-sm text-yellow-300 font-semibold mb-4 p-2 bg-yellow-900 bg-opacity-30 rounded-md">
-                🎁 1-10 AZN balans artımı üçün 1% 💰 11-100 AZN arası balans artırma üçün 10% balans artımı bizdən hədiyyə!
-            </p>
-            <a id="whatsapp-topup-link" href="#" target="_blank" class="whatsapp-topup-button">
-                <i class="fab fa-whatsapp mr-2"></i> WhatsApp-a Göndər
-            </a>
-            <p class="text-xs text-gray-400 mt-4">Sizin İstifadəçi ID-niz: <span id="modal-user-id-display" class="font-bold text-green-300">Yüklənir...</span></p>
+            <button id="confirm-product-order" class="order-confirm-button">Sifarişi Təsdiqlə</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc artık kullanılmayacağı için kaldırıldı
+        // import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase konfiqurasiyası
+        // Firebase konfiqurasiyası (yalnız autentifikasiya üçün)
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
@@ -357,17 +332,16 @@
             appId: "1:808698399196:web:61b6be0721b94f24c3a719",
             measurementId: "G-VLWZG4Q5TD"
         };
-        const firebaseProjectId = firebaseConfig.projectId;
+        const firebaseProjectId = firebaseConfig.projectId; // Artıq istifadə olunmur
 
         // Firebase'i Başlat
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        // const db = getFirestore(app); // Firestore artıq istifadə olunmur
 
         let currentUser = null; // Cari Firebase istifadəçisi obyekti
         let selectedProduct = null; // Seçilmiş məhsul (kart)
         let selectedOption = null; // Seçilmiş məhsul seçimi (məsələn, 1 aylıq Netflix)
-        let userBalance = 0; // İstifadəçi balansı
 
         // Məhsul Məlumatları
         const productsData = {
@@ -399,25 +373,12 @@
         };
 
         // DOM Elementləri
-        const userBalanceEl = document.getElementById('user-balance'); // Balans elementi
-        const userIdDisplayEl = document.getElementById('user-id-display'); // İstifadəçi ID'sini göstərəcək element (əsas səhifədə)
-        const modalUserIdDisplayEl = document.getElementById('modal-user-id-display'); // İstifadəçi ID'sini modalda göstərəcək element
-        const topUpButton = document.getElementById('top-up-button'); // Balans Artır düyməsi
-        const digitalOrdersButton = document.getElementById('digital-orders-button'); 
-
         const productOptionsModal = document.getElementById('product-options-modal');
         const productOptionsClose = document.getElementById('product-options-close');
         const productOptionsTitle = document.getElementById('product-options-title');
         const productOptionsList = document.getElementById('product-options-list');
         const confirmProductOrderButton = document.getElementById('confirm-product-order');
         
-        const topUpModal = document.getElementById('top-up-modal'); // Balans Artır modalı
-        const topUpModalClose = document.getElementById('top-up-modal-close'); // Balans Artır modalı bağlama düyməsi
-        const whatsappTopUpLink = document.getElementById('whatsapp-topup-link'); // WhatsApp top-up linki
-        const bankCardNumberEl = document.getElementById('bank-card-number'); // Bank kartı nömrəsi elementi
-        const PAYMENT_CARD_NUMBER = "4169 7388 7208 5778"; // Ödəniş kartı nömrəsi
-        const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Admin WhatsApp nömrəsi
-
         // --- Funksiyalar ---
 
         // Alert mesajı göstər
@@ -431,46 +392,6 @@
             }, duration);
         }
 
-        // Balansı UI-də yenilə
-        async function updateBalanceUI() {
-            if (currentUser) {
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists() && userDocSnap.data().balance !== undefined) {
-                    userBalance = userDocSnap.data().balance;
-                } else {
-                    userBalance = 0;
-                    // Yeni anonim istifadəçi üçün balans sənədini yarat
-                    await setDoc(userDocRef, { balance: 0, createdAt: serverTimestamp(), username: `User_${currentUser.uid.substring(0, 6)}` }, { merge: true });
-                }
-                userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
-            } else {
-                userBalanceEl.textContent = `0.00 AZN`;
-            }
-            // Balansa görə "İndi Al" düymələrini aktiv/deaktiv et
-            updateBuyButtonsState();
-        }
-
-        // "İndi Al" düymələrinin aktiv/deaktiv statusunu yenilə
-        function updateBuyButtonsState() {
-            document.querySelectorAll('.product-card .buy-button').forEach(button => {
-                const card = button.closest('.product-card');
-                const productId = card.dataset.productId;
-                const product = productsData[productId];
-                
-                // Ən ucuz seçimin qiymətini tap (balans yoxlaması üçün)
-                const minPrice = Math.min(...product.options.map(option => option.price));
-
-                if (!currentUser || userBalance < minPrice) {
-                    button.disabled = true;
-                    button.textContent = "Balans Yoxdur";
-                } else {
-                    button.disabled = false;
-                    button.textContent = "İndi Al";
-                }
-            });
-        }
-
         // Məhsul seçimləri modalını aç/bağla
         function toggleProductOptionsModal(open = true) {
             if (open) {
@@ -482,55 +403,21 @@
             }
         }
 
-        // Balans Artır modalını aç/bağla
-        function toggleTopUpModal(open = true) {
-            if (open) {
-                topUpModal.classList.add('open');
-                bankCardNumberEl.textContent = PAYMENT_CARD_NUMBER;
-                // currentUserId'nin yükləndiyindən əmin olun
-                if (currentUser && currentUser.uid) {
-                    modalUserIdDisplayEl.textContent = currentUser.uid;
-                    whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, mənim İstifadəçi ID-m: ' + currentUser.uid + '. Balans artırmaq istəyirəm.')}`;
-                } else {
-                    modalUserIdDisplayEl.textContent = "Yüklənir..."; // Və ya "Anonim"
-                    whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, balans artırmaq istəyirəm.')}`;
-                }
-            } else {
-                topUpModal.classList.remove('open');
-            }
-        }
-
-        // İstifadəçi UI-ni yenilə
-        async function updateUIForUser(user) {
-            if (user) {
-                currentUser = user; // currentUser-u təyin et
-                // userIdDisplayEl.textContent = user.uid; // ID artıq başlıqda görünmür
-                await updateBalanceUI(); // Balansı yenilə
-            } else {
-                // Anonim giriş et
-                try {
-                    const anonUserCredential = await signInAnonymously(auth);
-                    currentUser = anonUserCredential.user;
-                    // userIdDisplayEl.textContent = currentUser.uid; // ID artıq başlıqda görünmür
-                    await updateBalanceUI();
-                } catch (error) {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
-                }
-            }
-        }
-
         // --- Hadisə Dinləyiciləri ---
 
-        // Autentifikasiya statusu dəyişdikdə
+        // Anonim giriş
         onAuthStateChanged(auth, (user) => {
-            // İlk yükləmədə və ya status dəyişdikdə işləyir
-            updateUIForUser(user);
+            if (user) {
+                currentUser = user;
+            } else {
+                signInAnonymously(auth).then(anonUserCredential => {
+                    currentUser = anonUserCredential.user;
+                }).catch(error => {
+                    console.error("Anonim girişdə xəta:", error);
+                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                });
+            }
         });
-
-        // Balans Artır düyməsi
-        topUpButton.addEventListener('click', () => toggleTopUpModal(true));
-        topUpModalClose.addEventListener('click', () => toggleTopUpModal(false));
 
         // Məhsul seçimləri modalını bağla
         productOptionsClose.addEventListener('click', () => toggleProductOptionsModal(false));
@@ -538,7 +425,6 @@
         // Məhsul kartlarına klikləmə hadisəsi
         document.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (event) => {
-                // Hər zaman məhsul seçimləri modalını aç
                 selectedProduct = productsData[card.dataset.productId];
                 if (selectedProduct) {
                     productOptionsTitle.textContent = selectedProduct.name + " Seçimləri";
@@ -546,79 +432,66 @@
                     selectedOption = null; // Seçimi sıfırla
                     confirmProductOrderButton.disabled = true;
 
-                    selectedProduct.options.forEach((option, index) => {
-                        const optionDiv = document.createElement('div');
-                        optionDiv.className = `option-item`;
-                        optionDiv.innerHTML = `
-                            <span>${option.duration}</span>
-                            <span class="price">${option.price} AZN</span>
+                    // Exxen və ChatGPT üçün sadə təsdiqlə düyməsi
+                    if (selectedProduct.name === "Exxen Hesab Satışı" || selectedProduct.name === "ChatGPT Hesab Satışı") {
+                        const defaultOption = selectedProduct.options[0]; // İlk seçimi default olaraq götür
+                        productOptionsList.innerHTML = `
+                            <div class="option-item selected">
+                                <span>${defaultOption.duration}</span>
+                                <span class="price">${defaultOption.price} AZN</span>
+                            </div>
                         `;
-                        optionDiv.addEventListener('click', () => {
-                            // Bütün seçimlərdən "selected" sinfini qaldır
-                            document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-                            // Seçilənə "selected" sinfini əlavə et
-                            optionDiv.classList.add('selected');
-                            selectedOption = option; // Seçimi qeyd et
-                            // Balans yoxlaması
-                            if (userBalance >= selectedOption.price) {
+                        selectedOption = defaultOption;
+                        confirmProductOrderButton.disabled = false;
+                    } else {
+                        selectedProduct.options.forEach((option, index) => {
+                            const optionDiv = document.createElement('div');
+                            optionDiv.className = `option-item`;
+                            optionDiv.innerHTML = `
+                                <span>${option.duration}</span>
+                                <span class="price">${option.price} AZN</span>
+                            `;
+                            optionDiv.addEventListener('click', () => {
+                                // Bütün seçimlərdən "selected" sinfini qaldır
+                                document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+                                // Seçilənə "selected" sinfini əlavə et
+                                optionDiv.classList.add('selected');
+                                selectedOption = option; // Seçimi qeyd et
                                 confirmProductOrderButton.disabled = false; // Düyməni aktiv et
-                            } else {
-                                confirmProductOrderButton.disabled = true;
-                                showAlert("Balansınız yetərli deyil.", 'error', 3000);
-                            }
+                            });
+                            productOptionsList.appendChild(optionDiv);
                         });
-                        productOptionsList.appendChild(optionDiv);
-                    });
+                    }
                     toggleProductOptionsModal(true);
                 }
             });
         });
 
-        // Sifarişi Təsdiqlə düyməsi
-        confirmProductOrderButton.addEventListener('click', async () => {
+        // Sifarişi Təsdiqlə düyməsi (WhatsApp mesajı göndərir)
+        confirmProductOrderButton.addEventListener('click', () => {
             if (!currentUser || !selectedProduct || !selectedOption) {
-                showAlert("Sifariş etmək üçün daxil olmalısınız.", 'error'); // Bu mesaj görünməməli
-                return;
-            }
-            if (userBalance < selectedOption.price) {
-                showAlert("Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.", 'error');
+                showAlert("Sifariş etmək üçün məhsul seçməlisiniz.", 'error');
                 return;
             }
 
-            // Firebase'ə sifarişi əlavə et
-            try {
-                const orderData = {
-                    userId: currentUser.uid,
-                    productName: selectedProduct.name,
-                    option: selectedOption.duration,
-                    price: selectedOption.price,
-                    timestamp: serverTimestamp(),
-                    status: 'pending', // Gözləmədə
-                    isNew: true // Admin üçün yeni sifariş
-                };
-                await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/digital_product_orders`), orderData);
-                
-                // Balansdan çıxar
-                const userDocRef = doc(db, 'users', currentUser.uid);
-                await updateDoc(userDocRef, {
-                    balance: userBalance - selectedOption.price
-                });
-                await updateBalanceUI(); // Balansı UI-də yenilə
+            const whatsappMessage = 
+                `Salam, mən rəqəmsal məhsul sifariş etmək istəyirəm.\n\n` +
+                `Məhsul: ${selectedProduct.name}\n` +
+                `Seçim: ${selectedOption.duration}\n` +
+                `Qiymət: ${selectedOption.price} AZN\n` +
+                `Mənim İstifadəçi ID-m: ${currentUser ? currentUser.uid : 'Yüklənir...'}\n\n` +
+                `Zəhmət olmasa, hesab məlumatlarını mənə göndərin.`;
+            
+            const whatsappUrl = `https://wa.me/994606006162?text=${encodeURIComponent(whatsappMessage)}`;
+            window.open(whatsappUrl, '_blank');
 
-                showAlert("Sifarişiniz uğurla qeydə alındı! 5-12 saat ərzində hesabınız yaradılacaqdır.", 'success', 7000);
-                toggleProductOptionsModal(false); // Modalı bağla
-            } catch (error) {
-                console.error("Sifariş qeydə alınarkən xəta:", error);
-                showAlert("Sifariş qeydə alınarkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
-            }
+            showAlert("Sifarişiniz WhatsApp vasitəsilə göndərildi! Tezliklə sizinlə əlaqə saxlanılacaq.", 'success', 7000);
+            toggleProductOptionsModal(false); // Modalı bağla
         });
 
         // Səhifə yükləndikdə (başlanğıc UI-ni təyin etmək üçün)
         document.addEventListener('DOMContentLoaded', () => {
-            // Autentifikasiya statusunu yoxla və UI-ni yenilə
-            onAuthStateChanged(auth, (user) => {
-                updateUIForUser(user);
-            });
+            // onAuthStateChanged avtomatik olaraq anonim girişi idarə edir
         });
 
     </script>
