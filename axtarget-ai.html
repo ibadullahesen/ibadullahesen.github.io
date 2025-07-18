@@ -505,29 +505,15 @@
             
             // Demo üçün mock API funksiyası
             async function getAIResponse(message) {
-                // Real tətbiqdə burada API çağırışı olardı:
-                // const response = await fetch('https://your-api.com/chat', {
-                //     method: 'POST',
-                //     headers: {
-                //         'Content-Type': 'application/json',
-                //         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`
-                //     },
-                //     body: JSON.stringify({ message })
-                // });
-                // return await response.json();
-                
-                // Demo üçün təsadüfi cavablar
-                const responses = [
-                    `Axtar Get olaraq, "${message}" sualınıza cavab vermək üçün hazıram. Bu mövzuda geniş məlumat bazamız var.`,
-                    `Maraqlı sual! "${message}" haqqında sizə kömək edə bilərəm.`,
-                    `Axtar Get AI olaraq "${message}" sualınızı analiz edirəm.`,
-                    `Sualınız üçün təşəkkür edirik! "${message}" mövzusunda aşağıdakı məlumatları təqdim edə bilərəm.`,
-                    `"${message}" - bu mövzuda sizə necə kömək edə bilərəm?`
-                ];
-                
-                // Təsadüfi cavab seç
-                return responses[Math.floor(Math.random() * responses.length)];
-            }
+    const response = await fetch('/api/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+    });
+
+    const data = await response.json();
+    return data.choices?.[0]?.message.content || 'Üzr istəyirik, cavab alınmadı.';
+}
             
             // Mesaj əlavə et
             function addMessage(text, isUser) {
