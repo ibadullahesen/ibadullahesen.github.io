@@ -497,23 +497,31 @@
             // 15 saniyədən sonra avtomatik keç
             setTimeout(skipIntroAnimation, 15000);
             
-            // API açarını Vercel-də gizlətmək
-            // 1. Vercel-də "Environment Variables" bölməsinə gedin
-            // 2. Yeni dəyişən əlavə edin (məsələn: NEXT_PUBLIC_API_KEY)
-            // 3. Dəyərini təyin edin
-            // 4. Koddan istifadə: process.env.NEXT_PUBLIC_API_KEY
-            
-            // Demo üçün mock API funksiyası
+            // API funksiyası
             async function getAIResponse(message) {
-    const response = await fetch('/api/openai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-    });
+                const apiKey = "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";
+                
+                try {
+                    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: "gpt-3.5-turbo",
+                            messages: [{role: "user", content: message}],
+                            temperature: 0.7
+                        })
+                    });
 
-    const data = await response.json();
-    return data.choices?.[0]?.message.content || 'Üzr istəyirik, cavab alınmadı.';
-}
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                } catch (error) {
+                    console.error('Error:', error);
+                    return "Üzr istəyirik, xəta baş verdi. Yenidən cəhd edin.";
+                }
+            }
             
             // Mesaj əlavə et
             function addMessage(text, isUser) {
