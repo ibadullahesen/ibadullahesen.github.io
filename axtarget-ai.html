@@ -593,11 +593,13 @@
             
             // API funksiyası
             async function getAIResponse(message, options = {}) {
-                const apiKey = "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"; 
+                // OpenAI API açarınızı bura daxil edin!
+                // https://platform.openai.com/account/api-keys ünvanından yeni açar yaradıb bura yapışdırın.
+                const apiKey = "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"; 
 
-                if (!apiKey) {
-                    console.error('API Error: API key is missing. Please provide your OpenAI API key.');
-                    return "Xəta: API açarı daxil edilməyib. Zəhmət olmasa, kodu yeniləyin və API açarınızı əlavə edin.";
+                if (!apiKey || apiKey === "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") {
+                    console.error('API Error: API key is missing or is the default placeholder. Please provide your OpenAI API key.');
+                    return "Xəta: API açarı daxil edilməyib və ya səhvdir. Zəhmət olmasa, kodu yeniləyin və API açarınızı əlavə edin.";
                 }
 
                 // Default parameters
@@ -729,9 +731,9 @@
                     'ibadulla hesenov kimdir', 'ibadulla hesenov', 'ibadulla hesenov kimdi', 'ibadulla hasanov kimdi',
                     'səni kim yaradıb', 'kim yaradıb səni', 'yaradıcın kimdir', 'sən kimsən', 'kimsən sən', 'kimsiniz',
                     'ay blyaa səni kim yaradıb', 'səni kim yaratdı', 'kimin əməyisən', 'səni kim düzəldib', 'kim düzəldib səni',
-                    'səni kim qurdu', 'kim qurdu səni', 'səni kim qurub', 'kim qurub səni', // Explicitly added "qurub" variations
+                    'səni kim qurdu', 'kim qurdu səni', 'səni kim qurub', 'kim qurub səni', 
                     'səni kim inşa edib', 'səni kim hazırladı', 'səni kim proqramlaşdırdı',
-                    'bu proqramı kim yazıb', 'bu sistemi kim qurub', 'bu ai kim düzəldib', // More variations
+                    'bu proqramı kim yazıb', 'bu sistemi kim qurub', 'bu ai kim düzəldib', 
                     'sənin adın nədir', 'sənin adın nədi', 'adın nədir', 'adın nədi', 'axtarget adın', 'adın nə', 'adın nədir sənin'
                 ];
                 const axtargetKeywords = ['axtarget nə işə yarayır', 'axtarget şirkəti', 'axtarget haqqında'];
@@ -783,7 +785,6 @@
                 if (isSpecificQuestion) {
                     callApi = false;
                     // Add the error reporting message only for Ibadulla/AI identity questions
-                    // This check ensures it's specifically for the creator/identity questions, not AxtarGet or language changes
                     const creatorRelatedKeywords = [
                         'ibadulla hasanov', 'ibadulla hesenov', 'səni kim yaradıb', 'kim yaradıb səni', 'yaradıcın kimdir',
                         'sən kimsən', 'kimsən sən', 'kimsiniz', 'ay blyaa səni kim yaradıb', 'səni kim yaratdı',
