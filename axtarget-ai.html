@@ -11,7 +11,7 @@
             --primary: #4361ee;
             --primary-dark: #3a56d4;
             --accent: #4895ef;
-            --dark: #1a1a2e;
+            --dark: #0f172a; /* Updated dark to match body background */
             --light: #f8f9fa;
             --ai-bubble: #2d3748;
             --user-bubble: #4361ee;
@@ -25,7 +25,7 @@
         
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #0f172a;
+            background-color: var(--dark);
             color: #e2e8f0;
             min-height: 100vh;
             overflow-x: hidden;
@@ -49,7 +49,7 @@
             height: 4px;
             background-color: rgba(67, 97, 238, 0.5);
             border-radius: 50%;
-            animation: float 15s infinite linear;
+            animation: float 10s infinite linear; /* Faster animation */
         }
         
         @keyframes float {
@@ -87,13 +87,13 @@
             color: var(--accent);
             margin-bottom: 1rem;
             transform: translateY(-100vh);
-            animation: logoDrop 1s ease-out 0.5s forwards;
+            animation: logoDrop 0.7s ease-out 0.3s forwards; /* Faster animation */
         }
         
         .intro-creator {
             color: #94a3b8;
             opacity: 0;
-            animation: fadeIn 1s ease-out 3s forwards;
+            animation: fadeIn 0.7s ease-out 1.5s forwards; /* Faster animation */
         }
         
         .intro-about {
@@ -103,7 +103,7 @@
             padding: 0 20px;
             opacity: 0;
             transform: translateY(20px);
-            animation: slideInUp 1s ease-out 6s forwards;
+            animation: slideInUp 0.7s ease-out 2.5s forwards; /* Faster animation */
         }
         
         .intro-features {
@@ -114,7 +114,7 @@
             margin-top: 1rem;
             opacity: 0;
             transform: translateY(20px);
-            animation: slideInUp 1s ease-out 7s forwards;
+            animation: slideInUp 0.7s ease-out 3s forwards; /* Faster animation */
         }
         
         .feature-card {
@@ -131,7 +131,7 @@
             color: #64748b;
             cursor: pointer;
             opacity: 0;
-            animation: fadeIn 1s ease-out 2s forwards;
+            animation: fadeIn 0.7s ease-out 1s forwards; /* Faster animation */
             transition: color 0.3s;
         }
         
@@ -465,8 +465,13 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    <script type="module">
+        // Firebase SDK imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        document.addEventListener('DOMContentLoaded', async function() {
             // Uçuşan nöqtələr yarat
             createParticles();
             
@@ -478,8 +483,91 @@
             const userInput = document.getElementById('user-input');
             const sendButton = document.getElementById('send-button');
             
+            let introFinished = false; // Add a flag to track if intro is finished
+            let currentLanguage = 'az'; // Default language is Azerbaijani
+
+            // Firebase Initialization
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            
+            let app;
+            let db;
+            let auth;
+            let userId = null;
+            let questionCount = 0;
+            const MAX_QUESTIONS = 20;
+            const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Authenticate user
+                if (typeof __initial_auth_token !== 'undefined') {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        await loadUserChatData(userId);
+                    } else {
+                        // Handle anonymous user or sign-out
+                        userId = crypto.randomUUID(); // Generate a random ID for unauthenticated users
+                        await loadUserChatData(userId); // Load data for this session's anonymous ID
+                    }
+                });
+
+            } catch (error) {
+                console.error("Firebase initialization or authentication failed:", error);
+                addMessage("Xəta: Tətbiq məlumatları yükləyə bilmir. Zəhmət olmasa, daha sonra yenidən cəhd edin.", false);
+            }
+
+            // Function to load user chat data from Firestore
+            async function loadUserChatData(uid) {
+                const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/chat_data/limit_status`);
+                try {
+                    const docSnap = await getDoc(userDocRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        questionCount = data.questionCount || 0;
+                        const lastResetTimestamp = data.lastResetTimestamp || 0;
+
+                        const now = Date.now();
+                        if (now - lastResetTimestamp > RESET_INTERVAL_MS) {
+                            // Reset count if 24 hours passed
+                            questionCount = 0;
+                            await setDoc(userDocRef, { questionCount: 0, lastResetTimestamp: now });
+                        }
+                    } else {
+                        // Create new document if it doesn't exist
+                        await setDoc(userDocRef, { questionCount: 0, lastResetTimestamp: Date.now() });
+                    }
+                } catch (error) {
+                    console.error("Error loading user chat data:", error);
+                    addMessage("Xəta: Sual limitiniz yüklənə bilmədi. Bu, bəzi funksiyaları məhdudlaşdıra bilər.", false);
+                }
+            }
+
+            // Function to update user chat data in Firestore
+            async function updateUserChatData(uid, newCount) {
+                if (!db || !uid) return;
+                const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/chat_data/limit_status`);
+                try {
+                    await updateDoc(userDocRef, { questionCount: newCount, lastResetTimestamp: Date.now() });
+                } catch (error) {
+                    console.error("Error updating user chat data:", error);
+                }
+            }
+            
             // Giriş animasiyasını keç
             function skipIntroAnimation() {
+                if (introFinished) return; // Prevent skipping multiple times
+                introFinished = true; // Set flag to true
+
                 introContainer.style.animation = 'fadeOut 0.5s ease-out forwards';
                 setTimeout(() => {
                     introContainer.style.display = 'none';
@@ -493,13 +581,46 @@
             }
             
             skipIntro.addEventListener('click', skipIntroAnimation);
-            
-            // 15 saniyədən sonra avtomatik keç
-            setTimeout(skipIntroAnimation, 15000);
+
+            // Add event listener to skip intro on any click or keypress
+            document.body.addEventListener('click', skipIntroAnimation);
+            document.body.addEventListener('keypress', skipIntroAnimation);
+
+            // Set a timeout for the intro animation to finish naturally
+            // This timeout should be slightly longer than the total intro animation duration
+            const totalIntroDuration = 3500; // Adjusted for faster animations
+            setTimeout(skipIntroAnimation, totalIntroDuration);
             
             // API funksiyası
-            async function getAIResponse(message) {
-                const apiKey = "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";
+            async function getAIResponse(message, options = {}) {
+                const apiKey = "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"; 
+
+                if (!apiKey) {
+                    console.error('API Error: API key is missing. Please provide your OpenAI API key.');
+                    return "Xəta: API açarı daxil edilməyib. Zəhmət olmasa, kodu yeniləyin və API açarınızı əlavə edin.";
+                }
+
+                // Default parameters
+                let temperature = options.temperature || 0.7;
+                let maxTokens = options.maxTokens || 80; 
+
+                // System message to control language and tone
+                let systemMessage = {
+                    role: "system",
+                    content: `Sən Axtar Get AI köməkçisisən. Dostcanlısı və səmimi ol. Cavablarını ${currentLanguage === 'az' ? 'Azərbaycan' : 'Türk'} dilində ver. `
+                };
+
+                // Add specific instructions for response length
+                if (options.length === 'short') {
+                    systemMessage.content += "Cavablarını qısa, lakin tam və məzmunlu saxla. Bir neçə cümlə ilə kifayətlən, lakin məlumatı kəsmə.";
+                    maxTokens = 80; // Concise but complete
+                } else if (options.length === 'long') {
+                    systemMessage.content += "Cavablarını ətraflı və geniş şəkildə yaz.";
+                    maxTokens = 500; // More detailed
+                } else {
+                    systemMessage.content += "Cavablarını qısa və məzmunlu saxla, sözü qətiyyən uzatma. Bir neçə cümlə ilə kifayətlən, lakin məlumatı tam çatdır.";
+                    maxTokens = 120; // Default concise but complete
+                }
                 
                 try {
                     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -509,17 +630,37 @@
                             'Authorization': `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            model: "gpt-3.5-turbo",
-                            messages: [{role: "user", content: message}],
-                            temperature: 0.7
+                            // GPT-4 modelinə keçmək üçün aşağıdakı sətri aktivləşdirin və yuxarıdakı "gpt-3.5-turbo" sətrini şərhə alın.
+                            // Nəzərə alın ki, GPT-4 daha bahalıdır.
+                            // model: "gpt-4", 
+                            model: "gpt-3.5-turbo", // Hazırkı model: GPT-3.5 Turbo
+                            messages: [
+                                systemMessage,
+                                {role: "user", content: message}
+                            ],
+                            temperature: temperature,
+                            max_tokens: maxTokens
                         })
                     });
 
                     const data = await response.json();
-                    return data.choices[0].message.content;
+
+                    // Check for API error response structure
+                    if (data.error) {
+                        console.error('API Error:', data.error.message);
+                        return `API xətası: ${data.error.message}`;
+                    }
+
+                    // Check if choices array exists and has content
+                    if (data.choices && data.choices.length > 0 && data.choices[0].message && data.choices[0].message.content) {
+                        return data.choices[0].message.content;
+                    } else {
+                        console.error('Unexpected API response structure:', data);
+                        return "Üzr istəyirik, AI-dən gözlənilməz cavab alındı. Zəhmət olmasa, yenidən cəhd edin.";
+                    }
                 } catch (error) {
-                    console.error('Error:', error);
-                    return "Üzr istəyirik, xəta baş verdi. Yenidən cəhd edin.";
+                    console.error('Fetch Error:', error);
+                    return "Üzr istəyirik, şəbəkə xətası baş verdi və ya serverə qoşulmaq mümkün olmadı. Yenidən cəhd edin.";
                 }
             }
             
@@ -531,7 +672,7 @@
                 
                 const time = new Date();
                 const timeString = time.getHours().toString().padStart(2, '0') + ':' + 
-                                  time.getMinutes().toString().padStart(2, '0');
+                                   time.getMinutes().toString().padStart(2, '0');
                 
                 messageDiv.innerHTML = `
                     <div class="message-bubble">
@@ -566,28 +707,127 @@
             // Mesaj göndər
             async function sendMessage() {
                 const message = userInput.value.trim();
-                if (message) {
-                    // İstifadəçi mesajını əlavə et
-                    addMessage(message, true);
+                if (!message) return;
+
+                // Check question limit
+                if (questionCount >= MAX_QUESTIONS) {
+                    addMessage(`Sizin ${MAX_QUESTIONS} sorğunuz bitdi. İnkişafım və düzgün işləyə bilməyim üçün hazırda sizlərə ${MAX_QUESTIONS} sual haqqı verilir. Gələcəkdə bu limit artırılacaq.`, false);
                     userInput.value = '';
-                    
-                    // Yazma indikatorunu göstər
-                    const typingIndicator = showTyping();
-                    
-                    // AI cavabını al
-                    try {
-                        const aiResponse = await getAIResponse(message);
-                        
-                        // Yazma indikatorunu sil
-                        typingIndicator.remove();
-                        
-                        // AI cavabını əlavə et
-                        addMessage(aiResponse, false);
-                    } catch (error) {
-                        console.error('Xəta:', error);
-                        typingIndicator.remove();
-                        addMessage('Üzr istəyirik, xəta baş verdi. Yenidən cəhd edin.', false);
+                    return;
+                }
+
+                // Specific responses
+                let aiResponseText = '';
+                let callApi = true;
+                let responseOptions = {};
+
+                const lowerCaseMessage = message.toLowerCase();
+
+                // Direct and prioritized checks for AI identity and creator
+                const ibadullaAndIdentityKeywords = [
+                    'ibadulla hasanov kimdir', 'ibadulla kimdir', 'hasanov kimdir', 'ibadulla hasanov',
+                    'ibadulla hesenov kimdir', 'ibadulla hesenov', 'ibadulla hesenov kimdi', 'ibadulla hasanov kimdi',
+                    'səni kim yaradıb', 'kim yaradıb səni', 'yaradıcın kimdir', 'sən kimsən', 'kimsən sən', 'kimsiniz',
+                    'ay blyaa səni kim yaradıb', 'səni kim yaratdı', 'kimin əməyisən', 'səni kim düzəldib', 'kim düzəldib səni',
+                    'səni kim qurdu', 'kim qurdu səni', 'səni kim qurub', 'kim qurub səni', // Explicitly added "qurub" variations
+                    'səni kim inşa edib', 'səni kim hazırladı', 'səni kim proqramlaşdırdı',
+                    'bu proqramı kim yazıb', 'bu sistemi kim qurub', 'bu ai kim düzəldib', // More variations
+                    'sənin adın nədir', 'sənin adın nədi', 'adın nədir', 'adın nədi', 'axtarget adın', 'adın nə', 'adın nədir sənin'
+                ];
+                const axtargetKeywords = ['axtarget nə işə yarayır', 'axtarget şirkəti', 'axtarget haqqında'];
+                const languageAzKeywords = ['azərbaycan dilində danış', 'az dilində danış', 'azərbaycanca danış'];
+                const languageTrKeywords = ['türk dilində danış', 'türkcə danış', 'türkçe konuş'];
+
+                let isSpecificQuestion = false;
+
+                for (const keyword of ibadullaAndIdentityKeywords) {
+                    if (lowerCaseMessage.includes(keyword)) {
+                        aiResponseText = "Mən İbadulla Hasanov tərəfindən yaradılmış süni intellektəm. O, AxtarGet.xyz-in qurucusu və veb dizayneridir.";
+                        isSpecificQuestion = true;
+                        break;
                     }
+                }
+
+                if (!isSpecificQuestion) {
+                    for (const keyword of axtargetKeywords) {
+                        if (lowerCaseMessage.includes(keyword)) {
+                            aiResponseText = "AxtarGet şirkəti sizlərə təqibçinizin artımı, rəqəmsal yeniliklər və məhsullar, veb dizaynı və xidmətlər imkanı verən süni intellektdir. Yenə də qeyd edim ki, AxtarGet İbadulla Hasanov tərəfindən qurulub və inkişaf etdirilir.";
+                            isSpecificQuestion = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isSpecificQuestion) {
+                    for (const keyword of languageAzKeywords) {
+                        if (lowerCaseMessage.includes(keyword)) {
+                            currentLanguage = 'az';
+                            aiResponseText = "Bəli, indi Azərbaycan dilində danışacağam. Necə kömək edə bilərəm?";
+                            isSpecificQuestion = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!isSpecificQuestion) {
+                    for (const keyword of languageTrKeywords) {
+                        if (lowerCaseMessage.includes(keyword)) {
+                            currentLanguage = 'tr';
+                            aiResponseText = "Tamam, şimdi Türkçe konuşacağım. Nasıl yardımcı olabilirim?";
+                            isSpecificQuestion = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (isSpecificQuestion) {
+                    callApi = false;
+                    // Add the error reporting message only for Ibadulla/AI identity questions
+                    // This check ensures it's specifically for the creator/identity questions, not AxtarGet or language changes
+                    const creatorRelatedKeywords = [
+                        'ibadulla hasanov', 'ibadulla hesenov', 'səni kim yaradıb', 'kim yaradıb səni', 'yaradıcın kimdir',
+                        'sən kimsən', 'kimsən sən', 'kimsiniz', 'ay blyaa səni kim yaradıb', 'səni kim yaratdı',
+                        'kimin əməyisən', 'səni kim düzəldib', 'kim düzəldib səni', 'səni kim qurdu', 'kim qurdu səni',
+                        'səni kim qurub', 'kim qurub səni', 'səni kim inşa edib', 'səni kim hazırladı',
+                        'səni kim proqramlaşdırdı', 'bu proqramı kim yazıb', 'bu sistemi kim qurub', 'bu ai kim düzəldib',
+                        'sənin adın nədir', 'sənin adın nədi', 'adın nədir', 'adın nədi', 'axtarget adın', 'adın nə', 'adın nədir sənin'
+                    ];
+                    if (creatorRelatedKeywords.some(keyword => lowerCaseMessage.includes(keyword))) {
+                         aiResponseText += "<br><br>Köməkçidə bir səhv tutdunuz? 060-600-61-62 İbadulla Hasanov-la əlaqə saxlayın.";
+                    }
+                } else if (lowerCaseMessage.includes('geniş məlumat yaz')) {
+                    responseOptions.length = 'long';
+                } else {
+                    responseOptions.length = 'short'; // Default to concise
+                }
+
+                // Add user message to chat
+                addMessage(message, true);
+                userInput.value = '';
+                
+                // Show typing indicator
+                const typingIndicator = showTyping();
+                
+                try {
+                    let aiResponse;
+                    if (callApi) {
+                        aiResponse = await getAIResponse(message, responseOptions);
+                        // Increment question count only for API calls
+                        questionCount++;
+                        await updateUserChatData(userId, questionCount);
+                    } else {
+                        aiResponse = aiResponseText;
+                    }
+                    
+                    // Remove typing indicator
+                    typingIndicator.remove();
+                    
+                    // Add AI response to chat
+                    addMessage(aiResponse, false);
+                } catch (error) {
+                    console.error('Xəta:', error);
+                    typingIndicator.remove();
+                    addMessage('Üzr istəyirik, xəta baş verdi. Yenidən cəhd edin.', false);
                 }
             }
             
