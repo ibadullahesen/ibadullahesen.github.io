@@ -466,11 +466,6 @@
     </div>
 
     <script type="module">
-        // Firebase SDK imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
         document.addEventListener('DOMContentLoaded', async function() {
             // Uçuşan nöqtələr yarat
             createParticles();
@@ -486,83 +481,6 @@
             let introFinished = false; // Add a flag to track if intro is finished
             let currentLanguage = 'az'; // Default language is Azerbaijani
 
-            // Firebase Initialization
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-            
-            let app;
-            let db;
-            let auth;
-            let userId = null;
-            let questionCount = 0;
-            const MAX_QUESTIONS = 20;
-            const RESET_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-
-            try {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                // Authenticate user
-                if (typeof __initial_auth_token !== 'undefined') {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        await loadUserChatData(userId);
-                    } else {
-                        // Handle anonymous user or sign-out
-                        userId = crypto.randomUUID(); // Generate a random ID for unauthenticated users
-                        await loadUserChatData(userId); // Load data for this session's anonymous ID
-                    }
-                });
-
-            } catch (error) {
-                console.error("Firebase initialization or authentication failed:", error);
-                addMessage("Xəta: Tətbiq məlumatları yükləyə bilmir. Zəhmət olmasa, daha sonra yenidən cəhd edin.", false);
-            }
-
-            // Function to load user chat data from Firestore
-            async function loadUserChatData(uid) {
-                const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/chat_data/limit_status`);
-                try {
-                    const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        questionCount = data.questionCount || 0;
-                        const lastResetTimestamp = data.lastResetTimestamp || 0;
-
-                        const now = Date.now();
-                        if (now - lastResetTimestamp > RESET_INTERVAL_MS) {
-                            // Reset count if 24 hours passed
-                            questionCount = 0;
-                            await setDoc(userDocRef, { questionCount: 0, lastResetTimestamp: now });
-                        }
-                    } else {
-                        // Create new document if it doesn't exist
-                        await setDoc(userDocRef, { questionCount: 0, lastResetTimestamp: Date.now() });
-                    }
-                } catch (error) {
-                    console.error("Error loading user chat data:", error);
-                    addMessage("Xəta: Sual limitiniz yüklənə bilmədi. Bu, bəzi funksiyaları məhdudlaşdıra bilər.", false);
-                }
-            }
-
-            // Function to update user chat data in Firestore
-            async function updateUserChatData(uid, newCount) {
-                if (!db || !uid) return;
-                const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/chat_data/limit_status`);
-                try {
-                    await updateDoc(userDocRef, { questionCount: newCount, lastResetTimestamp: Date.now() });
-                } catch (error) {
-                    console.error("Error updating user chat data:", error);
-                }
-            }
-            
             // Giriş animasiyasını keç
             function skipIntroAnimation() {
                 if (introFinished) return; // Prevent skipping multiple times
@@ -593,13 +511,13 @@
             
             // API funksiyası
             async function getAIResponse(message, options = {}) {
-                // OpenAI API açarınızı bura daxil edin!
-                // https://platform.openai.com/account/api-keys ünvanından yeni açar yaradıb bura yapışdırın.
+                // OpenAI API açarınız bura daxil edildi.
                 const apiKey = "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"; 
 
-                if (!apiKey || apiKey === "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") {
-                    console.error('API Error: API key is missing or is the default placeholder. Please provide your OpenAI API key.');
-                    return "Xəta: API açarı daxil edilməyib və ya səhvdir. Zəhmət olmasa, kodu yeniləyin və API açarınızı əlavə edin.";
+                // API açarının boş olub olmadığını yoxlayır, lakin artıq yer tutucunun yoxlanılmasına ehtiyac yoxdur.
+                if (!apiKey) {
+                    console.error('API Error: API key is missing. Please provide your OpenAI API key.');
+                    return "Xəta: API açarı daxil edilməyib. Zəhmət olmasa, kodu yeniləyin və API açarınızı əlavə edin.";
                 }
 
                 // Default parameters
@@ -632,9 +550,6 @@
                             'Authorization': `Bearer ${apiKey}`
                         },
                         body: JSON.stringify({
-                            // GPT-4 modelinə keçmək üçün aşağıdakı sətri aktivləşdirin və yuxarıdakı "gpt-3.5-turbo" sətrini şərhə alın.
-                            // Nəzərə alın ki, GPT-4 daha bahalıdır.
-                            // model: "gpt-4", 
                             model: "gpt-3.5-turbo", // Hazırkı model: GPT-3.5 Turbo
                             messages: [
                                 systemMessage,
@@ -710,13 +625,6 @@
             async function sendMessage() {
                 const message = userInput.value.trim();
                 if (!message) return;
-
-                // Check question limit
-                if (questionCount >= MAX_QUESTIONS) {
-                    addMessage(`Sizin ${MAX_QUESTIONS} sorğunuz bitdi. İnkişafım və düzgün işləyə bilməyim üçün hazırda sizlərə ${MAX_QUESTIONS} sual haqqı verilir. Gələcəkdə bu limit artırılacaq.`, false);
-                    userInput.value = '';
-                    return;
-                }
 
                 // Specific responses
                 let aiResponseText = '';
@@ -813,9 +721,6 @@
                     let aiResponse;
                     if (callApi) {
                         aiResponse = await getAIResponse(message, responseOptions);
-                        // Increment question count only for API calls
-                        questionCount++;
-                        await updateUserChatData(userId, questionCount);
                     } else {
                         aiResponse = aiResponseText;
                     }
