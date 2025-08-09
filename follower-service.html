@@ -126,6 +126,8 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            min-width: 300px;
+            text-align: center;
         }
         .alert-message.show {
             opacity: 1;
@@ -240,6 +242,39 @@
         #floating-whatsapp-bubble:hover {
             transform: scale(1.1);
         }
+        /* Styles for category icons in select options */
+        .select-field option {
+            display: flex;
+            align-items: center;
+        }
+        /* New styles for the Campaigns section */
+        .campaign-banner {
+            background-image: linear-gradient(to right top, #38b2ac, #5fe4a0);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem; /* Add margin-top to separate from previous section */
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite cubic-bezier(0.66, 0, 0, 1);
+            border: 2px solid #5fe4a0;
+        }
+        .campaign-banner h3 {
+            font-size: 1.75rem; /* Larger font for heading */
+            margin-bottom: 0.75rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        }
+        .campaign-banner p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.02); box-shadow: 0 12px 20px rgba(0,0,0,0.4); }
+            100% { transform: scale(1); box-shadow: 0 8px 15px rgba(0,0,0,0.3); }
+        }
     </style>
 </head>
 <body>
@@ -247,16 +282,21 @@
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
-            <!-- Başlıq ikonunu əlavə etdik -->
-            <span class="text-xl font-semibold"><i class="fas fa-users mr-2 text-blue-400"></i>Takipçi Xidməti</span>
+            <div class="flex items-center space-x-4">
+                <a href="#campaigns-section" id="header-campaigns-button" class="text-white text-sm font-semibold py-1 px-3 rounded-full bg-blue-600 hover:bg-blue-700 transition-colors duration-200">Kampaniyalar</a>
+                <span class="text-xl font-semibold">
+                    <i class="fas fa-users mr-2 text-blue-400"></i>Takipçi Xidməti
+                    <!-- İstifadəçi sayı elementi buradan silindi -->
+                </span>
+            </div>
         </div>
     </header>
 
-    <div class="main-content pt-20"> <!-- er boşluğu -->
+    <div class="main-content pt-20">
         <div class="container">
             <div class="balance-section">
                 <div class="flex flex-col items-start">
-                    <span>Balansın: <span id="user-balance">0.00 AZN</span></span>
+                    <span>Balansın: <span id="user-balance">0.0000 AZN</span></span>
                     <span class="text-sm text-gray-400 mt-1">İstifadəçi ID: <span id="user-id-display">Yüklənir...</span></span>
                 </div>
                 <button id="top-up-button">Balans Artır</button>
@@ -279,12 +319,12 @@
 
                 <div>
                     <label for="link-input" class="block text-gray-400 text-sm font-bold mb-2">Link</label>
-                    <input type="text" id="link-input" placeholder="" class="input-field">
+                    <input type="text" id="link-input" placeholder="Link daxil edin" class="input-field">
                 </div>
 
                 <div>
                     <label for="quantity-input" class="block text-gray-400 text-sm font-bold mb-2">Miqdar</label>
-                    <input type="number" id="quantity-input" placeholder="Minimum: 10 - Maksimum: 10 000 000" class="input-field" min="10">
+                    <input type="text" id="quantity-input" placeholder="Minimum: 10 - Maksimum: 10 000 000" class="input-field">
                     <p class="text-xs text-gray-500 mt-1">Minimum: <span id="min-quantity">0</span> - Maksimum: <span id="max-quantity">0</span></p>
                 </div>
 
@@ -298,7 +338,7 @@
                     <input type="text" id="price-input" class="input-field" readonly>
                 </div>
 
-                <button id="place-order-button" class="button-primary w-full" disabled>Sipariş Oluştur</button>
+                <button id="place-order-button" class="button-primary w-full" disabled>Sifariş Oluştur</button>
             </div>
 
             <div class="description-box card">
@@ -317,6 +357,17 @@
                     📌 Verdiğiniz sipariş sistemde tamamlanmadan aynı linke <span>2. siparişi</span> vermeyiniz.
                 </p>
             </div>
+
+            <!-- Kampaniyalar Bölməsi -->
+            <div id="campaigns-section" class="campaign-banner">
+                <h3>📢 Kampaniyalar! 🚀</h3>
+                <p>
+                    Burada günün ən son və aktual kampaniyaları haqqında məlumatları yerləşdirə bilərsiniz.
+                    Məsələn: "İnstagram Bəyəni sifarişlərində **20% ENDİRİM**!" və ya "TikTok İzlənmələrdə **+500 BONUS**!"
+                </p>
+            </div>
+            <!-- Kampaniyalar Bölməsi Sonu -->
+
         </div>
     </div>
 
@@ -337,11 +388,12 @@
             <i class="fas fa-money-bill-wave"></i>
             <span>Balans əlavə et</span>
         </a>
-        </footer>
+    </footer>
 
     <div id="alert-container"></div>
 
-    <div id="top-up-modal" class="modal hidden"> <div class="modal-content">
+    <div id="top-up-modal" class="modal">
+        <div class="modal-content">
             <span class="close-button" id="close-top-up-modal">&times;</span>
             <h3 class="text-2xl font-bold text-white mb-4">Balans Artır</h3>
             <img src="https://placehold.co/250x150/000000/ffffff?text=Kapital+Bank+Kart%C4%B1" alt="Kapital Bank Kartı" class="payment-card-image">
@@ -351,13 +403,13 @@
                 Ödəniş edildikdən sonra çeki **060-600-61-62** nömrəsinin WhatsAppına atın.
                 <br>5-15 dəqiqə ərzində balansınız yüklənəcək.
             </p>
-        
-        <p class="text-sm text-yellow-300 font-semibold mb-4 p-2 bg-yellow-900 bg-opacity-30 rounded-md">
-    ➕🎁 1-10 AZN balans artımı üçün 1% <br>
-    ➕💰 11-100 AZN arası balans artırma üçün 3% balans artımı bizdən hədiyyə! <br>
-    ➕101+ balans artımı üçün 6% balans artımı bizdən!
+           
+            <p class="text-sm text-yellow-300 font-semibold mb-4 p-2 bg-yellow-900 bg-opacity-30 rounded-md">
+                ➕🎁 1-10 AZN balans artımı üçün 1% <br>
+                ➕💰 11-100 AZN arası balans artırma üçün 3% balans artımı bizdən hədiyyə! <br>
+                ➕101+ balans artımı üçün 6% balans artımı bizdən!
             </p>
-        
+            
             <a id="whatsapp-topup-link" href="#" target="_blank" class="px-6 py-3 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition-colors duration-300 shadow-md inline-flex items-center">
                 <i class="fab fa-whatsapp mr-2"></i> WhatsApp-a Göndər
             </a>
@@ -372,7 +424,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         // Firebase konfiqurasiyası
         const firebaseConfig = {
@@ -391,18 +443,134 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Servis Verileri (allServices massivini ən üstdə təyin etdim)
+        const allServices = [
+            {
+                platform: 'Youtube',  
+                category: '👥Youtube Abonəçi Servisləri',
+                categoryIcon: '<i class="fab fa-youtube text-red-500 mr-2"></i>',
+                items: [
+                    { id: '00011', name: 'Youtube Xarici Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-youtube text-red-500"></i>', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 },
+                ]
+            },
+            {
+                platform: 'Youtube',
+                category: '❤️Youtube Bəyəni Servisləri',
+                categoryIcon: '<i class="fab fa-youtube text-red-500 mr-2"></i>',
+                items: [
+                    { id: '0005', name: 'Youtube Bəyəni ❤️ |10M | BEST', icon: '<i class="fab fa-youtube text-red-500"></i>', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 },
+                    { id: '0006', name: 'Youtube Bəyəni(Qarantili) ❤️ |10M | BEST', icon: '<i class="fab fa-youtube text-red-500"></i>', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 },
+                ]
+            },
+            {
+                platform: 'Youtube',
+                category: '👁️‍🗨️Youtube İzlənmə Servisləri',
+                categoryIcon: '<i class="fab fa-youtube text-red-500 mr-2"></i>',
+                items: [
+                    { id: '0007', name: '👁️‍🗨️Youtube İzlənmə(Qaranti yoxdur)', icon: '<i class="fab fa-youtube text-red-500"></i>', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 },
+                    { id: '0008', name: '👁️‍🗨️Youtube İzlənmə(Qaranti✅)', icon: '<i class="fab fa-youtube text-red-500"></i>', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 },
+                ]
+            },
+            {
+                platform: 'TikTok',
+                category: '👥TikTok Takipçi Servisleri',
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
+                items: [
+                    { id: 'tiktok_foreign_follower', name: '👥TikTok Xarici Takipçi', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 },
+                    { id: 'tiktok_foreign_follower_no_guarantee', name: '👥TikTok Xarici Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 4.93 },
+                    { id: 'tiktok_quality_follower_no_guarantee', name: '👥TikTok Keyfiyyitli Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 6.54 },
+                    { id: 'tiktok_quality_follower_60_day_guarantee', name: '👥TikTok Keyfiyyitli Takipçi (60 gün qaranti)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 6.99 },
+                ]
+            },
+            {
+                platform: 'TikTok',
+                category: '❤️TikTok Bəyəni Servisləri',
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
+                items: [
+                    { id: 'tiktok_video_like', name: '4014 - TikTok Bəyəni Min:30  ❤️ |10M | BEST Min:10', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 },
+                    { id: '00005', name: '4020 - TikTok Bəyəni Min:100  ❤️ "Özəl"', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 },
+                    { id: '00006', name: '4021 - TikTok Bəyəni Min:90.000 ❤️ "Özəl-2"', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '28 dəqiqə', min: 90000, max: 10000000, pricePerK: 0.12 },
+                    { id: '00001', name: '4015 -  NEW TikTok Bəyəni Min:30  ❤️ |10M | BEST Min:30', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 },
+                    { id: '00002', name: '4017 -  TikTok Bəyəni Min:150  ❤️ Min:150', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 },
+                    { id: '00003', name: '4018 -  TikTok Bəyəni Min:1.000  ❤️ -Orta sürət- Min:1000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 },
+                    { id: '00004', name: '4019 -  TikTok Bəyəni Min:200  ❤️ ⭐Sürətli⭐ Min:200', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 },
+                ]
+            },
+            {
+                platform: 'TikTok',
+                category: '👁️‍🗨️TikTok İzlənmə Servisləri',
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
+                items: [
+                    { id: 'tiktok_video_view', name: '👁️‍🗨️TikTok Video İzlənmə Min:100', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 },
+                    { id: '000013', name: '👁️‍🗨️TikTok Video İzlənmə ⭐sürətli⭐ Min:1.000.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.01 },
+                    { id: '000010', name: '👁️‍🗨️TikTok Video İzlənmə⭐ultra sürətli⭐ Min:100.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 },
+                    { id: '000011', name: '👁️‍🗨️TikTok Video İzlənmə ⭐sürətli⭐ Min:1.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 },
+                    { id: '000012', name: '👁️‍🗨️TikTok Video İzlənmə Min:10.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 },
+                ]
+            },
+            {
+                platform: 'TikTok',
+                category: '📈TikTok Paylaşım,Kaydetmə,Yorum,Profil Servisləri',
+                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
+                items: [
+                    { id: 'tiktok_video_share', name: '🚀TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 },
+                    { id: 'tiktok_video_save', name: '📌TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 },
+                    { id: 'tiktok_video_comment', name: '💬TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '24-48 saat', min: 1, max: 1000, pricePerK: 12.00 },
+                    { id: 'tiktok_profile_view', name: 'TikTok Profil Görüntüləmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 },
+                ]
+            },
+            // Instagram Servisleri
+            {
+                platform: 'Instagram',  
+                category: '👥Instagram Takipçi Servisleri',
+                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
+                items: [
+                    { id: 'instagram_follower', name: '👥Instagram Takipçi❌işləmir❌', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 },
+                    { id: 'instagram_az_follower', name: '👥Instagram Azərbaycanlı Takipçi 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 },
+                    { id: 'instagram_tr_follower', name: '👥Instagram Türk Takipçi �🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 },
+                    { id: 'instagram_30day_guarantee', name: '👥Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 },
+                    { id: 'instagram_100day_guarantee', name: '👥Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 },
+                    { id: 'instagram_365day_guarantee', name: '👥Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 },
+                    { id: 'instagram_lifetime_guarantee', name: '👥Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6 },
+                ]
+            },
+            {
+                platform: 'Instagram',  
+                category: '❤️Instagram Bəyəni Servisləri',
+                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
+                items: [
+                    { id: 'instagram_like', name: '❤️Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 },
+                    { id: '1001', name: '❤️01 - Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '32 dəqiqə', min: 30000, max: 10000000, pricePerK: 0.28 },
+                    { id: 'instagram_like_no_guarantee', name: '❤️Instagram Bəyəni (Qaranti yoxdur)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 },
+                    { id: 'instagram_az_like', name: '❤️Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 },
+                ]
+            },
+            {
+                platform: 'Instagram',  
+                category: '👁️‍🗨️Instagram İzlənmə Servisləri',
+                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
+                items: [
+                    { id: 'instagram_video_view', name: '👁️‍🗨️Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '3 saat', min: 100, max: 50000000, pricePerK: 0.12 },
+                    { id: '10000', name: '👁️‍🗨️Instagram Video İzlənmə ⭐Sürətli⭐', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.21 },
+                    { id: 'instagram_az_video_view', name: '👁️‍🗨️Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
+                ]
+            },
+            {
+                platform: 'Instagram',  
+                category: '📈Instagram Yorum,Paylaşım,Kaydetmə Servisləri',
+                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
+                items: [
+                    { id: 'instagram_comment', name: '💬Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 },
+                    { id: 'instagram_save', name: '📌Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 },
+                    { id: 'instagram_share', name: '🚀Instagram Paylaşma', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 },
+                ]
+            },
+        ];
+
         let currentUserId = null;
         let userBalance = 0;
         let selectedCategory = null; // Seçili kategori objesi
         let selectedService = null; // Seçili servis objesi
-
-        // API Bilgileri (TƏHLÜKƏSİZ DEYİL - YALNIZ DEMO ÜÇÜN!)
-        // Bütün API açarları və endpointlər koddan silindi
-        // const SOSYALMEDYAM_API_KEY = "b1ea82d5041bc6063d66c3b5810c7363"; 
-        // const REPLIT_API_ENDPOINT = "https://256a2640-1e7f-47a7-9653-8de1377f216e-00-18av7fbbegyy4.sisko.replit.dev/api/order"; 
-
-        const TL_TO_AZN_RATE = 0.50; // Örnek kur: 1 TL = 0.50 AZN (Gerçek kuru güncelleyin)
-
 
         // DOM Elementləri
         const userBalanceEl = document.getElementById('user-balance');
@@ -421,9 +589,12 @@
         const topUpModal = document.getElementById('top-up-modal');
         const closeTopUpModalButton = document.getElementById('close-top-up-modal');
         const bottomNavTopUp = document.getElementById('bottom-nav-topup'); // Alt navigasyondaki Balans əlavə et butonu
+        const headerCampaignsButton = document.getElementById('header-campaigns-button'); // Başlıqdakı Kampaniyalar butonu
         const floatingWhatsappBubble = document.getElementById('floating-whatsapp-bubble'); // Yeni WhatsApp balonu
         const whatsappTopUpLink = document.getElementById('whatsapp-topup-link'); // WhatsApp linki (modal içinde)
         const bankCardNumberEl = document.getElementById('bank-card-number'); // Bank kartı nömrəsi elementi
+        const campaignsSection = document.getElementById('campaigns-section'); // Kampaniyalar bölməsinin ID-si
+        // `totalUsersCountEl` elementi silindi
 
         // Açıqlama bölməsindeki DOM elementləri
         const descMinQuantity = document.getElementById('desc-min-quantity');
@@ -434,134 +605,15 @@
         const PAYMENT_CARD_NUMBER = "4169 7388 7208 5778";
         const PAYMENT_WHATSAPP_NUMBER = "994606006162"; // WhatsApp API için başında 994 olmalı
 
+        // Rəqəmləri 3 sıfırdan bir nöqtə ilə formatlaşdıran funksiya
+        function formatNumberWithDots(number) {
+            if (number === null || number === undefined || isNaN(number)) {
+                return '';
+            }
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
 
-        // Servis Verileri (Demo amaçlı ve Sosyalmedyam servis ID'leri ile eşleştirildi)
-        // Artık MedyabayimServiceId'ye ihtiyaç yok, sadece SosyalmedyamServiceId kullanılacak
-        const allServices = [
-            // TikTok Servisleri (Sosyalmedyam'dan geldiği varsayılır)
-            {
-                platform: 'Youtube', 
-                category: '👥Youtube Abonəçi Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: '00011', name: 'Youtube Xarici Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-youtube text-white"></i>', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 },
-                ]
-            },
-             {
-                platform: 'Youtube', 
-                category: '❤️Youtube Bəyəni Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: '0005', name: 'Youtube Bəyəni ❤️ |10M | BEST', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 },
-                    { id: '0006', name: 'Youtube Bəyəni(Qarantili) ❤️ |10M | BEST', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 },
-                ]
-            },
-             {
-                platform: 'Youtube', 
-                category: '👁️‍🗨️Youtube İzlənmə Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: '0007', name: '👁️‍🗨️Youtube İzlənmə(Qaranti yoxdur)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 },
-                    { id: '0008', name: '👁️‍🗨️Youtube İzlənmə(Qaranti✅)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 },
-                ]
-            },
-             {
-                platform: 'TikTok', 
-                category: '👥TikTok Takipçi Servisleri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: 'tiktok_foreign_follower', name: '👥TikTok Xarici Takipçi', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 },
-                    { id: 'tiktok_foreign_follower_no_guarantee', name: '👥TikTok Xarici Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 4.93 },
-                    { id: 'tiktok_quality_follower_no_guarantee', name: '👥TikTok Keyfiyyitli Takipçi (Qaranti yoxdur)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 6.54 },
-                    { id: 'tiktok_quality_follower_60_day_guarantee', name: '👥TikTok Keyfiyyitli Takipçi (60 gün qaranti)', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 6.99 },
-                ]
-            },
-             {
-                platform: 'TikTok', 
-                category: '❤️TikTok Bəyəni Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: 'tiktok_video_like', name: '4014 - TikTok Bəyəni Min:30  ❤️ |10M | BEST Min:10', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 },
-                    { id: '00005', name: '4020 - TikTok Bəyəni Min:100  ❤️ "Özəl"', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 },
-                    { id: '00006', name: '4021 - TikTok Bəyəni Min:90.000 ❤️ "Özəl-2"', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '28 dəqiqə', min: 90000, max: 10000000, pricePerK: 0.12 },
-                    { id: '00001', name: '4015 -  NEW TikTok Bəyəni Min:30  ❤️ |10M | BEST Min:30', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 },
-                    { id: '00002', name: '4017 -  TikTok Bəyəni Min:150  ❤️ Min:150', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 },
-                    { id: '00003', name: '4018 -  TikTok Bəyəni Min:1.000  ❤️ -Orta sürət- Min:1000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 },
-                    { id: '00004', name: '4019 -  TikTok Bəyəni Min:200  ❤️ ⭐Sürətli⭐ Min:200', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 },
-                ]
-            },
-             {
-                platform: 'TikTok', 
-                category: '👁️‍🗨️TikTok İzlənmə Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                   { id: 'tiktok_video_view', name: '👁️‍🗨️TikTok Video İzlənmə Min:100', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 },
-                   { id: '000013', name: '👁️‍🗨️TikTok Video İzlənmə ⭐sürətli⭐ Min:1.000.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.01 },
-                   { id: '000010', name: '👁️‍🗨️TikTok Video İzlənmə⭐ultra sürətli⭐ Min:100.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 },
-                   { id: '000011', name: '👁️‍🗨️TikTok Video İzlənmə ⭐sürətli⭐ Min:1.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 },
-                   { id: '000012', name: '👁️‍🗨️TikTok Video İzlənmə Min:10.000', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 },
-                ]
-            },
-             {
-                platform: 'TikTok', 
-                category: '📈TikTok Paylaşım,Kaydetmə,Yorum,Profil Servisləri',
-                categoryIcon: '<i class="fab fa-tiktok text-white mr-2"></i>',
-                items: [
-                    { id: 'tiktok_video_share', name: '🚀TikTok Video Paylaşma', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 },
-                    { id: 'tiktok_video_save', name: '📌TikTok Video Kaydetmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 },
-                    { id: 'tiktok_video_comment', name: '💬TikTok Video Yorum', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '24-48 saat', min: 1, max: 1000, pricePerK: 12.00 },
-                    { id: 'tiktok_profile_view', name: 'TikTok Profil Görüntüləmə', icon: '<i class="fab fa-tiktok text-white"></i>', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 },
-                ]
-            },
-            // Instagram Servisleri
-            {
-                platform: 'Instagram', 
-                category: '👥Instagram Takipçi Servisleri',
-                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
-                items: [
-                    { id: 'instagram_follower', name: '👥Instagram Takipçi❌işləmir❌', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 },
-                    { id: 'instagram_az_follower', name: '👥Instagram Azərbaycanlı Takipçi 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 },
-                    { id: 'instagram_tr_follower', name: '👥Instagram Türk Takipçi 🇹🇷', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 },
-                    { id: 'instagram_30day_guarantee', name: '👥Instagram 30 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 },
-                    { id: 'instagram_100day_guarantee', name: '👥Instagram 100 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 },
-                    { id: 'instagram_365day_guarantee', name: '👥Instagram 365 Gün Garantili Takipçi <i class="fas fa-redo-alt text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 },
-                    { id: 'instagram_lifetime_guarantee', name: '👥Instagram Ömür Boyu Garantili Takipçi <i class="fas fa-infinity text-blue-400"></i>', icon: '<i class="fab fa-instagram"></i>', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6 },
-                ]
-            },
-             {
-                platform: 'Instagram', 
-                category: '❤️Instagram Bəyəni Servisləri',
-                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
-                items: [
-                    { id: 'instagram_like', name: '❤️Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 },
-                    { id: '1001', name: '❤️01 - Instagram Bəyəni (heçvaxd enməz)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '32 dəqiqə', min: 30000, max: 10000000, pricePerK: 0.28 },
-                    { id: 'instagram_like_no_guarantee', name: '❤️Instagram Bəyəni (Qaranti yoxdur)', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 },
-                    { id: 'instagram_az_like', name: '❤️Instagram Azərbaycanlı Bəyəni 🇦🇿', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 },
-                ]
-            },
-            {
-                platform: 'Instagram', 
-                category: '👁️‍🗨️Instagram İzlənmə Servisləri',
-                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
-                items: [
-                    { id: 'instagram_video_view', name: '👁️‍🗨️Instagram Video İzlənmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '3 saat', min: 100, max: 50000000, pricePerK: 0.12 },
-                    { id: '10000', name: '👁️‍🗨️Instagram Video İzlənmə ⭐Sürətli⭐', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.21 },
-                    { id: 'instagram_az_video_view', name: '👁️‍🗨️Instagram Azərbaycanlı Video İzlənmə 🇦🇿', icon: '<i class="fab fa-instagram"></i>', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
-                ]
-            },
-             {
-                platform: 'Instagram', 
-                category: '📈Instagram Yorum,Paylaşım,Kaydetmə Servisləri',
-                categoryIcon: '<i class="fab fa-instagram text-purple-400 mr-2"></i>',
-                items: [
-                    { id: 'instagram_comment', name: '💬Instagram Yorum', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 },
-                    { id: 'instagram_save', name: '📌Instagram Kaydetmə', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 },
-                    { id: 'instagram_share', name: '🚀Instagram Paylaşma', icon: '<i class="fab fa-instagram text-purple-400"></i>', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 },
-                ]
-            },
-        ];
-
-        // Balansı yeniləmə funksiyası
+        // Balansı yeniləmə funksiyası (4 onluq rəqəmlə yuvarlaqlaşdırıldı)
         async function updateBalanceUI() {
             if (currentUserId) {
                 const userDocRef = doc(db, `users`, currentUserId);
@@ -572,15 +624,15 @@
                     userBalance = 0;
                     await setDoc(userDocRef, { balance: 0 }, { merge: true }); // Merge true, diğer verileri korur
                 }
-                userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
+                userBalanceEl.textContent = `${userBalance.toFixed(4)} AZN`; // 4 onluq rəqəm
             }
         }
 
         // Custom Alert Funksiyası
         function showAlert(message, type = 'error', duration = 3000) {
             const alertBox = document.createElement('div');
-            alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
-            alertBox.innerHTML = message; // HTML içeriği de desteklemesi için
+            alertBox.className = `alert-message ${type}`;
+            alertBox.innerHTML = message;
             
             const existingAlerts = document.querySelectorAll('.alert-message');
             existingAlerts.forEach(alert => alert.remove());
@@ -588,6 +640,9 @@
             if (type === 'success') {
                 alertBox.classList.remove('bg-red-600');
                 alertBox.classList.add('bg-green-600');
+            } else {
+                alertBox.classList.remove('bg-green-600');
+                alertBox.classList.add('bg-red-600');
             }
             alertContainer.appendChild(alertBox);
             setTimeout(() => {
@@ -599,17 +654,21 @@
             }, duration);
         }
 
+        // Real-time istifadəçi sayı dinləyicisi funksiyası silindi
+
         // Firebase Autentifikasiya və Balans Yüklənməsi
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUserId = user.uid;
-                userIdDisplayEl.textContent = user.uid; // İstifadəçi ID'sini göstər
+                userIdDisplayEl.textContent = currentUserId; // İstifadəçi ID'sini göstər
                 await updateBalanceUI();
+                // `setupUserCountListener()` çağırışı silindi
             } else {
                 signInAnonymously(auth).then(async (anonUserCredential) => {
                     currentUserId = anonUserCredential.user.uid;
-                    userIdDisplayEl.textContent = anonUserCredential.user.uid; // İstifadəçi ID'sini göstər
+                    userIdDisplayEl.textContent = currentUserId; // İstifadəçi ID'sini göstər
                     await updateBalanceUI();
+                    // `setupUserCountListener()` çağırışı silindi
                 }).catch(error => {
                     console.error("Anonim girişdə xəta:", error);
                     showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
@@ -626,7 +685,6 @@
                 const categoryData = allServices.find(s => s.category === categoryName);
                 const option = document.createElement('option');
                 option.value = categoryData.category;
-                // Kategori ikonunu da option içine ekle
                 option.innerHTML = `${categoryData.categoryIcon || ''} ${categoryData.category}`;
                 categorySelect.appendChild(option);
             });
@@ -635,13 +693,12 @@
         // Kategori seçildiğinde servis select'ini doldur
         categorySelect.addEventListener('change', () => {
             const selectedCategoryName = categorySelect.value;
-            // Kategori seçimi kaldırılırsa selectedCategory null olur
             selectedCategory = allServices.find(cat => cat.category === selectedCategoryName) || null;
             
             serviceSelect.innerHTML = '<option value="">Servis Seçin</option>';
             serviceSelect.disabled = true;
             selectedService = null;
-            resetOrderForm();
+            resetOrderForm(); // Kategori değiştiğinde formu sıfırla
             updateDescriptionBox(); // Kategori değiştiğinde açıklama kutusunu güncelle
 
             if (selectedCategory) {
@@ -651,7 +708,8 @@
                 sortedServices.forEach(service => {
                     const option = document.createElement('option');
                     option.value = service.id;
-                    option.innerHTML = `${service.icon} ${service.name} (1K - ${service.pricePerK.toFixed(2)} AZN)`; // Fiyat bilgisi eklendi
+                    const priceText = `${service.pricePerK.toFixed(4)} AZN`; // 4 onluq rəqəm
+                    option.innerHTML = `${service.icon} ${service.name} (1K - ${priceText})`; // Fiyat bilgisi eklendi
                     serviceSelect.appendChild(option);
                 });
                 serviceSelect.disabled = false;
@@ -659,23 +717,24 @@
         });
 
         // Servis seçildiğinde fiyat ve min/max değerlerini göster
-        serviceSelect.addEventListener('change', () => {
+        serviceSelect.addEventListener('change', async () => {
             const selectedServiceId = serviceSelect.value;
-            // selectedService nesnesini bulurken selectedCategory'nin varlığını kontrol et
             selectedService = selectedCategory ? { 
                 ...selectedCategory.items.find(item => item.id === selectedServiceId),
-                // platform bilgisini selectedCategory'den al
                 platform: selectedCategory.platform 
             } : null;
 
-            resetOrderForm();
+            resetOrderForm(); // Servis değiştiğinde formu sıfırla
 
             if (selectedService) {
-                minQuantityEl.textContent = selectedService.min;
-                maxQuantityEl.textContent = selectedService.max;
+                quantityInput.disabled = false;
+                linkInput.disabled = false;
+                minQuantityEl.textContent = formatNumberWithDots(selectedService.min);
+                maxQuantityEl.textContent = formatNumberWithDots(selectedService.max);
                 quantityInput.min = selectedService.min;
                 quantityInput.max = selectedService.max;
                 avgTimeInput.value = selectedService.avgTime;
+                
                 calculateOrderPrice(); // Servis değiştiğinde fiyatı yeniden hesapla
                 updateDescriptionBox(); // Servis değiştiğinde açıklama kutusunu güncelle
             } else {
@@ -683,8 +742,12 @@
             }
         });
 
-        // Miktar girildiğinde fiyatı hesapla
-        quantityInput.addEventListener('input', calculateOrderPrice);
+        // Miktar girildiğinde fiyatı hesapla ve formatla
+        quantityInput.addEventListener('input', () => {
+            const rawValue = quantityInput.value.replace(/\D/g, ''); // Sadece rəqəmləri al
+            quantityInput.value = formatNumberWithDots(rawValue); // Formatlaşdırılmış dəyəri göstər
+            calculateOrderPrice();
+        });
 
         function calculateOrderPrice() {
             if (!selectedService) {
@@ -693,7 +756,9 @@
                 return;
             }
 
-            const quantity = parseInt(quantityInput.value);
+            // Formatlanmış rəqəmdən nöqtələri silərək tam rəqəm alırıq
+            const quantity = parseInt(quantityInput.value.replace(/\./g, ''));
+
             if (isNaN(quantity)) {
                 priceInput.value = '';
                 placeOrderButton.disabled = true;
@@ -704,15 +769,14 @@
             if (quantity < selectedService.min || quantity > selectedService.max) {
                 priceInput.value = '';
                 placeOrderButton.disabled = true;
-                // Sadece hata varsa mesajı göster, aksi takdirde gizle
                 if (quantity > 0) { // Sadece pozitif miktarlar için hata göster
-                    showAlert(`Miqdar ${selectedService.min} ilə ${selectedService.max} arasında olmalıdır.`, 'error', 4000);
+                    showAlert(`Miqdar ${formatNumberWithDots(selectedService.min)} ilə ${formatNumberWithDots(selectedService.max)} arasında olmalıdır.`, 'error', 4000);
                 }
                 return;
             }
 
             const price = (quantity / 1000) * selectedService.pricePerK;
-            priceInput.value = `${price.toFixed(2)} AZN`;
+            priceInput.value = `${price.toFixed(4)} AZN`; // 4 onluq rəqəm
             placeOrderButton.disabled = false;
         }
 
@@ -720,6 +784,7 @@
         function resetOrderForm() {
             linkInput.value = '';
             quantityInput.value = '';
+            quantityInput.disabled = false; // Resetləyəndə aktiv olsun
             avgTimeInput.value = '';
             priceInput.value = '';
             minQuantityEl.textContent = '0';
@@ -730,8 +795,8 @@
         // Açıqlama qutusunu yenilə
         function updateDescriptionBox() {
             if (selectedService) {
-                descMinQuantity.textContent = selectedService.min;
-                descMaxQuantity.textContent = selectedService.max;
+                descMinQuantity.textContent = formatNumberWithDots(selectedService.min);
+                descMaxQuantity.textContent = formatNumberWithDots(selectedService.max);
                 descAvgTime.textContent = selectedService.avgTime;
             } else {
                 descMinQuantity.textContent = 'N/A';
@@ -750,7 +815,6 @@
             // WhatsApp linkini dinamik olarak güncelle
             whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent('Salam, mənim istifadəçi ID-m: ' + currentUserId + '. Balans artırmaq istəyirəm.')}`;
             bankCardNumberEl.textContent = PAYMENT_CARD_NUMBER; // Kart numarasını ayarla
-            console.log("Balans Artır modalı açıldı."); // Debug log
         });
 
         // Alt navigasyondaki "Balans əlavə et" butonu
@@ -762,11 +826,8 @@
         // Balans artırma modalını kapat (X düyməsi)
         if (closeTopUpModalButton) {
             closeTopUpModalButton.addEventListener('click', () => {
-                topUpModal.classList.remove('show'); // 'show' sınıfını kaldırarak gizle
-                console.log("Balans Artır modalı kapatıldı (X butonu ile)."); // Debug log
+                topUpModal.classList.remove('show'); // 'show' sınıfını kaldırarak gizlə
             });
-        } else {
-            console.error("closeTopUpModalButton elementi bulunamadı!");
         }
 
         // Modala dış tıklama ile kapatma
@@ -774,12 +835,9 @@
             topUpModal.addEventListener('click', (event) => {
                 // Sadece modalın arka planına tıklandığında kapanması için kontrol et
                 if (event.target === topUpModal) {
-                    topUpModal.classList.remove('show'); // 'show' sınıfını kaldırarak gizle
-                    console.log("Balans Artır modalı kapatıldı (dış tıklama ile)."); // Debug log
+                    topUpModal.classList.remove('show'); // 'show' sınıfını kaldırarak gizlə
                 }
             });
-        } else {
-            console.error("topUpModal elementi bulunamadı!");
         }
 
         // Floating WhatsApp Bubble'ı başlat
@@ -792,90 +850,88 @@
             });
         }
 
+        // Başlıqdakı Kampaniyalar düyməsinə klikləmə hadisəsi
+        if (headerCampaignsButton) {
+            headerCampaignsButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (campaignsSection) {
+                    campaignsSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        }
 
         // Sipariş oluştur
         placeOrderButton.addEventListener('click', async () => {
             if (!currentUserId) {
                 showAlert("Sifariş vermək üçün sistemə daxil olmalısınız.", 'error');
-                console.error("Sifariş xətası: currentUserId boşdur.");
                 return;
             }
             if (!selectedService || !linkInput.value.trim() || !quantityInput.value.trim()) {
                 showAlert("Zəhmət olmasa, bütün sifariş detallarını doldurun.", 'error');
-                console.error("Sifariş xətası: Seçili xidmət, link və ya miqdar boşdur.");
                 return;
             }
 
-            const quantity = parseInt(quantityInput.value);
+            // Formatlanmış miqdarı rəqəmə çevir
+            const quantity = parseInt(quantityInput.value.replace(/\./g, ''));
             const priceText = priceInput.value;
             const totalPrice = parseFloat(priceText.replace(' AZN', ''));
-
-            if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
-                showAlert(`Miqdar ${selectedService.min} ilə ${selectedService.max} arasında olmalıdır.`, 'error');
-                console.error(`Sifariş xətası: Miqdar ${quantity} aralıqdan kənardadır (${selectedService.min}-${selectedService.max}).`);
-                return;
-            }
-
+            
+            // Ödənişli servislər üçün yoxlamalar
             if (userBalance < totalPrice) {
                 showAlert("Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.", 'error');
-                console.error(`Sifariş xətası: Balans yetərli deyil. Cari: ${userBalance}, Tələb olunan: ${totalPrice}.`);
+                return;
+            }
+            if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
+                showAlert(`Miqdar ${formatNumberWithDots(selectedService.min)} ilə ${formatNumberWithDots(selectedService.max)} arasında olmalıdır.`, 'error');
                 return;
             }
 
             try {
-                // API çağırışı hissəsi tamamilə silindi, indi birbaşa Firebase'ə yazılır
-                console.log("Sifariş Firebase'e gönderiliyor (manuel işlem için)...");
                 const orderData = {
                     userId: currentUserId,
                     serviceId: selectedService.id,
                     serviceName: selectedService.name,
-                    platform: selectedService.platform, 
+                    platform: selectedService.platform,
                     link: linkInput.value.trim(),
                     quantity: quantity,
                     totalPrice: totalPrice,
                     avgTime: selectedService.avgTime,
-                    timestamp: serverTimestamp(), // Burası Firebase Timestamp oluşturur
-                    status: 'pending', // Manuel işlem için başlangıç statusu
-                    isNew: true, // Yeni: Sifarişin yeni olduğunu qeyd etmək üçün
-                    // externalOrderId ve apiProvider artık kaydedilmiyor
+                    timestamp: serverTimestamp(),
+                    status: 'pending',
+                    isNew: true,
                 };
-                console.log("Sifariş data-sı:", orderData);
-
-                // Sifariş detallarını Firebase'deki new_orders kolleksiyasına kaydet
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
-
-                // Balansı güncelle (Firebase'de)
+                
+                // Həmişə 'orders' kolleksiyasına yazılır
+                const orderCollectionRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
                 const userDocRef = doc(db, `users`, currentUserId);
+                
+                // Balansı yenilə (4 onluq rəqəmlə)
                 await updateDoc(userDocRef, {
-                    balance: userBalance - totalPrice
+                    balance: parseFloat((userBalance - totalPrice).toFixed(4)) // Balansı yuvarlaqlaşdırıb yenilə
                 });
-                userBalance -= totalPrice;
-                userBalanceEl.textContent = `${userBalance.toFixed(2)} AZN`;
+                userBalance = parseFloat((userBalance - totalPrice).toFixed(4)); // Cari balansı da yenilə
+                userBalanceEl.textContent = `${userBalance.toFixed(4)} AZN`; // UI-da da 4 onluq rəqəm göstər
+                
+                const newOrderRef = await addDoc(orderCollectionRef, orderData);
 
-                // Kullanıcıya siparişin kaydedildiğini ve admini bilgilendirmesi gerektiğini söyle (API ID'si olmadan)
                 showAlert(`Sifarişiniz yerləşdirildi! Sifariş ID-si: ${newOrderRef.id}. Zəhmət olmasa, adminə WhatsAppdan bu ID-ni göndərin: ${newOrderRef.id}`, 'success', 10000);
                 
-                resetOrderForm();
-                categorySelect.value = "";
-                serviceSelect.innerHTML = '<option value="">Servis Seçin</option>';
-                serviceSelect.disabled = true;
+                resetOrderForm(); // Formu sıfırla
+                categorySelect.value = ""; // Kateqoriyanı sıfırla
+                serviceSelect.innerHTML = '<option value="">Servis Seçin</option>'; // Servis seçimi boşalsın
+                serviceSelect.disabled = true; // Servis seçimi deaktiv olsun
                 selectedCategory = null;
                 selectedService = null;
-                updateDescriptionBox(); // Sipariş sonrası açıklama kutusunu sıfırla/güncelle
+                updateDescriptionBox(); // Açıqlama qutusunu sıfırla/güncəllə
 
                 // Sifariş tamamlandıqdan sonra orders.html səhifəsinə yönləndir
                 setTimeout(() => {
-                    window.location.href = 'orders.html'; 
+                    window.location.href = 'orders.html';
                 }, 1000);
 
             } catch (error) {
-                console.error("Sifariş yerləşdirmə xətası (catch blokunda):", error);
-                // Artık API hatası değil, doğrudan Firebase veya başka bir JS hatası
-                if (error.code) {
-                    showAlert(`Sifariş yerləşdirərkən xəta: ${error.code}. Detaylar üçün konsolu yoxlayın.`, 'error', 5000);
-                } else {
-                    showAlert("Sifariş yerləşdirərkən gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
-                }
+                console.error("Sifariş yerləşdirmə xətası:", error);
+                showAlert("Sifariş yerləşdirərkən gözlənilməz xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 'error');
             }
         });
 
@@ -887,3 +943,4 @@
     </script>
 </body>
 </html>
+�
