@@ -29,6 +29,7 @@
             overflow: hidden;
             border: 1px solid rgba(56, 229, 183, 0.2); /* Zərif sərhəd */
             border-radius: 1.5rem; /* Daha yumşaq künclər */
+            cursor: pointer; /* Kliklənə bilən olduğunu göstərir */
         }
         .hover-quantum-glow:hover {
             transform: translateY(-15px) rotateX(1deg) rotateY(1deg); /* Daha dinamik lift və 3D dönmə */
@@ -307,7 +308,7 @@
         <canvas id="interactive-background-canvas"></canvas>
 
         <div class="hero-overlay"></div>
-        <div class="relative z-10 px-4 py-24 lg:py-48 max-w-7xl mx-auto"> <!-- Padding azaldıldı -->
+        <div class="relative z-10 px-4 py-24 lg:py-48 max-w-7xl mx-auto">
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold text-white leading-tight mb-10 hero-text-shadow fade-in">
                 Bizimlə <span class="text-green-400">Rəqəmsal Gələcəyi Yaradın!</span>
             </h1>
@@ -459,19 +460,19 @@
                 Layihəniz haqqında danışmaq, suallarınızı cavablandırmaq və ya sadəcə salamlaşmaq üçün bizimlə əlaqə saxlayın. Komandamız hər zaman yanınızdadır!
             </p>
             <div class="flex flex-col md:flex-row justify-center items-center space-y-12 md:space-y-0 md:space-x-20 flex-wrap">
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card">
+                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('https://wa.me/994606006162?text=Salam, veb sayt qurmaq isdəyirəm.', '_blank');">
                     <i class="fab fa-whatsapp text-green-400 text-7xl contact-icon"></i>
-                    <a href="https://wa.me/994606006162" target="_blank" class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">WhatsApp</a>
+                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">WhatsApp</span>
                     <span class="text-gray-400 text-xl font-medium">060-600-61-62</span>
                 </div>
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card">
+                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('mailto:ibadulla.hesen@gmail.com', '_blank');">
                     <i class="fas fa-envelope-open-text text-green-400 text-7xl contact-icon"></i>
-                    <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Email</a>
+                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Email</span>
                     <span class="text-gray-400 text-xl font-medium">ibadulla.hesen@gmail.com</span>
                 </div>
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card">
+                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('https://www.instagram.com/ibadulla_hasanov_official', '_blank');">
                     <i class="fab fa-instagram text-green-400 text-7xl contact-icon"></i>
-                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Instagram</a>
+                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Instagram</span>
                     <span class="text-gray-400 text-xl font-medium">@ibadulla_hasanov_official</span>
                 </div>
             </div>
@@ -596,141 +597,6 @@
                 behavior: 'smooth'
             });
         });
-
-        // İnteraktiv fon üçün JavaScript kodu
-        window.onload = function() {
-            const canvas = document.getElementById('interactive-background-canvas');
-            const ctx = canvas.getContext('2d');
-            let particles = [];
-            let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-            const particleCount = 100; // Hissəciklərin sayını daha da artırdım
-            const maxLineDistance = 180; // Xətlərin çəkiləcəyi maksimum məsafəni artırdım
-
-            // Canvas ölçülərini tənzimləyin
-            function resizeCanvas() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-
-            // Maus və ya toxunuş hərəkətlərini izləyin
-            window.addEventListener('mousemove', function(e) {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
-            });
-
-            window.addEventListener('touchmove', function(e) {
-                if (e.touches.length > 0) {
-                    mouse.x = e.touches[0].clientX;
-                    mouse.y = e.touches[0].clientY;
-                }
-            }, { passive: false });
-
-            // Hissəcik (Particle) obyekti
-            function Particle(x, y) {
-                this.x = x;
-                this.y = y;
-                this.size = Math.random() * 6 + 3; // Daha kiçik hissəciklər (3px - 9px arası)
-                this.baseSize = this.size;
-                this.speedX = Math.random() * 0.8 - 0.4; // Daha yavaş, incə hərəkət
-                this.speedY = Math.random() * 0.8 - 0.4;
-                this.opacity = Math.random() * 0.4 + 0.6; // Başlanğıcda 0.6-1.0 arasında şəffaflıq
-            }
-
-            // Hissəciyi çək
-            Particle.prototype.draw = function() {
-                ctx.beginPath();
-                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-                gradient.addColorStop(0, `rgba(56, 229, 183, ${this.opacity * 0.8})`); /* Parlaq mərkəz */
-                gradient.addColorStop(0.5, `rgba(56, 229, 183, ${this.opacity * 0.4})`);
-                gradient.addColorStop(1, `rgba(56, 229, 183, 0)`); /* Kənarlara doğru şəffaflaşır */
-                ctx.fillStyle = gradient;
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            };
-
-            // Hissəciyi yenilə
-            Particle.prototype.update = function() {
-                // Mausun mövqeyinə doğru hərəkət
-                const dx = mouse.x - this.x;
-                const dy = mouse.y - this.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                const force = distance < 280 ? 0.07 : 0.007; // Maus yaxın olduqda daha çox cəlb etsin, daha geniş radius
-                const repulsionForce = distance < 60 ? -0.15 : 0; // Çox yaxın olduqda itələsin
-
-                this.speedX += dx * force + (dx * repulsionForce / distance);
-                this.speedY += dy * force + (dy * repulsionForce / distance);
-
-                // Sürtünmə effekti
-                this.speedX *= 0.96;
-                this.speedY *= 0.96;
-
-                // Hissəciklərin sərhədlərdən kənara çıxmamasını təmin edin
-                if (this.x + this.size > canvas.width || this.x - this.size < 0) {
-                    this.speedX *= -1;
-                }
-                if (this.y + this.size > canvas.height || this.y - this.size < 0) {
-                    this.speedY *= -1;
-                }
-
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                // Ölçüsü hover zamanı dəyişsin
-                if (distance < 120) { // Maus yaxın olduqda böyüsün
-                    this.size = this.baseSize * 1.8; // Daha çox böyümə
-                } else {
-                    this.size = this.baseSize;
-                }
-            };
-
-            // Hissəcikləri bir-birinə bağlayan xətlər çək
-            function connectParticles() {
-                for (let a = 0; a < particles.length; a++) {
-                    for (let b = a; b < particles.length; b++) {
-                        const dx = particles[a].x - particles[b].x;
-                        const dy = particles[a].y - particles[b].y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        if (distance < maxLineDistance) {
-                            ctx.strokeStyle = `rgba(56, 229, 183, ${1 - (distance / maxLineDistance) * 0.8})`; /* Məsafəyə görə şəffaflıq */
-                            ctx.lineWidth = 1;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[a].x, particles[a].y);
-                            ctx.lineTo(particles[b].x, particles[b].y);
-                            ctx.stroke();
-                        }
-                    }
-                }
-            }
-
-            // Hissəcikləri yarat
-            function initParticles() {
-                particles = [];
-                for (let i = 0; i < particleCount; i++) {
-                    const x = Math.random() * canvas.width;
-                    const y = Math.random() * canvas.height;
-                    particles.push(new Particle(x, y));
-                }
-            }
-
-            // Animasiya dövrü
-            function animate() {
-                requestAnimationFrame(animate);
-                ctx.clearRect(0, 0, canvas.width, canvas.height); // Kanvası təmizləyin
-                connectParticles(); // Hissəcikləri birləşdirən xətləri çək
-                for (let i = 0; i < particles.length; i++) {
-                    particles[i].update();
-                    particles[i].draw();
-                }
-            }
-
-            // Başlanğıc
-            initParticles();
-            animate();
-        };
     </script>
 </body>
 </html>
