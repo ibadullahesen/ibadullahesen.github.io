@@ -82,8 +82,6 @@
         .btn-secondary { background-color: var(--secondary); color: var(--text-primary); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .separator { height: 1px; background-color: var(--border); margin: 1.5rem 0; }
-        .alert { padding: 1rem; border-radius: 0.5rem; display: flex; align-items: center; border: 1px solid transparent; }
-        .alert-destructive { background-color: rgba(239, 68, 68, 0.1); color: var(--destructive); border-color: rgba(239, 68, 68, 0.2); }
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--card-background); border-top: 1px solid var(--border); z-index: 50; }
         .bottom-nav a.active { color: var(--primary); }
         .dialog-overlay {
@@ -243,14 +241,10 @@
                     </div>
                 </div>
                 <div class="separator"></div>
-                <button id="place-order-button" class="btn btn-primary btn-lg w-full" disabled>
+                <button id="place-order-button" class="btn btn-primary btn-lg w-full">
                     <i class="fas fa-check-circle mr-2"></i>
                     Sifariş Yarat
                 </button>
-                 <div id="balance-alert" class="alert alert-destructive hidden">
-                    <i class="fas fa-exclamation-circle h-4 w-4"></i>
-                    <p class="ml-2 text-sm">Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.</p>
-                </div>
             </div>
         </div>
 
@@ -363,7 +357,7 @@
         ];
         
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null;
-        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), balanceAlert: document.getElementById('balance-alert'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section') };
+        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section') };
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         
@@ -391,34 +385,8 @@
                 userBalance = 0;
                 DOMElements.userBalance.textContent = `0.0000 AZN`;
             }
-            // This is the key fix: After balance is updated, re-check form validity
-            checkFormValidity();
         };
 
-        const checkFormValidity = () => {
-            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
-            const price = selectedService ? (quantity / 1000) * selectedService.pricePerK : 0;
-            const isLinkValid = DOMElements.linkInput.value.trim().length > 5;
-            
-            let isQuantityValid = false;
-            if (selectedService) {
-                if (quantity > 0 && quantity < selectedService.min) {
-                    DOMElements.quantityAlert.textContent = `Minimum sifariş ${formatNumber(selectedService.min)} ədəd olmalıdır.`;
-                    DOMElements.quantityAlert.classList.remove('hidden');
-                    isQuantityValid = false;
-                } else {
-                    DOMElements.quantityAlert.classList.add('hidden');
-                    isQuantityValid = quantity >= selectedService.min && quantity <= selectedService.max;
-                }
-            } else {
-                 DOMElements.quantityAlert.classList.add('hidden');
-            }
-            
-            const hasSufficientBalance = price <= userBalance;
-            DOMElements.placeOrderButton.disabled = !(selectedService && isLinkValid && isQuantityValid && hasSufficientBalance);
-            DOMElements.balanceAlert.classList.toggle('hidden', !(selectedService && price > 0 && !hasSufficientBalance));
-        };
-        
         const updateUIDisplay = () => {
             const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
             const price = selectedService ? (quantity / 1000) * selectedService.pricePerK : 0;
@@ -438,7 +406,6 @@
                 DOMElements.serviceDetailsContainer.classList.remove('grid');
                 DOMElements.descriptionBox.classList.add('hidden');
             }
-            checkFormValidity();
         };
 
         const createCustomDropdown = (wrapperId, placeholder) => {
@@ -521,13 +488,18 @@
         });
 
         onAuthStateChanged(auth, async (user) => {
-            if (user) { currentUserId = user.uid; } 
-            else {
+            let authUser = user;
+            if (!authUser) {
                 try {
-                    const cred = await signInAnonymously(auth); currentUserId = cred.user.uid;
-                } catch (e) { console.error("Anonim girişdə xəta:", e); showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error'); }
+                    const cred = await signInAnonymously(auth);
+                    authUser = cred.user;
+                } catch (e) {
+                    console.error("Anonim girişdə xəta:", e);
+                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
+                }
             }
-            if (currentUserId) {
+            if (authUser) {
+                currentUserId = authUser.uid;
                 DOMElements.userIdDisplay.textContent = currentUserId;
                 await updateBalanceUI(currentUserId);
                 const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
@@ -536,40 +508,27 @@
             }
         });
 
+        const validateInputs = () => {
+            if (!selectedService || !DOMElements.linkInput.value.trim() || !DOMElements.quantityInput.value.trim()) {
+                showAlert("Bütün sahələri doldurun.", 'error');
+                return false;
+            }
+            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
+             if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
+                showAlert(`Miqdar ${formatNumber(selectedService.min)} ilə ${formatNumber(selectedService.max)} arasında olmalıdır.`, 'error');
+                return false;
+            }
+            return true;
+        }
+
         ['input', 'change'].forEach(evt => {
             DOMElements.quantityInput.addEventListener(evt, () => {
                 DOMElements.quantityInput.value = formatNumber(DOMElements.quantityInput.value.replace(/\D/g, ''));
                 updateUIDisplay();
             });
-            DOMElements.linkInput.addEventListener(evt, checkFormValidity);
+            DOMElements.linkInput.addEventListener(evt, updateUIDisplay);
         });
 
-        DOMElements.placeOrderButton.addEventListener('click', async () => {
-            if (DOMElements.placeOrderButton.disabled) return;
-            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
-            const totalPrice = (quantity / 1000) * selectedService.pricePerK;
-            try {
-                DOMElements.placeOrderButton.disabled = true;
-                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
-                const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
-                await updateDoc(doc(db, 'users', currentUserId), { balance: newBalance });
-                const orderData = { userId: currentUserId, serviceId: selectedService.id, serviceName: selectedService.name, platform: selectedService.platform, link: DOMElements.linkInput.value.trim(), quantity, totalPrice, timestamp: serverTimestamp(), status: 'pending' };
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
-                showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
-                categoryDropdown.reset();
-                serviceDropdown.reset();
-                DOMElements.linkInput.value = '';
-                DOMElements.quantityInput.value = '';
-                updateUIDisplay();
-                await updateBalanceUI(currentUserId); // Re-fetch balance after order
-
-            } catch (error) {
-                console.error("Sifariş xətası:", error);
-                showAlert("Sifariş zamanı xəta baş verdi.", 'error');
-            } finally {
-                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
-            }
-        });
         const toggleModal = (show) => {
             const modal = DOMElements.topUpModal;
             if (show) {
@@ -582,6 +541,48 @@
                 }, { once: true });
             }
         };
+
+        DOMElements.placeOrderButton.addEventListener('click', async () => {
+            if (!validateInputs()) return;
+
+            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
+            const totalPrice = (quantity / 1000) * selectedService.pricePerK;
+
+            if (userBalance < totalPrice) {
+                showAlert("Balansınız yetərli deyil! Zəhmət olmasa artırın.", 'error', 5000);
+                toggleModal(true);
+                return;
+            }
+
+            try {
+                DOMElements.placeOrderButton.disabled = true;
+                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
+                const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
+                await updateDoc(doc(db, 'users', currentUserId), { balance: newBalance });
+                const orderData = { userId: currentUserId, serviceId: selectedService.id, serviceName: selectedService.name, platform: selectedService.platform, link: DOMElements.linkInput.value.trim(), quantity, totalPrice, timestamp: serverTimestamp(), status: 'pending' };
+                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
+                showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
+                
+                // Reset form after successful order
+                categoryDropdown.reset();
+                serviceDropdown.reset();
+                DOMElements.linkInput.value = '';
+                DOMElements.quantityInput.value = '';
+                selectedCategory = null;
+                selectedService = null;
+                updateUIDisplay();
+
+                await updateBalanceUI(currentUserId); 
+
+            } catch (error) {
+                console.error("Sifariş xətası:", error);
+                showAlert("Sifariş zamanı xəta baş verdi.", 'error');
+            } finally {
+                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
+                DOMElements.placeOrderButton.disabled = false;
+            }
+        });
+
         [DOMElements.topUpButton, DOMElements.bottomNavTopUp].forEach(btn => btn.addEventListener('click', () => toggleModal(true)));
         DOMElements.closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
         DOMElements.topUpModal.addEventListener('click', (e) => { if (e.target === DOMElements.topUpModal) toggleModal(false); });
