@@ -174,7 +174,7 @@
                         <p class="text-lg font-semibold">
                             Balansın: <span id="user-balance" class="text-primary">0.0000 AZN</span>
                         </p>
-                        <p class="text-xs text-muted break-all">
+                        <p class="text-xs text-muted break-words">
                             ID: <span id="user-id-display" class="font-mono">Yüklənir...</span>
                         </p>
                     </div>
@@ -224,6 +224,7 @@
                     <p class="text-xs text-muted mt-1">
                         Min: <span id="min-quantity">0</span> &mdash; Maks: <span id="max-quantity">0</span>
                     </p>
+                    <p id="quantity-alert" class="text-xs text-red-500 mt-1 hidden"></p>
                 </div>
                 <div id="service-details-container" class="hidden grid-cols-2 gap-4">
                      <div class="space-y-2">
@@ -248,7 +249,7 @@
                 </button>
                  <div id="balance-alert" class="alert alert-destructive hidden">
                     <i class="fas fa-exclamation-circle h-4 w-4"></i>
-                    <p class="ml-2">Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.</p>
+                    <p class="ml-2 text-sm">Balansınız yetərli deyil. Zəhmət olmasa balansınızı artırın.</p>
                 </div>
             </div>
         </div>
@@ -366,9 +367,8 @@
             { platform: 'Youtube', category: 'Youtube İzlənmə Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } ] },
         ];
         
-        // --- The rest of the JavaScript is the same ---
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null;
-        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), balanceAlert: document.getElementById('balance-alert'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section') };
+        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), balanceAlert: document.getElementById('balance-alert'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section') };
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         
@@ -389,18 +389,37 @@
             const userDocRef = doc(db, 'users', uid);
             try {
                 const snap = await getDoc(userDocRef);
-                userBalance = (snap.exists() && snap.data().balance) ? snap.data().balance : 0;
+                userBalance = (snap.exists() && typeof snap.data().balance === 'number') ? snap.data().balance : 0;
                 DOMElements.userBalance.textContent = `${userBalance.toFixed(4)} AZN`;
-                checkFormValidity();
-            } catch (e) { console.error("Error updating balance:", e); }
+            } catch (e) { 
+                console.error("Error updating balance:", e); 
+                userBalance = 0;
+                DOMElements.userBalance.textContent = `0.0000 AZN`;
+            }
+            checkFormValidity();
         };
 
         const checkFormValidity = () => {
             const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
             const price = selectedService ? (quantity / 1000) * selectedService.pricePerK : 0;
             const isLinkValid = DOMElements.linkInput.value.trim().length > 5;
-            const isQuantityValid = selectedService && quantity >= selectedService.min && quantity <= selectedService.max;
+            
+            let isQuantityValid = false;
+            if (selectedService) {
+                if (quantity > 0 && quantity < selectedService.min) {
+                    DOMElements.quantityAlert.textContent = `Minimum sifariş ${formatNumber(selectedService.min)} ədəd olmalıdır.`;
+                    DOMElements.quantityAlert.classList.remove('hidden');
+                    isQuantityValid = false;
+                } else {
+                    DOMElements.quantityAlert.classList.add('hidden');
+                    isQuantityValid = quantity >= selectedService.min && quantity <= selectedService.max;
+                }
+            } else {
+                 DOMElements.quantityAlert.classList.add('hidden');
+            }
+
             const hasSufficientBalance = price <= userBalance;
+            
             DOMElements.placeOrderButton.disabled = !(selectedService && isLinkValid && isQuantityValid && hasSufficientBalance);
             DOMElements.balanceAlert.classList.toggle('hidden', !(selectedService && price > 0 && !hasSufficientBalance));
         };
@@ -472,14 +491,11 @@
         const serviceDropdown = createCustomDropdown('service-select', 'Servis Seçin');
 
         categoryDropdown.populate(
-            [...new Set(allServices.map(s => s.category))].map(catName => {
-                const catData = allServices.find(s => s.category === catName);
-                return {
-                    value: catName,
-                    label: catData.category.replace(/Youtube|TikTok|Instagram/g, '').trim(),
-                    iconClass: catData.categoryIconClass
-                };
-            })
+            allServices.map(catData => ({
+                value: catData.category,
+                label: catData.category.replace(/Youtube|TikTok|Instagram/g, '').trim(),
+                iconClass: catData.categoryIconClass
+            }))
         );
         
         categoryDropdown.wrapper.addEventListener('change', (e) => {
@@ -547,9 +563,9 @@
                 showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
                 categoryDropdown.reset();
                 serviceDropdown.reset();
-                updateUIDisplay();
                 DOMElements.linkInput.value = '';
                 DOMElements.quantityInput.value = '';
+                updateUIDisplay();
 
             } catch (error) {
                 console.error("Sifariş xətası:", error);
