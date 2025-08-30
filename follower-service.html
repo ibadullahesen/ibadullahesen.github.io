@@ -385,6 +385,7 @@
                 userBalance = 0;
                 DOMElements.userBalance.textContent = `0.0000 AZN`;
             }
+            updateUIDisplay();
         };
 
         const updateUIDisplay = () => {
@@ -392,7 +393,14 @@
             const price = selectedService ? (quantity / 1000) * selectedService.pricePerK : 0;
             DOMElements.minQuantity.textContent = selectedService ? formatNumber(selectedService.min) : '0';
             DOMElements.maxQuantity.textContent = selectedService ? formatNumber(selectedService.max) : '0';
+            
             if (selectedService) {
+                 if (quantity > 0 && quantity < selectedService.min) {
+                    DOMElements.quantityAlert.textContent = `Minimum sifariş ${formatNumber(selectedService.min)} ədəd olmalıdır.`;
+                    DOMElements.quantityAlert.classList.remove('hidden');
+                } else {
+                    DOMElements.quantityAlert.classList.add('hidden');
+                }
                 DOMElements.serviceDetailsContainer.classList.remove('hidden');
                 DOMElements.serviceDetailsContainer.classList.add('grid');
                 DOMElements.descriptionBox.classList.remove('hidden');
@@ -402,6 +410,7 @@
                 DOMElements.descMaxQuantity.textContent = formatNumber(selectedService.max);
                 DOMElements.descAvgTime.textContent = selectedService.avgTime;
             } else {
+                DOMElements.quantityAlert.classList.add('hidden');
                 DOMElements.serviceDetailsContainer.classList.add('hidden');
                 DOMElements.serviceDetailsContainer.classList.remove('grid');
                 DOMElements.descriptionBox.classList.add('hidden');
@@ -546,7 +555,7 @@
             if (!validateInputs()) return;
 
             const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
-            const totalPrice = (quantity / 1000) * selectedService.pricePerK;
+            const totalPrice = parseFloat(((quantity / 1000) * selectedService.pricePerK).toFixed(4));
 
             if (userBalance < totalPrice) {
                 showAlert("Balansınız yetərli deyil! Zəhmət olmasa artırın.", 'error', 5000);
@@ -559,27 +568,20 @@
                 DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
                 const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
                 await updateDoc(doc(db, 'users', currentUserId), { balance: newBalance });
-                const orderData = { userId: currentUserId, serviceId: selectedService.id, serviceName: selectedService.name, platform: selectedService.platform, link: DOMElements.linkInput.value.trim(), quantity, totalPrice, timestamp: serverTimestamp(), status: 'pending' };
+                const orderData = { userId: currentUserId, serviceId: selectedService.id, serviceName: selectedService.name, platform: selectedService.platform, link: DOMElements.linkInput.value.trim(), quantity, totalPrice, timestamp: serverTimestamp(), status: 'pending', isNew: true };
                 const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
+                
                 showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
                 
-                // Reset form after successful order
-                categoryDropdown.reset();
-                serviceDropdown.reset();
-                DOMElements.linkInput.value = '';
-                DOMElements.quantityInput.value = '';
-                selectedCategory = null;
-                selectedService = null;
-                updateUIDisplay();
-
-                await updateBalanceUI(currentUserId); 
+                setTimeout(() => {
+                    window.location.href = 'orders.html';
+                }, 1500);
 
             } catch (error) {
                 console.error("Sifariş xətası:", error);
                 showAlert("Sifariş zamanı xəta baş verdi.", 'error');
-            } finally {
-                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
                 DOMElements.placeOrderButton.disabled = false;
+                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
             }
         });
 
