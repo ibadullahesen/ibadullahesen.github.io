@@ -331,10 +331,10 @@
                 <div class="card-header"> <h3 class="card-title text-lg">Xidmət Haqqında Qeydlər</h3> </div>
                 <div class="card-content space-y-3 text-sm">
                      <div class="grid grid-cols-2 gap-4">
-                        <div><span class="font-medium text-muted">Min:</span> <span id="desc-min-quantity"></span></div>
-                        <div><span class="font-medium text-muted">Maks:</span> <span id="desc-max-quantity"></span></div>
+                        <div><span class="font-medium text-muted">Min:</span> <span id="desc-min-quantity">0</span></div>
+                        <div><span class="font-medium text-muted">Maks:</span> <span id="desc-max-quantity">0</span></div>
                         <div><span class="font-medium text-muted">Link:</span> <span>İstifadəçi Adı / Link</span></div>
-                        <div><span class="font-medium text-muted">Başlama:</span> <span id="desc-avg-time"></span></div>
+                        <div><span class="font-medium text-muted">Başlama:</span> <span id="desc-avg-time">N/A</span></div>
                      </div>
                      <div class="separator"></div>
                      <div class="space-y-2 text-muted">
@@ -445,7 +445,7 @@
             { platform: 'Instagram', category: 'Instagram Yorum,Paylaşım,Kaydetmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_comment', name: 'Yorum', iconClass: 'fas fa-comment', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 }, { id: 'instagram_save', name: 'Kaydetmə', iconClass: 'fas fa-save', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 }, { id: 'instagram_share', name: 'Paylaşma', iconClass: 'fas fa-share', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 } ] },
             { platform: 'TikTok', category: 'TikTok Takipçi Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_foreign_follower', name: 'Xarici Takipçi', iconClass: 'fab fa-tiktok', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 }, { id: '2000', name: 'Xarici Takipçi Yeni ucuz', iconClass: 'fab fa-tiktok', avgTime: '4 saat', min: 10, max: 10000000, pricePerK: 1.99 }, { id: 'tiktok_foreign_follower_no_guarantee', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 4.93 }, { id: 'tiktok_quality_follower_no_guarantee', name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 6.54 }, { id: 'tiktok_quality_follower_60_day_guarantee', name: 'Keyfiyyətli Takipçi (60 gün qaranti)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 6.99 } ] },
             { platform: 'TikTok', category: 'TikTok Bəyəni Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_like', name: 'Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 }, { id: '00005', name: 'Bəyəni "Özəl" (Min:100)', iconClass: 'fas fa-heart', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 }, { id: '00006', name: 'Bəyəni "Özəl-2" (Min:90.000)', iconClass: 'fas fa-heart', avgTime: '28 dəqiqə', min: 90000, max: 10000000, pricePerK: 0.12 }, { id: '00001', name: 'NEW Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 }, { id: '00002', name: 'Bəyəni (Min:150)', iconClass: 'fas fa-heart', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 }, { id: '00003', name: 'Bəyəni -Orta sürət- (Min:1.000)', iconClass: 'fas fa-heart', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 }, { id: '00004', name: 'Bəyəni ⭐Sürətli⭐ (Min:200)', iconClass: 'fas fa-heart', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 } ] },
-            { platform: 'TikTok', category: 'TikTok İzlənmə Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_view', name: 'Video İzlənmə (Min:100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.01 }, { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min:100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, { id: '000012', name: 'İzlənmə (Min:10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } ] },
+            { platform: 'TikTok', category: 'TikTok İzlənmə Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_view', name: 'Video İzlənmə (Min:100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.006 }, { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min:100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, { id: '000012', name: 'İzlənmə (Min:10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } ] },
             { platform: 'TikTok', category: 'TikTok Digər Servislər', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_share', name: 'Video Paylaşma', iconClass: 'fas fa-share', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 }, { id: 'tiktok_video_save', name: 'Video Kaydetmə', iconClass: 'fas fa-save', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 }, { id: 'tiktok_profile_view', name: 'Profil Görüntüləmə', iconClass: 'fas fa-user', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 } ] },
             { platform: 'Youtube', category: 'Youtube Abonəçi Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } ] },
             { platform: 'Youtube', category: 'Youtube Bəyəni Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } ] },
@@ -456,6 +456,7 @@
         const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), defaultDesc: document.getElementById('default-desc'), kesfetDesc: document.getElementById('kesfet-desc'), kesfetDescText: document.getElementById('kesfet-desc-text'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section'), categoryWrapper: document.getElementById('category-wrapper'), serviceWrapper: document.getElementById('service-wrapper'), linkWrapper: document.getElementById('link-wrapper'), quantityWrapper: document.getElementById('quantity-wrapper'), kesfetWrapper: document.getElementById('kesfet-wrapper'), kesfetSlider: document.getElementById('kesfet-slider'), kesfetNumber: document.getElementById('kesfet-number'), serviceDetailsWrapper: document.getElementById('service-details-container') };
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        const formatPriceForDisplay = (num) => parseFloat(num.toFixed(6));
         
         const showAlert = (message, type = 'error', duration = 4000) => {
             const alertBox = document.createElement('div');
@@ -502,6 +503,9 @@
                 price = (quantity / 1000) * selectedService.pricePerK;
                 avgTime = selectedService.avgTime;
                 
+                DOMElements.minQuantity.textContent = formatNumber(selectedService.min);
+                DOMElements.maxQuantity.textContent = formatNumber(selectedService.max);
+
                 if (quantity > 0 && quantity < selectedService.min) {
                     DOMElements.quantityAlert.textContent = `Minimum sifariş ${formatNumber(selectedService.min)} ədəd olmalıdır.`;
                     DOMElements.quantityAlert.classList.remove('hidden');
@@ -514,6 +518,9 @@
                 DOMElements.descMinQuantity.textContent = formatNumber(selectedService.min);
                 DOMElements.descMaxQuantity.textContent = formatNumber(selectedService.max);
                 DOMElements.descAvgTime.textContent = avgTime;
+            } else {
+                DOMElements.minQuantity.textContent = '0';
+                DOMElements.maxQuantity.textContent = '0';
             }
 
             if (isDetailsVisible) {
@@ -521,7 +528,7 @@
                 DOMElements.serviceDetailsWrapper.classList.add('grid');
                 DOMElements.descriptionBox.classList.remove('hidden');
 
-                DOMElements.priceDisplay.textContent = `${price.toFixed(4)} AZN`;
+                DOMElements.priceDisplay.textContent = `${formatPriceForDisplay(price)} AZN`;
                 DOMElements.avgTimeDisplay.textContent = avgTime;
             } else {
                 DOMElements.serviceDetailsWrapper.classList.add('hidden');
@@ -609,11 +616,14 @@
                 DOMElements.linkInput.placeholder = 'Profil və ya paylaşım linkini daxil edin';
 
                 if (selectedCategory) {
-                    const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => ({
-                        value: service.id,
-                        label: `${service.name} - (${service.pricePerK.toFixed(2)} AZN/1K)`,
-                        iconClass: service.iconClass
-                    }));
+                    const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => {
+                        const priceText = formatPriceForDisplay(service.pricePerK);
+                        return {
+                            value: service.id,
+                            label: `${service.name} - (${priceText} AZN/1K)`,
+                            iconClass: service.iconClass
+                        }
+                    });
                     serviceDropdown.populate(serviceItems);
                 }
             }
