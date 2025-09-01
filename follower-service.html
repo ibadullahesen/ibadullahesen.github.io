@@ -114,8 +114,6 @@
         .alert-message.show { opacity: 1; bottom: 100px; }
         .alert-message.success { background-color: #10b981; }
         .alert-message.error { background-color: var(--destructive); }
-        
-        /* Custom Select Styles */
         .custom-select-wrapper { position: relative; }
         .custom-select-trigger {
             width: 100%; padding: 0.75rem; border-radius: 0.5rem;
@@ -142,6 +140,71 @@
         .custom-select-options li:hover { background-color: var(--secondary); }
         .custom-select-options li .icon { width: 1.25em; text-align: center; }
         .custom-select-trigger .placeholder { color: var(--text-muted); }
+
+        /* Marquee styles */
+        .marquee-container {
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--card-background);
+            padding: 0.3rem 0;
+            position: relative;
+            white-space: nowrap;
+        }
+        .marquee-container:before,
+        .marquee-container:after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50px;
+            z-index: 2;
+        }
+        .marquee-container:before {
+            left: 0;
+            background: linear-gradient(to right, var(--card-background), transparent);
+        }
+        .marquee-container:after {
+            right: 0;
+            background: linear-gradient(to left, var(--card-background), transparent);
+        }
+        .marquee-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: var(--input-bg);
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -7px;
+        }
     </style>
 </head>
 <body class="pb-20">
@@ -162,6 +225,12 @@
             </div>
         </div>
     </header>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <i class="fas fa-info-circle mx-2"></i> sifariş verməzdən əvvəl sifariş haqqında qeydləri oxuyun !
+        </div>
+    </div>
 
     <main class="container mx-auto px-4 py-8">
         
@@ -191,8 +260,9 @@
                     <span>Yeni Sifariş</span>
                 </h2>
             </div>
-            <div class="card-content space-y-6">
-                <div class="space-y-2">
+            <div id="order-form-fields" class="card-content flex flex-col space-y-6">
+                <!-- Form fields will be dynamically ordered and shown/hidden here -->
+                <div id="category-wrapper" class="space-y-2" style="order: 1;">
                     <label class="label">Kateqoriya</label>
                     <div id="category-select" class="custom-select-wrapper">
                         <div class="custom-select-trigger">
@@ -202,7 +272,7 @@
                         <ul class="custom-select-options"></ul>
                     </div>
                 </div>
-                <div class="space-y-2">
+                <div id="service-wrapper" class="space-y-2" style="order: 2;">
                     <label class="label">Servis</label>
                      <div id="service-select" class="custom-select-wrapper">
                         <div class="custom-select-trigger">
@@ -212,11 +282,11 @@
                         <ul class="custom-select-options"></ul>
                     </div>
                 </div>
-                <div class="space-y-2">
+                <div id="link-wrapper" class="space-y-2" style="order: 3;">
                     <label for="link-input" class="label">Link</label>
                     <input type="text" id="link-input" placeholder="Profil və ya paylaşım linkini daxil edin" class="input">
                 </div>
-                <div class="space-y-2">
+                <div id="quantity-wrapper" class="space-y-2" style="order: 4;">
                     <label for="quantity-input" class="label">Miqdar</label>
                     <input type="text" id="quantity-input" placeholder="Sifariş miqdarını yazın" class="input">
                     <p class="text-xs text-muted mt-1">
@@ -224,12 +294,19 @@
                     </p>
                     <p id="quantity-alert" class="text-xs text-red-500 mt-1 hidden"></p>
                 </div>
-                <div id="service-details-container" class="hidden grid-cols-2 gap-4">
+                <div id="kesfet-wrapper" class="space-y-2 hidden" style="order: 4;">
+                    <label class="label">Təsir Faizi (%)</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="kesfet-slider" min="25" max="100" value="25" class="w-full">
+                        <input type="number" id="kesfet-number" min="25" max="100" value="25" class="input w-24 text-center">
+                    </div>
+                </div>
+                <div id="service-details-container" class="hidden grid-cols-2 gap-4" style="order: 5;">
                      <div class="space-y-2">
                         <label class="label">Ortalama Vaxt</label>
                         <div class="flex items-center space-x-2 p-3 bg-gray-700 rounded-lg">
                             <i class="fas fa-clock text-muted"></i>
-                            <span id="avg-time-display" class="text-sm"></span>
+                            <span id="avg-time-display" class="text-sm">N/A</span>
                         </div>
                     </div>
                     <div class="space-y-2">
@@ -240,8 +317,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="separator"></div>
-                <button id="place-order-button" class="btn btn-primary btn-lg w-full">
+                <div class="separator" style="order: 6;"></div>
+                <button id="place-order-button" class="btn btn-primary btn-lg w-full" style="order: 7;">
                     <i class="fas fa-check-circle mr-2"></i>
                     Sifariş Yarat
                 </button>
@@ -249,19 +326,37 @@
         </div>
 
         <div id="description-box" class="card mt-6 hidden">
-            <div class="card-header"> <h3 class="card-title text-lg">Xidmət Haqqında Qeydlər</h3> </div>
-            <div class="card-content space-y-3 text-sm">
-                 <div class="grid grid-cols-2 gap-4">
-                    <div><span class="font-medium text-muted">Min:</span> <span id="desc-min-quantity"></span></div>
-                    <div><span class="font-medium text-muted">Maks:</span> <span id="desc-max-quantity"></span></div>
-                    <div><span class="font-medium text-muted">Link:</span> <span>İstifadəçi Adı / Link</span></div>
-                    <div><span class="font-medium text-muted">Başlama:</span> <span id="desc-avg-time"></span></div>
-                 </div>
-                 <div class="separator"></div>
-                 <div class="space-y-2 text-muted">
-                    <p class="flex items-start space-x-2"><i class="fas fa-info-circle w-4 h-4 mt-0.5"></i><span>Xidmətin başlama sürəti serverin sıxlığına görə dəyişə bilər.</span></p>
-                    <p class="flex items-start space-x-2"><i class="fas fa-info-circle w-4 h-4 mt-0.5"></i><span>Eyni linkə sifariş tamamlanmadan ikinci sifarişi verməyin.</span></p>
-                 </div>
+             <!-- Default Description -->
+            <div id="default-desc">
+                <div class="card-header"> <h3 class="card-title text-lg">Xidmət Haqqında Qeydlər</h3> </div>
+                <div class="card-content space-y-3 text-sm">
+                     <div class="grid grid-cols-2 gap-4">
+                        <div><span class="font-medium text-muted">Min:</span> <span id="desc-min-quantity"></span></div>
+                        <div><span class="font-medium text-muted">Maks:</span> <span id="desc-max-quantity"></span></div>
+                        <div><span class="font-medium text-muted">Link:</span> <span>İstifadəçi Adı / Link</span></div>
+                        <div><span class="font-medium text-muted">Başlama:</span> <span id="desc-avg-time"></span></div>
+                     </div>
+                     <div class="separator"></div>
+                     <div class="space-y-2 text-muted">
+                        <p class="flex items-start space-x-2"><i class="fas fa-info-circle w-4 h-4 mt-0.5"></i><span>Xidmətin başlama sürəti serverin sıxlığına görə dəyişə bilər.</span></p>
+                        <p class="flex items-start space-x-2"><i class="fas fa-info-circle w-4 h-4 mt-0.5"></i><span>Eyni linkə sifariş tamamlanmadan ikinci sifarişi verməyin.</span></p>
+                     </div>
+                </div>
+            </div>
+            <!-- Keşfet Description -->
+            <div id="kesfet-desc" class="hidden">
+                <div class="card-header"> <h3 class="card-title text-lg">Keşfet Paketi Haqqında</h3> </div>
+                <div class="card-content space-y-3 text-sm text-muted">
+                    <p class="flex items-start space-x-2">
+                        <i class="fas fa-check-circle text-primary w-4 h-4 mt-0.5"></i>
+                        <span id="kesfet-desc-text"></span>
+                    </p>
+                    <div class="separator"></div>
+                    <p class="flex items-start space-x-2">
+                        <i class="fas fa-info-circle w-4 h-4 mt-0.5"></i>
+                        <span>Effektin tam görünməsi prosesin tamamlanmasından sonra başlayır.</span>
+                    </p>
+                </div>
             </div>
         </div>
         
@@ -343,6 +438,7 @@
         const db = getFirestore(app);
 
         const allServices = [
+            { platform: 'Instagram', category: 'Instagram Keşfet Paketi 🚀', categoryIconClass: 'fab fa-instagram text-pink-500', isDiscoveryPackage: true, items: [ { id: 'discovery-package', name: 'Keşfet Paketi', pricePer100Percent: 309, min: 25, max: 100, avgTime: '100-300 Saat', description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' } ] },
             { platform: 'Instagram', category: 'Instagram Takipçi Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_follower', name: 'Takipçi❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 }, { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 }, { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 }, { id: 'instagram_30day_guarantee', name: '30 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 }, { id: 'instagram_100day_guarantee', name: '100 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 }, { id: 'instagram_365day_guarantee', name: '365 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 }, { id: '3000', name: '365 Gün Garantili (⭐İşlək servis⭐)', iconClass: 'fab fa-instagram', avgTime: '71 dəqiqə', min: 10, max: 50000, pricePerK: 9.79 }, { id: 'instagram_lifetime_guarantee', name: 'Ömür Boyu Garantili', iconClass: 'fas fa-infinity', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6.00 } ] },
             { platform: 'Instagram', category: 'Instagram Bəyəni Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_like', name: 'Bəyəni (az enməz) (Min:10)', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 }, { id: '1001', name: 'Bəyəni (heç vaxt enməz) (Min:30.000)', iconClass: 'fas fa-heart text-pink-500', avgTime: '32 dəqiqə', min: 30000, max: 10000000, pricePerK: 0.29 }, { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur)', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 }, { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 } ] },
             { platform: 'Instagram', category: 'Instagram İzlənmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_video_view', name: 'Video İzlənmə', iconClass: 'fas fa-eye', avgTime: '3 saat', min: 100, max: 50000000, pricePerK: 0.12 }, { id: '10000', name: 'Video İzlənmə ⭐Sürətli⭐', iconClass: 'fas fa-eye', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.21 }, { id: 'instagram_az_video_view', name: 'Azərbaycanlı Video İzlənmə 🇦🇿', iconClass: 'fas fa-eye', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 } ] },
@@ -357,7 +453,7 @@
         ];
         
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null;
-        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section') };
+        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), defaultDesc: document.getElementById('default-desc'), kesfetDesc: document.getElementById('kesfet-desc'), kesfetDescText: document.getElementById('kesfet-desc-text'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section'), categoryWrapper: document.getElementById('category-wrapper'), serviceWrapper: document.getElementById('service-wrapper'), linkWrapper: document.getElementById('link-wrapper'), quantityWrapper: document.getElementById('quantity-wrapper'), kesfetWrapper: document.getElementById('kesfet-wrapper'), kesfetSlider: document.getElementById('kesfet-slider'), kesfetNumber: document.getElementById('kesfet-number'), serviceDetailsWrapper: document.getElementById('service-details-container') };
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         
@@ -389,31 +485,49 @@
         };
 
         const updateUIDisplay = () => {
-            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
-            const price = selectedService ? (quantity / 1000) * selectedService.pricePerK : 0;
-            DOMElements.minQuantity.textContent = selectedService ? formatNumber(selectedService.min) : '0';
-            DOMElements.maxQuantity.textContent = selectedService ? formatNumber(selectedService.max) : '0';
-            
-            if (selectedService) {
-                 if (quantity > 0 && quantity < selectedService.min) {
+            let price = 0;
+            let avgTime = 'N/A';
+            let isDetailsVisible = false;
+
+            if (selectedCategory && selectedCategory.isDiscoveryPackage) {
+                const percentage = parseInt(DOMElements.kesfetNumber.value);
+                price = (percentage / 100) * selectedService.pricePer100Percent;
+                avgTime = selectedService.avgTime;
+                isDetailsVisible = true;
+                DOMElements.defaultDesc.classList.add('hidden');
+                DOMElements.kesfetDesc.classList.remove('hidden');
+                DOMElements.kesfetDescText.textContent = selectedService.description;
+            } else if (selectedService) {
+                const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
+                price = (quantity / 1000) * selectedService.pricePerK;
+                avgTime = selectedService.avgTime;
+                
+                if (quantity > 0 && quantity < selectedService.min) {
                     DOMElements.quantityAlert.textContent = `Minimum sifariş ${formatNumber(selectedService.min)} ədəd olmalıdır.`;
                     DOMElements.quantityAlert.classList.remove('hidden');
                 } else {
                     DOMElements.quantityAlert.classList.add('hidden');
                 }
-                DOMElements.serviceDetailsContainer.classList.remove('hidden');
-                DOMElements.serviceDetailsContainer.classList.add('grid');
-                DOMElements.descriptionBox.classList.remove('hidden');
-                DOMElements.avgTimeDisplay.textContent = selectedService.avgTime;
-                DOMElements.priceDisplay.textContent = `${price.toFixed(4)} AZN`;
+                isDetailsVisible = true;
+                DOMElements.defaultDesc.classList.remove('hidden');
+                DOMElements.kesfetDesc.classList.add('hidden');
                 DOMElements.descMinQuantity.textContent = formatNumber(selectedService.min);
                 DOMElements.descMaxQuantity.textContent = formatNumber(selectedService.max);
-                DOMElements.descAvgTime.textContent = selectedService.avgTime;
+                DOMElements.descAvgTime.textContent = avgTime;
+            }
+
+            if (isDetailsVisible) {
+                DOMElements.serviceDetailsWrapper.classList.remove('hidden');
+                DOMElements.serviceDetailsWrapper.classList.add('grid');
+                DOMElements.descriptionBox.classList.remove('hidden');
+
+                DOMElements.priceDisplay.textContent = `${price.toFixed(4)} AZN`;
+                DOMElements.avgTimeDisplay.textContent = avgTime;
             } else {
-                DOMElements.quantityAlert.classList.add('hidden');
-                DOMElements.serviceDetailsContainer.classList.add('hidden');
-                DOMElements.serviceDetailsContainer.classList.remove('grid');
+                DOMElements.serviceDetailsWrapper.classList.add('hidden');
+                DOMElements.serviceDetailsWrapper.classList.remove('grid');
                 DOMElements.descriptionBox.classList.add('hidden');
+                 DOMElements.quantityAlert.classList.add('hidden');
             }
         };
 
@@ -475,13 +589,33 @@
             selectedService = null;
             serviceDropdown.reset();
             
-            if (selectedCategory) {
-                const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => ({
-                    value: service.id,
-                    label: `${service.name} - (${service.pricePerK.toFixed(2)} AZN/1K)`,
-                    iconClass: service.iconClass
-                }));
-                serviceDropdown.populate(serviceItems);
+            if (selectedCategory && selectedCategory.isDiscoveryPackage) {
+                selectedService = selectedCategory.items[0];
+                DOMElements.serviceWrapper.classList.add('hidden');
+                DOMElements.quantityWrapper.classList.add('hidden');
+                DOMElements.kesfetWrapper.classList.remove('hidden');
+                DOMElements.linkWrapper.style.order = "2";
+                DOMElements.kesfetWrapper.style.order = "3";
+                DOMElements.serviceDetailsWrapper.style.order = "4";
+                DOMElements.linkInput.placeholder = 'Sadəcə post linkini daxil edin';
+            } else {
+                DOMElements.serviceWrapper.classList.remove('hidden');
+                DOMElements.quantityWrapper.classList.remove('hidden');
+                DOMElements.kesfetWrapper.classList.add('hidden');
+                DOMElements.serviceWrapper.style.order = "2";
+                DOMElements.linkWrapper.style.order = "3";
+                DOMElements.quantityWrapper.style.order = "4";
+                DOMElements.serviceDetailsWrapper.style.order = "5";
+                DOMElements.linkInput.placeholder = 'Profil və ya paylaşım linkini daxil edin';
+
+                if (selectedCategory) {
+                    const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => ({
+                        value: service.id,
+                        label: `${service.name} - (${service.pricePerK.toFixed(2)} AZN/1K)`,
+                        iconClass: service.iconClass
+                    }));
+                    serviceDropdown.populate(serviceItems);
+                }
             }
             updateUIDisplay();
         });
@@ -502,10 +636,7 @@
                 try {
                     const cred = await signInAnonymously(auth);
                     authUser = cred.user;
-                } catch (e) {
-                    console.error("Anonim girişdə xəta:", e);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
-                }
+                } catch (e) { console.error("Anonim girişdə xəta:", e); showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error'); }
             }
             if (authUser) {
                 currentUserId = authUser.uid;
@@ -517,19 +648,6 @@
             }
         });
 
-        const validateInputs = () => {
-            if (!selectedService || !DOMElements.linkInput.value.trim() || !DOMElements.quantityInput.value.trim()) {
-                showAlert("Bütün sahələri doldurun.", 'error');
-                return false;
-            }
-            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
-             if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
-                showAlert(`Miqdar ${formatNumber(selectedService.min)} ilə ${formatNumber(selectedService.max)} arasında olmalıdır.`, 'error');
-                return false;
-            }
-            return true;
-        }
-
         ['input', 'change'].forEach(evt => {
             DOMElements.quantityInput.addEventListener(evt, () => {
                 DOMElements.quantityInput.value = formatNumber(DOMElements.quantityInput.value.replace(/\D/g, ''));
@@ -537,6 +655,47 @@
             });
             DOMElements.linkInput.addEventListener(evt, updateUIDisplay);
         });
+
+        DOMElements.kesfetSlider.addEventListener('input', () => {
+            DOMElements.kesfetNumber.value = DOMElements.kesfetSlider.value;
+            updateUIDisplay();
+        });
+        DOMElements.kesfetNumber.addEventListener('input', () => {
+            let value = parseInt(DOMElements.kesfetNumber.value);
+            if (isNaN(value)) value = 25;
+            if (value > 100) value = 100;
+            if (value < 25) value = 25;
+            DOMElements.kesfetNumber.value = value;
+            DOMElements.kesfetSlider.value = value;
+            updateUIDisplay();
+        });
+
+
+        const validateInputs = () => {
+            let isValid = true;
+            let errorMsg = "";
+
+            if (selectedCategory && selectedCategory.isDiscoveryPackage) {
+                if(!DOMElements.linkInput.value.trim()){
+                    errorMsg = "Post linkini daxil edin.";
+                    isValid = false;
+                }
+            } else {
+                 if (!selectedService || !DOMElements.linkInput.value.trim() || !DOMElements.quantityInput.value.trim()) {
+                    errorMsg = "Bütün sahələri doldurun.";
+                    isValid = false;
+                }
+                if(isValid && selectedService){
+                    const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
+                     if (isNaN(quantity) || quantity < selectedService.min || quantity > selectedService.max) {
+                        errorMsg = `Miqdar ${formatNumber(selectedService.min)} ilə ${formatNumber(selectedService.max)} arasında olmalıdır.`;
+                        isValid = false;
+                    }
+                }
+            }
+            if(!isValid) showAlert(errorMsg, 'error');
+            return isValid;
+        }
 
         const toggleModal = (show) => {
             const modal = DOMElements.topUpModal;
@@ -554,8 +713,15 @@
         DOMElements.placeOrderButton.addEventListener('click', async () => {
             if (!validateInputs()) return;
 
-            const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
-            const totalPrice = parseFloat(((quantity / 1000) * selectedService.pricePerK).toFixed(4));
+            let quantity, totalPrice, orderData;
+            
+            if (selectedCategory.isDiscoveryPackage) {
+                quantity = parseInt(DOMElements.kesfetNumber.value);
+                totalPrice = parseFloat(((quantity / 100) * selectedService.pricePer100Percent).toFixed(4));
+            } else {
+                quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
+                totalPrice = parseFloat(((quantity / 1000) * selectedService.pricePerK).toFixed(4));
+            }
 
             if (userBalance < totalPrice) {
                 showAlert("Balansınız yetərli deyil! Zəhmət olmasa artırın.", 'error', 5000);
@@ -568,7 +734,20 @@
                 DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
                 const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
                 await updateDoc(doc(db, 'users', currentUserId), { balance: newBalance });
-                const orderData = { userId: currentUserId, serviceId: selectedService.id, serviceName: selectedService.name, platform: selectedService.platform, link: DOMElements.linkInput.value.trim(), quantity, totalPrice, timestamp: serverTimestamp(), status: 'pending', isNew: true };
+                
+                orderData = { 
+                    userId: currentUserId, 
+                    serviceId: selectedService.id, 
+                    serviceName: selectedService.name, 
+                    platform: selectedCategory.platform, 
+                    link: DOMElements.linkInput.value.trim(), 
+                    quantity, 
+                    totalPrice, 
+                    timestamp: serverTimestamp(), 
+                    status: 'pending', 
+                    isNew: true 
+                };
+
                 const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
                 
                 showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
