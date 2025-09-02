@@ -3,600 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxtarGet - Veb Sayt Qurulması Xidməti</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>AxtarGet - Gələcəyin Rəqəmsal Həlləri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- === LOQO DÜZƏLİŞLƏRİ BAŞLAYIR === -->
+    <!-- Brauzer vərəqindəki (tab) ikona (Favicon) -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
+
+    <!-- Google axtarış nəticələrində loqonun görünməsi üçün schema kodu -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AxtarGet",
+      "url": "https://axtarget.xyz/",
+      "logo": "https://i.postimg.cc/Dw6kgzbh/logo.png"
+    }
+    </script>
+    <!-- === LOQO DÜZƏLİŞLƏRİ BİTİR === -->
+
     <style>
-        /* Əsas Ümumi Stiller */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #060910; /* Daha da dərin, ultra peşəkar tünd fon */
-            color: #EBF4F7; /* Daha açıq, təmiz mətn */
-            overflow-x: hidden;
-            scroll-behavior: smooth;
-        }
-        .section-padding {
-            padding: 12rem 0; /* Bölmələr üçün daha geniş şaquli boşluq */
+        :root {
+            --background: #05080E;
+            --glass-bg: rgba(15, 23, 42, 0.5);
+            --border: rgba(56, 229, 183, 0.2);
+            --text-primary: #F1F5F9;
+            --text-muted: #94A3B8;
+            --primary: #38E5B7;
+            --primary-hover: #10B981;
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Manrope', sans-serif;
         }
 
-        /* Hover Effektləri - Quantum Glow */
-        .hover-quantum-glow {
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.35s ease-in-out;
-            transform-style: preserve-3d;
-            perspective: 1000px;
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--background);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Bütün məzmunun arxasında qalsın */
+        }
+
+        #globe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+        }
+
+        .content-overlay { position: relative; z-index: 1; }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(56, 229, 183, 0.2); /* Zərif sərhəd */
-            border-radius: 1.5rem; /* Daha yumşaq künclər */
-            cursor: pointer; /* Kliklənə bilən olduğunu göstərir */
         }
-        .hover-quantum-glow:hover {
-            transform: translateY(-15px) rotateX(1deg) rotateY(1deg); /* Daha dinamik lift və 3D dönmə */
-            box-shadow: 0 20px 50px rgba(56, 229, 183, 0.4); /* Güclü yaşıl parıltı kölgəsi */
-            border-color: rgba(56, 229, 183, 0.6); /* Hover zamanı sərhəd daha parlaq olsun */
-        }
-        .hover-quantum-glow::before {
+        .glass-card:before {
             content: '';
             position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            background: radial-gradient(circle at 50% 0%, rgba(56, 229, 183, 0.3) 0%, rgba(56, 229, 183, 0) 70%); /* Yuxarıdan incə parıltı */
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            filter: blur(12px);
-            transform: translateY(-100%);
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+            pointer-events: none;
         }
-        .hover-quantum-glow:hover::before {
-            opacity: 1;
-            transform: translateY(0%);
+        .glass-card:hover:before {
+            transform: scale(1);
         }
-        .hover-quantum-glow::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            border-radius: inherit;
-            background: linear-gradient(45deg, #38E5B7, #10B981, #38E5B7);
-            z-index: -2;
-            opacity: 0;
-            transition: opacity 0.35s ease-in-out, filter 0.35s ease-in-out;
-            filter: blur(10px);
-        }
-        .hover-quantum-glow:hover::after {
-            opacity: 0.8;
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(56, 229, 183, 0.5);
         }
 
-        .hover-icon-effect:hover .service-icon {
-            transform: scale(1.2) rotateY(12deg);
-            color: #38E5B7;
-            text-shadow: 0 0 12px #38E5B7;
+        .btn-primary {
+            background-image: linear-gradient(45deg, var(--primary) 0%, #10B981 100%);
+            color: #05080E;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.4);
         }
-        .service-icon {
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.4, 1), color 0.35s ease-in-out, text-shadow 0.35s ease-in-out;
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(56, 229, 183, 0.7);
         }
 
-        /* Fade-in Animasiyası */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-hover); }
+
         .fade-in {
             opacity: 0;
-            transform: translateY(70px);
-            transition: opacity 1.8s ease-out, transform 1.8s ease-out;
+            transform: translateY(50px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .fade-in.appear {
             opacity: 1;
             transform: translateY(0);
         }
-
-        /* Scrollbar Stili */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #18202F;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #38E5B7;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #10B981;
-        }
-
-        /* Düymə Parıltı Animasiyası */
-        @keyframes button-light-pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(56, 229, 183, 0.4);
-                transform: scale(1);
-            }
-            50% {
-                box-shadow: 0 0 0 25px rgba(56, 229, 183, 0);
-                transform: scale(1.01);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(56, 229, 183, 0);
-                transform: scale(1);
-            }
-        }
-        .button-light-pulse {
-            animation: button-light-pulse 2.3s infinite cubic-bezier(0.66, 0, 0.34, 1);
-        }
-
-        /* Hero Bölməsi Stili */
-        #hero {
-            background-color: #0A0F1A;
-            position: relative;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            overflow: hidden;
-            padding-top: 6rem;
-            z-index: 1;
-        }
-        .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(180deg, rgba(10,15,26,0.95) 0%, rgba(10,15,26,0.99) 100%);
-            z-index: 1;
-        }
-        .hero-text-shadow {
-            text-shadow: 0 10px 25px rgba(0,0,0,0.85);
-        }
-
-        /* İnteraktiv Fon Canvas */
-        #interactive-background-canvas {
-            position: fixed; /* Bütün viewportu əhatə etsin */
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0; /* Əsas məzmunun arxasında olsun */
-            pointer-events: none; /* Maus/toxunuş hadisələrini keçirsin */
-        }
-
-        /* Hamburger Menyu Stili */
+        
+        /* Mobile Side-Panel Menu */
         .mobile-menu-container {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: 350px;
-            height: 100%;
-            background-color: #1A202C;
-            box-shadow: -12px 0 30px rgba(0, 0, 0, 0.9);
-            transform: translateX(100%);
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            width: 320px; 
+            max-width: 80vw;
+            height: 100vh;
+            background: rgba(5, 8, 14, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
             z-index: 100;
-            padding-top: 7rem;
-            overflow-y: auto;
+            transform: translateX(100%); 
+            transition: transform 0.5s cubic-bezier(0.6, 0.05, 0.28, 0.91);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Əlavə edildi: Menyunu daxilən sürüşdürülə bilən edir */
         }
-        .mobile-menu-container.open {
-            transform: translateX(0);
+        .mobile-menu-container.open { 
+            transform: translateX(0); 
+        }
+        .mobile-menu-container nav {
+            padding-top: 6rem;
+            flex-grow: 1;
         }
         .mobile-menu-container a {
             display: block;
-            padding: 1.8rem 3rem;
-            color: #CBD5E0;
-            font-size: 1.4rem;
-            font-weight: 500;
-            border-bottom: 1px solid #2D3748;
-            transition: background-color 0.3s ease, color 0.3s ease, padding-left 0.3s ease;
+            padding: 1rem 2.5rem;
+            font-family: var(--font-heading);
+            font-size: 1.25rem; 
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: color 0.3s ease, background-color 0.3s ease;
+            border-bottom: 1px solid var(--border);
         }
-        .mobile-menu-container a:hover {
-            background-color: #2D3748;
-            color: #38E5B7;
-            padding-left: 3.8rem;
-        }
-        .mobile-menu-close-button {
-            position: absolute;
-            top: 2.5rem;
-            right: 2.5rem;
-            font-size: 2.8rem;
-            color: #9CA3AF;
-            cursor: pointer;
-            transition: color 0.3s ease, transform 0.3s ease;
-        }
-        .mobile-menu-close-button:hover {
-            color: #EF4444;
-            transform: rotate(180deg) scale(1.15);
+        .mobile-menu-container a:hover { 
+            color: var(--primary); 
+            background-color: rgba(56, 229, 183, 0.05);
         }
 
-        /* Floating WhatsApp Bubble Stili */
-        #floating-whatsapp-bubble-main {
-            position: fixed;
-            bottom: 45px;
-            right: 45px;
-            background-color: #25D366;
-            color: white;
-            padding: 25px;
-            border-radius: 50%;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.7);
-            cursor: pointer;
-            z-index: 90;
-            transition: transform 0.3s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .service-icon-wrapper {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--primary);
+            transition: all 0.4s ease;
         }
-        #floating-whatsapp-bubble-main:hover {
-            transform: scale(1.3) rotate(10deg);
-            background-color: #1DA851;
-            box-shadow: 0 18px 45px rgba(37, 211, 102, 0.9);
-        }
-
-        /* Kontakt ikonları üçün hover effekti */
-        .contact-icon-card:hover .contact-icon {
-            transform: translateY(-12px) scale(1.25);
-            color: #38E5B7;
-            text-shadow: 0 0 15px #38E5B7;
-        }
-        .contact-icon {
-            transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.4, 1), color 0.35s ease, text-shadow 0.35s ease;
-        }
-
-        /* Bölmə ayırıcısı */
-        .section-divider {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #38E5B7 10%, #10B981 50%, #38E5B7 90%, transparent);
-            width: 60%;
-            margin: 10rem auto;
-            opacity: 0.5;
-            box-shadow: 0 0 15px rgba(56, 229, 183, 0.5);
-            border-radius: 1px;
-        }
-
-        /* Xüsusi başlıq fonu */
-        .header-bg-texture {
-            background-image: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%236B7280" fill-opacity="0.05" fill-rule="evenodd"%3E%3Cpath d="M0 40L40 0H20L0 20V40zM40 40V20L20 40H40z"/%3E%3C/g%3E%3C/svg%3E');
-            background-size: 40px 40px;
-            opacity: 0.1;
-            z-index: -1;
-        }
-
-        /* Sticky Header Effektləri */
-        .sticky-header {
-            background-color: rgba(8, 12, 20, 0.98);
-            backdrop-filter: blur(12px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            transition: all 0.3s ease-in-out;
+        .glass-card:hover .service-icon-wrapper {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
+    
+    <canvas id="matrix-canvas"></canvas>
 
-    <!-- Başlıq hissəsi -->
-    <header id="main-header" class="bg-gray-900 shadow-xl py-5 fixed w-full z-20 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logosu" class="rounded-full shadow-md w-11 h-11 object-cover border-2 border-green-500">
-                <a href="index.html" class="text-white text-3xl font-extrabold tracking-widest">AxtarGet</a>
-            </div>
-            <div class="flex items-center">
-                <button id="hamburger-menu-button" class="text-green-400 focus:outline-none text-3xl hover:text-green-300 transition-colors duration-300">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
+    <!-- Header -->
+    <header id="header" class="fixed top-0 left-0 w-full p-4 z-50 transition-all duration-300">
+        <div class="container mx-auto flex justify-between items-center max-w-7xl px-4">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logo" class="w-10 h-10 rounded-full border-2 border-primary shadow-lg shadow-primary/20">
+                <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
+            </a>
+            <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold">
+                <a href="#services" class="text-gray-300 hover:text-primary transition-colors">Niyə Biz?</a>
+                <a href="follower-service.html" class="text-gray-300 hover:text-primary transition-colors">Takipçi Xidməti</a>
+                <a href="https://ai.axtarget.xyz" target="_blank" class="text-gray-300 hover:text-primary transition-colors">AxtarGet AI</a>
+                <a href="digital-products.html" class="text-gray-300 hover:text-primary transition-colors">Rəqəmsal Məhsullar</a>
+                <a href="#contact" class="text-gray-300 hover:text-primary transition-colors">Əlaqə</a>
+            </nav>
+            <button id="hamburger-button" class="lg:hidden text-2xl text-white">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Hamburger Menyu (Gizli) -->
+    <!-- Mobile Side-Panel Menu -->
     <div id="mobile-menu-container" class="mobile-menu-container">
-        <button id="mobile-menu-close-button" class="mobile-menu-close-button">
+        <button id="mobile-menu-close-button" class="absolute top-6 right-6 text-3xl text-gray-400 hover:text-red-500 transition-transform duration-300 hover:rotate-90">
             <i class="fas fa-times"></i>
         </button>
-        <nav class="flex flex-col">
+        <nav>
             <a href="#hero">Ana Səhifə</a>
-            <a href="https://chat.axtarget.xyz">Qeydiyyatdan keç</a>
-            <a href="#why-axtarget">Niyə AxtarGet?</a>
-            <a href="#services">Xidmətlər</a>
+            <a href="https://chat.axtarget.xyz" target="_blank">Qeydiyyatdan keç</a>
+            <a href="#services">Niyə Biz?</a>
             <a href="share-business.html">Biznesini Paylaş</a>
             <a href="follower-service.html">Takipçi Xidməti</a>
-            <a href="https://ai.axtarget.xyz">AxtarGet AI</a>
+            <a href="https://ai.axtarget.xyz" target="_blank">AxtarGet AI</a>
             <a href="digital-products.html">Rəqəmsal Məhsullar</a>
             <a href="#contact">Əlaqə</a>
-            <a href="https://t.me/AxtarGetbot" target="_blank" class="px-7 py-5 bg-green-600 text-white rounded-full mx-8 my-7 text-center hover:bg-green-700 transition-all duration-300 shadow-xl text-xl font-bold">
-                <i class="fab fa-telegram-plane mr-3"></i> Telegram Botuna Keç
-            </a>
         </nav>
     </div>
 
-    <!-- Hero Bölməsi -->
-    <section id="hero" class="relative">
-        <!-- İnteraktiv fon üçün canvas elementi -->
-        <canvas id="interactive-background-canvas"></canvas>
-
-        <div class="hero-overlay"></div>
-        <div class="relative z-10 px-4 py-24 lg:py-48 max-w-7xl mx-auto">
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold text-white leading-tight mb-10 hero-text-shadow fade-in">
-                Bizimlə <span class="text-green-400">Rəqəmsal Gələcəyi Yaradın!</span>
-            </h1>
-            <p class="text-lg md:text-xl lg:text-2xl text-gray-300 mb-14 max-w-5xl mx-auto hero-text-shadow fade-in">
-                AxtarGet, biznesinizi onlayn dünyada gücləndirən **innovativ və fərdi veb həllər** təklif edir. Hər bir layihəyə strateji yanaşma ilə, sizə unikal rəqəmsal təcrübələr təqdim edirik.
-            </p>
-            <a href="#services" class="inline-flex items-center px-12 py-6 bg-green-600 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-700 transform hover-quantum-glow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-70 button-light-pulse fade-in">
-                <i class="fas fa-paper-plane mr-4 text-2xl"></i>
-                Xidmətlərimizlə Tanış Ol
-            </a>
-        </div>
-    </section>
-
-    <!-- Niyə AxtarGet? hissəsi -->
-    <section id="why-axtarget" class="section-padding bg-gray-900 text-center relative overflow-hidden">
-        <div class="header-bg-texture absolute inset-0"></div>
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            <h2 class="text-4xl md:text-5xl font-extrabold mb-20 text-green-400 fade-in">Niyə AxtarGet Sizin Seçiminiz Olmalıdır?</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-14">
-                <div class="bg-gray-800 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 service-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5">Ağıllı AI İnteqrasiyası</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg">
-                        Müştəri xidmətini avtomatlaşdırın, məlumat analizi aparın və süni intellektlə biznes qərarlarınızı gücləndirin.
-                    </p>
-                </div>
-
-                <div class="bg-gray-800 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 service-icon">
-                        <i class="fas fa-bezier-curve"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5">Özgün və Fərdi Dizayn</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg">
-                        Hər bir pikselə qədər düşünülmüş, brendinizi mükəmməl əks etdirən unikal veb saytlar yaradırıq.
-                    </p>
-                </div>
-
-                <div class="bg-gray-800 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 service-icon">
-                        <i class="fas fa-shield-virus"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5">Gücləndirilmiş Təhlükəsizlik</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg">
-                        Ən son təhlükəsizlik standartları ilə məlumatlarınızın və müştərilərinizin tam qorunduğunu təmin edirik.
-                    </p>
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+            <div id="globe-container"></div>
+            <div class="content-overlay container mx-auto px-6 lg:px-8 max-w-7xl text-center">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold font-heading text-white leading-tight mb-6 fade-in" style="text-shadow: 0 5px 30px rgba(0,0,0,0.5);">
+                    Gələcəyi <span class="text-primary">Kodlaşdırırıq</span>
+                </h1>
+                <p class="text-lg md:text-xl text-text-muted max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s;">
+                    Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
+                </p>
+                <div class="fade-in" style="transition-delay: 0.4s;">
+                    <a href="#services" class="btn-primary px-10 py-4 text-lg inline-block">
+                       <i class="fas fa-rocket mr-2"></i> Layihəyə Başla
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <div class="section-divider fade-in"></div>
-
-    <!-- Xidmətlər Bölməsi -->
-    <section id="services" class="section-padding bg-gray-800 relative overflow-hidden">
-        <div class="header-bg-texture absolute inset-0"></div>
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            <h2 class="text-4xl md:text-5xl font-extrabold text-center mb-20 text-green-400 fade-in">Bizim Əsas Xidmətlərimiz</h2>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-14">
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-code-branch"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">Xüsusi Veb Tətbiplər</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Biznes proseslərinizi optimallaşdıran və istifadəçi təcrübəsini artıran fərdi veb tətbiplər.
+        <!-- Services Section -->
+        <section id="services" class="py-24">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Rəqəmsal Ekosisteminiz</h2>
+                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                       İdeyadan icraya, hər mərhələdə yanınızdayıq.
                     </p>
                 </div>
-
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-cart-arrow-down"></i>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 fade-in">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-satellite-dish"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">Strateji Veb Həllər</h3>
+                        <p class="text-text-muted">Brendinizin DNT-sini analiz edərək, hədəflərinizə ən uyğun veb-platformaları dizayn və inkişaf etdiririk.</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">Gələcəyin E-ticarəti</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Təhlükəsiz, sürətli və istifadəçi dostu onlayn mağazalarla satışlarınızı maksimuma çatdırın.
-                    </p>
-                </div>
-
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-chart-area"></i>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.15s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-microchip"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">AI & Avtomatlaşdırma</h3>
+                        <p class="text-text-muted">Təkrarçı işləri ağıllı botlara həvalə edin, məlumatlarınızı dərin analiz edin və müştəri təcrübəsini süni intellektlə zənginləşdirin.</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">Effektiv Rəqəmsal Marketinq</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Hədəf auditoriyanıza çatmaq və markanızın tanınmasını artırmaq üçün sübut olunmuş strategiyalar.
-                    </p>
-                </div>
-
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-crosshairs"></i>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.3s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-store"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">İntellektual E-Ticarət</h3>
+                        <p class="text-text-muted">Sadəcə bir onlayn mağaza deyil, fərdiləşdirilmiş təkliflər və analizlərlə satışlarınızı artıran dinamik bir ticarət platforması.</p>
                     </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">Hədəf Kütləyə Çatmaq</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Məqsədli kampaniyalar və optimallaşdırma ilə doğru insanlara doğru mesajı çatdırın.
-                    </p>
-                </div>
-
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">Bulud Həlləri və Hosting</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Etibarlı və sürətli bulud əsaslı hosting xidmətləri ilə veb saytınızın performansını təmin edin.
-                    </p>
-                </div>
-
-                <div class="bg-gray-900 rounded-3xl p-12 shadow-2xl hover-quantum-glow fade-in flex flex-col items-center hover-icon-effect">
-                    <div class="text-green-400 text-7xl mb-7 text-center service-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <h3 class="text-3xl font-bold text-white mb-5 text-center">İnfrastrukturun Optimallaşdırılması</h3>
-                    <p class="text-gray-300 leading-relaxed text-lg text-center">
-                        Veb saytınızın arxa plan infrastrukturunu modernləşdirin və maksimal işləmə sürətinə nail olun.
-                    </p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <div class="section-divider fade-in"></div>
-
-    <!-- Biznesini Paylaş Promo Bölməsi -->
-    <section id="share-business-promo" class="section-padding bg-gray-900 text-center relative overflow-hidden">
-        <div class="header-bg-texture absolute inset-0"></div>
-        <div class="max-w-6xl mx-auto px-6 lg:px-8 relative z-10">
-            <h2 class="text-4xl md:text-5xl font-extrabold mb-14 text-green-400 fade-in">Biznesinizi Növbəti Səviyyəyə Qaldırın!</h2>
-            <p class="text-xl leading-relaxed text-gray-300 mb-14 fade-in">
-                Xidmətlərinizi və ya məhsullarınızı AxtarGet Telegram botunun **minlərlə aktiv istifadəçisi** ilə paylaşaraq, yeni müştərilər qazanmaq və markanızın tanınmasını artırmaq üçün unikal bir fürsət əldə edin.
-            </p>
-            <a href="share-business.html" class="inline-flex items-center px-12 py-6 bg-green-600 text-white text-xl font-bold rounded-full shadow-lg hover:bg-green-700 transform hover-quantum-glow transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-70 button-light-pulse fade-in">
-                <i class="fas fa-share-alt mr-4 text-2xl"></i>
-                Biznesimi İndi Tanıt
-            </a>
-        </div>
-    </section>
-
-    <div class="section-divider fade-in"></div>
-
-    <!-- Əlaqə Bölməsi -->
-    <section id="contact" class="section-padding bg-gray-800 relative overflow-hidden">
-        <div class="header-bg-texture absolute inset-0"></div>
-        <div class="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-            <h2 class="text-4xl md:text-5xl font-extrabold mb-18 text-green-400 fade-in">Bizimlə Əlaqə Qurmaq Çox Asandır</h2>
-            <p class="text-xl leading-relaxed mb-16 text-gray-300 fade-in">
-                Layihəniz haqqında danışmaq, suallarınızı cavablandırmaq və ya sadəcə salamlaşmaq üçün bizimlə əlaqə saxlayın. Komandamız hər zaman yanınızdadır!
-            </p>
-            <div class="flex flex-col md:flex-row justify-center items-center space-y-12 md:space-y-0 md:space-x-20 flex-wrap">
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('https://wa.me/994606006162?text=Salam, veb sayt qurmaq isdəyirəm.', '_blank');">
-                    <i class="fab fa-whatsapp text-green-400 text-7xl contact-icon"></i>
-                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">WhatsApp</span>
-                    <span class="text-gray-400 text-xl font-medium">060-600-61-62</span>
-                </div>
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('mailto:ibadulla.hesen@gmail.com', '_blank');">
-                    <i class="fas fa-envelope-open-text text-green-400 text-7xl contact-icon"></i>
-                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Email</span>
-                    <span class="text-gray-400 text-xl font-medium">ibadulla.hesen@gmail.com</span>
-                </div>
-                <div class="flex flex-col items-center space-y-5 bg-gray-900 p-10 rounded-2xl shadow-xl hover-quantum-glow fade-in contact-icon-card" onclick="window.open('https://www.instagram.com/ibadulla_hasanov_official', '_blank');">
-                    <i class="fab fa-instagram text-green-400 text-7xl contact-icon"></i>
-                    <span class="text-3xl font-bold text-white hover:text-green-400 transition-colors duration-300">Instagram</span>
-                    <span class="text-gray-400 text-xl font-medium">@ibadulla_hasanov_official</span>
+        <!-- Contact Section -->
+        <section id="contact" class="py-24">
+            <div class="container mx-auto px-6 lg:px-8 max-w-5xl text-center">
+                <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logo" class="w-24 h-24 rounded-full border-4 border-primary shadow-lg shadow-primary/30 mx-auto mb-8 fade-in">
+                <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Növbəti Böyük Addımı Birlikdə Atmağa Hazırsınız?</h2>
+                <p class="text-lg text-text-muted mt-4 mb-12 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                    Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək və ideyanızı rəqəmsal reallığa çevirək.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 fade-in" style="transition-delay: 0.2s;">
+                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fab fa-whatsapp text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">WhatsApp</span>
+                        <span class="text-text-muted text-sm">060-600-61-62</span>
+                    </a>
+                    <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fas fa-envelope-open-text text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">Email</span>
+                        <span class="text-text-muted text-sm">ibadulla.hesen@gmail.com</span>
+                    </a>
+                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fab fa-instagram text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">Instagram</span>
+                        <span class="text-text-muted text-sm">@ibadulla_hasanov_official</span>
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <footer class="bg-gray-900 py-14 text-center text-gray-500">
-        <div class="max-w-7xl mx-auto px-6 lg:px-8">
-            <p class="text-lg md:text-xl font-medium">&copy; 2025 AxtarGet. Bütün hüquqlar qorunur.</p>
-            <p class="mt-5 text-base">Created with <i class="fas fa-heart text-red-500 mx-1"></i> by Ibadulla Hasanov</p>
-            <p class="mt-10 text-lg">
-                <a href="admin.html" class="text-gray-500 hover:text-green-400 transition-colors duration-300 font-semibold">Admin Paneli</a>
-            </p>
+    <!-- Footer -->
+    <footer class="border-t border-gray-800/50 mt-20">
+        <div class="container mx-auto max-w-7xl px-6 lg:px-8 py-8 text-center text-text-muted">
+            <p>&copy; 2025 AxtarGet. Bütün hüquqlar qorunur.</p>
+            <p class="text-sm mt-2">Ibadulla Hasanov tərəfindən <i class="fas fa-heart text-red-500"></i> ilə hazırlandı.</p>
         </div>
     </footer>
-
-    <!-- Floating WhatsApp Bubble -->
-    <a href="#" id="floating-whatsapp-bubble-main" class="fixed bottom-12 right-12 bg-green-600 text-white p-6 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Bizimlə Əlaqə Saxlayın">
-        <i class="fab fa-whatsapp text-4xl"></i>
-    </a>
-
-    <!-- Scroll To Top Button -->
-    <button id="scroll-to-top" class="fixed bottom-12 left-12 bg-gray-700 text-white p-4 rounded-full shadow-lg hover:bg-gray-600 transition-all duration-300 z-50 opacity-0 transform translate-y-4 pointer-events-none">
-        <i class="fas fa-arrow-up text-xl"></i>
-    </button>
-
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // WhatsApp nömrəsi (Adminin nömrəsi)
-        const ADMIN_WHATSAPP_NUMBER_MAIN = "994606006162"; 
-
-        // Hamburger menyu funksionallığı
-        document.getElementById('hamburger-menu-button').addEventListener('click', function() {
-            const mobileMenuContainer = document.getElementById('mobile-menu-container');
-            mobileMenuContainer.classList.add('open');
-        });
-
-        document.getElementById('mobile-menu-close-button').addEventListener('click', function() {
-            const mobileMenuContainer = document.getElementById('mobile-menu-container');
-            mobileMenuContainer.classList.remove('open');
-        });
-
-        // Menyu linklərinə kliklədikdə menyunu bağla
-        document.querySelectorAll('#mobile-menu-container a').forEach(link => {
-            link.addEventListener('click', function() {
-                document.getElementById('mobile-menu-container').classList.remove('open');
-            });
-        });
-
-        // Naviqasiya linkləri üçün hamar sürüşmə
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
-        // Görünüşə daxil olmaq üçün fade-in animasiyası üçün Intersection Observer
-        const fadeInElements = document.querySelectorAll('.fade-in');
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('appear');
-                    observer.unobserve(entry.target);
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header scroll effekti
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('glass-card');
+                } else {
+                    header.classList.remove('glass-card');
                 }
             });
-        }, observerOptions);
 
-        fadeInElements.forEach(element => {
-            observer.observe(element);
-        });
+            // Mobil menyu
+            const hamburgerButton = document.getElementById('hamburger-button');
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            const mobileMenuCloseButton = document.getElementById('mobile-menu-close-button');
+            const mobileMenuLinks = mobileMenuContainer.querySelectorAll('a');
 
-        // Bütün Telegram bot linklərini düzgün istifadəçi adı ilə yeniləmək
-        const telegramLinks = document.querySelectorAll('a[href*="t.me/"]');
-        telegramLinks.forEach(link => {
-            link.href = 'https://t.me/AxtarGetbot';
-        });
-
-        // Floating WhatsApp Bubble (Ana səhifə)
-        const floatingWhatsappBubbleMain = document.getElementById('floating-whatsapp-bubble-main');
-        if (floatingWhatsappBubbleMain) {
-            floatingWhatsappBubbleMain.addEventListener('click', (e) => {
-                e.preventDefault();
-                const whatsappMessage = `Salam, veb sayt qurmaq isdəyirəm.`;
-                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER_MAIN}?text=${encodeURIComponent(whatsappMessage)}`;
-                window.open(whatsappUrl, '_blank');
+            hamburgerButton.addEventListener('click', () => mobileMenuContainer.classList.add('open'));
+            mobileMenuCloseButton.addEventListener('click', () => mobileMenuContainer.classList.remove('open'));
+            
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                    mobileMenuContainer.classList.remove('open');
+                });
             });
-        }
 
-        // Sticky Header funksiyası
-        const mainHeader = document.getElementById('main-header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) { // 50px aşağı sürüşdürüldükdə
-                mainHeader.classList.add('sticky-header');
-            } else {
-                mainHeader.classList.remove('sticky-header');
+            // Fade-in animasiyası
+            const fadeInElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appear');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            fadeInElements.forEach(element => observer.observe(element));
+
+            // Globe with continent outlines from points
+            const container = document.getElementById('globe-container');
+            if(container) {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+                
+                camera.position.z = 4;
+                let globeObject = null;
+                let mouseX = 0;
+
+                const loader = new THREE.TextureLoader();
+                loader.load(
+                    'https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthbump1k.jpg', // A map where land is lighter
+                    function (texture) {
+                        const image = texture.image;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(image, 0, 0);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                        const vertices = [];
+                        const radius = 2;
+
+                        for (let y = 0; y < canvas.height; y+=2) { // y+=2 to use fewer points for performance
+                            for (let x = 0; x < canvas.width; x+=2) { // x+=2
+                                const index = (y * canvas.width + x) * 4;
+                                const r = imageData.data[index];
+
+                                if (r > 60) { // Threshold for land detection
+                                    const phi = (90 - (y / canvas.height) * 180) * (Math.PI / 180);
+                                    const theta = ((x / canvas.width) * 360 - 180) * (Math.PI / 180);
+
+                                    vertices.push(
+                                        radius * Math.sin(phi) * Math.cos(theta),
+                                        radius * Math.cos(phi),
+                                        radius * Math.sin(phi) * Math.sin(theta)
+                                    );
+                                }
+                            }
+                        }
+                        
+                        const geometry = new THREE.BufferGeometry();
+                        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                        const material = new THREE.PointsMaterial({
+                            color: 0x38E5B7,
+                            size: 0.015
+                        });
+
+                        globeObject = new THREE.Points(geometry, material);
+                        scene.add(globeObject);
+                    }
+                );
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    if (globeObject) {
+                        globeObject.rotation.y += 0.001 + (mouseX * 0.01);
+                    }
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                function onMouseMove(event) {
+                    mouseX = (event.clientX / window.innerWidth) - 0.5;
+                }
+                
+                function onMouseOut(event) {
+                    mouseX = 0;
+                }
+
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseout', onMouseOut);
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
             }
-        });
+            
+            // Matrix Rain Effect
+            const matrixCanvas = document.getElementById('matrix-canvas');
+            if (matrixCanvas) {
+                const ctx = matrixCanvas.getContext('2d');
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
 
-        // Scroll To Top Button funksiyası
-        const scrollToTopButton = document.getElementById('scroll-to-top');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) { // 300px aşağı sürüşdürüldükdə görünür
-                scrollToTopButton.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
-                scrollToTopButton.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-            } else {
-                scrollToTopButton.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-                scrollToTopButton.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+                let katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+                katakana += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+                const characters = katakana.split('');
+
+                const fontSize = 16;
+                const columns = matrixCanvas.width / fontSize;
+                const drops = [];
+                for (let x = 0; x < columns; x++) {
+                    drops[x] = 1;
+                }
+
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(5, 8, 14, 0.12)';
+                    ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+                    ctx.fillStyle = 'rgba(56, 229, 183, 0.3)';
+                    ctx.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters[Math.floor(Math.random() * characters.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrix, 40);
+
+                window.addEventListener('resize', () => {
+                    matrixCanvas.width = window.innerWidth;
+                    matrixCanvas.height = window.innerHeight;
+                });
             }
-        });
-
-        scrollToTopButton.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
         });
     </script>
 </body>
 </html>
+
+
+
+
+
+
