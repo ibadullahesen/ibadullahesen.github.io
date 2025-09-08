@@ -31,7 +31,7 @@
             -webkit-user-select: none;
         }
         /* TƏHLÜKƏSİZLİK: Inputlara yazmağa və yapışdırmağa icazə verilir */
-        .input, .textarea, .select {
+        .input, .textarea, .select, input, textarea {
             user-select: auto;
             -webkit-user-select: auto;
         }
@@ -55,7 +55,7 @@
         .btn-primary { background-color: var(--primary); color: #1a202c; }
         .btn-primary:hover:not(:disabled) { filter: brightness(110%); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn.active { background-color: var(--primary); color: #1a202c; }
+        .btn.active { background-color: var(--primary); color: #1a202c; filter: brightness(110%); }
 
         #cv-preview-wrapper { background-color: #525252; padding: 2rem; border-radius: 0.5rem; overflow-y: auto; }
         .cv-content {
@@ -158,8 +158,8 @@
     
     <main class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
-            <div class="w-full lg:w-1/3 space-y-4">
-                <div class="card"><div class="p-4"><h3 class="font-bold mb-3">1. Dizayn və Rəng</h3><div class="grid grid-cols-2 gap-2"><button class="template-btn btn btn-secondary" data-template="template-modern">Modern</button><button class="template-btn btn btn-secondary" data-template="template-classic">Klassik</button><button class="template-btn btn btn-secondary" data-template="template-creative">Kreativ</button><button class="template-btn btn btn-secondary" data-template="template-premium">Premium</button></div><div class="mt-4"><label for="accent-color" class="label">Vurğu Rəngi</label><input type="color" id="accent-color" value="#34d399" class="w-full h-10 p-1 bg-gray-700 border border-gray-600 rounded-md cursor-pointer"></div></div></div>
+            <div id="editor-panel" class="w-full lg:w-1/3 space-y-4">
+                 <div class="card"><div class="p-4"><div class="flex justify-between items-center"><h3 class="font-bold">1. Dizayn və Rəng</h3><p id="save-status" class="text-xs text-muted h-4"></p></div><div class="grid grid-cols-2 gap-2 mt-3"><button class="template-btn btn btn-secondary" data-template="template-modern">Modern</button><button class="template-btn btn btn-secondary" data-template="template-classic">Klassik</button><button class="template-btn btn btn-secondary" data-template="template-creative">Kreativ</button><button class="template-btn btn btn-secondary" data-template="template-premium">Premium</button></div><div class="mt-4"><label for="accent-color" class="label">Vurğu Rəngi</label><input type="color" id="accent-color" value="#34d399" class="w-full h-10 p-1 bg-gray-700 border border-gray-600 rounded-md cursor-pointer"></div></div></div>
                 <div class="card"><div class="p-4"><h3 class="font-bold mb-3">2. Şəxsi Məlumatlar</h3><div class="space-y-3"><div><label class="label">Ad Soyad</label><input type="text" data-input="name" class="input" placeholder="Məs: Elnur Əliyev"></div><div><label class="label">Vəzifə</label><input type="text" data-input="title" class="input" placeholder="Müraciət etdiyiniz vəzifə"></div><div><label class="label">Şəkil</label><input type="file" id="photo-upload" accept="image/*" class="input"></div><div><label class="label">Haqqımda</label><textarea data-input="summary" class="textarea" rows="4" placeholder="Özünüzü 2-3 cümlə ilə təqdim edin..."></textarea></div></div></div></div>
                 <div class="card"><div class="p-4"><h3 class="font-bold mb-3">3. Əlaqə və Linklər</h3><div class="space-y-3"><div><label class="label">Email</label><input type="email" data-input="email" class="input" placeholder="nümunə@email.com"></div><div><label class="label">Telefon</label><input type="tel" data-input="phone" class="input" placeholder="+994 50 123 45 67"></div><div><label class="label">Ünvan</label><input type="text" data-input="address" class="input" placeholder="Məs: Bakı, Azərbaycan"></div><div class="flex justify-between items-center mt-4"><h4 class="font-semibold">Sosial Linklər</h4><button id="add-social-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="social-forms" class="space-y-2"></div></div></div></div>
                 <div class="card"><div class="p-4"><div class="flex justify-between items-center mb-3"><h3 class="font-bold">4. İş Təcrübəsi</h3><button id="add-exp-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="experience-forms" class="space-y-4"></div></div></div>
@@ -168,7 +168,7 @@
             </div>
             <div class="w-full lg:w-2/3">
                 <div id="cv-preview-wrapper" class="sticky top-24 h-[90vh]">
-                     <div id="cv-preview" class="cv-content"></div>
+                       <div id="cv-preview" class="cv-content"></div>
                 </div>
             </div>
         </div>
@@ -203,23 +203,26 @@
         // Firebase 11-ci versiyası import edilir.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc, terminate } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // --- GLOBAL VARIABLES & CONSTANTS ---
         const CV_PRICE = 1.99;
-        let db, auth;
+        let db, auth, app;
         let currentUserId = null;
         let userBalance = 0;
         let isSaving = false;
         let saveTimeout;
+        let unsubscribeUserDoc;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cv-generator-local';
         
         // Default CV Data Structure
         const defaultCvData = {
-            name: '', title: '', photo: 'https://placehold.co/150x150/34d399/1a202c?text=Sizin%20Sekliniz',
+            name: '', title: '', photo: 'https://placehold.co/150x150/34d399/1a202c?text=Sizin+Sekliniz',
             email: '', phone: '', address: '', summary: '',
             experience: [], education: [], skills: '',
             languages: [], socialLinks: [],
-            activeTemplate: 'template-modern'
+            activeTemplate: 'template-modern',
+            accentColor: '#34d399'
         };
         let cvData = { ...defaultCvData };
 
@@ -228,7 +231,7 @@
             userBalance: document.getElementById('user-balance'),
             userIdDisplay: document.getElementById('user-id-display'),
             downloadPdfBtn: document.getElementById('downloadPdfBtn'),
-            editorPanel: document.querySelector('.w-full.lg\\:w-1\\/3'),
+            editorPanel: document.getElementById('editor-panel'),
             cvPreview: document.getElementById('cv-preview'),
             experienceForms: document.getElementById('experience-forms'),
             educationForms: document.getElementById('education-forms'),
@@ -237,7 +240,8 @@
             photoUpload: document.getElementById('photo-upload'),
             accentColorInput: document.getElementById('accent-color'),
             topUpModal: document.getElementById('top-up-modal'),
-            alertContainer: document.getElementById('alert-container')
+            alertContainer: document.getElementById('alert-container'),
+            saveStatus: document.getElementById('save-status')
         };
         
         // --- UTILITY FUNCTIONS ---
@@ -267,14 +271,14 @@
                         ${data.email ? `<span><i class="fas fa-envelope mr-1 accent-text"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></span>` : ''}
                         ${data.phone ? `<span><i class="fas fa-phone mr-1 accent-text"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></span>` : ''}
                         ${data.address ? `<span><i class="fas fa-map-marker-alt mr-1 accent-text"></i>${esc(data.address)}</a></span>` : ''}
-                        ${data.socialLinks.map(link => `<span><i class="fab fa-${link.name.toLowerCase()} mr-1 accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></span>`).join('')}
+                        ${(data.socialLinks || []).map(link => `<span><i class="fab fa-${link.name.toLowerCase()} mr-1 accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace(/^https?:\/\//, '')}</a></span>`).join('')}
                     </div>
                 </div>
                 ${data.summary ? `<div class="cv-section"><h2>Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
-                ${data.experience.length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
-                ${data.education.length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                ${(data.experience || []).length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                ${(data.education || []).length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
                 ${data.skills ? `<div class="cv-section"><h2>Bacarıqlar</h2><div class="flex flex-wrap gap-2">${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">${esc(s.trim())}</span>` : '').join('')}</div></div>` : ''}
-                ${data.languages.length > 0 ? `<div class="cv-section"><h2>Dillər</h2><div class="grid grid-cols-2 gap-2">${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}:</span> <strong class="font-normal text-gray-700">${esc(lang.level)}</strong></div>`).join('')}</div></div>` : ''}
+                ${(data.languages || []).length > 0 ? `<div class="cv-section"><h2>Dillər</h2><div class="grid grid-cols-2 gap-2">${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}:</span> <strong class="font-normal text-gray-700">${esc(lang.level)}</strong></div>`).join('')}</div></div>` : ''}
             `,
             'template-classic': (data) => `
                 <div class="cv-header">
@@ -287,8 +291,8 @@
                 <div class="grid grid-cols-3 gap-8 mt-6">
                     <div class="col-span-2">
                         ${data.summary ? `<div class="cv-section"><h2>Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
-                        ${data.experience.length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)} - <strong>${esc(exp.company)}</strong></h3><p class="text-sm text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</p><p class="mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
-                        ${data.education.length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong></p><p class="text-sm text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</p></div>`).join('')}</div>` : ''}
+                        ${(data.experience || []).length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)} - <strong>${esc(exp.company)}</strong></h3><p class="text-sm text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</p><p class="mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                        ${(data.education || []).length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong></p><p class="text-sm text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</p></div>`).join('')}</div>` : ''}
                     </div>
                     <div class="col-span-1">
                         <div class="cv-section">
@@ -296,37 +300,37 @@
                             ${data.email ? `<p class="mb-2"><strong class="font-semibold">Email:</strong><br><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
                             ${data.phone ? `<p class="mb-2"><strong class="font-semibold">Telefon:</strong><br><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
                             ${data.address ? `<p class="mb-2"><strong class="font-semibold">Ünvan:</strong><br>${esc(data.address)}</p>` : ''}
-                            ${data.socialLinks.map(link => `<p class="mb-2"><strong class="font-semibold">${link.name.charAt(0).toUpperCase() + link.name.slice(1)}:</strong><br><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                            ${(data.socialLinks || []).map(link => `<p class="mb-2"><strong class="font-semibold">${link.name.charAt(0).toUpperCase() + link.name.slice(1)}:</strong><br><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace(/^https?:\/\//, '')}</a></p>`).join('')}
                         </div>
                         ${data.skills ? `<div class="cv-section"><h2 class="accent-border-left">Bacarıqlar</h2><p>${esc(data.skills)}</p></div>` : ''}
-                        ${data.languages.length > 0 ? `<div class="cv-section"><h2 class="accent-border-left">Dillər</h2>${data.languages.map(lang => `<p>${esc(lang.name)} - ${esc(lang.level)}</p>`).join('')}</div>` : ''}
+                        ${(data.languages || []).length > 0 ? `<div class="cv-section"><h2 class="accent-border-left">Dillər</h2>${data.languages.map(lang => `<p>${esc(lang.name)} - ${esc(lang.level)}</p>`).join('')}</div>` : ''}
                     </div>
                 </div>
             `,
             'template-creative': (data) => `
                 <div class="left-column">
                     <img src="${esc(data.photo)}" alt="Profil Şəkli" class="cv-photo accent-border" onerror="this.src='${defaultCvData.photo}'">
-                    <div class="cv-section">
+                    ${data.summary ? `<div class="cv-section">
                         <h2 class="accent-text">Haqqımda</h2>
                         <p class="text-sm text-gray-200">${esc(data.summary).replace(/\n/g, '<br>')}</p>
-                    </div>
+                    </div>` : ''}
                     <div class="cv-section">
                         <h2 class="accent-text">Əlaqə</h2>
                         <div class="contact-info text-sm">
                             ${data.email ? `<p class="flex items-center mb-2"><i class="fas fa-envelope w-6"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
                             ${data.phone ? `<p class="flex items-center mb-2"><i class="fas fa-phone w-6"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
                             ${data.address ? `<p class="flex items-center mb-2"><i class="fas fa-map-marker-alt w-6"></i>${esc(data.address)}</p>` : ''}
-                            ${data.socialLinks.map(link => `<p class="flex items-center mb-2"><i class="fab fa-${link.name.toLowerCase()} w-6"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                            ${(data.socialLinks || []).map(link => `<p class="flex items-center mb-2"><i class="fab fa-${link.name.toLowerCase()} w-6"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace(/^https?:\/\//, '')}</a></p>`).join('')}
                         </div>
                     </div>
                        ${data.skills ? `<div class="cv-section"><h2 class="accent-text">Bacarıqlar</h2><div class="flex flex-wrap gap-2">${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-white bg-opacity-20 rounded-full px-3 py-1 text-sm font-semibold">${esc(s.trim())}</span>`: '').join('')}</div></div>` : ''}
-                       ${data.languages.length > 0 ? `<div class="cv-section"><h2 class="accent-text">Dillər</h2>${data.languages.map(lang => `<div class="language-item flex justify-between"><span>${esc(lang.name)}</span><strong class="font-normal text-gray-200">${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
+                       ${(data.languages || []).length > 0 ? `<div class="cv-section"><h2 class="accent-text">Dillər</h2>${data.languages.map(lang => `<div class="language-item flex justify-between"><span>${esc(lang.name)}</span><strong class="font-normal text-gray-200">${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
                 </div>
                 <div class="right-column p-8">
                     <h1 class="cv-name">${esc(data.name)}</h1>
                     <p class="cv-title font-normal text-gray-600">${esc(data.title)}</p>
-                    ${data.experience.length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-500">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1 text-gray-700">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
-                    ${data.education.length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-500">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                    ${(data.experience || []).length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-500">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1 text-gray-700">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                    ${(data.education || []).length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-500">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
                 </div>
             `,
             'template-premium': (data) => `
@@ -339,15 +343,15 @@
                         ${data.email ? `<p><i class="fas fa-envelope accent-text"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
                         ${data.phone ? `<p><i class="fas fa-phone accent-text"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
                         ${data.address ? `<p><i class="fas fa-map-marker-alt accent-text"></i>${esc(data.address)}</p>` : ''}
-                        ${data.socialLinks.map(link => `<p><i class="fab fa-${link.name.toLowerCase()} accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                        ${(data.socialLinks || []).map(link => `<p><i class="fab fa-${link.name.toLowerCase()} accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace(/^https?:\/\//, '')}</a></p>`).join('')}
                     </div>
                     ${data.skills ? `<div class="cv-section"><h2>Bacarıqlar</h2><p>${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-gray-300 rounded-full px-3 py-1 text-sm font-semibold text-gray-800 mr-2 mb-2">${esc(s.trim())}</span>` : '').join('')}</p></div>` : ''}
-                    ${data.languages.length > 0 ? `<div class="cv-section"><h2>Dillər</h2>${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}</span><strong>${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
+                    ${(data.languages || []).length > 0 ? `<div class="cv-section"><h2>Dillər</h2>${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}</span><strong>${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
                 </div>
                 <div class="right-column">
                     ${data.summary ? `<div class="cv-section"><h2 class="accent-border-bottom">Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
-                    ${data.experience.length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
-                    ${data.education.length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                    ${(data.experience || []).length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                    ${(data.education || []).length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
                 </div>
             `
         };
@@ -356,126 +360,146 @@
         const saveDraftToFirestore = async () => {
             if (!currentUserId || !db) return;
             isSaving = true;
+            elements.saveStatus.textContent = "Yadda saxlanılır...";
             try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
-                const cvDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'cv_data', 'draft');
-                await setDoc(cvDocRef, cvData, { merge: true });
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId);
+                await setDoc(userDocRef, { cvData: cvData });
+                 setTimeout(() => { elements.saveStatus.textContent = "Yadda saxlandı"; }, 500);
             } catch (error) {
                 console.error("Firestore-a yazma xətası:", error);
                 showAlert('Məlumatları yadda saxlayarkən xəta baş verdi.', 'error');
+                elements.saveStatus.textContent = "Xəta!";
             } finally {
                 isSaving = false;
+                 setTimeout(() => { if (elements.saveStatus.textContent === "Yadda saxlandı") elements.saveStatus.textContent = ""; }, 2000);
             }
         };
 
         const debouncedSave = () => {
             clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(saveDraftToFirestore, 1000); // 1 saniyə gecikmə ilə yadda saxla
+            elements.saveStatus.textContent = "Dəyişikliklər edilir...";
+            saveTimeout = setTimeout(saveDraftToFirestore, 1500);
         };
 
-        // --- UI & FORM LOGIC ---
+        // --- DYNAMIC FORM RENDERING ---
+        const renderDynamicForms = () => {
+            elements.experienceForms.innerHTML = (cvData.experience || []).map((exp, index) => `
+                <div class="experience-form border border-gray-600 p-3 rounded-md relative">
+                    <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold" data-type="experience" data-index="${index}">&times;</button>
+                    <div class="space-y-2">
+                        <div><label class="label text-xs">Vəzifə</label><input type="text" data-exp="title" data-index="${index}" class="input text-sm" placeholder="Məs: Marketinq Meneceri" value="${esc(exp.title)}"></div>
+                        <div><label class="label text-xs">Şirkət</label><input type="text" data-exp="company" data-index="${index}" class="input text-sm" placeholder="Məs: 'Uğur' MMC" value="${esc(exp.company)}"></div>
+                        <div class="flex gap-2">
+                            <div><label class="label text-xs">Başlanğıc</label><input type="text" data-exp="start" data-index="${index}" class="input text-sm" placeholder="Yanvar 2020" value="${esc(exp.start)}"></div>
+                            <div><label class="label text-xs">Bitmə</label><input type="text" data-exp="end" data-index="${index}" class="input text-sm" placeholder="Hazırda" value="${esc(exp.end)}"></div>
+                        </div>
+                        <div><label class="label text-xs">Açıqlama</label><textarea data-exp="desc" data-index="${index}" class="textarea text-sm" rows="3" placeholder="Gördüyünüz işləri yazın...">${esc(exp.desc)}</textarea></div>
+                    </div>
+                </div>
+            `).join('');
+
+            elements.educationForms.innerHTML = (cvData.education || []).map((edu, index) => `
+                <div class="education-form border border-gray-600 p-3 rounded-md relative">
+                    <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold" data-type="education" data-index="${index}">&times;</button>
+                    <div class="space-y-2">
+                        <div><label class="label text-xs">İxtisas və dərəcə</label><input type="text" data-edu="degree" data-index="${index}" class="input text-sm" placeholder="Məs: Kompüter Mühəndisliyi" value="${esc(edu.degree)}"></div>
+                        <div><label class="label text-xs">Universitet</label><input type="text" data-edu="school" data-index="${index}" class="input text-sm" placeholder="Məs: ADNSU" value="${esc(edu.school)}"></div>
+                        <div class="flex gap-2">
+                             <div><label class="label text-xs">Başlanğıc</label><input type="text" data-edu="start" data-index="${index}" class="input text-sm" placeholder="Sentyabr 2016" value="${esc(edu.start)}"></div>
+                             <div><label class="label text-xs">Bitmə</label><input type="text" data-edu="end" data-index="${index}" class="input text-sm" placeholder="İyun 2020" value="${esc(edu.end)}"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            elements.languageForms.innerHTML = (cvData.languages || []).map((lang, index) => `
+                <div class="language-form flex gap-2 items-center">
+                    <input type="text" data-lang="name" data-index="${index}" class="input text-sm" placeholder="Məs: İngilis" value="${esc(lang.name)}">
+                    <select data-lang="level" data-index="${index}" class="select text-sm">
+                        <option ${lang.level === 'Ana dili' ? 'selected' : ''}>Ana dili</option>
+                        <option ${lang.level === 'Əla' ? 'selected' : ''}>Əla</option>
+                        <option ${lang.level === 'Yaxşı' ? 'selected' : ''}>Yaxşı</option>
+                        <option ${lang.level === 'Orta' ? 'selected' : ''}>Orta</option>
+                    </select>
+                    <button class="remove-btn text-red-500 text-2xl font-bold" data-type="languages" data-index="${index}">&times;</button>
+                </div>
+            `).join('');
+            
+            elements.socialForms.innerHTML = (cvData.socialLinks || []).map((link, index) => `
+                 <div class="social-form flex gap-2 items-center">
+                    <select data-social="name" data-index="${index}" class="select text-sm w-1/3">
+                        <option value="linkedin" ${link.name === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                        <option value="github" ${link.name === 'github' ? 'selected' : ''}>GitHub</option>
+                        <option value="globe" ${link.name === 'globe' ? 'selected' : ''}>Portfolio</option>
+                    </select>
+                    <input type="url" data-social="url" data-index="${index}" class="input text-sm" placeholder="https://..." value="${esc(link.url)}">
+                    <button class="remove-btn text-red-500 text-2xl font-bold" data-type="socialLinks" data-index="${index}">&times;</button>
+                </div>
+            `).join('');
+        };
+
+        // --- UI & DATA SYNC ---
         const syncFormWithData = () => {
             document.querySelectorAll('[data-input]').forEach(input => {
                 input.value = cvData[input.dataset.input] || '';
             });
-            elements.experienceForms.innerHTML = ''; cvData.experience.forEach(createExperienceForm);
-            elements.educationForms.innerHTML = ''; cvData.education.forEach(createEducationForm);
-            elements.languageForms.innerHTML = ''; cvData.languages.forEach(createLanguageForm);
-            elements.socialForms.innerHTML = ''; cvData.socialLinks.forEach(createSocialLinkForm);
-        };
-        
-        const updateDataFromForm = () => {
-            document.querySelectorAll('[data-input]').forEach(input => cvData[input.dataset.input] = input.value);
-            cvData.experience = Array.from(document.querySelectorAll('.experience-form')).map(form => ({ title: form.querySelector('[data-exp="title"]').value, company: form.querySelector('[data-exp="company"]').value, start: form.querySelector('[data-exp="start"]').value, end: form.querySelector('[data-exp="end"]').value, desc: form.querySelector('[data-exp="desc"]').value, }));
-            cvData.education = Array.from(document.querySelectorAll('.education-form')).map(form => ({ degree: form.querySelector('[data-edu="degree"]').value, school: form.querySelector('[data-edu="school"]').value, start: form.querySelector('[data-edu="start"]').value, end: form.querySelector('[data-edu="end"]').value, }));
-            cvData.languages = Array.from(document.querySelectorAll('.language-form')).map(form => ({ name: form.querySelector('[data-lang="name"]').value, level: form.querySelector('[data-lang="level"]').value, }));
-            cvData.socialLinks = Array.from(document.querySelectorAll('.social-form')).map(form => ({ name: form.querySelector('[data-social="name"]').value, url: form.querySelector('[data-social="url"]').value, }));
+            elements.accentColorInput.value = cvData.accentColor || '#34d399';
+            document.documentElement.style.setProperty('--primary', cvData.accentColor);
+            
+            renderDynamicForms();
         };
         
         const updatePreview = () => {
-            const renderFunction = templates[cvData.activeTemplate] || templates['template-modern'];
+            const template = cvData.activeTemplate || 'template-modern';
+            const renderFunction = templates[template] || templates['template-modern'];
+            elements.cvPreview.className = `cv-content ${template}`;
             elements.cvPreview.innerHTML = renderFunction(cvData);
         };
         
-        const handleFormInput = () => {
-            updateDataFromForm();
+        const fullRender = () => {
+            syncFormWithData();
+            updatePreview();
+        };
+
+        // --- EVENT HANDLERS ---
+        const handleEditorInput = (e) => {
+            const target = e.target;
+            const key = target.dataset.input;
+            
+            if (key) {
+                cvData[key] = target.value;
+            } else {
+                 const type = target.dataset.exp || target.dataset.edu || target.dataset.lang || target.dataset.social;
+                 const index = target.dataset.index;
+                 const property = target.dataset.lang || target.dataset.social ? type : Object.keys(target.dataset)[0].split('-')[1];
+
+                 if (index !== undefined) {
+                     const arrayName = target.closest('#experience-forms') ? 'experience' : 
+                                     target.closest('#education-forms') ? 'education' :
+                                     target.closest('#language-forms') ? 'languages' : 'socialLinks';
+                     cvData[arrayName][index][type] = target.value;
+                 }
+            }
             updatePreview();
             debouncedSave();
         };
         
-        // Dynamic Form Creators
-        const createExperienceForm = (data = { title: '', company: '', start: '', end: '', desc: '' }) => {
-            const form = document.createElement('div');
-            form.className = 'experience-form border border-gray-600 p-3 rounded-md relative';
-            form.innerHTML = `
-                <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold">&times;</button>
-                <div class="space-y-2">
-                    <div><label class="label text-xs">Vəzifə</label><input type="text" data-exp="title" class="input text-sm" placeholder="Məs: Marketinq Meneceri" value="${esc(data.title)}"></div>
-                    <div><label class="label text-xs">Şirkət</label><input type="text" data-exp="company" class="input text-sm" placeholder="Məs: 'Uğur' MMC" value="${esc(data.company)}"></div>
-                    <div class="flex gap-2">
-                        <div><label class="label text-xs">Başlanğıc</label><input type="text" data-exp="start" class="input text-sm" placeholder="Yanvar 2020" value="${esc(data.start)}"></div>
-                        <div><label class="label text-xs">Bitmə</label><input type="text" data-exp="end" class="input text-sm" placeholder="Hazırda" value="${esc(data.end)}"></div>
-                    </div>
-                    <div><label class="label text-xs">Açıqlama</label><textarea data-exp="desc" class="textarea text-sm" rows="3" placeholder="Gördüyünüz işləri yazın...">${esc(data.desc)}</textarea></div>
-                </div>`;
-            elements.experienceForms.appendChild(form);
-        };
-        const createEducationForm = (data = { degree: '', school: '', start: '', end: '' }) => {
-            const form = document.createElement('div');
-            form.className = 'education-form border border-gray-600 p-3 rounded-md relative';
-            form.innerHTML = `
-                <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold">&times;</button>
-                <div class="space-y-2">
-                    <div><label class="label text-xs">İxtisas və dərəcə</label><input type="text" data-edu="degree" class="input text-sm" placeholder="Məs: Kompüter Mühəndisliyi" value="${esc(data.degree)}"></div>
-                    <div><label class="label text-xs">Universitet</label><input type="text" data-edu="school" class="input text-sm" placeholder="Məs: ADNSU" value="${esc(data.school)}"></div>
-                    <div class="flex gap-2">
-                         <div><label class="label text-xs">Başlanğıc</label><input type="text" data-edu="start" class="input text-sm" placeholder="Sentyabr 2016" value="${esc(data.start)}"></div>
-                         <div><label class="label text-xs">Bitmə</label><input type="text" data-edu="end" class="input text-sm" placeholder="İyun 2020" value="${esc(data.end)}"></div>
-                    </div>
-                </div>`;
-            elements.educationForms.appendChild(form);
-        };
-        const createLanguageForm = (data = { name: '', level: 'Ana dili' }) => {
-            const form = document.createElement('div');
-            form.className = 'language-form flex gap-2 items-center';
-            form.innerHTML = `
-                <input type="text" data-lang="name" class="input text-sm" placeholder="Məs: İngilis" value="${esc(data.name)}">
-                <select data-lang="level" class="select text-sm">
-                    <option ${data.level === 'Ana dili' ? 'selected' : ''}>Ana dili</option>
-                    <option ${data.level === 'Əla' ? 'selected' : ''}>Əla</option>
-                    <option ${data.level === 'Yaxşı' ? 'selected' : ''}>Yaxşı</option>
-                    <option ${data.level === 'Orta' ? 'selected' : ''}>Orta</option>
-                </select>
-                <button class="remove-btn text-red-500 text-2xl font-bold">&times;</button>`;
-            elements.languageForms.appendChild(form);
-        };
-        const createSocialLinkForm = (data = { name: 'linkedin', url: '' }) => {
-            const form = document.createElement('div');
-            form.className = 'social-form flex gap-2 items-center';
-            form.innerHTML = `
-                <select data-social="name" class="select text-sm w-1/3">
-                    <option value="linkedin" ${data.name === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
-                    <option value="github" ${data.name === 'github' ? 'selected' : ''}>GitHub</option>
-                    <option value="globe" ${data.name === 'globe' ? 'selected' : ''}>Portfolio</option>
-                </select>
-                <input type="url" data-social="url" class="input text-sm" placeholder="https://..." value="${esc(data.url)}">
-                <button class="remove-btn text-red-500 text-2xl font-bold">&times;</button>`;
-            elements.socialForms.appendChild(form);
-        };
-        
-        // --- EVENT LISTENERS ---
         const setupEventListeners = () => {
-            elements.editorPanel.addEventListener('input', handleFormInput);
+            elements.editorPanel.addEventListener('input', handleEditorInput);
             
-            document.getElementById('add-exp-btn').addEventListener('click', () => { createExperienceForm(); handleFormInput(); });
-            document.getElementById('add-edu-btn').addEventListener('click', () => { createEducationForm(); handleFormInput(); });
-            document.getElementById('add-lang-btn').addEventListener('click', () => { createLanguageForm(); handleFormInput(); });
-            document.getElementById('add-social-btn').addEventListener('click', () => { createSocialLinkForm(); handleFormInput(); });
+            document.getElementById('add-exp-btn').addEventListener('click', () => { cvData.experience.push({ title: '', company: '', start: '', end: '', desc: '' }); fullRender(); debouncedSave(); });
+            document.getElementById('add-edu-btn').addEventListener('click', () => { cvData.education.push({ degree: '', school: '', start: '', end: '' }); fullRender(); debouncedSave(); });
+            document.getElementById('add-lang-btn').addEventListener('click', () => { cvData.languages.push({ name: '', level: 'Yaxşı' }); fullRender(); debouncedSave(); });
+            document.getElementById('add-social-btn').addEventListener('click', () => { cvData.socialLinks.push({ name: 'linkedin', url: '' }); fullRender(); debouncedSave(); });
             
             elements.editorPanel.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-btn')) {
-                    e.target.parentElement.remove();
-                    handleFormInput();
+                    const { type, index } = e.target.dataset;
+                    if (type && cvData[type] && cvData[type][index] !== undefined) {
+                        cvData[type].splice(index, 1);
+                        fullRender();
+                        debouncedSave();
+                    }
                 }
             });
 
@@ -483,16 +507,19 @@
                 btn.addEventListener('click', (e) => {
                     const templateClass = e.currentTarget.dataset.template;
                     cvData.activeTemplate = templateClass;
-                    elements.cvPreview.className = `cv-content ${templateClass}`;
-                    document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
-                    e.currentTarget.classList.add('active');
+                    updateActiveTemplateButton();
                     updatePreview();
                     saveDraftToFirestore();
                 });
             });
 
             elements.accentColorInput.addEventListener('input', (e) => {
-                document.documentElement.style.setProperty('--primary', e.target.value);
+                const color = e.target.value;
+                cvData.accentColor = color;
+                document.documentElement.style.setProperty('--primary', color);
+                // Debounce to avoid saving on every tiny color change while dragging
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveDraftToFirestore, 300);
             });
 
             elements.photoUpload.addEventListener('change', (e) => {
@@ -500,7 +527,8 @@
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         cvData.photo = event.target.result;
-                        handleFormInput();
+                        updatePreview();
+                        saveDraftToFirestore();
                     };
                     reader.onerror = (error) => console.error("FileReader xətası:", error);
                     reader.readAsDataURL(e.target.files[0]);
@@ -526,13 +554,12 @@
         // --- PDF DOWNLOAD LOGIC ---
         const handlePdfDownload = async () => {
             if (!currentUserId) return showAlert('Sistemə daxil olarkən xəta baş verdi. Səhifəni yeniləyin.', 'error');
-            if (userBalance < CV_PRICE) return showAlert(`Balansınız kifayət deyil! Lazımi məbləğ: ${CV_PRICE} AZN`, 'error');
+            if (userBalance < CV_PRICE) return showAlert(`Balansınız kifayət deyil! Lazımi məbləğ: ${CV_PRICE.toFixed(2)} AZN`, 'error');
 
             elements.downloadPdfBtn.disabled = true;
             elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yoxlanılır...`;
             
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
-            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'data');
+            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId);
 
             try {
                 const userDoc = await getDoc(userDocRef);
@@ -549,8 +576,8 @@
                 elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> PDF hazırlanır...`;
                 
                 const { jsPDF } = window.jspdf;
-                const canvas = await html2canvas(elements.cvPreview, { scale: 3, useCORS: true, logging: false });
-                const imgData = canvas.toDataURL('image/jpeg', 0.90);
+                const canvas = await html2canvas(elements.cvPreview, { scale: 2.5, useCORS: true, logging: false });
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
                 
                 const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
@@ -568,66 +595,53 @@
             }
         };
 
-
         // --- FIREBASE & APP INITIALIZATION ---
         const setupUser = (uid) => {
-            if (currentUserId === uid) return; // Already setup
+            if (currentUserId === uid) return; 
             currentUserId = uid;
             elements.userIdDisplay.textContent = uid;
             
-            // Setup WhatsApp links
             const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${uid}. Balans artırmaq istəyirəm.`);
             document.getElementById('whatsapp-topup-link').href = `https://wa.me/994606006162?text=${whatsappText}`;
             document.getElementById('floating-whatsapp-bubble').href = `https://wa.me/994606006162?text=${encodeURIComponent(`Salam, CV generatoru ilə bağlı dəstəyə ehtiyacım var. ID: ${uid}`)}`;
             
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
-            const profileDocRef = doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data');
-            const cvDocRef = doc(db, 'artifacts', appId, 'users', uid, 'cv_data', 'draft');
+            const userDocRef = doc(db, 'artifacts', appId, 'users', uid);
 
-            // Listen for balance changes
-            onSnapshot(profileDocRef, (snap) => {
-                if (snap.exists() && typeof snap.data().balance === 'number') {
-                    userBalance = snap.data().balance;
-                } else {
-                    userBalance = 0;
-                    setDoc(profileDocRef, { balance: 0 }, { merge: true });
-                }
+            if (unsubscribeUserDoc) unsubscribeUserDoc();
+
+            unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
+                const data = snap.data();
+                
+                userBalance = (data && typeof data.balance === 'number') ? data.balance : 0;
                 elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
-            });
-            
-            // Listen for CV data changes (real-time sync)
-            onSnapshot(cvDocRef, (snap) => {
-                if (isSaving) return; // Prevent loopback from our own save
-                if (snap.exists()) {
-                    const dbData = snap.data();
-                    cvData = { ...defaultCvData, ...dbData };
-                } else {
-                    // No data in Firestore, save the default structure
-                    setDoc(cvDocRef, cvData);
+
+                if (!isSaving) { 
+                    cvData = { ...defaultCvData, ...(data && data.cvData ? data.cvData : {}) };
+                    syncFormWithData();
+                    updateActiveTemplateButton();
+                    updatePreview();
                 }
-                syncFormWithData();
-                updateActiveTemplateButton();
-                updatePreview();
+
+            }, (error) => {
+                console.error("İstifadəçi məlumatlarını izləyərkən xəta:", error);
+                showAlert("Hesab məlumatları yüklənə bilmədi.", "error");
             });
         };
 
         const updateActiveTemplateButton = () => {
              const activeTemplate = cvData.activeTemplate || 'template-modern';
-             elements.cvPreview.className = `cv-content ${activeTemplate}`;
-             document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
-             const activeButton = document.querySelector(`.template-btn[data-template="${activeTemplate}"]`);
-             if(activeButton) activeButton.classList.add('active');
+             document.querySelectorAll('.template-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.template === activeTemplate);
+             });
         };
 
         const initialize = async () => {
             try {
                 let firebaseConfig;
-                // Mühit tərəfindən təmin edilən konfiqurasiyanı yoxlayın, əks halda lokal test üçün fallback istifadə edin
                 if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                     firebaseConfig = JSON.parse(__firebase_config);
                 } else {
-                    console.warn("Lokal test üçün ehtiyat Firebase konfiqurasiyası istifadə olunur. Real mühitdə bu dəyişdiriləcək.");
-                    // Bu konfiqurasiya yalnız lokal test üçündür.
+                    console.warn("Lokal test üçün ehtiyat Firebase konfiqurasiyası istifadə olunur.");
                     firebaseConfig = {
                         apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
                         authDomain: "axtargetbotwebsite.firebaseapp.com",
@@ -638,7 +652,7 @@
                     };
                 }
 
-                const app = initializeApp(firebaseConfig);
+                app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
@@ -646,11 +660,15 @@
                     if (user) {
                         setupUser(user.uid);
                     } else {
-                        // Təhlükəsizlik: __initial_auth_token ilə sistemə daxil olmaq
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                           await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                           await signInAnonymously(auth);
+                        try {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                               await signInWithCustomToken(auth, __initial_auth_token);
+                            } else {
+                               await signInAnonymously(auth);
+                            }
+                        } catch (authError) {
+                             console.error("Authentication error:", authError);
+                             showAlert("Giriş uğursuz oldu. Səhifəni yeniləyin.", "error");
                         }
                     }
                 });
@@ -670,4 +688,3 @@
     </script>
 </body>
 </html>
-
