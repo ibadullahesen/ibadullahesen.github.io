@@ -1,1 +1,661 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AxtarGet - Hazır CV Generatoru (Pro+)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Merriweather:wght@400;700&family=Lato:wght@400;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --background: #1a202c;
+            --card-background: #2d3748;
+            --border: #4a5568;
+            --text-primary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --primary: #34d399;
+            --secondary: #4a5568;
+            --input-bg: #4a5568;
+        }
+        /* TƏHLÜKƏSİZLİK: Kopyalama, sağ klik və seçmə bloklanır */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* TƏHLÜKƏSİZLİK: Inputlara yazmağa və yapışdırmağa icazə verilir */
+        .input, .textarea, .select {
+            user-select: auto;
+            -webkit-user-select: auto;
+        }
+        .container { max-width: 1500px; }
+        header {
+            background-color: rgba(45, 55, 72, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+        .card { background-color: var(--card-background); border-radius: 0.75rem; border: 1px solid var(--border); }
+        .label { font-size: 0.875rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.5rem; display: block; }
+        .input, .textarea, .select {
+            width: 100%; padding: 0.75rem; border-radius: 0.5rem; background-color: var(--input-bg);
+            color: var(--text-primary); border: 1px solid var(--border);
+        }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.75rem 1.5rem; border-radius: 0.5rem;
+            font-weight: 600; transition: all 0.2s; cursor: pointer; border: none;
+        }
+        .btn-primary { background-color: var(--primary); color: #1a202c; }
+        .btn-primary:hover:not(:disabled) { filter: brightness(110%); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn.active { background-color: var(--primary); color: #1a202c; }
+
+        #cv-preview-wrapper { background-color: #525252; padding: 2rem; border-radius: 0.5rem; overflow-y: auto; }
+        .cv-content {
+            background-color: white; color: #111827;
+            width: 210mm; min-height: 297mm;
+            margin: auto; padding: 20mm;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        .cv-content .accent-text { color: var(--primary); }
+        .cv-content .accent-border { border-color: var(--primary); }
+        .cv-content .accent-border-bottom { border-bottom-color: var(--primary); }
+        .cv-content .accent-border-left { border-left-color: var(--primary); }
+        
+        #floating-whatsapp-bubble {
+            position: fixed; bottom: 30px; right: 30px; background-color: #25D366;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 40;
+        }
+        .alert-message {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%); color: white; padding: 12px 24px;
+            border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000; opacity: 0; transition: opacity 0.3s, top 0.3s;
+            text-align: center;
+        }
+        .alert-message.show { opacity: 1; top: 80px; }
+        .alert-message.success { background-color: #10b981; }
+        .alert-message.error { background-color: #ef4444; }
+        
+        .dialog-overlay {
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 100;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .dialog-overlay.show { display: flex; opacity: 1; }
+        .dialog-content {
+            background-color: var(--card-background); border-radius: 0.75rem; padding: 1.5rem;
+            width: 100%; max-width: 420px; position: relative;
+        }
+        .dialog-close { position: absolute; top: 1rem; right: 1rem; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; }
+
+        .template-modern { font-family: 'Poppins', sans-serif; }
+        .template-modern .cv-header { text-align: center; border-bottom-width: 2px; padding-bottom: 15px; margin-bottom: 20px; }
+        .template-modern .cv-name { font-size: 2.5rem; font-weight: 700; color: #1f2937; }
+        .template-modern .cv-title { font-size: 1.2rem; font-weight: 500; }
+        .template-modern .cv-section h2 { font-size: 1.3rem; font-weight: 600; color: #111827; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        .template-modern .cv-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; border-width: 3px; }
+        
+        .template-classic { font-family: 'Merriweather', serif; }
+        .template-classic .cv-header { display: flex; align-items: center; gap: 20px; border-bottom: 1px solid #374151; padding-bottom: 15px; margin-bottom: 20px; }
+        .template-classic .cv-photo { width: 120px; height: 120px; object-fit: cover; border-radius: 0; flex-shrink: 0; }
+        .template-classic .cv-name { font-size: 2.8rem; font-weight: 700; }
+        .template-classic .cv-title { font-size: 1.3rem; font-style: italic; color: #4b5563; }
+        .template-classic .cv-section h2 { font-size: 1.4rem; font-weight: 700; color: #1f2937; border-left-width: 4px; padding-left: 10px; margin-bottom: 15px; }
+
+        .template-creative { font-family: 'Lato', sans-serif; display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .template-creative .left-column { background-color: #1f2937; color: white; padding: 20mm; margin: -20mm 0 -20mm -20mm; }
+        .template-creative .cv-photo { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; border-width: 5px; margin-bottom: 20px; }
+        .template-creative .cv-name { font-size: 2.2rem; font-weight: 700; }
+        .template-creative .cv-title { font-size: 1.1rem; color: #d1d5db; }
+        .template-creative .cv-section h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
+        .template-creative .left-column .cv-section h2 { color: white; border-bottom: 1px solid var(--secondary); padding-bottom: 5px;}
+
+        .template-premium { font-family: 'Roboto', sans-serif; display: grid; grid-template-columns: 1.2fr 2fr; gap: 0; }
+        .template-premium .left-column { background-color: #f4f4f4; padding: 20mm; margin: -20mm 0 -20mm -20mm;}
+        .template-premium .right-column { padding: 15mm 15mm 15mm 10mm; }
+        .template-premium .cv-photo { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 6px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.2); margin-left: auto; margin-right: auto; margin-bottom: 15px; display: block;}
+        .template-premium .cv-name { font-size: 2.4rem; font-weight: 700; text-align: center;}
+        .template-premium .cv-title { font-size: 1.1rem; text-align: center; color: #333; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px;}
+        .template-premium .left-column .cv-section h2 { font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+        .template-premium .right-column .cv-section h2 { font-size: 1.4rem; font-weight: 700; color: #333; margin-bottom: 15px; border-bottom-width: 2px; padding-bottom: 5px;}
+        .template-premium .contact-info p { display: flex; align-items: center; margin-bottom: 8px; font-size: 0.9rem;}
+        .template-premium .contact-info i { width: 20px; text-align: center; margin-right: 5px; }
+        .template-premium .language-item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .template-premium .job h3, .template-premium .edu h3 { font-size: 1.1rem; font-weight: 700; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <header class="sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background-color: var(--primary);"><i class="fas fa-file-alt text-xl text-white"></i></div>
+                <h1 class="text-2xl font-bold" style="color: var(--primary);">Hazır CV Generatoru</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-lg font-semibold">Balans: <span id="user-balance" style="color: var(--primary);">0.00 AZN</span></p>
+                    <p class="text-xs text-muted">ID: <span id="user-id-display" class="font-mono">yüklənir...</span></p>
+                </div>
+                <button id="add-balance-btn" class="btn btn-secondary">Balans Artır</button>
+                <button id="downloadPdfBtn" class="btn btn-primary">
+                   <i class="fas fa-file-pdf mr-2"></i> PDF Yüklə (1.99 AZN)
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="w-full lg:w-1/3 space-y-4">
+                <div class="card"><div class="p-4"><h3 class="font-bold mb-3">1. Dizayn və Rəng</h3><div class="grid grid-cols-2 gap-2"><button class="template-btn btn btn-secondary" data-template="template-modern">Modern</button><button class="template-btn btn btn-secondary" data-template="template-classic">Klassik</button><button class="template-btn btn btn-secondary" data-template="template-creative">Kreativ</button><button class="template-btn btn btn-secondary" data-template="template-premium">Premium</button></div><div class="mt-4"><label for="accent-color" class="label">Vurğu Rəngi</label><input type="color" id="accent-color" value="#34d399" class="w-full h-10 p-1 bg-gray-700 border border-gray-600 rounded-md cursor-pointer"></div></div></div>
+                <div class="card"><div class="p-4"><h3 class="font-bold mb-3">2. Şəxsi Məlumatlar</h3><div class="space-y-3"><div><label class="label">Ad Soyad</label><input type="text" data-input="name" class="input" placeholder="Məs: Elnur Əliyev"></div><div><label class="label">Vəzifə</label><input type="text" data-input="title" class="input" placeholder="Müraciət etdiyiniz vəzifə"></div><div><label class="label">Şəkil</label><input type="file" id="photo-upload" accept="image/*" class="input"></div><div><label class="label">Haqqımda</label><textarea data-input="summary" class="textarea" rows="4" placeholder="Özünüzü 2-3 cümlə ilə təqdim edin..."></textarea></div></div></div></div>
+                <div class="card"><div class="p-4"><h3 class="font-bold mb-3">3. Əlaqə və Linklər</h3><div class="space-y-3"><div><label class="label">Email</label><input type="email" data-input="email" class="input" placeholder="nümunə@email.com"></div><div><label class="label">Telefon</label><input type="tel" data-input="phone" class="input" placeholder="+994 50 123 45 67"></div><div><label class="label">Ünvan</label><input type="text" data-input="address" class="input" placeholder="Məs: Bakı, Azərbaycan"></div><div class="flex justify-between items-center mt-4"><h4 class="font-semibold">Sosial Linklər</h4><button id="add-social-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="social-forms" class="space-y-2"></div></div></div></div>
+                <div class="card"><div class="p-4"><div class="flex justify-between items-center mb-3"><h3 class="font-bold">4. İş Təcrübəsi</h3><button id="add-exp-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="experience-forms" class="space-y-4"></div></div></div>
+                <div class="card"><div class="p-4"><div class="flex justify-between items-center mb-3"><h3 class="font-bold">5. Təhsil</h3><button id="add-edu-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="education-forms" class="space-y-4"></div></div></div>
+                <div class="card"><div class="p-4"><h3 class="font-bold mb-3">6. Bacarıqlar və Dillər</h3><div><label class="label">Bacarıqlar (vergüllə ayırın)</label><textarea data-input="skills" class="textarea" rows="3" placeholder="Məs: MS Office, Photoshop..."></textarea></div><div class="flex justify-between items-center mt-4"><h4 class="font-semibold">Dil Bilikləri</h4><button id="add-lang-btn" class="btn btn-secondary text-sm py-1 px-2"><i class="fas fa-plus mr-1"></i>Əlavə et</button></div><div id="language-forms" class="space-y-2"></div></div></div>
+            </div>
+            <div class="w-full lg:w-2/3">
+                <div id="cv-preview-wrapper" class="sticky top-24 h-[90vh]">
+                     <div id="cv-preview" class="cv-content"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <a href="#" id="floating-whatsapp-bubble">
+        <i class="fab fa-whatsapp text-3xl text-white"></i>
+    </a>
+    <div id="alert-container"></div>
+    
+    <div id="top-up-modal" class="dialog-overlay">
+        <div class="dialog-content">
+            <span id="close-top-up-modal" class="dialog-close">&times;</span>
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold">Balans Artır</h3>
+                <p class="text-muted">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
+                <div class="bg-gray-700 p-4 rounded-lg text-center">
+                    <p class="text-sm text-muted mb-2">Kapital Bank Kartı</p>
+                    <p id="bank-card-number" class="text-xl font-bold font-mono tracking-widest">4169 7388 7208 5778</p>
+                </div>
+                <div class="p-3 rounded-lg text-sm bg-yellow-500/10 text-yellow-400">
+                    <p>Ödənişdən sonra çeki <strong>WhatsApp</strong> ilə göndərin. Balansınız 5-15 dəqiqə ərzində yüklənəcək.</p>
+                </div>
+                <a id="whatsapp-topup-link" href="#" target="_blank" class="btn w-full flex items-center justify-center" style="background-color: #25D366; color: white;">
+                    <i class="fab fa-whatsapp mr-2"></i> WhatsApp-a Göndər
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase 11-ci versiyası import edilir.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, getDoc, setDoc, terminate } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // --- GLOBAL VARIABLES & CONSTANTS ---
+        const CV_PRICE = 1.99;
+        let db, auth;
+        let currentUserId = null;
+        let userBalance = 0;
+        let isSaving = false;
+        let saveTimeout;
+        
+        // Default CV Data Structure
+        const defaultCvData = {
+            name: '', title: '', photo: 'https://placehold.co/150x150/34d399/1a202c?text=Sizin%20Sekliniz',
+            email: '', phone: '', address: '', summary: '',
+            experience: [], education: [], skills: '',
+            languages: [], socialLinks: [],
+            activeTemplate: 'template-modern'
+        };
+        let cvData = { ...defaultCvData };
+
+        // --- DOM Element References ---
+        const elements = {
+            userBalance: document.getElementById('user-balance'),
+            userIdDisplay: document.getElementById('user-id-display'),
+            downloadPdfBtn: document.getElementById('downloadPdfBtn'),
+            editorPanel: document.querySelector('.w-full.lg\\:w-1\\/3'),
+            cvPreview: document.getElementById('cv-preview'),
+            experienceForms: document.getElementById('experience-forms'),
+            educationForms: document.getElementById('education-forms'),
+            languageForms: document.getElementById('language-forms'),
+            socialForms: document.getElementById('social-forms'),
+            photoUpload: document.getElementById('photo-upload'),
+            accentColorInput: document.getElementById('accent-color'),
+            topUpModal: document.getElementById('top-up-modal'),
+            alertContainer: document.getElementById('alert-container')
+        };
+        
+        // --- UTILITY FUNCTIONS ---
+        const esc = (s = '') => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+        const showAlert = (message, type = 'error') => {
+            const alertBox = document.createElement('div');
+            alertBox.className = `alert-message ${type}`;
+            alertBox.textContent = message;
+            elements.alertContainer.innerHTML = '';
+            elements.alertContainer.appendChild(alertBox);
+            setTimeout(() => alertBox.classList.add('show'), 10);
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+                alertBox.addEventListener('transitionend', () => alertBox.remove());
+            }, 4000);
+        };
+
+        // --- TEMPLATE RENDERING ---
+        const templates = {
+             'template-modern': (data) => `
+                <div class="cv-header accent-border-bottom">
+                    <img src="${data.photo}" alt="Profil Şəkli" class="cv-photo accent-border" onerror="this.src='${defaultCvData.photo}'">
+                    <h1 class="cv-name">${esc(data.name)}</h1>
+                    <p class="cv-title accent-text">${esc(data.title)}</p>
+                    <div class="contact-info text-sm flex flex-wrap justify-center gap-x-4 gap-y-2 mt-2">
+                        ${data.email ? `<span><i class="fas fa-envelope mr-1 accent-text"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></span>` : ''}
+                        ${data.phone ? `<span><i class="fas fa-phone mr-1 accent-text"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></span>` : ''}
+                        ${data.address ? `<span><i class="fas fa-map-marker-alt mr-1 accent-text"></i>${esc(data.address)}</a></span>` : ''}
+                        ${data.socialLinks.map(link => `<span><i class="fab fa-${link.name.toLowerCase()} mr-1 accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></span>`).join('')}
+                    </div>
+                </div>
+                ${data.summary ? `<div class="cv-section"><h2>Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
+                ${data.experience.length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                ${data.education.length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                ${data.skills ? `<div class="cv-section"><h2>Bacarıqlar</h2><div class="flex flex-wrap gap-2">${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">${esc(s.trim())}</span>` : '').join('')}</div></div>` : ''}
+                ${data.languages.length > 0 ? `<div class="cv-section"><h2>Dillər</h2><div class="grid grid-cols-2 gap-2">${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}:</span> <strong class="font-normal text-gray-700">${esc(lang.level)}</strong></div>`).join('')}</div></div>` : ''}
+            `,
+            'template-classic': (data) => `
+                <div class="cv-header">
+                    <img src="${esc(data.photo)}" alt="Profil Şəkli" class="cv-photo" onerror="this.src='${defaultCvData.photo}'">
+                    <div>
+                        <h1 class="cv-name">${esc(data.name)}</h1>
+                        <p class="cv-title">${esc(data.title)}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-8 mt-6">
+                    <div class="col-span-2">
+                        ${data.summary ? `<div class="cv-section"><h2>Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
+                        ${data.experience.length > 0 ? `<div class="cv-section"><h2>İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)} - <strong>${esc(exp.company)}</strong></h3><p class="text-sm text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</p><p class="mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                        ${data.education.length > 0 ? `<div class="cv-section"><h2>Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong></p><p class="text-sm text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</p></div>`).join('')}</div>` : ''}
+                    </div>
+                    <div class="col-span-1">
+                        <div class="cv-section">
+                            <h2 class="accent-border-left">Əlaqə</h2>
+                            ${data.email ? `<p class="mb-2"><strong class="font-semibold">Email:</strong><br><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
+                            ${data.phone ? `<p class="mb-2"><strong class="font-semibold">Telefon:</strong><br><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
+                            ${data.address ? `<p class="mb-2"><strong class="font-semibold">Ünvan:</strong><br>${esc(data.address)}</p>` : ''}
+                            ${data.socialLinks.map(link => `<p class="mb-2"><strong class="font-semibold">${link.name.charAt(0).toUpperCase() + link.name.slice(1)}:</strong><br><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                        </div>
+                        ${data.skills ? `<div class="cv-section"><h2 class="accent-border-left">Bacarıqlar</h2><p>${esc(data.skills)}</p></div>` : ''}
+                        ${data.languages.length > 0 ? `<div class="cv-section"><h2 class="accent-border-left">Dillər</h2>${data.languages.map(lang => `<p>${esc(lang.name)} - ${esc(lang.level)}</p>`).join('')}</div>` : ''}
+                    </div>
+                </div>
+            `,
+            'template-creative': (data) => `
+                <div class="left-column">
+                    <img src="${esc(data.photo)}" alt="Profil Şəkli" class="cv-photo accent-border" onerror="this.src='${defaultCvData.photo}'">
+                    <div class="cv-section">
+                        <h2 class="accent-text">Haqqımda</h2>
+                        <p class="text-sm text-gray-200">${esc(data.summary).replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <div class="cv-section">
+                        <h2 class="accent-text">Əlaqə</h2>
+                        <div class="contact-info text-sm">
+                            ${data.email ? `<p class="flex items-center mb-2"><i class="fas fa-envelope w-6"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
+                            ${data.phone ? `<p class="flex items-center mb-2"><i class="fas fa-phone w-6"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
+                            ${data.address ? `<p class="flex items-center mb-2"><i class="fas fa-map-marker-alt w-6"></i>${esc(data.address)}</p>` : ''}
+                            ${data.socialLinks.map(link => `<p class="flex items-center mb-2"><i class="fab fa-${link.name.toLowerCase()} w-6"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                        </div>
+                    </div>
+                       ${data.skills ? `<div class="cv-section"><h2 class="accent-text">Bacarıqlar</h2><div class="flex flex-wrap gap-2">${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-white bg-opacity-20 rounded-full px-3 py-1 text-sm font-semibold">${esc(s.trim())}</span>`: '').join('')}</div></div>` : ''}
+                       ${data.languages.length > 0 ? `<div class="cv-section"><h2 class="accent-text">Dillər</h2>${data.languages.map(lang => `<div class="language-item flex justify-between"><span>${esc(lang.name)}</span><strong class="font-normal text-gray-200">${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
+                </div>
+                <div class="right-column p-8">
+                    <h1 class="cv-name">${esc(data.name)}</h1>
+                    <p class="cv-title font-normal text-gray-600">${esc(data.title)}</p>
+                    ${data.experience.length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-500">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1 text-gray-700">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                    ${data.education.length > 0 ? `<div class="cv-section mt-8"><h2 class="accent-text">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-500">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                </div>
+            `,
+            'template-premium': (data) => `
+                <div class="left-column">
+                    <img src="${esc(data.photo)}" alt="Profil Şəkli" class="cv-photo" onerror="this.src='${defaultCvData.photo}'">
+                    <h1 class="cv-name accent-text">${esc(data.name)}</h1>
+                    <p class="cv-title">${esc(data.title)}</p>
+                    <div class="cv-section contact-info">
+                        <h2 class="accent-text">Əlaqə</h2>
+                        ${data.email ? `<p><i class="fas fa-envelope accent-text"></i><a href="mailto:${esc(data.email)}">${esc(data.email)}</a></p>` : ''}
+                        ${data.phone ? `<p><i class="fas fa-phone accent-text"></i><a href="tel:${esc(data.phone)}">${esc(data.phone)}</a></p>` : ''}
+                        ${data.address ? `<p><i class="fas fa-map-marker-alt accent-text"></i>${esc(data.address)}</p>` : ''}
+                        ${data.socialLinks.map(link => `<p><i class="fab fa-${link.name.toLowerCase()} accent-text"></i><a href="${esc(link.url)}" target="_blank">${esc(link.url).replace('https://', '')}</a></p>`).join('')}
+                    </div>
+                    ${data.skills ? `<div class="cv-section"><h2>Bacarıqlar</h2><p>${data.skills.split(',').map(s => s.trim() ? `<span class="inline-block bg-gray-300 rounded-full px-3 py-1 text-sm font-semibold text-gray-800 mr-2 mb-2">${esc(s.trim())}</span>` : '').join('')}</p></div>` : ''}
+                    ${data.languages.length > 0 ? `<div class="cv-section"><h2>Dillər</h2>${data.languages.map(lang => `<div class="language-item"><span>${esc(lang.name)}</span><strong>${esc(lang.level)}</strong></div>`).join('')}</div>` : ''}
+                </div>
+                <div class="right-column">
+                    ${data.summary ? `<div class="cv-section"><h2 class="accent-border-bottom">Haqqımda</h2><p>${esc(data.summary).replace(/\n/g, '<br>')}</p></div>` : ''}
+                    ${data.experience.length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">İş Təcrübəsi</h2>${data.experience.map(exp => `<div class="job mb-4"><h3>${esc(exp.title)}</h3><p><strong>${esc(exp.company)}</strong> | <span class="text-gray-600">${esc(exp.start)} - ${esc(exp.end)}</span></p><p class="text-sm mt-1">${esc(exp.desc).replace(/\n/g, '<br>')}</p></div>`).join('')}</div>` : ''}
+                    ${data.education.length > 0 ? `<div class="cv-section"><h2 class="accent-border-bottom">Təhsil</h2>${data.education.map(edu => `<div class="edu mb-3"><h3>${esc(edu.degree)}</h3><p><strong>${esc(edu.school)}</strong> | <span class="text-gray-600">${esc(edu.start)} - ${esc(edu.end)}</span></p></div>`).join('')}</div>` : ''}
+                </div>
+            `
+        };
+        
+        // --- DATA HANDLING (Firestore) ---
+        const saveDraftToFirestore = async () => {
+            if (!currentUserId || !db) return;
+            isSaving = true;
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
+                const cvDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'cv_data', 'draft');
+                await setDoc(cvDocRef, cvData, { merge: true });
+            } catch (error) {
+                console.error("Firestore-a yazma xətası:", error);
+                showAlert('Məlumatları yadda saxlayarkən xəta baş verdi.', 'error');
+            } finally {
+                isSaving = false;
+            }
+        };
+
+        const debouncedSave = () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveDraftToFirestore, 1000); // 1 saniyə gecikmə ilə yadda saxla
+        };
+
+        // --- UI & FORM LOGIC ---
+        const syncFormWithData = () => {
+            document.querySelectorAll('[data-input]').forEach(input => {
+                input.value = cvData[input.dataset.input] || '';
+            });
+            elements.experienceForms.innerHTML = ''; cvData.experience.forEach(createExperienceForm);
+            elements.educationForms.innerHTML = ''; cvData.education.forEach(createEducationForm);
+            elements.languageForms.innerHTML = ''; cvData.languages.forEach(createLanguageForm);
+            elements.socialForms.innerHTML = ''; cvData.socialLinks.forEach(createSocialLinkForm);
+        };
+        
+        const updateDataFromForm = () => {
+            document.querySelectorAll('[data-input]').forEach(input => cvData[input.dataset.input] = input.value);
+            cvData.experience = Array.from(document.querySelectorAll('.experience-form')).map(form => ({ title: form.querySelector('[data-exp="title"]').value, company: form.querySelector('[data-exp="company"]').value, start: form.querySelector('[data-exp="start"]').value, end: form.querySelector('[data-exp="end"]').value, desc: form.querySelector('[data-exp="desc"]').value, }));
+            cvData.education = Array.from(document.querySelectorAll('.education-form')).map(form => ({ degree: form.querySelector('[data-edu="degree"]').value, school: form.querySelector('[data-edu="school"]').value, start: form.querySelector('[data-edu="start"]').value, end: form.querySelector('[data-edu="end"]').value, }));
+            cvData.languages = Array.from(document.querySelectorAll('.language-form')).map(form => ({ name: form.querySelector('[data-lang="name"]').value, level: form.querySelector('[data-lang="level"]').value, }));
+            cvData.socialLinks = Array.from(document.querySelectorAll('.social-form')).map(form => ({ name: form.querySelector('[data-social="name"]').value, url: form.querySelector('[data-social="url"]').value, }));
+        };
+        
+        const updatePreview = () => {
+            const renderFunction = templates[cvData.activeTemplate] || templates['template-modern'];
+            elements.cvPreview.innerHTML = renderFunction(cvData);
+        };
+        
+        const handleFormInput = () => {
+            updateDataFromForm();
+            updatePreview();
+            debouncedSave();
+        };
+        
+        // Dynamic Form Creators
+        const createExperienceForm = (data = { title: '', company: '', start: '', end: '', desc: '' }) => {
+            const form = document.createElement('div');
+            form.className = 'experience-form border border-gray-600 p-3 rounded-md relative';
+            form.innerHTML = `
+                <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold">&times;</button>
+                <div class="space-y-2">
+                    <div><label class="label text-xs">Vəzifə</label><input type="text" data-exp="title" class="input text-sm" placeholder="Məs: Marketinq Meneceri" value="${esc(data.title)}"></div>
+                    <div><label class="label text-xs">Şirkət</label><input type="text" data-exp="company" class="input text-sm" placeholder="Məs: 'Uğur' MMC" value="${esc(data.company)}"></div>
+                    <div class="flex gap-2">
+                        <div><label class="label text-xs">Başlanğıc</label><input type="text" data-exp="start" class="input text-sm" placeholder="Yanvar 2020" value="${esc(data.start)}"></div>
+                        <div><label class="label text-xs">Bitmə</label><input type="text" data-exp="end" class="input text-sm" placeholder="Hazırda" value="${esc(data.end)}"></div>
+                    </div>
+                    <div><label class="label text-xs">Açıqlama</label><textarea data-exp="desc" class="textarea text-sm" rows="3" placeholder="Gördüyünüz işləri yazın...">${esc(data.desc)}</textarea></div>
+                </div>`;
+            elements.experienceForms.appendChild(form);
+        };
+        const createEducationForm = (data = { degree: '', school: '', start: '', end: '' }) => {
+            const form = document.createElement('div');
+            form.className = 'education-form border border-gray-600 p-3 rounded-md relative';
+            form.innerHTML = `
+                <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold">&times;</button>
+                <div class="space-y-2">
+                    <div><label class="label text-xs">İxtisas və dərəcə</label><input type="text" data-edu="degree" class="input text-sm" placeholder="Məs: Kompüter Mühəndisliyi" value="${esc(data.degree)}"></div>
+                    <div><label class="label text-xs">Universitet</label><input type="text" data-edu="school" class="input text-sm" placeholder="Məs: ADNSU" value="${esc(data.school)}"></div>
+                    <div class="flex gap-2">
+                         <div><label class="label text-xs">Başlanğıc</label><input type="text" data-edu="start" class="input text-sm" placeholder="Sentyabr 2016" value="${esc(data.start)}"></div>
+                         <div><label class="label text-xs">Bitmə</label><input type="text" data-edu="end" class="input text-sm" placeholder="İyun 2020" value="${esc(data.end)}"></div>
+                    </div>
+                </div>`;
+            elements.educationForms.appendChild(form);
+        };
+        const createLanguageForm = (data = { name: '', level: 'Ana dili' }) => {
+            const form = document.createElement('div');
+            form.className = 'language-form flex gap-2 items-center';
+            form.innerHTML = `
+                <input type="text" data-lang="name" class="input text-sm" placeholder="Məs: İngilis" value="${esc(data.name)}">
+                <select data-lang="level" class="select text-sm">
+                    <option ${data.level === 'Ana dili' ? 'selected' : ''}>Ana dili</option>
+                    <option ${data.level === 'Əla' ? 'selected' : ''}>Əla</option>
+                    <option ${data.level === 'Yaxşı' ? 'selected' : ''}>Yaxşı</option>
+                    <option ${data.level === 'Orta' ? 'selected' : ''}>Orta</option>
+                </select>
+                <button class="remove-btn text-red-500 text-2xl font-bold">&times;</button>`;
+            elements.languageForms.appendChild(form);
+        };
+        const createSocialLinkForm = (data = { name: 'linkedin', url: '' }) => {
+            const form = document.createElement('div');
+            form.className = 'social-form flex gap-2 items-center';
+            form.innerHTML = `
+                <select data-social="name" class="select text-sm w-1/3">
+                    <option value="linkedin" ${data.name === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                    <option value="github" ${data.name === 'github' ? 'selected' : ''}>GitHub</option>
+                    <option value="globe" ${data.name === 'globe' ? 'selected' : ''}>Portfolio</option>
+                </select>
+                <input type="url" data-social="url" class="input text-sm" placeholder="https://..." value="${esc(data.url)}">
+                <button class="remove-btn text-red-500 text-2xl font-bold">&times;</button>`;
+            elements.socialForms.appendChild(form);
+        };
+        
+        // --- EVENT LISTENERS ---
+        const setupEventListeners = () => {
+            elements.editorPanel.addEventListener('input', handleFormInput);
+            
+            document.getElementById('add-exp-btn').addEventListener('click', () => { createExperienceForm(); handleFormInput(); });
+            document.getElementById('add-edu-btn').addEventListener('click', () => { createEducationForm(); handleFormInput(); });
+            document.getElementById('add-lang-btn').addEventListener('click', () => { createLanguageForm(); handleFormInput(); });
+            document.getElementById('add-social-btn').addEventListener('click', () => { createSocialLinkForm(); handleFormInput(); });
+            
+            elements.editorPanel.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-btn')) {
+                    e.target.parentElement.remove();
+                    handleFormInput();
+                }
+            });
+
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const templateClass = e.currentTarget.dataset.template;
+                    cvData.activeTemplate = templateClass;
+                    elements.cvPreview.className = `cv-content ${templateClass}`;
+                    document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    updatePreview();
+                    saveDraftToFirestore();
+                });
+            });
+
+            elements.accentColorInput.addEventListener('input', (e) => {
+                document.documentElement.style.setProperty('--primary', e.target.value);
+            });
+
+            elements.photoUpload.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        cvData.photo = event.target.result;
+                        handleFormInput();
+                    };
+                    reader.onerror = (error) => console.error("FileReader xətası:", error);
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+
+            document.getElementById('add-balance-btn').addEventListener('click', () => elements.topUpModal.classList.add('show'));
+            document.getElementById('close-top-up-modal').addEventListener('click', () => elements.topUpModal.classList.remove('show'));
+            elements.topUpModal.addEventListener('click', (e) => {
+                if(e.target === elements.topUpModal) elements.topUpModal.classList.remove('show');
+            });
+            
+            elements.downloadPdfBtn.addEventListener('click', handlePdfDownload);
+            
+            document.addEventListener('keyup', (e) => {
+                 if (e.key === 'PrintScreen') {
+                     navigator.clipboard.writeText('');
+                     showAlert('Ekran görüntüsü almaq qadağandır.', 'error');
+                 }
+             });
+        };
+        
+        // --- PDF DOWNLOAD LOGIC ---
+        const handlePdfDownload = async () => {
+            if (!currentUserId) return showAlert('Sistemə daxil olarkən xəta baş verdi. Səhifəni yeniləyin.', 'error');
+            if (userBalance < CV_PRICE) return showAlert(`Balansınız kifayət deyil! Lazımi məbləğ: ${CV_PRICE} AZN`, 'error');
+
+            elements.downloadPdfBtn.disabled = true;
+            elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yoxlanılır...`;
+            
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
+            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'profile', 'data');
+
+            try {
+                const userDoc = await getDoc(userDocRef);
+                const currentBalance = (userDoc.exists() && userDoc.data().balance) || 0;
+                
+                if (currentBalance < CV_PRICE) {
+                    showAlert('Balansınız kifayət deyil!', 'error');
+                    throw new Error('Insufficient balance');
+                }
+
+                const newBalance = currentBalance - CV_PRICE;
+                await setDoc(userDocRef, { balance: newBalance }, { merge: true });
+
+                elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> PDF hazırlanır...`;
+                
+                const { jsPDF } = window.jspdf;
+                const canvas = await html2canvas(elements.cvPreview, { scale: 3, useCORS: true, logging: false });
+                const imgData = canvas.toDataURL('image/jpeg', 0.90);
+                
+                const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+                pdf.save(`${(cvData.name || 'CV').replace(/\s+/g, '_')}_AxtarGet.pdf`);
+                showAlert('PDF uğurla yükləndi!', 'success');
+
+            } catch (error) {
+                console.error("Ödəniş və ya PDF yaratma xətası:", error.message);
+                if (error.message !== 'Insufficient balance') {
+                   showAlert('Əməliyyat zamanı xəta baş verdi.', 'error');
+                }
+            } finally {
+                elements.downloadPdfBtn.disabled = false;
+                elements.downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf mr-2"></i> PDF Yüklə (${CV_PRICE.toFixed(2)} AZN)`;
+            }
+        };
+
+
+        // --- FIREBASE & APP INITIALIZATION ---
+        const setupUser = (uid) => {
+            if (currentUserId === uid) return; // Already setup
+            currentUserId = uid;
+            elements.userIdDisplay.textContent = uid;
+            
+            // Setup WhatsApp links
+            const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${uid}. Balans artırmaq istəyirəm.`);
+            document.getElementById('whatsapp-topup-link').href = `https://wa.me/994606006162?text=${whatsappText}`;
+            document.getElementById('floating-whatsapp-bubble').href = `https://wa.me/994606006162?text=${encodeURIComponent(`Salam, CV generatoru ilə bağlı dəstəyə ehtiyacım var. ID: ${uid}`)}`;
+            
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-cv-app';
+            const profileDocRef = doc(db, 'artifacts', appId, 'users', uid, 'profile', 'data');
+            const cvDocRef = doc(db, 'artifacts', appId, 'users', uid, 'cv_data', 'draft');
+
+            // Listen for balance changes
+            onSnapshot(profileDocRef, (snap) => {
+                if (snap.exists() && typeof snap.data().balance === 'number') {
+                    userBalance = snap.data().balance;
+                } else {
+                    userBalance = 0;
+                    setDoc(profileDocRef, { balance: 0 }, { merge: true });
+                }
+                elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
+            });
+            
+            // Listen for CV data changes (real-time sync)
+            onSnapshot(cvDocRef, (snap) => {
+                if (isSaving) return; // Prevent loopback from our own save
+                if (snap.exists()) {
+                    const dbData = snap.data();
+                    cvData = { ...defaultCvData, ...dbData };
+                } else {
+                    // No data in Firestore, save the default structure
+                    setDoc(cvDocRef, cvData);
+                }
+                syncFormWithData();
+                updateActiveTemplateButton();
+                updatePreview();
+            });
+        };
+
+        const updateActiveTemplateButton = () => {
+             const activeTemplate = cvData.activeTemplate || 'template-modern';
+             elements.cvPreview.className = `cv-content ${activeTemplate}`;
+             document.querySelectorAll('.template-btn').forEach(b => b.classList.remove('active'));
+             const activeButton = document.querySelector(`.template-btn[data-template="${activeTemplate}"]`);
+             if(activeButton) activeButton.classList.add('active');
+        };
+
+        const initialize = async () => {
+            try {
+                // Təhlükəsizlik: __firebase_config mühit dəyişənindən istifadə edilir
+                if (typeof __firebase_config === 'undefined') {
+                    throw new Error("Firebase konfiqurasiyası tapılmadı.");
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        setupUser(user.uid);
+                    } else {
+                        // Təhlükəsizlik: __initial_auth_token ilə sistemə daxil olmaq
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                           await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                           await signInAnonymously(auth);
+                        }
+                    }
+                });
+
+                setupEventListeners();
+                updateActiveTemplateButton();
+                updatePreview();
+
+            } catch(error) {
+                console.error("Firebase başlatma xətası:", error);
+                showAlert("Sistem yüklənərkən kritik xəta baş verdi. Səhifəni yeniləyin.", "error");
+            }
+        };
+
+        // --- Start the application ---
+        initialize();
+    </script>
+</body>
+</html>
 
