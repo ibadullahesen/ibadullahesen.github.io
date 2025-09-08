@@ -3,204 +3,555 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxTarget</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <title>AxtarGet - Gələcəyin Rəqəmsal Həlləri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- === LOQO DÜZƏLİŞLƏRİ BAŞLAYIR === -->
+    <!-- Brauzer vərəqindəki (tab) ikona (Favicon) -->
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
+
+    <!-- Google axtarış nəticələrində loqonun görünməsi üçün schema kodu -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AxtarGet",
+      "url": "https://axtarget.xyz/",
+      "logo": "https://i.postimg.cc/Dw6kgzbh/logo.png"
+    }
+    </script>
+    <!-- === LOQO DÜZƏLİŞLƏRİ BİTİR === -->
+
+    <style>
+        :root {
+            --background: #05080E;
+            --glass-bg: rgba(15, 23, 42, 0.5);
+            --border: rgba(56, 229, 183, 0.2);
+            --text-primary: #F1F5F9;
+            --text-muted: #94A3B8;
+            --primary: #38E5B7;
+            --primary-hover: #10B981;
+            --font-body: 'Inter', sans-serif;
+            --font-heading: 'Manrope', sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--background);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        #globe-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+        }
+
+        .content-overlay { position: relative; z-index: 1; }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+            pointer-events: none;
+        }
+        .glass-card:hover:before {
+            transform: scale(1);
+        }
+        .glass-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(56, 229, 183, 0.5);
+        }
+
+        .btn-primary {
+            background-image: linear-gradient(45deg, var(--primary) 0%, #10B981 100%);
+            color: #05080E;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.4);
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(56, 229, 183, 0.7);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-hover); }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .fade-in.appear {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Mobile Side-Panel Menu */
+        .mobile-menu-container {
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            width: 320px; 
+            max-width: 80vw;
+            height: 100vh;
+            background: rgba(5, 8, 14, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            z-index: 100;
+            transform: translateX(100%); 
+            transition: transform 0.5s cubic-bezier(0.6, 0.05, 0.28, 0.91);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .mobile-menu-container.open { 
+            transform: translateX(0); 
+        }
+        .mobile-menu-container nav {
+            padding-top: 6rem;
+            flex-grow: 1;
+        }
+        .mobile-menu-container a {
+            display: block;
+            padding: 1rem 2.5rem;
+            font-family: var(--font-heading);
+            font-size: 1.25rem; 
+            font-weight: 700;
+            color: var(--text-muted);
+            transition: color 0.3s ease, background-color 0.3s ease;
+            border-bottom: 1px solid var(--border);
+        }
+        .mobile-menu-container a:hover { 
+            color: var(--primary); 
+            background-color: rgba(56, 229, 183, 0.05);
+        }
+
+        .service-icon-wrapper {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--primary);
+            transition: all 0.4s ease;
+        }
+        .glass-card:hover .service-icon-wrapper {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
+        }
+    </style>
 </head>
-<body>
-    <!-- Header Section -->
-    <header class="bg-primary py-6">
-        <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-            <div class="flex justify-between items-center">
-                <div class="text-white font-bold text-2xl">AxTarget</div>
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#services" class="text-white hover:text-gray-300">Xidmətlər</a>
-                    <a href="#about" class="text-white hover:text-gray-300">Haqqımızda</a>
-                    <a href="#contact" class="text-white hover:text-gray-300">Əlaqə</a>
-                </nav>
-                <button class="md:hidden focus:outline-none">
-                    <i class="fas fa-bars text-white text-2xl"></i>
-                </button>
-            </div>
+<body class="antialiased">
+    
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Header -->
+    <header id="header" class="fixed top-0 left-0 w-full p-4 z-50 transition-all duration-300">
+        <div class="container mx-auto flex justify-between items-center max-w-7xl px-4">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logo" class="w-10 h-10 rounded-full border-2 border-primary shadow-lg shadow-primary/20">
+                <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
+            </a>
+            <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold">
+                <a href="#services" class="text-gray-300 hover:text-primary transition-colors">Niyə Biz?</a>
+                <a href="follower-service.html" class="text-gray-300 hover:text-primary transition-colors">Takipçi Xidməti</a>
+                <a href="https://ai.axtarget.xyz" target="_blank" class="text-gray-300 hover:text-primary transition-colors">AxtarGet AI</a>
+                <a href="digital-products.html" class="text-gray-300 hover:text-primary transition-colors">Rəqəmsal Məhsullar</a>
+                <a href="#contact" class="text-gray-300 hover:text-primary transition-colors">Əlaqə</a>
+            </nav>
+            <button id="hamburger-button" class="lg:hidden text-2xl text-white">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Services Section -->
-    <section id="services" class="py-24">
-        <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Rəqəmsal Ekosisteminiz</h2>
-                <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
-                   İdeyadan icraya, hər mərhələdə yanınızdayıq.
+    <!-- Mobile Side-Panel Menu -->
+    <div id="mobile-menu-container" class="mobile-menu-container">
+        <button id="mobile-menu-close-button" class="absolute top-6 right-6 text-3xl text-gray-400 hover:text-red-500 transition-transform duration-300 hover:rotate-90">
+            <i class="fas fa-times"></i>
+        </button>
+        <nav>
+            <a href="#hero">Ana Səhifə</a>
+            <a href="#products">Xidmətlər</a>
+            <a href="#services">Niyə Biz?</a>
+            <a href="share-business.html">Biznesini Paylaş</a>
+            <a href="prmiumCV.html">CV Hazırla</a>
+            <a href="follower-service.html">Takipçi Xidməti</a>
+            <a href="https://ai.axtarget.xyz" target="_blank">AxtarGet AI</a>
+            <a href="digital-products.html">Rəqəmsal Məhsullar</a>
+            <a href="#contact">Əlaqə</a>
+        </nav>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
+            <div id="globe-container"></div>
+            <div class="content-overlay container mx-auto px-6 lg:px-8 max-w-7xl text-center">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold font-heading text-white leading-tight mb-6 fade-in" style="text-shadow: 0 5px 30px rgba(0,0,0,0.5);">
+                    Gələcəyi <span class="text-primary">Kodlaşdırırıq</span>
+                </h1>
+                <p class="text-lg md:text-xl text-text-muted max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s;">
+                    Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
                 </p>
-            </div>
-            
-            <!-- Added new service cards section with detailed information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                <!-- Takipçi Xidməti Card -->
-                <a href="follower-service.html" class="glass-card p-8 fade-in group cursor-pointer">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fab fa-instagram"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">Takipçi Xidməti</h3>
-                    <p class="text-text-muted mb-4">Öz takipçinizi və ya beğəni, izlənmə kimi SMM xidmətlərinizi çox ucuz və münasib qiymətə həll edə bilərsiniz.</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>Ətraflı məlumat</span>
-                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-
-                <!-- Rəqəmsal Məhsullar Card -->
-                <a href="digital-products.html" class="glass-card p-8 fade-in group cursor-pointer" style="transition-delay: 0.1s;">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-shopping-cart"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">Rəqəmsal Məhsullar</h3>
-                    <p class="text-text-muted mb-4">Netflix, Exxen, ChatGPT kimi məhsulların hesab satışı münasib qiymətə. Premium xidmətlərə sərfəli giriş imkanı.</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>Məhsullara bax</span>
-                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-
-                <!-- Biznesini Paylaş Card -->
-                <a href="share-business.html" class="glass-card p-8 fade-in group cursor-pointer" style="transition-delay: 0.2s;">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-handshake"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">Biznesini Paylaş</h3>
-                    <p class="text-text-muted mb-4">Öz biznesinizi bizimlə paylaşaraq sizlərə daha yaxşı kömək olmağımıza icazə verin. Birlikdə böyüyək!</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>Biznesini paylaş</span>
-                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-
-                <!-- CV Hazırla Card -->
-                <a href="prmiumCV.html" class="glass-card p-8 fade-in group cursor-pointer" style="transition-delay: 0.3s;">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">CV Hazırla</h3>
-                    <p class="text-text-muted mb-4">İşə qəbul olmaq üçün CV lazımdır. Düzgün ünvandan premium keyfiyyətdə CV hazırlamaq xidməti təklif edirik.</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>CV hazırla</span>
-                        <i class="fas fa-arrow-right ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-
-                <!-- AxtarGet AI Card -->
-                <a href="https://ai.axtarget.xyz" target="_blank" class="glass-card p-8 fade-in group cursor-pointer" style="transition-delay: 0.4s;">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">AxtarGet AI</h3>
-                    <p class="text-text-muted mb-4">AxtarGet AI-nin gücü ilə gücünüzə güc qatın! Süni intellekt texnologiyaları ilə işlərinizi asanlaşdırın.</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>AI-yə keç</span>
-                        <i class="fas fa-external-link-alt ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-
-                <!-- Qeydiyyat Card -->
-                <a href="https://chat.axtarget.xyz" target="_blank" class="glass-card p-8 fade-in group cursor-pointer" style="transition-delay: 0.5s;">
-                    <div class="service-icon-wrapper mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <h3 class="text-2xl font-bold font-heading mb-3 text-primary">Qeydiyyatdan Keç</h3>
-                    <p class="text-text-muted mb-4">Platformamıza qoşulun və bütün xidmətlərimizdən faydalanmaq üçün qeydiyyatdan keçin. Sürətli və asan!</p>
-                    <div class="flex items-center text-primary font-semibold">
-                        <span>Qeydiyyat ol</span>
-                        <i class="fas fa-external-link-alt ml-2 group-hover:translate-x-2 transition-transform duration-300"></i>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Original services section kept for additional context -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass-card p-8 fade-in">
-                    <div class="service-icon-wrapper mb-6"><i class="fas fa-satellite-dish"></i></div>
-                    <h3 class="text-2xl font-bold font-heading mb-3">Strateji Veb Həllər</h3>
-                    <p class="text-text-muted">Brendinizin DNT-sini analiz edərək, hədəflərinizə ən uyğun veb-platformaları dizayn və inkişaf etdiririk.</p>
-                </div>
-                <div class="glass-card p-8 fade-in" style="transition-delay: 0.15s;">
-                    <div class="service-icon-wrapper mb-6"><i class="fas fa-microchip"></i></div>
-                    <h3 class="text-2xl font-bold font-heading mb-3">AI & Avtomatlaşdırma</h3>
-                    <p class="text-text-muted">Təkrarçı işləri ağıllı botlara həvalə edin, məlumatlarınızı dərin analiz edin və müştəri təcrübəsini süni intellektlə zənginləşdirin.</p>
-                </div>
-                <div class="glass-card p-8 fade-in" style="transition-delay: 0.3s;">
-                    <div class="service-icon-wrapper mb-6"><i class="fas fa-store"></i></div>
-                    <h3 class="text-2xl font-bold font-heading mb-3">İntellektual E-Ticarət</h3>
-                    <p class="text-text-muted">Sadəcə bir onlayn mağaza deyil, fərdiləşdirilmiş təkliflər və analizlərlə satışlarınızı artıran dinamik bir ticarət platforması.</p>
+                <div class="fade-in" style="transition-delay: 0.4s;">
+                    <a href="#products" class="btn-primary px-10 py-4 text-lg inline-block">
+                        <i class="fas fa-rocket mr-2"></i> Xidmətlərimizə Keçid
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- About Section -->
-    <section id="about" class="py-24 bg-gray-100">
-        <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-primary">Haqqımızda</h2>
-                <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto">
-                    AxTarget, sizin brendinizin rəqəmsal ekosisteminizi yaratmaq üçün təhlükəsiz bir partnerdir.
-                </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="p-8 bg-white rounded-lg shadow-lg">
-                    <h3 class="text-2xl font-bold font-heading mb-3">Məqsəd</h3>
-                    <p class="text-text-muted">
-                        Biz sizin brendinizin onlayn mövzusunu təkmilləşdirmək və müxtəlif xidmətlərdən sizə kömək etmək üçün buraxırıq.
+        <!-- Products Section -->
+        <section id="products" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Xidmət Ekosistemimiz</h2>
+                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                        Rəqəmsal dünyada ehtiyacınız olan hər şey bir ünvanda.
                     </p>
                 </div>
-                <div class="p-8 bg-white rounded-lg shadow-lg">
-                    <h3 class="text-2xl font-bold font-heading mb-3">Məqsəd</h3>
-                    <p class="text-text-muted">
-                        Biz sizin brendinizin onlayn mövzusunu təkmilləşdirmək və müxtəlif xidmətlərdən sizə kömək etmək üçün buraxırıq.
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                     <a href="prmiumCV.html" class="block fade-in group" style="transition-delay: 0.1s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-file-invoice-dollar"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">Premium CV Hazırla</h3>
+                            <p class="text-text-muted">Arzuladığınız işə qəbul üçün peşəkar CV lazımdır? Düzgün ünvandasınız. Rəqiblərinizdən fərqlənin, premium keyfiyyətli CV ilə ilk təəssüratdan qalib olun.</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                    <a href="follower-service.html" class="block fade-in group" style="transition-delay: 0.2s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-users-line"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">Takipçi Xidməti</h3>
+                            <p class="text-text-muted">Fenomen olmaq bir addım uzaqlıqda! İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü ən sərfəli qiymətlərlə zirvəyə daşıyın.</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                    <a href="https://ai.axtarget.xyz" target="_blank" class="block fade-in group" style="transition-delay: 0.3s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-brain"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">AxtarGet AI</h3>
+                            <p class="text-text-muted">AxtarGet AI-nin gücü ilə yaradıcılığınızın sərhədlərini aşın. Mətn yazın, şəkil yaradın, kompleks problemləri həll edin – süni intellekt hər an yanınızdadır.</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                    <a href="digital-products.html" class="block fade-in group" style="transition-delay: 0.4s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-store"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">Rəqəmsal Məhsullar</h3>
+                            <p class="text-text-muted">Əyləncə və məhsuldarlıq dünyasına bir addımla daxil olun. Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                    <a href="share-business.html" class="block fade-in group" style="transition-delay: 0.5s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-bullhorn"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">Biznesini Paylaş</h3>
+                            <p class="text-text-muted">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət! Bizimlə paylaşın, hədəf auditoriyanıza daha sürətli və effektiv şəkildə çatmağınıza dəstək olaq.</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                     <a href="https://chat.axtarget.xyz" target="_blank" class="block fade-in group" style="transition-delay: 0.6s;">
+                        <div class="glass-card p-8 h-full relative">
+                            <div class="service-icon-wrapper mb-6"><i class="fas fa-user-plus"></i></div>
+                            <h3 class="text-2xl font-bold font-heading mb-3">Qeydiyyatdan Keç</h3>
+                            <p class="text-text-muted">Platformamızın bütün imkanlarından yararlanmaq üçün qeydiyyatdan keçin və AxtarGet dünyasının bir parçası olun. Sizi gözləyirik!</p>
+                             <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Us Section -->
+        <section id="services" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Niyə Biz?</h2>
+                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                        İdeyadan icraya, hər mərhələdə yanınızdayıq.
                     </p>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 fade-in">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-satellite-dish"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">Strateji Veb Həllər</h3>
+                        <p class="text-text-muted">Brendinizin DNT-sini analiz edərək, hədəflərinizə ən uyğun veb-platformaları dizayn və inkişaf etdiririk.</p>
+                    </div>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.15s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-microchip"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">AI & Avtomatlaşdırma</h3>
+                        <p class="text-text-muted">Təkrarçı işləri ağıllı botlara həvalə edin, məlumatlarınızı dərin analiz edin və müştəri təcrübəsini süni intellektlə zənginləşdirin.</p>
+                    </div>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.3s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-chart-pie"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">İntellektual E-Ticarət</h3>
+                        <p class="text-text-muted">Sadəcə bir onlayn mağaza deyil, fərdiləşdirilmiş təkliflər və analizlərlə satışlarınızı artıran dinamik bir ticarət platforması.</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="py-24 bg-primary text-white">
-        <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-extrabold font-heading">Əlaqə</h2>
-                <p class="text-lg mt-4 max-w-3xl mx-auto">
-                    Biz sizə kömək etmək üçün buraxırıq. Əlaqə saxlayın və biz sizinlərə kömək edəcəyik.
+        <!-- Contact Section -->
+        <section id="contact" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-5xl text-center">
+                <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logo" class="w-24 h-24 rounded-full border-4 border-primary shadow-lg shadow-primary/30 mx-auto mb-8 fade-in">
+                <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Növbəti Böyük Addımı Birlikdə Atmağa Hazırsınız?</h2>
+                <p class="text-lg text-text-muted mt-4 mb-12 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                    Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək və ideyanızı rəqəmsal reallığa çevirək.
                 </p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="p-8">
-                    <h3 class="text-2xl font-bold font-heading mb-3">Bizimlə Əlaqə</h3>
-                    <p class="text-text-muted mb-4">Email: info@axtarget.com</p>
-                    <p class="text-text-muted mb-4">Telefon: +994 50 123 45 67</p>
-                    <p class="text-text-muted mb-4">Adres: Baku, Azerbaijan</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 fade-in" style="transition-delay: 0.2s;">
+                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fab fa-whatsapp text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">WhatsApp</span>
+                        <span class="text-text-muted text-sm">060-600-61-62</span>
+                    </a>
+                    <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fas fa-envelope-open-text text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">Email</span>
+                        <span class="text-text-muted text-sm">ibadulla.hesen@gmail.com</span>
+                    </a>
+                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
+                        <i class="fab fa-instagram text-5xl text-primary"></i>
+                        <span class="text-xl font-bold">Instagram</span>
+                        <span class="text-text-muted text-sm">@ibadulla_hasanov_official</span>
+                    </a>
                 </div>
-                <div class="p-8">
-                    <h3 class="text-2xl font-bold font-heading mb-3">Mesaj Göndər</h3>
-                    <form class="space-y-4">
-                        <input type="text" placeholder="Adınız" class="w-full p-4 rounded-lg bg-gray-200 text-primary">
-                        <input type="email" placeholder="Emailiniz" class="w-full p-4 rounded-lg bg-gray-200 text-primary">
-                        <textarea placeholder="Mesajınız" class="w-full p-4 rounded-lg bg-gray-200 text-primary" rows="4"></textarea>
-                        <button type="submit" class="w-full p-4 bg-white rounded-lg text-primary font-semibold hover:bg-gray-100">Göndər</button>
-                    </form>
-                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Footer Section -->
-    <footer class="bg-primary py-6 text-white">
-        <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
-            <div class="text-center">
-                <p class="text-lg">© 2023 AxTarget. Bütün hüquqları qorunur.</p>
-            </div>
+    <!-- Footer -->
+    <footer class="border-t border-gray-800/50 mt-20 content-overlay">
+        <div class="container mx-auto max-w-7xl px-6 lg:px-8 py-8 text-center text-text-muted">
+            <p>&copy; 2025 AxtarGet. Bütün hüquqlar qorunur.</p>
+            <p class="text-sm mt-2">Ibadulla Hasanov tərəfindən hazırlandı.</p>
         </div>
     </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header scroll effekti
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('glass-card');
+                } else {
+                    header.classList.remove('glass-card');
+                }
+            });
 
-    <script src="script.js"></script>
+            // Mobil menyu
+            const hamburgerButton = document.getElementById('hamburger-button');
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            const mobileMenuCloseButton = document.getElementById('mobile-menu-close-button');
+            const mobileMenuLinks = mobileMenuContainer.querySelectorAll('a');
+
+            hamburgerButton.addEventListener('click', () => mobileMenuContainer.classList.add('open'));
+            mobileMenuCloseButton.addEventListener('click', () => mobileMenuContainer.classList.remove('open'));
+            
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }
+                    mobileMenuContainer.classList.remove('open');
+                });
+            });
+
+            // Fade-in animasiyası
+            const fadeInElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appear');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            fadeInElements.forEach(element => observer.observe(element));
+
+            // Globe with continent outlines from points
+            const container = document.getElementById('globe-container');
+            if(container) {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+                
+                camera.position.z = 4;
+                let globeObject = null;
+                let mouseX = 0;
+
+                const loader = new THREE.TextureLoader();
+                loader.load(
+                    'https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthbump1k.jpg',
+                    function (texture) {
+                        const image = texture.image;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(image, 0, 0);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                        const vertices = [];
+                        const radius = 2;
+
+                        for (let y = 0; y < canvas.height; y+=4) { // Optimallaşdırma: Daha az nöqtə
+                            for (let x = 0; x < canvas.width; x+=4) { // Optimallaşdırma: Daha az nöqtə
+                                const index = (y * canvas.width + x) * 4;
+                                const r = imageData.data[index];
+
+                                if (r > 60) {
+                                    const phi = (90 - (y / canvas.height) * 180) * (Math.PI / 180);
+                                    const theta = ((x / canvas.width) * 360 - 180) * (Math.PI / 180);
+
+                                    vertices.push(
+                                        radius * Math.sin(phi) * Math.cos(theta),
+                                        radius * Math.cos(phi),
+                                        radius * Math.sin(phi) * Math.sin(theta)
+                                    );
+                                }
+                            }
+                        }
+                        
+                        const geometry = new THREE.BufferGeometry();
+                        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                        const material = new THREE.PointsMaterial({
+                            color: 0x38E5B7,
+                            size: 0.015
+                        });
+
+                        globeObject = new THREE.Points(geometry, material);
+                        scene.add(globeObject);
+                    }
+                );
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    if (globeObject) {
+                        globeObject.rotation.y += 0.001 + (mouseX * 0.005);
+                    }
+                    renderer.render(scene, camera);
+                }
+                animate();
+                
+                 function onMouseMove(event) {
+                    mouseX = (event.clientX / window.innerWidth) - 0.5;
+                }
+                
+                function onMouseOut(event) {
+                    mouseX = 0;
+                }
+
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseout', onMouseOut);
+
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                });
+            }
+            
+            // Matrix Rain Effect
+            const matrixCanvas = document.getElementById('matrix-canvas');
+            if (matrixCanvas) {
+                const ctx = matrixCanvas.getContext('2d');
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
+
+                let katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+                katakana += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+                const characters = katakana.split('');
+
+                const fontSize = 16;
+                const columns = matrixCanvas.width / fontSize;
+                const drops = [];
+                for (let x = 0; x < columns; x++) {
+                    drops[x] = 1;
+                }
+
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(5, 8, 14, 0.12)';
+                    ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+                    ctx.fillStyle = 'rgba(56, 229, 183, 0.3)';
+                    ctx.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters[Math.floor(Math.random() * characters.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrix, 40);
+
+                window.addEventListener('resize', () => {
+                    matrixCanvas.width = window.innerWidth;
+                    matrixCanvas.height = window.innerHeight;
+                });
+            }
+        });
+    </script>
 </body>
 </html>
+
