@@ -213,7 +213,7 @@
         let isSaving = false;
         let saveTimeout;
         let unsubscribeUserDoc;
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cv-generator-local';
+        let isInitialLoad = true;
         
         // Default CV Data Structure
         const defaultCvData = {
@@ -362,7 +362,7 @@
             isSaving = true;
             elements.saveStatus.textContent = "Yadda saxlanılır...";
             try {
-                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
+                const userDocRef = doc(db, 'users', currentUserId);
                 await setDoc(userDocRef, { cvData: cvData, balance: userBalance }, { merge: true });
                  setTimeout(() => { elements.saveStatus.textContent = "Yadda saxlandı"; }, 500);
             } catch (error) {
@@ -387,13 +387,13 @@
                 <div class="experience-form border border-gray-600 p-3 rounded-md relative">
                     <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold" data-type="experience" data-index="${index}">&times;</button>
                     <div class="space-y-2">
-                        <div><label class="label text-xs">Vəzifə</label><input type="text" data-exp="title" data-index="${index}" class="input text-sm" placeholder="Məs: Marketinq Meneceri" value="${esc(exp.title)}"></div>
-                        <div><label class="label text-xs">Şirkət</label><input type="text" data-exp="company" data-index="${index}" class="input text-sm" placeholder="Məs: 'Uğur' MMC" value="${esc(exp.company)}"></div>
+                        <div><label class="label text-xs">Vəzifə</label><input type="text" data-array="experience" data-field="title" data-index="${index}" class="input text-sm" placeholder="Məs: Marketinq Meneceri" value="${esc(exp.title)}"></div>
+                        <div><label class="label text-xs">Şirkət</label><input type="text" data-array="experience" data-field="company" data-index="${index}" class="input text-sm" placeholder="Məs: 'Uğur' MMC" value="${esc(exp.company)}"></div>
                         <div class="flex gap-2">
-                            <div><label class="label text-xs">Başlanğıc</label><input type="text" data-exp="start" data-index="${index}" class="input text-sm" placeholder="Yanvar 2020" value="${esc(exp.start)}"></div>
-                            <div><label class="label text-xs">Bitmə</label><input type="text" data-exp="end" data-index="${index}" class="input text-sm" placeholder="Hazırda" value="${esc(exp.end)}"></div>
+                            <div><label class="label text-xs">Başlanğıc</label><input type="text" data-array="experience" data-field="start" data-index="${index}" class="input text-sm" placeholder="Yanvar 2020" value="${esc(exp.start)}"></div>
+                            <div><label class="label text-xs">Bitmə</label><input type="text" data-array="experience" data-field="end" data-index="${index}" class="input text-sm" placeholder="Hazırda" value="${esc(exp.end)}"></div>
                         </div>
-                        <div><label class="label text-xs">Açıqlama</label><textarea data-exp="desc" data-index="${index}" class="textarea text-sm" rows="3" placeholder="Gördüyünüz işləri yazın...">${esc(exp.desc)}</textarea></div>
+                        <div><label class="label text-xs">Açıqlama</label><textarea data-array="experience" data-field="desc" data-index="${index}" class="textarea text-sm" rows="3" placeholder="Gördüyünüz işləri yazın...">${esc(exp.desc)}</textarea></div>
                     </div>
                 </div>
             `).join('');
@@ -402,11 +402,11 @@
                 <div class="education-form border border-gray-600 p-3 rounded-md relative">
                     <button class="remove-btn absolute top-2 right-2 text-red-500 text-2xl font-bold" data-type="education" data-index="${index}">&times;</button>
                     <div class="space-y-2">
-                        <div><label class="label text-xs">İxtisas və dərəcə</label><input type="text" data-edu="degree" data-index="${index}" class="input text-sm" placeholder="Məs: Kompüter Mühəndisliyi" value="${esc(edu.degree)}"></div>
-                        <div><label class="label text-xs">Universitet</label><input type="text" data-edu="school" data-index="${index}" class="input text-sm" placeholder="Məs: ADNSU" value="${esc(edu.school)}"></div>
+                        <div><label class="label text-xs">İxtisas və dərəcə</label><input type="text" data-array="education" data-field="degree" data-index="${index}" class="input text-sm" placeholder="Məs: Kompüter Mühəndisliyi" value="${esc(edu.degree)}"></div>
+                        <div><label class="label text-xs">Universitet</label><input type="text" data-array="education" data-field="school" data-index="${index}" class="input text-sm" placeholder="Məs: ADNSU" value="${esc(edu.school)}"></div>
                         <div class="flex gap-2">
-                             <div><label class="label text-xs">Başlanğıc</label><input type="text" data-edu="start" data-index="${index}" class="input text-sm" placeholder="Sentyabr 2016" value="${esc(edu.start)}"></div>
-                             <div><label class="label text-xs">Bitmə</label><input type="text" data-edu="end" data-index="${index}" class="input text-sm" placeholder="İyun 2020" value="${esc(edu.end)}"></div>
+                             <div><label class="label text-xs">Başlanğıc</label><input type="text" data-array="education" data-field="start" data-index="${index}" class="input text-sm" placeholder="Sentyabr 2016" value="${esc(edu.start)}"></div>
+                             <div><label class="label text-xs">Bitmə</label><input type="text" data-array="education" data-field="end" data-index="${index}" class="input text-sm" placeholder="İyun 2020" value="${esc(edu.end)}"></div>
                         </div>
                     </div>
                 </div>
@@ -414,8 +414,8 @@
 
             elements.languageForms.innerHTML = (cvData.languages || []).map((lang, index) => `
                 <div class="language-form flex gap-2 items-center">
-                    <input type="text" data-lang="name" data-index="${index}" class="input text-sm" placeholder="Məs: İngilis" value="${esc(lang.name)}">
-                    <select data-lang="level" data-index="${index}" class="select text-sm">
+                    <input type="text" data-array="languages" data-field="name" data-index="${index}" class="input text-sm" placeholder="Məs: İngilis" value="${esc(lang.name)}">
+                    <select data-array="languages" data-field="level" data-index="${index}" class="select text-sm">
                         <option ${lang.level === 'Ana dili' ? 'selected' : ''}>Ana dili</option>
                         <option ${lang.level === 'Əla' ? 'selected' : ''}>Əla</option>
                         <option ${lang.level === 'Yaxşı' ? 'selected' : ''}>Yaxşı</option>
@@ -427,12 +427,12 @@
             
             elements.socialForms.innerHTML = (cvData.socialLinks || []).map((link, index) => `
                  <div class="social-form flex gap-2 items-center">
-                    <select data-social="name" data-index="${index}" class="select text-sm w-1/3">
+                    <select data-array="socialLinks" data-field="name" data-index="${index}" class="select text-sm w-1/3">
                         <option value="linkedin" ${link.name === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
                         <option value="github" ${link.name === 'github' ? 'selected' : ''}>GitHub</option>
                         <option value="globe" ${link.name === 'globe' ? 'selected' : ''}>Portfolio</option>
                     </select>
-                    <input type="url" data-social="url" data-index="${index}" class="input text-sm" placeholder="https://..." value="${esc(link.url)}">
+                    <input type="url" data-array="socialLinks" data-field="url" data-index="${index}" class="input text-sm" placeholder="https://..." value="${esc(link.url)}">
                     <button class="remove-btn text-red-500 text-2xl font-bold" data-type="socialLinks" data-index="${index}">&times;</button>
                 </div>
             `).join('');
@@ -447,6 +447,7 @@
             document.documentElement.style.setProperty('--primary', cvData.accentColor);
             
             renderDynamicForms();
+            updateActiveTemplateButton();
         };
         
         const updatePreview = () => {
@@ -460,53 +461,28 @@
             syncFormWithData();
             updatePreview();
         };
-
-        // --- EVENT HANDLERS ---
-        const handleEditorInput = (e) => {
+        
+        const handleFormInput = (e) => {
+            isInitialLoad = false;
             const target = e.target;
-            const key = target.dataset.input;
-            
-            if (key) {
-                cvData[key] = target.value;
-            } else {
-                const index = target.dataset.index;
-                if (index !== undefined) {
-                    const form = target.closest('.experience-form, .education-form, .language-form, .social-form');
-                    const arrayName = form.parentElement.id.replace('-forms', '');
-                    const fieldName = Object.keys(target.dataset).find(k => k !== 'index');
+            const { input, array, field, index } = target.dataset;
 
-                    if (arrayName && cvData[arrayName] && cvData[arrayName][index]) {
-                        cvData[arrayName][index][fieldName] = target.value;
-                    }
+            if (input) {
+                cvData[input] = target.value;
+            } else if (array && field && index !== undefined) {
+                const numericIndex = parseInt(index, 10);
+                if (cvData[array] && cvData[array][numericIndex] !== undefined) {
+                    cvData[array][numericIndex][field] = target.value;
                 }
             }
+            
             updatePreview();
             debouncedSave();
         };
-        
-        const setupEventListeners = () => {
-            elements.editorPanel.addEventListener('input', (e) => {
-                const target = e.target;
-                const key = target.dataset.input;
 
-                if (key) {
-                    cvData[key] = target.value;
-                } else {
-                    const index = target.dataset.index;
-                    if (index !== undefined) {
-                        const form = target.closest('.experience-form, .education-form, .language-form, .social-form');
-                        if (form) {
-                            const arrayKey = form.parentElement.id.replace('-forms', '');
-                            const itemKey = Object.keys(target.dataset).find(k => k.startsWith('exp') || k.startsWith('edu') || k.startsWith('lang') || k.startsWith('social'));
-                            if (arrayKey && itemKey && cvData[arrayKey] && cvData[arrayKey][index] ) {
-                               cvData[arrayKey][index][itemKey.split('-')[1]] = target.value;
-                            }
-                        }
-                    }
-                }
-                updatePreview();
-                debouncedSave();
-            });
+        // --- EVENT LISTENERS ---
+        const setupEventListeners = () => {
+            elements.editorPanel.addEventListener('input', handleFormInput);
 
             document.getElementById('add-exp-btn').addEventListener('click', () => { cvData.experience.push({ title: '', company: '', start: '', end: '', desc: '' }); fullRender(); debouncedSave(); });
             document.getElementById('add-edu-btn').addEventListener('click', () => { cvData.education.push({ degree: '', school: '', start: '', end: '' }); fullRender(); debouncedSave(); });
@@ -538,8 +514,7 @@
                 const color = e.target.value;
                 cvData.accentColor = color;
                 document.documentElement.style.setProperty('--primary', color);
-                clearTimeout(saveTimeout);
-                saveTimeout = setTimeout(saveDraftToFirestore, 300);
+                debouncedSave();
             });
 
             elements.photoUpload.addEventListener('change', (e) => {
@@ -579,7 +554,7 @@
             elements.downloadPdfBtn.disabled = true;
             elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yoxlanılır...`;
             
-            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
+            const userDocRef = doc(db, 'users', currentUserId);
 
             try {
                 const userDoc = await getDoc(userDocRef);
@@ -616,39 +591,67 @@
         };
 
         // --- FIREBASE & APP INITIALIZATION ---
-        const setupUser = (uid) => {
-            if (currentUserId === uid) return; 
+        const setupUser = async (uid) => {
+            if (currentUserId === uid) return;
             currentUserId = uid;
             elements.userIdDisplay.textContent = uid;
-            
+            isInitialLoad = true;
+
             const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${uid}. Balans artırmaq istəyirəm.`);
             document.getElementById('whatsapp-topup-link').href = `https://wa.me/994606006162?text=${whatsappText}`;
             document.getElementById('floating-whatsapp-bubble').href = `https://wa.me/994606006162?text=${encodeURIComponent(`Salam, CV generatoru ilə bağlı dəstəyə ehtiyacım var. ID: ${uid}`)}`;
-            
-            const userDocRef = doc(db, 'artifacts', appId, 'users', uid, 'userData', 'profile');
+
+            const userDocRef = doc(db, 'users', uid);
 
             if (unsubscribeUserDoc) unsubscribeUserDoc();
-
-            unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
-                if (snap.exists()) {
-                    const data = snap.data();
-                    userBalance = (data && typeof data.balance === 'number') ? data.balance : 0;
-                    if (!isSaving) { 
-                        cvData = { ...defaultCvData, ...(data && data.cvData ? data.cvData : {}) };
-                    }
-                } else {
-                    // Sənəd yoxdursa, başlanğıc məlumatlarla yarat
-                    userBalance = 0;
-                    cvData = { ...defaultCvData };
-                    setDoc(userDocRef, { balance: 0, cvData: cvData });
+            
+            try {
+                // Check if document exists first, if not create it
+                const docSnap = await getDoc(userDocRef);
+                if (!docSnap.exists()) {
+                    // Create new user document with default values
+                    await setDoc(userDocRef, {
+                        balance: 0,
+                        cvData: { ...defaultCvData },
+                        createdAt: new Date().toISOString()
+                    });
+                    console.log("Yeni istifadəçi sənədi yaradıldı");
                 }
-                elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
-                fullRender();
+                
+                unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
+                    if (snap.exists()) {
+                        const data = snap.data();
+                        
+                        userBalance = data.balance !== undefined ? Number(data.balance) : 0;
+                        elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
+                        console.log("Balans yeniləndi:", userBalance);
 
-            }, (error) => {
-                console.error("İstifadəçi məlumatlarını izləyərkən xəta:", error);
-                showAlert("Hesab məlumatları yüklənə bilmədi. Səhifəni yeniləyin.", "error");
-            });
+                        // Only on the very first load after authentication, sync the form.
+                        if (isInitialLoad) {
+                            const serverCvData = data.cvData;
+                            if (serverCvData) {
+                                cvData = { ...defaultCvData, ...serverCvData };
+                            } else {
+                                cvData = { ...defaultCvData };
+                                // Save defaults to server
+                                saveDraftToFirestore();
+                            }
+                            fullRender();
+                            isInitialLoad = false;
+                        }
+                    } else {
+                        console.error("İstifadəçi sənədi mövcud deyil");
+                        showAlert("Hesab məlumatları tapılmadı.", "error");
+                    }
+                }, (error) => {
+                    console.error("İstifadəçi məlumatlarını izləyərkən xəta:", error);
+                    showAlert("Hesab məlumatları yüklənə bilmədi.", "error");
+                });
+
+            } catch (error) {
+                console.error("İstifadəçi sənədini hazırlayarkən xəta:", error);
+                showAlert("Hesab məlumatları yüklənə bilmədi.", "error");
+            }
         };
 
         const updateActiveTemplateButton = () => {
@@ -679,20 +682,14 @@
                 auth = getAuth(app);
                 db = getFirestore(app);
                 
-                onAuthStateChanged(auth, async (user) => {
+                onAuthStateChanged(auth, (user) => {
                     if (user) {
                         setupUser(user.uid);
                     } else {
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                               await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                               await signInAnonymously(auth);
-                            }
-                        } catch (authError) {
-                             console.error("Authentication error:", authError);
+                        signInAnonymously(auth).catch((authError) => {
+                             console.error("Anonim giriş xətası:", authError);
                              showAlert("Giriş uğursuz oldu. Səhifəni yeniləyin.", "error");
-                        }
+                        });
                     }
                 });
 
@@ -710,4 +707,3 @@
     </script>
 </body>
 </html>
-
