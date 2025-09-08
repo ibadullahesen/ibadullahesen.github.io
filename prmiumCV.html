@@ -362,7 +362,6 @@
             isSaving = true;
             elements.saveStatus.textContent = "Yadda saxlanılır...";
             try {
-                // DÜZƏLİŞ: Məlumatlar artıq userData/profile sənədində saxlanılır.
                 const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
                 await setDoc(userDocRef, { cvData: cvData, balance: userBalance }, { merge: true });
                  setTimeout(() => { elements.saveStatus.textContent = "Yadda saxlandı"; }, 500);
@@ -470,24 +469,45 @@
             if (key) {
                 cvData[key] = target.value;
             } else {
-                 const type = target.dataset.exp || target.dataset.edu || target.dataset.lang || target.dataset.social;
-                 const index = target.dataset.index;
-                 const property = target.dataset.lang || target.dataset.social ? type : Object.keys(target.dataset)[0].split('-')[1];
+                const index = target.dataset.index;
+                if (index !== undefined) {
+                    const form = target.closest('.experience-form, .education-form, .language-form, .social-form');
+                    const arrayName = form.parentElement.id.replace('-forms', '');
+                    const fieldName = Object.keys(target.dataset).find(k => k !== 'index');
 
-                 if (index !== undefined) {
-                     const arrayName = target.closest('#experience-forms') ? 'experience' : 
-                                     target.closest('#education-forms') ? 'education' :
-                                     target.closest('#language-forms') ? 'languages' : 'socialLinks';
-                     cvData[arrayName][index][type] = target.value;
-                 }
+                    if (arrayName && cvData[arrayName] && cvData[arrayName][index]) {
+                        cvData[arrayName][index][fieldName] = target.value;
+                    }
+                }
             }
             updatePreview();
             debouncedSave();
         };
         
         const setupEventListeners = () => {
-            elements.editorPanel.addEventListener('input', handleEditorInput);
-            
+            elements.editorPanel.addEventListener('input', (e) => {
+                const target = e.target;
+                const key = target.dataset.input;
+
+                if (key) {
+                    cvData[key] = target.value;
+                } else {
+                    const index = target.dataset.index;
+                    if (index !== undefined) {
+                        const form = target.closest('.experience-form, .education-form, .language-form, .social-form');
+                        if (form) {
+                            const arrayKey = form.parentElement.id.replace('-forms', '');
+                            const itemKey = Object.keys(target.dataset).find(k => k.startsWith('exp') || k.startsWith('edu') || k.startsWith('lang') || k.startsWith('social'));
+                            if (arrayKey && itemKey && cvData[arrayKey] && cvData[arrayKey][index] ) {
+                               cvData[arrayKey][index][itemKey.split('-')[1]] = target.value;
+                            }
+                        }
+                    }
+                }
+                updatePreview();
+                debouncedSave();
+            });
+
             document.getElementById('add-exp-btn').addEventListener('click', () => { cvData.experience.push({ title: '', company: '', start: '', end: '', desc: '' }); fullRender(); debouncedSave(); });
             document.getElementById('add-edu-btn').addEventListener('click', () => { cvData.education.push({ degree: '', school: '', start: '', end: '' }); fullRender(); debouncedSave(); });
             document.getElementById('add-lang-btn').addEventListener('click', () => { cvData.languages.push({ name: '', level: 'Yaxşı' }); fullRender(); debouncedSave(); });
@@ -559,7 +579,6 @@
             elements.downloadPdfBtn.disabled = true;
             elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yoxlanılır...`;
             
-            // DÜZƏLİŞ: Düzgün sənəd yoluna müraciət edilir.
             const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
 
             try {
@@ -572,7 +591,6 @@
                 }
 
                 const newBalance = currentBalance - CV_PRICE;
-                // Balans `updateDoc` ilə yenilənir
                 await updateDoc(userDocRef, { balance: newBalance });
 
                 elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> PDF hazırlanır...`;
@@ -607,21 +625,25 @@
             document.getElementById('whatsapp-topup-link').href = `https://wa.me/994606006162?text=${whatsappText}`;
             document.getElementById('floating-whatsapp-bubble').href = `https://wa.me/994606006162?text=${encodeURIComponent(`Salam, CV generatoru ilə bağlı dəstəyə ehtiyacım var. ID: ${uid}`)}`;
             
-            // DÜZƏLİŞ: Düzgün sənəd yoluna abunə olunur.
             const userDocRef = doc(db, 'artifacts', appId, 'users', uid, 'userData', 'profile');
 
             if (unsubscribeUserDoc) unsubscribeUserDoc();
 
             unsubscribeUserDoc = onSnapshot(userDocRef, (snap) => {
-                const data = snap.data();
-                
-                userBalance = (data && typeof data.balance === 'number') ? data.balance : 0;
-                elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
-
-                if (!isSaving) { 
-                    cvData = { ...defaultCvData, ...(data && data.cvData ? data.cvData : {}) };
-                    fullRender();
+                if (snap.exists()) {
+                    const data = snap.data();
+                    userBalance = (data && typeof data.balance === 'number') ? data.balance : 0;
+                    if (!isSaving) { 
+                        cvData = { ...defaultCvData, ...(data && data.cvData ? data.cvData : {}) };
+                    }
+                } else {
+                    // Sənəd yoxdursa, başlanğıc məlumatlarla yarat
+                    userBalance = 0;
+                    cvData = { ...defaultCvData };
+                    setDoc(userDocRef, { balance: 0, cvData: cvData });
                 }
+                elements.userBalance.textContent = `${userBalance.toFixed(2)} AZN`;
+                fullRender();
 
             }, (error) => {
                 console.error("İstifadəçi məlumatlarını izləyərkən xəta:", error);
