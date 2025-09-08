@@ -621,11 +621,23 @@
 
         const initialize = async () => {
             try {
-                // Təhlükəsizlik: __firebase_config mühit dəyişənindən istifadə edilir
-                if (typeof __firebase_config === 'undefined') {
-                    throw new Error("Firebase konfiqurasiyası tapılmadı.");
+                let firebaseConfig;
+                // Mühit tərəfindən təmin edilən konfiqurasiyanı yoxlayın, əks halda lokal test üçün fallback istifadə edin
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                } else {
+                    console.warn("Lokal test üçün ehtiyat Firebase konfiqurasiyası istifadə olunur. Real mühitdə bu dəyişdiriləcək.");
+                    // Bu konfiqurasiya yalnız lokal test üçündür.
+                    firebaseConfig = {
+                        apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+                        authDomain: "axtargetbotwebsite.firebaseapp.com",
+                        projectId: "axtargetbotwebsite",
+                        storageBucket: "axtargetbotwebsite.appspot.com",
+                        messagingSenderId: "808698399196",
+                        appId: "1:808698399196:web:61b6be0721b94f24c3a719"
+                    };
                 }
-                const firebaseConfig = JSON.parse(__firebase_config);
+
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
@@ -658,3 +670,4 @@
     </script>
 </body>
 </html>
+
