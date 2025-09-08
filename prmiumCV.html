@@ -203,7 +203,7 @@
         // Firebase 11-ci versiyası import edilir.
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // --- GLOBAL VARIABLES & CONSTANTS ---
         const CV_PRICE = 1.99;
@@ -362,8 +362,9 @@
             isSaving = true;
             elements.saveStatus.textContent = "Yadda saxlanılır...";
             try {
-                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId);
-                await setDoc(userDocRef, { cvData: cvData });
+                // DÜZƏLİŞ: Məlumatlar artıq userData/profile sənədində saxlanılır.
+                const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
+                await setDoc(userDocRef, { cvData: cvData, balance: userBalance }, { merge: true });
                  setTimeout(() => { elements.saveStatus.textContent = "Yadda saxlandı"; }, 500);
             } catch (error) {
                 console.error("Firestore-a yazma xətası:", error);
@@ -517,7 +518,6 @@
                 const color = e.target.value;
                 cvData.accentColor = color;
                 document.documentElement.style.setProperty('--primary', color);
-                // Debounce to avoid saving on every tiny color change while dragging
                 clearTimeout(saveTimeout);
                 saveTimeout = setTimeout(saveDraftToFirestore, 300);
             });
@@ -559,7 +559,8 @@
             elements.downloadPdfBtn.disabled = true;
             elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yoxlanılır...`;
             
-            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId);
+            // DÜZƏLİŞ: Düzgün sənəd yoluna müraciət edilir.
+            const userDocRef = doc(db, 'artifacts', appId, 'users', currentUserId, 'userData', 'profile');
 
             try {
                 const userDoc = await getDoc(userDocRef);
@@ -571,7 +572,8 @@
                 }
 
                 const newBalance = currentBalance - CV_PRICE;
-                await setDoc(userDocRef, { balance: newBalance }, { merge: true });
+                // Balans `updateDoc` ilə yenilənir
+                await updateDoc(userDocRef, { balance: newBalance });
 
                 elements.downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> PDF hazırlanır...`;
                 
@@ -605,7 +607,8 @@
             document.getElementById('whatsapp-topup-link').href = `https://wa.me/994606006162?text=${whatsappText}`;
             document.getElementById('floating-whatsapp-bubble').href = `https://wa.me/994606006162?text=${encodeURIComponent(`Salam, CV generatoru ilə bağlı dəstəyə ehtiyacım var. ID: ${uid}`)}`;
             
-            const userDocRef = doc(db, 'artifacts', appId, 'users', uid);
+            // DÜZƏLİŞ: Düzgün sənəd yoluna abunə olunur.
+            const userDocRef = doc(db, 'artifacts', appId, 'users', uid, 'userData', 'profile');
 
             if (unsubscribeUserDoc) unsubscribeUserDoc();
 
@@ -617,14 +620,12 @@
 
                 if (!isSaving) { 
                     cvData = { ...defaultCvData, ...(data && data.cvData ? data.cvData : {}) };
-                    syncFormWithData();
-                    updateActiveTemplateButton();
-                    updatePreview();
+                    fullRender();
                 }
 
             }, (error) => {
                 console.error("İstifadəçi məlumatlarını izləyərkən xəta:", error);
-                showAlert("Hesab məlumatları yüklənə bilmədi.", "error");
+                showAlert("Hesab məlumatları yüklənə bilmədi. Səhifəni yeniləyin.", "error");
             });
         };
 
@@ -674,8 +675,7 @@
                 });
 
                 setupEventListeners();
-                updateActiveTemplateButton();
-                updatePreview();
+                fullRender();
 
             } catch(error) {
                 console.error("Firebase başlatma xətası:", error);
@@ -688,3 +688,4 @@
     </script>
 </body>
 </html>
+
