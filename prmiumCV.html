@@ -148,6 +148,9 @@
                     <p class="text-lg font-semibold">Balans: <span id="user-balance" style="color: var(--primary);">0.00 AZN</span></p>
                     <p class="text-xs text-muted">ID: <span id="user-id-display" class="font-mono">yüklənir...</span></p>
                 </div>
+                <button id="clear-all-btn" class="btn btn-secondary">
+                    <i class="fas fa-trash mr-2"></i> Hər Şeyi Sil
+                </button>
                 <button id="add-balance-btn" class="btn btn-secondary">Balans Artır</button>
                 <button id="downloadPdfBtn" class="btn btn-primary">
                    <i class="fas fa-file-pdf mr-2"></i> PDF Yüklə (1.99 AZN)
@@ -488,6 +491,15 @@
             document.getElementById('add-edu-btn').addEventListener('click', () => { cvData.education.push({ degree: '', school: '', start: '', end: '' }); fullRender(); debouncedSave(); });
             document.getElementById('add-lang-btn').addEventListener('click', () => { cvData.languages.push({ name: '', level: 'Yaxşı' }); fullRender(); debouncedSave(); });
             document.getElementById('add-social-btn').addEventListener('click', () => { cvData.socialLinks.push({ name: 'linkedin', url: '' }); fullRender(); debouncedSave(); });
+            
+            document.getElementById('clear-all-btn').addEventListener('click', () => {
+                if (confirm('Bütün məlumatları silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.')) {
+                    cvData = { ...defaultCvData };
+                    fullRender();
+                    saveDraftToFirestore();
+                    showAlert('Bütün məlumatlar silindi!', 'success');
+                }
+            });
             
             elements.editorPanel.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-btn')) {
