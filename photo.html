@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axtarget.xyz - Şəkil Redaktə</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .card {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .file-label {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(66, 153, 225, 0.3);
+        }
+        canvas {
+            display: block;
+            margin-top: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            height: auto;
+        }
+        .message-box {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #4a5568;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            text-align: center;
+        }
+        .custom-select {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+        }
+        .select-header {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .select-header:hover {
+            background-color: #6a717f;
+        }
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #2d3748;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+        .select-dropdown.open {
+            display: block;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .dropdown-item:hover {
+            background-color: #4a5568;
+        }
+        .dropdown-item.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .dropdown-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+            margin-right: 1rem;
+            position: relative;
+        }
+        .filter-previews-loading {
+            text-align: center;
+            color: #cbd5e0;
+            padding: 1rem;
+        }
+        .watermark {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 8px;
+            color: #e2e8f0;
+            background-color: rgba(45, 55, 72, 0.7);
+            padding: 2px 4px;
+            border-radius: 2px;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        .resolution-options {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .resolution-options input[type="radio"] {
+            display: none;
+        }
+        .resolution-options label {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: #4a5568;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        .resolution-options input[type="radio"]:checked + label {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .nav-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            opacity: 0.7;
+        }
+        .nav-btn:hover {
+            background-color: #2563eb;
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        .random-btn {
+            background-color: #4a5568;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+        .random-btn:hover {
+            background-color: #3b82f6;
+            transform: scale(1.1);
+        }
+        .canvas-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .container {
+                padding: 0.5rem;
+            }
+            .card {
+                padding: 1rem;
+            }
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+            .canvas-container {
+                flex-direction: column;
+            }
+            .canvas-container .nav-btn {
+                width: 100%;
+                border-radius: 0.5rem;
+                padding: 0.5rem 1rem;
+                height: auto;
+            }
+            .canvas-container #imageCanvas {
+                order: -1;
+            }
+            .canvas-container #prevBtn {
+                margin-bottom: 0.5rem;
+            }
+            .canvas-container #nextBtn {
+                margin-top: 0.5rem;
+            }
+            .resolution-options {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 antialiased flex flex-col min-h-screen">
+    <div class="message-box" id="messageBox"></div>
+
+    <header class="w-full py-4 px-2">
+        <div class="container flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-blue-400">Axtarget.xyz</h1>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-2">
+        <div class="w-full card">
+            <h2 class="text-xl font-bold text-center mb-2">Şəkilə Film Filteri Tətbiq Et</h2>
+            <p class="text-center text-gray-400 text-sm mb-4">Şəkilinizi yükləyin və ona kinofilm filtrləri əlavə edin.</p>
+
+            <div class="flex flex-col items-center justify-center gap-4">
+                <label for="imageUpload" class="file-label px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
+                    Şəkil Yüklə
+                </label>
+                <input type="file" id="imageUpload" accept="image/*" class="hidden">
+
+                <div class="canvas-container hidden" id="canvasContainer">
+                    <button id="prevBtn" class="nav-btn">&lt;</button>
+                    <canvas id="imageCanvas"></canvas>
+                    <button id="nextBtn" class="nav-btn">&gt;</button>
+                </div>
+                
+                <div id="controls" class="hidden w-full flex flex-col items-center gap-4 mt-4">
+                    <h3 class="text-lg font-semibold text-center mt-4">Filtrlər</h3>
+
+                    <!-- Normal Filtrlər -->
+                    <div class="w-full flex flex-col items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <p class="text-center text-gray-400">Normal Filtrlər:</p>
+                            <button class="random-btn" data-category="normal">🎲</button>
+                        </div>
+                        <div id="normal-select-container" class="custom-select">
+                            <div class="select-header" id="normalSelectHeader">
+                                <span id="normalSelectedFilterText">Orijinal</span>
+                                <span>&#9660;</span>
+                            </div>
+                            <div class="select-dropdown" id="normalFilterDropdown"></div>
+                        </div>
+                    </div>
+
+                    <!-- Qara-Ağ Filtrlər -->
+                    <div class="w-full flex flex-col items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <p class="text-center text-gray-400">Qara-Ağ Filtrlər:</p>
+                            <button class="random-btn" data-category="bw">🎲</button>
+                        </div>
+                        <div id="bw-select-container" class="custom-select">
+                            <div class="select-header" id="bwSelectHeader">
+                                <span id="bwSelectedFilterText">Seçin</span>
+                                <span>&#9660;</span>
+                            </div>
+                            <div class="select-dropdown" id="bwFilterDropdown"></div>
+                        </div>
+                    </div>
+
+                    <!-- Premium Filtrlər -->
+                    <div class="w-full flex flex-col items-center gap-2">
+                        <div class="flex items-center gap-2">
+                            <p class="text-center text-gray-400">Premium Filtrlər:</p>
+                            <button class="random-btn" data-category="premium">🎲</button>
+                        </div>
+                        <div id="premium-select-container" class="custom-select">
+                            <div class="select-header" id="premiumSelectHeader">
+                                <span id="premiumSelectedFilterText">Seçin</span>
+                                <span>&#9660;</span>
+                            </div>
+                            <div class="select-dropdown" id="premiumFilterDropdown"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="intensity-control" class="hidden w-full max-w-md mt-4">
+                        <label for="intensitySlider" class="block text-center text-gray-400">Effektin gücü:</label>
+                        <input type="range" id="intensitySlider" min="0" max="100" value="100" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
+                    </div>
+
+                    <p class="text-center text-gray-400 mt-4">Yükləmə keyfiyyətini seçin:</p>
+                    <div class="resolution-options">
+                        <input type="radio" id="resOriginal" name="resolution" value="original" checked>
+                        <label for="resOriginal">Orijinal</label>
+                        <input type="radio" id="res4K" name="resolution" value="4k">
+                        <label for="res4K">4K</label>
+                        <input type="radio" id="res8K" name="resolution" value="8k">
+                        <label for="res8K">8K</label>
+                    </div>
+                    <p id="resolution-info" class="text-center text-gray-500 text-sm mt-2 hidden">
+                        Keyfiyyəti artırdıqda fayl ölçüsünün də artacağını unutmayın.
+                    </p>
+                    
+                    <button id="downloadBtn" class="w-full md:w-auto px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
+                        Şəkili Endir
+                    </button>
+                </div>
+                <div id="loadingSpinner" class="hidden spinner mt-4">
+                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="w-full py-4 px-2">
+        <div class="container text-center text-gray-500 text-sm">
+            © 2025 Axtarget.xyz. Bütün hüquqlar qorunur.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileInput = document.getElementById('imageUpload');
+            const canvas = document.getElementById('imageCanvas');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const controls = document.getElementById('controls');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const messageBox = document.getElementById('messageBox');
+            const selectHeaders = {
+                normal: document.getElementById('normalSelectHeader'),
+                bw: document.getElementById('bwSelectHeader'),
+                premium: document.getElementById('premiumSelectHeader')
+            };
+            const filterDropdowns = {
+                normal: document.getElementById('normalFilterDropdown'),
+                bw: document.getElementById('bwFilterDropdown'),
+                premium: document.getElementById('premiumFilterDropdown')
+            };
+            const selectedFilterTexts = {
+                normal: document.getElementById('normalSelectedFilterText'),
+                bw: document.getElementById('bwSelectedFilterText'),
+                premium: document.getElementById('premiumSelectedFilterText')
+            };
+            const intensitySlider = document.getElementById('intensitySlider');
+            const intensityControl = document.getElementById('intensity-control');
+            const resolutionOptions = document.getElementsByName('resolution');
+            const resolutionInfo = document.getElementById('resolution-info');
+            const randomButtons = document.querySelectorAll('.random-btn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const canvasContainer = document.getElementById('canvasContainer');
+
+            let ctx = canvas.getContext('2d');
+            let currentImage = null;
+            let currentFilter = 'Orijinal';
+            let currentCategory = 'normal';
+            let currentFilterIndex = 0;
+
+            const filterPresets = {
+                'Orijinal': 'none',
+                'Dramatik': 'contrast(1.2) saturate(0.9) brightness(1.1) sepia(0.15)',
+                'Canlı Rənglər': 'contrast(1.3) saturate(1.5) brightness(1.1)',
+                'İsti Ton': 'sepia(0.3) saturate(1.2) brightness(1.1) contrast(1.1)',
+                'Soyuq Ton': 'hue-rotate(180deg) contrast(1.1) saturate(1.2)',
+                'Retro Film': 'sepia(0.8) contrast(1.1) saturate(0.8)',
+                'Vintage': 'sepia(0.5) contrast(1.1) brightness(1.1) saturate(1.2)',
+                'Yumşaq Parıltı': 'contrast(1.1) saturate(1.1) brightness(1.1) blur(0.5px)',
+                'Tünd Kontrast': 'contrast(1.5) brightness(0.8)',
+                'Solmuş Xatirələr': 'saturate(0.5) contrast(0.9) sepia(0.2)',
+                'Yay Parıltısı': 'saturate(1.3) contrast(1.1) brightness(1.2) sepia(0.1)',
+                'Qış Sərinliyi': 'saturate(0.7) contrast(1.1) brightness(0.9) hue-rotate(200deg)',
+                'Yumşaq Fokus': 'blur(1px) contrast(1.05) saturate(1.1)',
+                'Şəhər Sərinliyi': 'grayscale(0.1) contrast(1.1) saturate(1.2) hue-rotate(10deg)',
+                'Sakit Sabah': 'sepia(0.1) saturate(0.9) brightness(1.2)',
+                'Gecə Şəhəri': 'brightness(0.7) contrast(1.2) hue-rotate(-10deg)',
+                'Romantik': 'saturate(1.2) sepia(0.3) contrast(1.1) brightness(1.1)',
+                'Pastel Tonları': 'saturate(0.8) brightness(1.2) contrast(1.05)',
+                'Zərif Doyğunluq': 'saturate(0.85) contrast(1.1)',
+                'Köhnə Kağız': 'sepia(0.4) contrast(1.1) brightness(1.15)',
+                'İndiki An': 'contrast(1.1) brightness(1.1)',
+                'HDR Effekt': 'contrast(1.5) saturate(1.5) brightness(1.2)',
+                'Kodachrome': 'saturate(1.6) contrast(1.2) sepia(0.2)',
+                'Ektachrome': 'saturate(1.4) contrast(1.1) brightness(1.1)',
+                'Sinematik (Rec.709)': 'contrast(1.1) saturate(1.1) brightness(1.05) sepia(0.05)',
+                'Səssiz Yaşıllar': 'saturate(0.8) hue-rotate(30deg) sepia(0.1)',
+                'Qış Sirri': 'saturate(0.5) contrast(1.2) brightness(1.1) hue-rotate(220deg)',
+                'Şəhər İşıqları': 'brightness(1.4) contrast(1.3) saturate(1.5)',
+                'Səhra Gecəsi': 'sepia(0.7) contrast(1.1) brightness(0.9) hue-rotate(10deg)',
+                'Sakit Yaşıllıqlar': 'hue-rotate(60deg) saturate(0.8) contrast(1.1) brightness(1.1)',
+                'Çay Kənarı': 'sepia(0.2) saturate(1.1) contrast(1.05) brightness(1.1)',
+                'Payız Məhsulu': 'saturate(1.4) contrast(1.2) sepia(0.4)',
+                'Tüstü Effekti': 'contrast(0.8) brightness(1.2) saturate(0.8) blur(0.5px)',
+                'Yaz Yağışı': 'hue-rotate(160deg) contrast(1.1) saturate(0.9) brightness(1.1)',
+                'Gizli Meşə': 'brightness(0.8) contrast(1.2) saturate(1.1) sepia(0.2)',
+                'Qızıl Saat': 'sepia(0.5) saturate(1.5) contrast(1.1) brightness(1.2)',
+                'Səhər Dumanı': 'contrast(0.9) brightness(1.2) saturate(0.8) blur(1px)',
+                'Alatoran': 'brightness(0.8) contrast(1.3) sepia(0.3) hue-rotate(250deg)',
+                'Neon Parıltı': 'saturate(2) hue-rotate(300deg) contrast(1.5)',
+                'Kino Səhnəsi': 'contrast(1.2) saturate(1.1) sepia(0.2) brightness(1.1)',
+                'Yumşaq Rənglər': 'contrast(1.05) saturate(0.85) brightness(1.1)',
+                'Qarlı Qış': 'grayscale(0.5) brightness(1.3) contrast(1.1) hue-rotate(200deg)',
+                'Günəşli Səhər': 'brightness(1.3) contrast(1.05) saturate(1.2)',
+                'Dərin Meşə': 'contrast(1.2) saturate(1.3) sepia(0.1)',
+                'Sakit Dəniz': 'hue-rotate(180deg) contrast(1.05) saturate(0.9) brightness(1.1)',
+                'Çox Kontrastlı': 'contrast(1.7) brightness(0.8)',
+                'Mat Rənglər': 'saturate(0.6) contrast(1.05) brightness(1.1)',
+                'Çəhrayı Yuxu': 'hue-rotate(320deg) saturate(1.3) contrast(1.1)',
+                'Gecə Göyü': 'brightness(0.7) contrast(1.2) saturate(1.5) hue-rotate(260deg)',
+                'Günəş Yolu': 'brightness(1.5) contrast(1.2) sepia(0.2)',
+                'Ağır Duman': 'contrast(0.8) brightness(1.3) saturate(0.7) blur(1.5px)',
+                'Yaşıl İşıq': 'hue-rotate(100deg) saturate(1.5) contrast(1.2)',
+                'Romantik Axşam': 'sepia(0.4) saturate(1.1) contrast(1.15) brightness(1.1)',
+                'Klassik Foto': 'sepia(0.7) contrast(1.1) brightness(1.05)',
+                'Səhər İşığı': 'brightness(1.4) contrast(1.1) saturate(1.2)',
+                'Köhnə Şəhər': 'sepia(0.6) contrast(1.2) brightness(1.1)',
+                'Qızıl Günəş': 'sepia(0.4) saturate(1.3) brightness(1.3)',
+                'Alovlu Günbatımı': 'hue-rotate(-20deg) saturate(1.6) contrast(1.3)',
+                'Təbiət Tonları': 'saturate(1.2) contrast(1.1) sepia(0.05)',
+                'Səssiz Yay': 'saturate(0.8) contrast(1.1) brightness(1.2)',
+                'Zərif Çəhrayı': 'hue-rotate(330deg) saturate(1.1) contrast(1.05)',
+                'Tünd Yaşıllar': 'hue-rotate(80deg) saturate(1.3) contrast(1.2) brightness(0.9)',
+                'Qarlı Dağlar': 'grayscale(0.4) brightness(1.3) contrast(1.2) sepia(0.1)',
+                'Müasir': 'contrast(1.1) saturate(1.1) brightness(1.05)',
+                'Kino Klassikası': 'sepia(0.3) contrast(1.2) saturate(1.1) brightness(1.05)',
+                'İsti Yay': 'saturate(1.4) brightness(1.1) contrast(1.1) hue-rotate(-10deg)',
+                'Səssiz Tonlar': 'saturate(0.7) contrast(1.1)',
+                'Yüksək Doyğunluq': 'saturate(2) contrast(1.3) brightness(1.1)',
+                'Gecə Mavisi': 'contrast(1.2) saturate(1.3) hue-rotate(240deg) brightness(0.9)',
+                'Sakit Dəyişim': 'contrast(1.05) brightness(1.05) saturate(0.9)',
+                'Yumşaq Göy': 'hue-rotate(200deg) saturate(0.8) brightness(1.1)',
+                'Tünd Retro': 'sepia(0.6) contrast(1.2) brightness(0.9) saturate(0.8)',
+                'Qəhrəman': 'contrast(1.3) brightness(1.1) saturate(1.2)',
+                'Səhər Dumanı (V2)': 'contrast(0.9) brightness(1.3) saturate(0.8) blur(1.2px)',
+                'Yumşaq Çəhrayı': 'hue-rotate(330deg) saturate(1.1) contrast(1.05) brightness(1.1)',
+                'Dərin Səssiz': 'saturate(0.6) contrast(1.1) brightness(0.9)',
+                'Nostalgiya': 'sepia(0.6) contrast(1.1) saturate(0.9)',
+                'Qara-Ağ': 'grayscale(100%) contrast(1.2)',
+                'Noir': 'grayscale(100%) contrast(1.5)',
+                'Yumşaq Qara-Ağ': 'grayscale(100%) contrast(1.1) brightness(1.1)',
+                'Mat Qara-Ağ': 'grayscale(100%) contrast(0.9) brightness(1.1)',
+                'Gümüş Film': 'grayscale(100%) contrast(1.1) brightness(1.2)',
+                'Səssiz Qara-Ağ': 'grayscale(100%) contrast(1.05) brightness(1.1)',
+                'Ağ və Qara Film': 'grayscale(100%) sepia(0.1) contrast(1.2) brightness(1.1)',
+                'Kömür Qara': 'grayscale(100%) contrast(2) brightness(0.7)',
+                'Bəyaz Anlar': 'grayscale(100%) contrast(1.05) brightness(1.15) sepia(0.1)',
+                'Sərt Qara-Ağ': 'grayscale(100%) contrast(1.5) brightness(0.9)',
+                'Sinematik Mavi': 'saturate(1.2) contrast(1.1) brightness(1.1) hue-rotate(-20deg)',
+                'Yüksək İşıq': 'brightness(1.5) contrast(0.8)',
+                'Aşağı İşıq': 'brightness(0.6) contrast(1.5)',
+                'Xəyali': 'saturate(0.8) contrast(0.9) sepia(0.2) blur(0.5px)',
+                'Lomo': 'contrast(1.5) hue-rotate(-20deg) saturate(1.8)',
+                'Sinematik Yaşıl': 'sepia(0.3) saturate(1.1) hue-rotate(90deg)',
+                'Kosmik Toz': 'sepia(0.5) hue-rotate(280deg) saturate(1.5)',
+                'Fantastik Mavi': 'saturate(1.5) contrast(1.3) hue-rotate(240deg)',
+                'Cəhənnəm Atəşi': 'hue-rotate(-40deg) saturate(2) contrast(1.5) brightness(1.2)',
+                'Yuxulu Xəyal': 'brightness(1.3) contrast(0.9) blur(0.8px)',
+                'Dərin Mavi': 'saturate(1.5) brightness(0.9) contrast(1.2) hue-rotate(200deg)',
+                'Möhtəşəm Şəhər': 'contrast(1.3) saturate(1.2) sepia(0.1) brightness(1.1)',
+                'Kosmik Çəhrayı': 'hue-rotate(310deg) saturate(1.5) brightness(1.1)',
+                'Gümüş Parıltı': 'grayscale(0.9) brightness(1.3) contrast(1.1)',
+                'Süni İşıq': 'brightness(1.5) contrast(1.3) saturate(1.5) hue-rotate(15deg)',
+                'Gizli Mavi': 'saturate(1.2) contrast(1.1) hue-rotate(220deg) brightness(0.95)',
+                'Qara Parıltı': 'brightness(0.8) contrast(1.5) saturate(1.2) hue-rotate(50deg)',
+                'Əfsanəvi': 'sepia(0.5) saturate(1.3) contrast(1.2) brightness(1.1) hue-rotate(-10deg)',
+                'Mistik': 'hue-rotate(260deg) saturate(1.4) contrast(1.1) brightness(1.05) sepia(0.1)',
+                'Fantastik Mavi (V2)': 'hue-rotate(250deg) saturate(1.5) contrast(1.2)',
+                'Neon Yaşıl': 'hue-rotate(100deg) saturate(1.8) contrast(1.5) brightness(1.2)',
+                'Pastel Xəyal': 'brightness(1.2) saturate(0.8) contrast(1.05)',
+                'Gecə Vəziyyəti': 'brightness(0.6) contrast(1.4) saturate(1.2)',
+                'Köhnə Foto (V2)': 'sepia(0.9) contrast(1.1) saturate(0.9)'
+            };
+
+            const groupedFilters = {
+                normal: ['Orijinal', 'Dramatik', 'Canlı Rənglər', 'İsti Ton', 'Soyuq Ton', 'Retro Film', 'Vintage', 'Yumşaq Parıltı', 'Tünd Kontrast', 'Solmuş Xatirələr', 'Yay Parıltısı', 'Qış Sərinliyi', 'Yumşaq Fokus', 'Şəhər Sərinliyi', 'Sakit Sabah', 'Gecə Şəhəri', 'Romantik', 'Pastel Tonları', 'Zərif Doyğunluq', 'Köhnə Kağız', 'İndiki An', 'HDR Effekt', 'Kodachrome', 'Ektachrome', 'Sinematik (Rec.709)', 'Səssiz Yaşıllar', 'Qış Sirri', 'Şəhər İşıqları', 'Səhra Gecəsi', 'Sakit Yaşıllıqlar', 'Çay Kənarı', 'Payız Məhsulu', 'Tüstü Effekti', 'Yaz Yağışı', 'Gizli Meşə', 'Qızıl Saat', 'Səhər Dumanı', 'Alatoran', 'Neon Parıltı', 'Kino Səhnəsi', 'Yumşaq Rənglər', 'Qarlı Qış', 'Günəşli Səhər', 'Dərin Meşə', 'Sakit Dəniz', 'Çox Kontrastlı', 'Mat Rənglər', 'Çəhrayı Yuxu', 'Gecə Göyü', 'Günəş Yolu', 'Ağır Duman', 'Yaşıl İşıq', 'Romantik Axşam', 'Klassik Foto', 'Səhər İşığı', 'Köhnə Şəhər', 'Qızıl Günəş', 'Alovlu Günbatımı', 'Təbiət Tonları', 'Səssiz Yay', 'Zərif Çəhrayı', 'Tünd Yaşıllar', 'Qarlı Dağlar', 'Müasir', 'Kino Klassikası', 'İsti Yay', 'Səssiz Tonlar', 'Yüksək Doyğunluq', 'Gecə Mavisi', 'Sakit Dəyişim', 'Yumşaq Göy', 'Tünd Retro', 'Qəhrəman', 'Səhər Dumanı (V2)', 'Yumşaq Çəhrayı', 'Dərin Səssiz', 'Nostalgiya'],
+                bw: ['Qara-Ağ', 'Noir', 'Yumşaq Qara-Ağ', 'Mat Qara-Ağ', 'Gümüş Film', 'Səssiz Qara-Ağ', 'Ağ və Qara Film', 'Kömür Qara', 'Bəyaz Anlar', 'Sərt Qara-Ağ'],
+                premium: ['Sinematik Mavi', 'Yüksək İşıq', 'Aşağı İşıq', 'Xəyali', 'Lomo', 'Sinematik Yaşıl', 'Kosmik Toz', 'Fantastik Mavi', 'Cəhənnəm Atəşi', 'Yuxulu Xəyal', 'Dərin Mavi', 'Möhtəşəm Şəhər', 'Kosmik Çəhrayı', 'Gümüş Parıltı', 'Süni İşıq', 'Gizli Mavi', 'Qara Parıltı', 'Əfsanəvi', 'Mistik', 'Fantastik Mavi (V2)', 'Neon Yaşıl', 'Pastel Xəyal', 'Gecə Vəziyyəti', 'Köhnə Foto (V2)']
+            };
+
+            const showMessage = (message, duration = 3000) => {
+                messageBox.textContent = message;
+                messageBox.style.display = 'block';
+                setTimeout(() => {
+                    messageBox.style.opacity = '1';
+                }, 10);
+                setTimeout(() => {
+                    messageBox.style.opacity = '0';
+                    setTimeout(() => {
+                        messageBox.style.display = 'none';
+                    }, 500);
+                }, duration);
+            };
+
+            const parseFilterString = (filterString) => {
+                const filters = {};
+                if (filterString === 'none') return filters;
+                const filterParts = filterString.match(/(\w+)\(([^)]+)\)/g);
+                if (!filterParts) return filters;
+                filterParts.forEach(part => {
+                    const matches = part.match(/(\w+)\(([^)]+)\)/);
+                    if (matches) {
+                        let value = matches[2];
+                        if (value.endsWith('px')) {
+                            value = parseFloat(value);
+                        } else if (value.endsWith('%')) {
+                            value = parseFloat(value) / 100;
+                        } else if (value.endsWith('deg')) {
+                            value = parseFloat(value);
+                        } else {
+                            value = parseFloat(value);
+                        }
+                        filters[matches[1]] = value;
+                    }
+                });
+                return filters;
+            };
+
+            const getFilteredStyle = (filterName, intensity) => {
+                if (filterName === 'Orijinal' || intensity === 0) {
+                    return 'none';
+                }
+                const originalFilters = parseFilterString(filterPresets[filterName]);
+                let newFilterString = '';
+                const intensityFactor = intensity / 100;
+
+                for (const key in originalFilters) {
+                    let value = originalFilters[key];
+                    let unit = '';
+
+                    if (filterPresets[filterName].includes(`${key}(${value}%)`)) unit = '%';
+                    else if (filterPresets[filterName].includes(`${key}(${value}px)`)) unit = 'px';
+                    else if (filterPresets[filterName].includes(`${key}(${value}deg)`)) unit = 'deg';
+                    
+                    let adjustedValue;
+                    if (key === 'contrast' || key === 'brightness' || key === 'saturate') {
+                        adjustedValue = 1 + (value - 1) * intensityFactor;
+                    } else if (key === 'hue-rotate') {
+                        adjustedValue = value * intensityFactor;
+                    } else if (key === 'blur') {
+                         adjustedValue = value * intensityFactor;
+                    } else if (key === 'sepia' || key === 'grayscale') {
+                        adjustedValue = value * intensityFactor;
+                    } else {
+                        adjustedValue = value * intensityFactor;
+                    }
+                    newFilterString += `${key}(${adjustedValue}${unit}) `;
+                }
+                return newFilterString.trim();
+            };
+
+            const addWatermark = (ctx, canvasWidth, canvasHeight) => {
+                const text = "axtarget.xyz";
+                ctx.font = "bold 16px Inter";
+                ctx.fillStyle = "rgba(226, 232, 240, 0.7)";
+                ctx.textAlign = "right";
+                ctx.textBaseline = "bottom";
+                const padding = 20;
+                ctx.fillText(text, canvasWidth - padding, canvasHeight - padding);
+            };
+
+            const handleFilterSelection = (event) => {
+                const selectedFilter = event.currentTarget.dataset.filter;
+                const selectedCategory = event.currentTarget.dataset.category;
+                const filters = groupedFilters[selectedCategory];
+                currentFilterIndex = filters.indexOf(selectedFilter);
+                updateFilterUI(selectedFilter, selectedCategory);
+                for (const cat in filterDropdowns) {
+                    filterDropdowns[cat].classList.remove('open');
+                }
+            };
+
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                loadingSpinner.classList.remove('hidden');
+                controls.classList.add('hidden');
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        currentImage = img;
+                        canvasContainer.classList.remove('hidden');
+                        controls.classList.remove('hidden');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        currentFilter = 'Orijinal';
+                        currentCategory = 'normal';
+                        currentFilterIndex = 0;
+                        selectedFilterTexts.normal.textContent = 'Orijinal';
+                        selectedFilterTexts.bw.textContent = 'Seçin';
+                        selectedFilterTexts.premium.textContent = 'Seçin';
+                        intensityControl.classList.add('hidden');
+                        applyFilterAndDraw(currentFilter);
+                        generateFilterPreviews();
+                        loadingSpinner.classList.add('hidden');
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            const generateFilterPreviews = () => {
+                for (const category in filterDropdowns) {
+                    const dropdown = filterDropdowns[category];
+                    dropdown.innerHTML = '';
+                    
+                    if (category === 'normal') {
+                        const originalItem = document.createElement('div');
+                        originalItem.classList.add('dropdown-item', 'active');
+                        originalItem.dataset.filter = 'Orijinal';
+                        originalItem.dataset.category = 'normal';
+                        originalItem.innerHTML = '<span>Orijinal</span>';
+                        originalItem.addEventListener('click', handleFilterSelection);
+                        dropdown.appendChild(originalItem);
+                    }
+
+                    const filters = groupedFilters[category];
+                    filters.forEach(filterName => {
+                        const filterValue = filterPresets[filterName];
+
+                        const dropdownItem = document.createElement('div');
+                        dropdownItem.classList.add('dropdown-item');
+                        dropdownItem.dataset.filter = filterName;
+                        dropdownItem.dataset.category = category;
+
+                        const imgPreviewContainer = document.createElement('div');
+                        imgPreviewContainer.style.position = 'relative';
+                        imgPreviewContainer.style.width = '40px';
+                        imgPreviewContainer.style.height = '40px';
+    
+                        const imgPreview = document.createElement('img');
+                        imgPreview.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="%232d3748"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Inter" font-size="10" fill="%23fff" font-weight="bold">Preview</text></svg>`;
+                        imgPreview.alt = filterName;
+                        imgPreview.onload = () => {
+                            const tempCanvas = document.createElement('canvas');
+                            tempCanvas.width = 40;
+                            tempCanvas.height = 40;
+                            const tempCtx = tempCanvas.getContext('2d');
+                            
+                            tempCtx.filter = filterValue;
+                            tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
+                            tempCtx.filter = 'none';
+
+                            addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+                            imgPreview.src = tempCanvas.toDataURL('image/png');
+                        };
+                        
+                        const pName = document.createElement('span');
+                        pName.textContent = filterName;
+                        
+                        imgPreviewContainer.appendChild(imgPreview);
+                        dropdownItem.appendChild(imgPreviewContainer);
+                        dropdownItem.appendChild(pName);
+                        
+                        dropdownItem.addEventListener('click', handleFilterSelection);
+                        
+                        dropdown.appendChild(dropdownItem);
+                    });
+                }
+            };
+
+            const updateFilterUI = (filterName, category) => {
+                document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+                
+                for (const cat in selectedFilterTexts) {
+                    selectedFilterTexts[cat].textContent = (cat === category) ? filterName : 'Seçin';
+                }
+                
+                const newActiveItem = filterDropdowns[category].querySelector(`[data-filter="${filterName}"]`);
+                if (newActiveItem) {
+                    newActiveItem.classList.add('active');
+                }
+
+                currentFilter = filterName;
+                currentCategory = category;
+                intensitySlider.value = 100;
+                
+                if (currentFilter === 'Orijinal') {
+                    intensityControl.classList.add('hidden');
+                } else {
+                    intensityControl.classList.remove('hidden');
+                }
+                applyFilterAndDraw(currentFilter);
+            };
+
+            for (const category in selectHeaders) {
+                selectHeaders[category].addEventListener('click', () => {
+                    const dropdown = filterDropdowns[category];
+                    const isOpen = dropdown.classList.contains('open');
+
+                    for (const cat in filterDropdowns) {
+                        filterDropdowns[cat].classList.remove('open');
+                    }
+
+                    if (!isOpen) {
+                        dropdown.classList.add('open');
+                    }
+                });
+            }
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.custom-select') && !event.target.closest('.random-btn')) {
+                    for (const cat in filterDropdowns) {
+                        filterDropdowns[cat].classList.remove('open');
+                    }
+                }
+            });
+
+            intensitySlider.addEventListener('input', () => {
+                applyFilterAndDraw(currentFilter);
+            });
+
+            resolutionOptions.forEach(radio => {
+                radio.addEventListener('change', () => {
+                    if (radio.value === 'original') {
+                        resolutionInfo.classList.add('hidden');
+                    } else {
+                        resolutionInfo.classList.remove('hidden');
+                    }
+                });
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (!currentImage) {
+                    showMessage("Əvvəlcə bir şəkil yükləyin.");
+                    return;
+                }
+                const filters = groupedFilters[currentCategory];
+                currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
+                updateFilterUI(filters[currentFilterIndex], currentCategory);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (!currentImage) {
+                    showMessage("Əvvəlcə bir şəkil yükləyin.");
+                    return;
+                }
+                const filters = groupedFilters[currentCategory];
+                currentFilterIndex = (currentFilterIndex + 1) % filters.length;
+                updateFilterUI(filters[currentFilterIndex], currentCategory);
+            });
+
+            randomButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (!currentImage) {
+                        showMessage("Təsadüfi filtr seçmək üçün əvvəlcə bir şəkil yükləyin.");
+                        return;
+                    }
+
+                    const category = button.dataset.category;
+                    const availableFilters = groupedFilters[category].filter(f => f !== 'Orijinal');
+                    
+                    if (availableFilters.length === 0) {
+                        showMessage("Bu kateqoriyada təsadüfi filtr yoxdur.");
+                        return;
+                    }
+
+                    const randomFilter = availableFilters[Math.floor(Math.random() * availableFilters.length)];
+                    
+                    const targetItem = filterDropdowns[category].querySelector(`[data-filter="${randomFilter}"]`);
+                    if (targetItem) {
+                        for (const cat in filterDropdowns) {
+                            filterDropdowns[cat].classList.remove('open');
+                        }
+                        
+                        const filtersInCategory = groupedFilters[category];
+                        currentFilterIndex = filtersInCategory.indexOf(randomFilter);
+                        currentCategory = category;
+
+                        updateFilterUI(randomFilter, category);
+                        showMessage(`Təsadüfi olaraq "${randomFilter}" filtri seçildi!`);
+                    }
+                });
+            });
+
+            downloadBtn.addEventListener('click', () => {
+                if (!currentImage) {
+                    showMessage("Əvvəlcə bir şəkil yükləyin.");
+                    return;
+                }
+
+                const resolution = document.querySelector('input[name="resolution"]:checked').value;
+                let newWidth, newHeight;
+                const aspectRatio = currentImage.width / currentImage.height;
+
+                switch (resolution) {
+                    case '4k':
+                        newWidth = 3840;
+                        newHeight = newWidth / aspectRatio;
+                        break;
+                    case '8k':
+                        newWidth = 7680;
+                        newHeight = newWidth / aspectRatio;
+                        break;
+                    default:
+                        newWidth = currentImage.width;
+                        newHeight = currentImage.height;
+                        break;
+                }
+
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = newWidth;
+                tempCanvas.height = newHeight;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCtx.filter = getFilteredStyle(currentFilter, intensitySlider.value);
+                tempCtx.drawImage(currentImage, 0, 0, newWidth, newHeight);
+                tempCtx.filter = 'none';
+
+                addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+                
+                const link = document.createElement('a');
+                link.download = `axtarget-foto-${resolution}-${Date.now()}.png`;
+                link.href = tempCanvas.toDataURL('image/png');
+                link.click();
+            });
+
+            const applyFilterAndDraw = (filterName) => {
+                if (!currentImage) return;
+                
+                const intensity = intensitySlider.value;
+                const filterStyle = getFilteredStyle(filterName, intensity);
+                
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+                ctx.filter = filterStyle;
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+                ctx.filter = 'none';
+                addWatermark(ctx, canvas.width, canvas.height);
+            };
+
+            window.addEventListener('load', () => {
+                showMessage("Səhifə hazırdır! Bir şəkil yükləyə bilərsiniz.");
+            });
+        });
+    </script>
+</body>
+</html>
