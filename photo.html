@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axtarget.xyz - Şəkil Redaktə</title>
+    <title>Axtarget.az - Şəkil Redaktə</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -33,15 +34,27 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 14px rgba(66, 153, 225, 0.3);
         }
-        canvas {
-            display: block;
+        .canvas-container {
+            position: relative;
             margin-top: 1rem;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
             width: 100%;
             height: auto;
-            max-height: 60vh;
-            object-fit: contain; /* Əlavə olunan xətt */
+            max-height: 70vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+        canvas {
+            display: block;
+            object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
+            cursor: crosshair;
         }
         .message-box {
             position: fixed;
@@ -58,6 +71,33 @@
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
             text-align: center;
+        }
+        .tab-button {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+        }
+        .tab-button:hover {
+            background-color: #6a717f;
+        }
+        .tab-button.active:hover {
+            background-color: #2563eb;
+        }
+        .tool-panel {
+            display: none;
+        }
+        .tool-panel.active {
+            display: flex;
+            flex-direction: column;
         }
         .custom-select {
             position: relative;
@@ -118,11 +158,6 @@
             margin-right: 1rem;
             position: relative;
         }
-        .filter-previews-loading {
-            text-align: center;
-            color: #cbd5e0;
-            padding: 1rem;
-        }
         .watermark {
             position: absolute;
             bottom: 4px;
@@ -157,26 +192,6 @@
             color: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .nav-btn {
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            opacity: 0.7;
-        }
-        .nav-btn:hover {
-            background-color: #2563eb;
-            transform: scale(1.1);
-            opacity: 1;
-        }
         .random-btn {
             background-color: #4a5568;
             color: white;
@@ -194,13 +209,54 @@
             background-color: #3b82f6;
             transform: scale(1.1);
         }
-        .canvas-container {
+        .tool-option-btn {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .tool-option-btn.active {
+            background-color: #22c55e;
+            color: white;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+        }
+        .tool-option-btn:hover {
+            background-color: #6a717f;
+        }
+        .tool-option-btn.active:hover {
+            background-color: #16a34a;
+        }
+        .text-controls-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .color-picker-wrapper {
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            display: inline-block;
+        }
+        .color-display {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        .color-display:hover {
+            border-color: #3b82f6;
+        }
+        #textColorPicker {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
         }
         @media (max-width: 640px) {
             .container {
@@ -217,23 +273,14 @@
             .canvas-container {
                 flex-direction: column;
             }
-            .canvas-container .nav-btn {
-                width: 100%;
-                border-radius: 0.5rem;
-                padding: 0.5rem 1rem;
-                height: auto;
-            }
             .canvas-container #imageCanvas {
                 order: -1;
             }
-            .canvas-container #prevBtn {
-                margin-bottom: 0.5rem;
-            }
-            .canvas-container #nextBtn {
-                margin-top: 0.5rem;
-            }
             .resolution-options {
                 flex-wrap: wrap;
+            }
+            .text-controls-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -243,14 +290,14 @@
 
     <header class="w-full py-4 px-2">
         <div class="container flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold text-blue-400">Axtarget.xyz</h1>
+            <h1 class="text-2xl font-extrabold text-blue-400">Axtarget.az</h1>
         </div>
     </header>
 
     <main class="flex-grow flex items-center justify-center p-2">
         <div class="w-full card">
             <h2 class="text-xl font-bold text-center mb-2">Şəkilə Film Filteri Tətbiq Et</h2>
-            <p class="text-center text-gray-400 text-sm mb-4">Şəkilinizi yükləyin və ona kinofilm filtrləri əlavə edin.</p>
+            <p class="text-center text-gray-400 text-sm mb-4">Şəkilinizi yükləyin və onu redaktə edin.</p>
 
             <div class="flex flex-col items-center justify-center gap-4">
                 <label for="imageUpload" class="file-label px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
@@ -258,73 +305,124 @@
                 </label>
                 <input type="file" id="imageUpload" accept="image/*" class="hidden">
 
-                <div class="canvas-container hidden" id="canvasContainer">
-                    <button id="prevBtn" class="nav-btn">&lt;</button>
+                <div class="canvas-container hidden">
                     <canvas id="imageCanvas"></canvas>
-                    <button id="nextBtn" class="nav-btn">&gt;</button>
+                    <button id="undoBtn" class="absolute top-2 left-2 z-10 p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors hidden">
+                        <i class="fas fa-undo"></i> Geri al
+                    </button>
                 </div>
                 
                 <div id="controls" class="hidden w-full flex flex-col items-center gap-4 mt-4">
-                    <h3 class="text-lg font-semibold text-center mt-4">Filtrlər</h3>
+                    <div class="flex gap-4 justify-center w-full max-w-lg">
+                        <button id="filterTab" class="tab-button active">
+                            <i class="fas fa-palette"></i> Filtrlər
+                        </button>
+                        <button id="textTab" class="tab-button">
+                            <i class="fas fa-font"></i> Mətn
+                        </button>
+                        <button id="bgRemoveTab" class="tab-button">
+                            <i class="fas fa-eraser"></i> Fon Silmə
+                        </button>
+                    </div>
 
-                    <!-- Normal Filtrlər -->
-                    <div class="w-full flex flex-col items-center gap-2">
-                        <div class="flex items-center gap-2">
+                    <!-- Filter Tool Panel -->
+                    <div id="filterPanel" class="tool-panel active w-full flex flex-col items-center gap-4">
+                        <button id="randomFilterBtn" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
+                            <i class="fas fa-random"></i> Rastgele Efekt
+                        </button>
+                        
+                        <div class="w-full flex flex-col items-center gap-2">
                             <p class="text-center text-gray-400">Normal Filtrlər:</p>
-                            <button class="random-btn" data-category="normal">🎲</button>
-                        </div>
-                        <div id="normal-select-container" class="custom-select">
-                            <div class="select-header" id="normalSelectHeader">
-                                <span id="normalSelectedFilterText">Orijinal</span>
-                                <span>&#9660;</span>
+                            <div id="normal-select-container" class="custom-select">
+                                <div class="select-header" id="normalSelectHeader">
+                                    <span id="normalSelectedFilterText">Orijinal</span>
+                                    <span>&#9660;</span>
+                                </div>
+                                <div class="select-dropdown" id="normalFilterDropdown"></div>
                             </div>
-                            <div class="select-dropdown" id="normalFilterDropdown"></div>
                         </div>
-                    </div>
 
-                    <!-- Qara-Ağ Filtrlər -->
-                    <div class="w-full flex flex-col items-center gap-2">
-                        <div class="flex items-center gap-2">
+                        <div class="w-full flex flex-col items-center gap-2 mt-4">
                             <p class="text-center text-gray-400">Qara-Ağ Filtrlər:</p>
-                            <button class="random-btn" data-category="bw">🎲</button>
-                        </div>
-                        <div id="bw-select-container" class="custom-select">
-                            <div class="select-header" id="bwSelectHeader">
-                                <span id="bwSelectedFilterText">Seçin</span>
-                                <span>&#9660;</span>
+                            <div id="bw-select-container" class="custom-select">
+                                <div class="select-header" id="bwSelectHeader">
+                                    <span id="bwSelectedFilterText">Seçin</span>
+                                    <span>&#9660;</span>
+                                </div>
+                                <div class="select-dropdown" id="bwFilterDropdown"></div>
                             </div>
-                            <div class="select-dropdown" id="bwFilterDropdown"></div>
+                        </div>
+
+                        <div class="w-full flex flex-col items-center gap-2 mt-4">
+                            <p class="text-center text-gray-400">Premium Filtrlər:</p>
+                            <div id="premium-select-container" class="custom-select">
+                                <div class="select-header" id="premiumSelectHeader">
+                                    <span id="premiumSelectedFilterText">Seçin</span>
+                                    <span>&#9660;</span>
+                                </div>
+                                <div class="select-dropdown" id="premiumFilterDropdown"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="intensity-control" class="hidden w-full max-w-md mt-4">
+                            <label for="intensitySlider" class="block text-center text-gray-400">Effektin gücü:</label>
+                            <input type="range" id="intensitySlider" min="0" max="100" value="100" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
                         </div>
                     </div>
 
-                    <!-- Premium Filtrlər -->
-                    <div class="w-full flex flex-col items-center gap-2">
-                        <div class="flex items-center gap-2">
-                            <p class="text-center text-gray-400">Premium Filtrlər:</p>
-                            <button class="random-btn" data-category="premium">🎲</button>
-                        </div>
-                        <div id="premium-select-container" class="custom-select">
-                            <div class="select-header" id="premiumSelectHeader">
-                                <span id="premiumSelectedFilterText">Seçin</span>
-                                <span>&#9660;</span>
+                    <!-- Text Tool Panel -->
+                    <div id="textPanel" class="tool-panel w-full flex-col items-center gap-4">
+                        <div class="w-full max-w-md flex flex-col gap-4">
+                            <input type="text" id="textInput" placeholder="Mətn daxil edin" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            
+                            <div class="text-controls-grid">
+                                <div>
+                                    <label for="textSize" class="block text-gray-400">Ölçü:</label>
+                                    <input type="number" id="textSize" value="48" min="10" max="200" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label for="textFamily" class="block text-gray-400">Font:</label>
+                                    <select id="textFamily" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="Inter">Inter</option>
+                                        <option value="Arial">Arial</option>
+                                        <option value="Verdana">Verdana</option>
+                                        <option value="Times New Roman">Times New Roman</option>
+                                        <option value="Courier New">Courier New</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="textColor" class="block text-gray-400">Rəng:</label>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <div class="color-picker-wrapper">
+                                            <div id="textColorDisplay" class="color-display" style="background-color: #ffffff;"></div>
+                                            <input type="color" id="textColorPicker" value="#ffffff">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="select-dropdown" id="premiumFilterDropdown"></div>
+                            <button id="addTextBtn" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
+                                Mətn Əlavə Et
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Background Remove Tool Panel -->
+                    <div id="bgRemovePanel" class="tool-panel w-full flex-col items-center gap-4">
+                        <div class="flex flex-wrap gap-4 justify-center">
+                            <button id="autoRemoveBtn" class="tool-option-btn"><i class="fas fa-magic"></i> Avtomatik Sil</button>
+                            <button id="colorRemoveBtn" class="tool-option-btn"><i class="fas fa-fill-drip"></i> Rəngə Görə Sil</button>
+                            <button id="manualRemoveBtn" class="tool-option-btn"><i class="fas fa-brush"></i> Əl ilə Sil</button>
+                        </div>
+                        <div id="manualControls" class="hidden w-full max-w-md mt-4 flex flex-col gap-4 items-center">
+                            <label for="brushSize" class="block text-gray-400">Fırça ölçüsü:</label>
+                            <input type="range" id="brushSize" min="5" max="100" value="20" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
                         </div>
                     </div>
                     
-                    <div id="intensity-control" class="hidden w-full max-w-md mt-4">
-                        <label for="intensitySlider" class="block text-center text-gray-400">Effektin gücü:</label>
-                        <input type="range" id="intensitySlider" min="0" max="100" value="100" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer">
-                    </div>
-
                     <p class="text-center text-gray-400 mt-4">Yükləmə keyfiyyətini seçin:</p>
                     <div class="resolution-options">
                         <input type="radio" id="resOriginal" name="resolution" value="original" checked>
                         <label for="resOriginal">Orijinal</label>
-                        <input type="radio" id="res4K" name="resolution" value="4k">
-                        <label for="res4K">4K</label>
-                        <input type="radio" id="res8K" name="resolution" value="8k">
-                        <label for="res8K">8K</label>
                     </div>
                     <p id="resolution-info" class="text-center text-gray-500 text-sm mt-2 hidden">
                         Keyfiyyəti artırdıqda fayl ölçüsünün də artacağını unutmayın.
@@ -346,7 +444,7 @@
 
     <footer class="w-full py-4 px-2">
         <div class="container text-center text-gray-500 text-sm">
-            © 2025 Axtarget.xyz. Bütün hüquqlar qorunur.
+            © 2025 Axtarget.az. Bütün hüquqlar qorunur.
         </div>
     </footer>
 
@@ -354,10 +452,27 @@
         document.addEventListener('DOMContentLoaded', () => {
             const fileInput = document.getElementById('imageUpload');
             const canvas = document.getElementById('imageCanvas');
+            const canvasContainer = document.querySelector('.canvas-container');
             const downloadBtn = document.getElementById('downloadBtn');
             const controls = document.getElementById('controls');
             const loadingSpinner = document.getElementById('loadingSpinner');
             const messageBox = document.getElementById('messageBox');
+            const undoBtn = document.getElementById('undoBtn');
+            const randomFilterBtn = document.getElementById('randomFilterBtn');
+
+            // Tab elements
+            const tabButtons = {
+                filter: document.getElementById('filterTab'),
+                text: document.getElementById('textTab'),
+                bgRemove: document.getElementById('bgRemoveTab')
+            };
+            const toolPanels = {
+                filter: document.getElementById('filterPanel'),
+                text: document.getElementById('textPanel'),
+                bgRemove: document.getElementById('bgRemovePanel')
+            };
+
+            // Filter elements
             const selectHeaders = {
                 normal: document.getElementById('normalSelectHeader'),
                 bw: document.getElementById('bwSelectHeader'),
@@ -377,16 +492,36 @@
             const intensityControl = document.getElementById('intensity-control');
             const resolutionOptions = document.getElementsByName('resolution');
             const resolutionInfo = document.getElementById('resolution-info');
-            const randomButtons = document.querySelectorAll('.random-btn');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const canvasContainer = document.getElementById('canvasContainer');
+
+            // Text elements
+            const textInput = document.getElementById('textInput');
+            const addTextBtn = document.getElementById('addTextBtn');
+            const textSizeInput = document.getElementById('textSize');
+            const textFamilySelect = document.getElementById('textFamily');
+            const textColorPicker = document.getElementById('textColorPicker');
+            const textColorDisplay = document.getElementById('textColorDisplay');
+            let isDraggingText = false;
+            let currentTextIndex = -1;
+            let startDragX = 0;
+            let startDragY = 0;
+
+            // Background Removal elements
+            const autoRemoveBtn = document.getElementById('autoRemoveBtn');
+            const colorRemoveBtn = document.getElementById('colorRemoveBtn');
+            const manualRemoveBtn = document.getElementById('manualRemoveBtn');
+            const manualControls = document.getElementById('manualControls');
+            const brushSizeSlider = document.getElementById('brushSize');
+            let isDrawing = false;
+            let currentTool = 'none';
 
             let ctx = canvas.getContext('2d');
-            let currentImage = null;
+            let originalImage = null;
+            let displayImage = null;
             let currentFilter = 'Orijinal';
             let currentCategory = 'normal';
-            let currentFilterIndex = 0;
+            let history = [];
+            let texts = [];
+            let canvasScale = 1;
 
             const filterPresets = {
                 'Orijinal': 'none',
@@ -437,7 +572,7 @@
                 'Çox Kontrastlı': 'contrast(1.7) brightness(0.8)',
                 'Mat Rənglər': 'saturate(0.6) contrast(1.05) brightness(1.1)',
                 'Çəhrayı Yuxu': 'hue-rotate(320deg) saturate(1.3) contrast(1.1)',
-                'Gecə Göyü': 'brightness(0.7) contrast(1.2) saturate(1.5) hue-rotate(260deg)',
+                'Gecə Göyü': 'brightness(0.8) contrast(1.3) saturate(1.5) hue-rotate(260deg)',
                 'Günəş Yolu': 'brightness(1.5) contrast(1.2) sepia(0.2)',
                 'Ağır Duman': 'contrast(0.8) brightness(1.3) saturate(0.7) blur(1.5px)',
                 'Yaşıl İşıq': 'hue-rotate(100deg) saturate(1.5) contrast(1.2)',
@@ -457,7 +592,7 @@
                 'İsti Yay': 'saturate(1.4) brightness(1.1) contrast(1.1) hue-rotate(-10deg)',
                 'Səssiz Tonlar': 'saturate(0.7) contrast(1.1)',
                 'Yüksək Doyğunluq': 'saturate(2) contrast(1.3) brightness(1.1)',
-                'Gecə Mavisi': 'contrast(1.2) saturate(1.3) hue-rotate(240deg) brightness(0.9)',
+                'Gecə Mavisi': 'contrast(1.2) saturate(1.3) hue-rotate(260deg) brightness(0.9)',
                 'Sakit Dəyişim': 'contrast(1.05) brightness(1.05) saturate(0.9)',
                 'Yumşaq Göy': 'hue-rotate(200deg) saturate(0.8) brightness(1.1)',
                 'Tünd Retro': 'sepia(0.6) contrast(1.2) brightness(0.9) saturate(0.8)',
@@ -522,6 +657,77 @@
                 }, duration);
             };
 
+            const saveState = () => {
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = displayImage.width;
+                tempCanvas.height = displayImage.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCtx.filter = getFilteredStyle(currentFilter, intensitySlider.value);
+                tempCtx.drawImage(displayImage, 0, 0, tempCanvas.width, tempCanvas.height);
+                tempCtx.filter = 'none';
+
+                texts.forEach(t => {
+                    tempCtx.font = `${t.size}px ${t.family}`;
+                    tempCtx.fillStyle = t.color;
+                    tempCtx.fillText(t.text, t.x, t.y);
+                });
+
+                const canvasData = tempCanvas.toDataURL();
+                history.push({ imageData: canvasData, filter: currentFilter, intensity: intensitySlider.value, texts: JSON.stringify(texts) });
+                if (history.length > 20) {
+                    history.shift();
+                }
+                undoBtn.classList.remove('hidden');
+            };
+
+            const undoLastAction = () => {
+                if (history.length > 1) {
+                    history.pop();
+                    const lastState = history[history.length - 1];
+                    currentFilter = lastState.filter;
+                    intensitySlider.value = lastState.intensity;
+                    texts = JSON.parse(lastState.texts);
+                    const img = new Image();
+                    img.onload = () => {
+                        displayImage = img;
+                        redrawAll();
+                        updateFilterUI(currentFilter, 'normal');
+                    };
+                    img.src = lastState.imageData;
+                } else if (history.length === 1) {
+                     history.pop();
+                     resetCanvas();
+                }
+            };
+            
+            const resetCanvas = () => {
+                if (originalImage) {
+                    const tempCanvas = document.createElement('canvas');
+                    const maxCanvasWidth = Math.min(originalImage.width, window.innerWidth * 0.9);
+                    const maxCanvasHeight = Math.min(originalImage.height, window.innerHeight * 0.7);
+                    const ratio = Math.min(maxCanvasWidth / originalImage.width, maxCanvasHeight / originalImage.height, 1);
+                    tempCanvas.width = originalImage.width * ratio;
+                    tempCanvas.height = originalImage.height * ratio;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+
+                    const newImage = new Image();
+                    newImage.onload = () => {
+                        displayImage = newImage;
+                        currentFilter = 'Orijinal';
+                        currentCategory = 'normal';
+                        texts = [];
+                        history = [];
+                        
+                        redrawAll();
+                        updateFilterUI(currentFilter, 'normal');
+                        undoBtn.classList.add('hidden');
+                    };
+                    newImage.src = tempCanvas.toDataURL();
+                }
+            };
+
             const parseFilterString = (filterString) => {
                 const filters = {};
                 if (filterString === 'none') return filters;
@@ -550,7 +756,9 @@
                 if (filterName === 'Orijinal' || intensity === 0) {
                     return 'none';
                 }
-                const originalFilters = parseFilterString(filterPresets[filterName]);
+                
+                const filterValues = filterPresets[filterName] || filterName;
+                const originalFilters = parseFilterString(filterValues);
                 let newFilterString = '';
                 const intensityFactor = intensity / 100;
 
@@ -558,9 +766,9 @@
                     let value = originalFilters[key];
                     let unit = '';
 
-                    if (filterPresets[filterName].includes(`${key}(${value}%)`)) unit = '%';
-                    else if (filterPresets[filterName].includes(`${key}(${value}px)`)) unit = 'px';
-                    else if (filterPresets[filterName].includes(`${key}(${value}deg)`)) unit = 'deg';
+                    if (filterValues.includes(`${key}(${value}%)`)) unit = '%';
+                    else if (filterValues.includes(`${key}(${value}px)`)) unit = 'px';
+                    else if (filterValues.includes(`${key}(${value}deg)`)) unit = 'deg';
                     
                     let adjustedValue;
                     if (key === 'contrast' || key === 'brightness' || key === 'saturate') {
@@ -578,26 +786,26 @@
                 }
                 return newFilterString.trim();
             };
+            
+            const redrawAll = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(displayImage, 0, 0, canvas.width, canvas.height);
+                texts.forEach(t => {
+                    ctx.font = `${t.size}px ${t.family}`;
+                    ctx.fillStyle = t.color;
+                    ctx.fillText(t.text, t.x, t.y);
+                });
+                addWatermark(ctx, canvas.width, canvas.height);
+            };
 
             const addWatermark = (ctx, canvasWidth, canvasHeight) => {
-                const text = "axtarget.xyz";
+                const text = "axtarget.az";
                 ctx.font = "bold 16px Inter";
                 ctx.fillStyle = "rgba(226, 232, 240, 0.7)";
                 ctx.textAlign = "right";
                 ctx.textBaseline = "bottom";
                 const padding = 20;
                 ctx.fillText(text, canvasWidth - padding, canvasHeight - padding);
-            };
-
-            const handleFilterSelection = (event) => {
-                const selectedFilter = event.currentTarget.dataset.filter;
-                const selectedCategory = event.currentTarget.dataset.category;
-                const filters = groupedFilters[selectedCategory];
-                currentFilterIndex = filters.indexOf(selectedFilter);
-                updateFilterUI(selectedFilter, selectedCategory);
-                for (const cat in filterDropdowns) {
-                    filterDropdowns[cat].classList.remove('open');
-                }
             };
 
             fileInput.addEventListener('change', (event) => {
@@ -611,29 +819,59 @@
                 reader.onload = (e) => {
                     const img = new Image();
                     img.onload = () => {
-                        currentImage = img;
-                        canvasContainer.classList.remove('hidden');
-                        controls.classList.remove('hidden');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
+                        originalImage = img;
                         
-                        currentFilter = 'Orijinal';
-                        currentCategory = 'normal';
-                        currentFilterIndex = 0;
-                        selectedFilterTexts.normal.textContent = 'Orijinal';
-                        selectedFilterTexts.bw.textContent = 'Seçin';
-                        selectedFilterTexts.premium.textContent = 'Seçin';
-                        intensityControl.classList.add('hidden');
-                        applyFilterAndDraw(currentFilter);
-                        generateFilterPreviews();
-                        loadingSpinner.classList.add('hidden');
+                        const maxCanvasWidth = Math.min(img.width, window.innerWidth * 0.9);
+                        const maxCanvasHeight = Math.min(img.height, window.innerHeight * 0.7);
+                        const ratio = Math.min(maxCanvasWidth / img.width, maxCanvasHeight / img.height, 1);
+                        
+                        canvas.width = img.width * ratio;
+                        canvas.height = img.height * ratio;
+                        canvasScale = ratio;
+
+                        const tempCanvas = document.createElement('canvas');
+                        tempCanvas.width = canvas.width;
+                        tempCanvas.height = canvas.height;
+                        const tempCtx = tempCanvas.getContext('2d');
+                        tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+                        
+                        displayImage = new Image();
+                        displayImage.onload = () => {
+                            currentFilter = 'Orijinal';
+                            currentCategory = 'normal';
+                            texts = [];
+                            history = [];
+                            
+                            canvasContainer.classList.remove('hidden');
+                            controls.classList.remove('hidden');
+                            undoBtn.classList.add('hidden');
+                            
+                            applyFilterAndDraw(currentFilter);
+                            generateFilterPreviews();
+                            loadingSpinner.classList.add('hidden');
+                            saveState();
+                        };
+                        displayImage.src = tempCanvas.toDataURL();
                     };
                     img.src = e.target.result;
                 };
                 reader.readAsDataURL(file);
             });
             
+            const handleFilterSelection = (event) => {
+                const selectedItem = event.currentTarget;
+                const filterName = selectedItem.dataset.filter;
+                const category = selectedItem.dataset.category;
+
+                updateFilterUI(filterName, category);
+                for (const cat in filterDropdowns) {
+                    filterDropdowns[cat].classList.remove('open');
+                }
+            };
+            
             const generateFilterPreviews = () => {
+                if (!originalImage) return;
+
                 for (const category in filterDropdowns) {
                     const dropdown = filterDropdowns[category];
                     dropdown.innerHTML = '';
@@ -672,18 +910,16 @@
                             const tempCtx = tempCanvas.getContext('2d');
                             
                             tempCtx.filter = filterValue;
-                            tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
+                            tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
                             tempCtx.filter = 'none';
 
-                            addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
                             imgPreview.src = tempCanvas.toDataURL('image/png');
                         };
                         
                         const pName = document.createElement('span');
                         pName.textContent = filterName;
                         
-                        imgPreviewContainer.appendChild(imgPreview);
-                        dropdownItem.appendChild(imgPreviewContainer);
+                        dropdownItem.appendChild(imgPreview);
                         dropdownItem.appendChild(pName);
                         
                         dropdownItem.addEventListener('click', handleFilterSelection);
@@ -709,8 +945,8 @@
                 currentCategory = category;
                 intensitySlider.value = 100;
                 
-                if (currentFilter === 'Orijinal') {
-                    intensityControl.classList.add('hidden');
+                if (currentFilter === 'Orijinal' || currentFilter.includes('Rastgele')) {
+                    intensityControl.classList.remove('hidden');
                 } else {
                     intensityControl.classList.remove('hidden');
                 }
@@ -718,10 +954,10 @@
             };
 
             for (const category in selectHeaders) {
-                selectHeaders[category].addEventListener('click', () => {
+                selectHeaders[category].addEventListener('click', (event) => {
                     const dropdown = filterDropdowns[category];
                     const isOpen = dropdown.classList.contains('open');
-
+                    
                     for (const cat in filterDropdowns) {
                         filterDropdowns[cat].classList.remove('open');
                     }
@@ -729,11 +965,12 @@
                     if (!isOpen) {
                         dropdown.classList.add('open');
                     }
+                    event.stopPropagation();
                 });
             }
 
             document.addEventListener('click', (event) => {
-                if (!event.target.closest('.custom-select') && !event.target.closest('.random-btn')) {
+                if (!event.target.closest('.custom-select')) {
                     for (const cat in filterDropdowns) {
                         filterDropdowns[cat].classList.remove('open');
                     }
@@ -754,68 +991,15 @@
                 });
             });
 
-            prevBtn.addEventListener('click', () => {
-                if (!currentImage) {
-                    showMessage("Əvvəlcə bir şəkil yükləyin.");
-                    return;
-                }
-                const filters = groupedFilters[currentCategory];
-                currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
-                updateFilterUI(filters[currentFilterIndex], currentCategory);
-            });
-
-            nextBtn.addEventListener('click', () => {
-                if (!currentImage) {
-                    showMessage("Əvvəlcə bir şəkil yükləyin.");
-                    return;
-                }
-                const filters = groupedFilters[currentCategory];
-                currentFilterIndex = (currentFilterIndex + 1) % filters.length;
-                updateFilterUI(filters[currentFilterIndex], currentCategory);
-            });
-
-            randomButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    if (!currentImage) {
-                        showMessage("Təsadüfi filtr seçmək üçün əvvəlcə bir şəkil yükləyin.");
-                        return;
-                    }
-
-                    const category = button.dataset.category;
-                    const availableFilters = groupedFilters[category].filter(f => f !== 'Orijinal');
-                    
-                    if (availableFilters.length === 0) {
-                        showMessage("Bu kateqoriyada təsadüfi filtr yoxdur.");
-                        return;
-                    }
-
-                    const randomFilter = availableFilters[Math.floor(Math.random() * availableFilters.length)];
-                    
-                    const targetItem = filterDropdowns[category].querySelector(`[data-filter="${randomFilter}"]`);
-                    if (targetItem) {
-                        for (const cat in filterDropdowns) {
-                            filterDropdowns[cat].classList.remove('open');
-                        }
-                        
-                        const filtersInCategory = groupedFilters[category];
-                        currentFilterIndex = filtersInCategory.indexOf(randomFilter);
-                        currentCategory = category;
-
-                        updateFilterUI(randomFilter, category);
-                        showMessage(`Təsadüfi olaraq "${randomFilter}" filtri seçildi!`);
-                    }
-                });
-            });
-
             downloadBtn.addEventListener('click', () => {
-                if (!currentImage) {
+                if (!originalImage) {
                     showMessage("Əvvəlcə bir şəkil yükləyin.");
                     return;
                 }
 
                 const resolution = document.querySelector('input[name="resolution"]:checked').value;
                 let newWidth, newHeight;
-                const aspectRatio = currentImage.width / currentImage.height;
+                const aspectRatio = originalImage.width / originalImage.height;
 
                 switch (resolution) {
                     case '4k':
@@ -827,8 +1011,8 @@
                         newHeight = newWidth / aspectRatio;
                         break;
                     default:
-                        newWidth = currentImage.width;
-                        newHeight = currentImage.height;
+                        newWidth = originalImage.width;
+                        newHeight = originalImage.height;
                         break;
                 }
 
@@ -838,8 +1022,16 @@
                 const tempCtx = tempCanvas.getContext('2d');
                 
                 tempCtx.filter = getFilteredStyle(currentFilter, intensitySlider.value);
-                tempCtx.drawImage(currentImage, 0, 0, newWidth, newHeight);
+                tempCtx.drawImage(originalImage, 0, 0, newWidth, newHeight);
                 tempCtx.filter = 'none';
+
+                const scaleX = newWidth / canvas.width;
+                const scaleY = newHeight / canvas.height;
+                texts.forEach(t => {
+                    tempCtx.font = `${t.size * scaleY}px ${t.family}`;
+                    tempCtx.fillStyle = t.color;
+                    tempCtx.fillText(t.text, t.x * scaleX, t.y * scaleY);
+                });
 
                 addWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
                 
@@ -850,17 +1042,300 @@
             });
 
             const applyFilterAndDraw = (filterName) => {
-                if (!currentImage) return;
+                if (!displayImage) return;
                 
                 const intensity = intensitySlider.value;
                 const filterStyle = getFilteredStyle(filterName, intensity);
                 
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.filter = filterStyle;
-                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(displayImage, 0, 0, canvas.width, canvas.height);
                 ctx.filter = 'none';
-                addWatermark(ctx, canvas.width, canvas.height);
+                redrawAll();
             };
+
+            // Text functionality
+            addTextBtn.addEventListener('click', () => {
+                if (!displayImage) {
+                    showMessage("Mətn əlavə etmək üçün əvvəlcə şəkil yükləyin.");
+                    return;
+                }
+                const text = textInput.value;
+                if (!text) {
+                    showMessage("Zəhmət olmasa, mətn daxil edin.");
+                    return;
+                }
+                const newText = {
+                    text: text,
+                    size: textSizeInput.value,
+                    family: textFamilySelect.value,
+                    color: textColorPicker.value,
+                    x: canvas.width / 2,
+                    y: canvas.height / 2
+                };
+                texts.push(newText);
+                redrawAll();
+                saveState();
+            });
+
+            textColorPicker.addEventListener('input', () => {
+                textColorDisplay.style.backgroundColor = textColorPicker.value;
+            });
+
+            // Tab switching
+            for (const tab in tabButtons) {
+                tabButtons[tab].addEventListener('click', (e) => {
+                    // Bütün filtrlərin açılan pəncərələrini bağlayırıq
+                    for (const cat in filterDropdowns) {
+                        filterDropdowns[cat].classList.remove('open');
+                    }
+
+                    // Bütün tab düymələrinin və panellərinin aktiv siniflərini silirik
+                    for (const t in tabButtons) {
+                        tabButtons[t].classList.remove('active');
+                    }
+                    for (const p in toolPanels) {
+                        toolPanels[p].classList.remove('active');
+                    }
+                    
+                    // Seçilmiş tab düyməsini və panelini aktiv edirik
+                    tabButtons[tab].classList.add('active');
+                    toolPanels[tab].classList.add('active');
+                    currentTool = 'none';
+                    manualControls.classList.add('hidden');
+                    canvas.style.cursor = 'crosshair';
+
+                    document.querySelectorAll('#bgRemovePanel .tool-option-btn').forEach(btn => btn.classList.remove('active'));
+                    
+                    // Mətn və ya Fon Silmə tablarına keçdikdə filtr panelini gizlədirik
+                    if (e.currentTarget.id === 'textTab' || e.currentTarget.id === 'bgRemoveTab') {
+                        toolPanels.filter.classList.add('hidden');
+                    } else {
+                        toolPanels.filter.classList.remove('hidden');
+                    }
+                });
+            }
+            
+            // Random Filter Button
+            randomFilterBtn.addEventListener('click', () => {
+                if (!displayImage) {
+                    showMessage("Rastgele efekt yaratmaq üçün əvvəlcə bir şəkil yükləyin.");
+                    return;
+                }
+                
+                const allFilters = [...groupedFilters.normal, ...groupedFilters.bw, ...groupedFilters.premium].filter(f => f !== 'Orijinal');
+                const randomFilterCount = Math.floor(Math.random() * 3) + 2;
+                let combinedFilterString = '';
+                
+                for (let i = allFilters.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allFilters[i], allFilters[j]] = [allFilters[j], allFilters[i]];
+                }
+                
+                const selectedRandomFilters = allFilters.slice(0, randomFilterCount);
+                
+                selectedRandomFilters.forEach(filterName => {
+                    const filterValue = filterPresets[filterName] || filterName;
+                    combinedFilterString += `${filterValue} `;
+                });
+                
+                document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
+                for (const cat in selectedFilterTexts) {
+                    selectedFilterTexts[cat].textContent = 'Seçin';
+                }
+
+                currentFilter = `Rastgele Efekt (${Date.now()})`;
+                filterPresets[currentFilter] = combinedFilterString.trim();
+                
+                selectedFilterTexts['normal'].textContent = 'Rastgele Efekt';
+                intensitySlider.value = 100;
+                applyFilterAndDraw(currentFilter);
+                saveState();
+                showMessage("Rastgele 'alaca' efekt tətbiq edildi.");
+            });
+
+            // Background Removal
+            autoRemoveBtn.addEventListener('click', async () => {
+                if (!displayImage) {
+                    showMessage("Fon silmək üçün əvvəlcə şəkil yükləyin.");
+                    return;
+                }
+                
+                document.querySelectorAll('#bgRemovePanel .tool-option-btn').forEach(btn => btn.classList.remove('active'));
+                autoRemoveBtn.classList.add('active');
+                currentTool = 'none';
+                manualControls.classList.add('hidden');
+                canvas.style.cursor = 'crosshair';
+                
+                showMessage("Avtomatik fon silinir...");
+                loadingSpinner.classList.remove('hidden');
+
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCtx.drawImage(displayImage, 0, 0, canvas.width, canvas.height);
+                
+                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i] < 100 && data[i+1] > 150 && data[i+2] > 200) {
+                        data[i+3] = 0;
+                    }
+                }
+                tempCtx.putImageData(imageData, 0, 0);
+
+                const newImage = new Image();
+                newImage.onload = () => {
+                    displayImage = newImage;
+                    redrawAll();
+                    saveState();
+                    loadingSpinner.classList.add('hidden');
+                    showMessage("Fon uğurla silindi.");
+                };
+                newImage.src = tempCanvas.toDataURL();
+            });
+
+            colorRemoveBtn.addEventListener('click', () => {
+                 if (!displayImage) {
+                    showMessage("Fon silmək üçün əvvəlcə şəkil yükləyin.");
+                    return;
+                }
+                document.querySelectorAll('#bgRemovePanel .tool-option-btn').forEach(btn => btn.classList.remove('active'));
+                colorRemoveBtn.classList.add('active');
+                manualControls.classList.add('hidden');
+                currentTool = 'color-remove';
+                canvas.style.cursor = 'crosshair';
+                showMessage("Şəkildə silmək istədiyiniz rəngə klikləyin.");
+            });
+
+            manualRemoveBtn.addEventListener('click', () => {
+                if (!displayImage) {
+                    showMessage("Fon silmək üçün əvvəlcə şəkil yükləyin.");
+                    return;
+                }
+                document.querySelectorAll('#bgRemovePanel .tool-option-btn').forEach(btn => btn.classList.remove('active'));
+                manualRemoveBtn.classList.add('active');
+                manualControls.classList.remove('hidden');
+                currentTool = 'manual-remove';
+                canvas.style.cursor = 'crosshair';
+                showMessage("Fırça ilə silmək istədiyiniz yerləri çəkin.");
+            });
+            
+            // Mouse/Touch events for canvas
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                
+                if (currentTool === 'none') {
+                    texts.forEach((text, index) => {
+                        ctx.font = `${text.size}px ${text.family}`;
+                        const textMetrics = ctx.measureText(text.text);
+                        const textHeight = text.size;
+                        const textWidth = textMetrics.width;
+                        if (mouseX >= text.x && mouseX <= text.x + textWidth && mouseY >= text.y - textHeight && mouseY <= text.y) {
+                            isDraggingText = true;
+                            currentTextIndex = index;
+                            startDragX = mouseX - text.x;
+                            startDragY = mouseY - text.y;
+                        }
+                    });
+                } else if (currentTool === 'manual-remove') {
+                    isDrawing = true;
+                    ctx.beginPath();
+                    ctx.moveTo(mouseX, mouseY);
+                } else if (currentTool === 'color-remove') {
+                    const pixel = ctx.getImageData(mouseX, mouseY, 1, 1).data;
+                    const colorToRemove = [pixel[0], pixel[1], pixel[2]];
+                    
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(displayImage, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                    const data = imageData.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i+1];
+                        const b = data[i+2];
+                        const distance = Math.sqrt(
+                            Math.pow(r - colorToRemove[0], 2) +
+                            Math.pow(g - colorToRemove[1], 2) +
+                            Math.pow(b - colorToRemove[2], 2)
+                        );
+                        if (distance < 50) {
+                            data[i+3] = 0;
+                        }
+                    }
+                    tempCtx.putImageData(imageData, 0, 0);
+
+                    const newImage = new Image();
+                    newImage.onload = () => {
+                        displayImage = newImage;
+                        redrawAll();
+                        saveState();
+                        showMessage("Rəngə görə fon silindi.");
+                    };
+                    newImage.src = tempCanvas.toDataURL();
+                    canvas.style.cursor = 'crosshair';
+                    colorRemoveBtn.classList.remove('active');
+                    currentTool = 'none';
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const scaleX = canvas.width / rect.width;
+                const scaleY = canvas.height / rect.height;
+                const mouseX = (e.clientX - rect.left) * scaleX;
+                const mouseY = (e.clientY - rect.top) * scaleY;
+                
+                if (isDraggingText) {
+                    texts[currentTextIndex].x = mouseX - startDragX;
+                    texts[currentTextIndex].y = mouseY - startDragY;
+                    redrawAll();
+                } else if (isDrawing) {
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.strokeStyle = 'rgba(0,0,0,1)';
+                    ctx.lineWidth = brushSizeSlider.value;
+                    ctx.lineCap = 'round';
+                    ctx.lineTo(mouseX, mouseY);
+                    ctx.stroke();
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                isDraggingText = false;
+                currentTextIndex = -1;
+                if (isDrawing) {
+                    isDrawing = false;
+                    ctx.globalCompositeOperation = 'source-over';
+                    saveState();
+                }
+            });
+
+            canvas.addEventListener('mouseout', () => {
+                isDraggingText = false;
+                if (isDrawing) {
+                    isDrawing = false;
+                    ctx.globalCompositeOperation = 'source-over';
+                    saveState();
+                }
+            });
+            
+            undoBtn.addEventListener('click', undoLastAction);
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                    undoLastAction();
+                }
+            });
 
             window.addEventListener('load', () => {
                 showMessage("Səhifə hazırdır! Bir şəkil yükləyə bilərsiniz.");
