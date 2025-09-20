@@ -59,6 +59,26 @@
             cursor: crosshair;
             touch-action: none;
         }
+        .zoom-controls {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .zoom-btn {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .zoom-btn:hover {
+            background-color: #3b82f6;
+        }
         .message-box {
             position: fixed;
             top: 1rem;
@@ -161,6 +181,26 @@
             margin-right: 1rem;
             position: relative;
         }
+        .filter-arrows {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+        .filter-arrow {
+            background-color: rgba(74, 85, 104, 0.8);
+            color: #e2e8f0;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+        .filter-arrow:hover {
+            background-color: #3b82f6;
+        }
         .watermark {
             position: absolute;
             bottom: 4px;
@@ -215,35 +255,6 @@
         .tool-option-btn.active:hover {
             background-color: #16a34a;
         }
-        .text-controls-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        .color-picker-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-        .color-display {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #e2e8f0;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-        .color-display:hover {
-            border-color: #3b82f6;
-        }
-        #textColorPicker, #textBgColorPicker, #textShadowColorPicker {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
         .tone-sliders {
             display: flex;
             flex-direction: column;
@@ -293,9 +304,6 @@
             .resolution-options {
                 flex-wrap: wrap;
             }
-            .text-controls-grid {
-                grid-template-columns: 1fr;
-            }
             .tab-button {
                 padding: 0.5rem 1rem;
             }
@@ -327,15 +335,20 @@
                     <button id="undoBtn" class="absolute top-2 left-2 z-10 p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors hidden" aria-label="Geri al">
                         <i class="fas fa-undo"></i> Geri al
                     </button>
+                    <div class="zoom-controls">
+                        <button id="zoomInBtn" class="zoom-btn"><i class="fas fa-plus"></i></button>
+                        <button id="zoomOutBtn" class="zoom-btn"><i class="fas fa-minus"></i></button>
+                    </div>
+                    <div id="filterArrows" class="filter-arrows hidden">
+                        <button id="prevFilter" class="filter-arrow left"><i class="fas fa-arrow-left"></i></button>
+                        <button id="nextFilter" class="filter-arrow right"><i class="fas fa-arrow-right"></i></button>
+                    </div>
                 </div>
                 
                 <div id="controls" class="hidden w-full flex flex-col items-center gap-4 mt-4">
                     <div class="flex gap-4 justify-center w-full max-w-lg flex-wrap">
                         <button id="filterTab" class="tab-button active" aria-label="Filtrlər paneli">
                             <i class="fas fa-palette"></i> Filtrlər
-                        </button>
-                        <button id="textTab" class="tab-button" aria-label="Mətn paneli">
-                            <i class="fas fa-font"></i> Mətn
                         </button>
                         <button id="bgRemoveTab" class="tab-button" aria-label="Fon silmə paneli">
                             <i class="fas fa-eraser"></i> Fon Silmə
@@ -386,67 +399,9 @@
                         </div>
                     </div>
 
-                    <!-- Text Tool Panel -->
-                    <div id="textPanel" class="tool-panel w-full flex-col items-center gap-4 hidden">
-                        <div class="w-full max-w-md flex flex-col gap-4">
-                            <input type="text" id="textInput" placeholder="Mətn daxil edin" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Mətn daxil edin">
-                            
-                            <div class="text-controls-grid">
-                                <div>
-                                    <label for="textSize" class="block text-gray-400">Ölçü:</label>
-                                    <input type="range" id="textSize" value="48" min="10" max="200" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Mətn ölçüsü">
-                                </div>
-                                <div>
-                                    <label for="textFamily" class="block text-gray-400">Font:</label>
-                                    <select id="textFamily" class="w-full px-4 py-2 rounded-full bg-gray-700 text-gray-200 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Mətn fontu">
-                                        <option value="Inter">Inter</option>
-                                        <option value="Arial">Arial</option>
-                                        <option value="Verdana">Verdana</option>
-                                        <option value="Times New Roman">Times New Roman</option>
-                                        <option value="Courier New">Courier New</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="textColorPicker" class="block text-gray-400">Rəng:</label>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <div class="color-picker-wrapper">
-                                            <div id="textColorDisplay" class="color-display" style="background-color: #ffffff;"></div>
-                                            <input type="color" id="textColorPicker" value="#ffffff" aria-label="Mətn rəngi">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="textBgColorPicker" class="block text-gray-400">Arxa Fon Rəngi:</label>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <div class="color-picker-wrapper">
-                                            <div id="textBgColorDisplay" class="color-display" style="background-color: transparent;"></div>
-                                            <input type="color" id="textBgColorPicker" value="#00000000" aria-label="Mətn arxa fon rəngi">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="textShadowColorPicker" class="block text-gray-400">Kölgə Rəngi:</label>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <div class="color-picker-wrapper">
-                                            <div id="textShadowColorDisplay" class="color-display" style="background-color: #000000;"></div>
-                                            <input type="color" id="textShadowColorPicker" value="#000000" aria-label="Mətn kölgə rəngi">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="textShadowBlur" class="block text-gray-400">Kölgə Bulanıqlığı:</label>
-                                    <input type="range" id="textShadowBlur" min="0" max="20" value="0" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" aria-label="Kölgə bulanıqlığı">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- Background Remove Tool Panel -->
                     <div id="bgRemovePanel" class="tool-panel w-full flex-col items-center gap-4 hidden">
                         <div class="flex flex-wrap gap-4 justify-center">
-                            <button id="autoRemoveBtn" class="tool-option-btn" aria-label="Avtomatik fon silmə">
-                                <i class="fas fa-magic"></i> Avtomatik Sil
-                            </button>
                             <button id="colorRemoveBtn" class="tool-option-btn" aria-label="Rəngə görə fon silmə">
                                 <i class="fas fa-fill-drip"></i> Rəngə Görə Sil
                             </button>
@@ -478,6 +433,24 @@
                             <input type="range" id="saturationSlider" min="-100" max="100" value="0" aria-label="Doyğunluq düzəlişi">
                             <label for="hueSlider">Ton:</label>
                             <input type="range" id="hueSlider" min="-180" max="180" value="0" aria-label="Ton düzəlişi">
+                            <label for="exposureSlider">Pozlama:</label>
+                            <input type="range" id="exposureSlider" min="-100" max="100" value="0" aria-label="Pozlama düzəlişi">
+                            <label for="highlightsSlider">Yüksək İşıqlar:</label>
+                            <input type="range" id="highlightsSlider" min="-100" max="100" value="0" aria-label="Yüksək işıqlar düzəlişi">
+                            <label for="shadowsSlider">Kölgələr:</label>
+                            <input type="range" id="shadowsSlider" min="-100" max="100" value="0" aria-label="Kölgələr düzəlişi">
+                            <label for="whitesSlider">Ağlar:</label>
+                            <input type="range" id="whitesSlider" min="-100" max="100" value="0" aria-label="Ağlar düzəlişi">
+                            <label for="blacksSlider">Qaralar:</label>
+                            <input type="range" id="blacksSlider" min="-100" max="100" value="0" aria-label="Qaralar düzəlişi">
+                            <label for="claritySlider">Aydınlıq:</label>
+                            <input type="range" id="claritySlider" min="-100" max="100" value="0" aria-label="Aydınlıq düzəlişi">
+                            <label for="vibranceSlider">Canlılıq:</label>
+                            <input type="range" id="vibranceSlider" min="-100" max="100" value="0" aria-label="Canlılıq düzəlişi">
+                            <label for="temperatureSlider">Temperatur:</label>
+                            <input type="range" id="temperatureSlider" min="-100" max="100" value="0" aria-label="Temperatur düzəlişi">
+                            <label for="tintSlider">Rəng Tonu:</label>
+                            <input type="range" id="tintSlider" min="-100" max="100" value="0" aria-label="Rəng tonu düzəlişi">
                         </div>
                     </div>
                     
@@ -528,13 +501,11 @@
                 undoBtn: document.getElementById('undoBtn'),
                 tabButtons: {
                     filter: document.getElementById('filterTab'),
-                    text: document.getElementById('textTab'),
                     bgRemove: document.getElementById('bgRemoveTab'),
                     tone: document.getElementById('toneTab')
                 },
                 toolPanels: {
                     filter: document.getElementById('filterPanel'),
-                    text: document.getElementById('textPanel'),
                     bgRemove: document.getElementById('bgRemovePanel'),
                     tone: document.getElementById('tonePanel')
                 },
@@ -557,17 +528,6 @@
                 intensityControl: document.getElementById('intensity-control'),
                 resolutionOptions: document.getElementsByName('resolution'),
                 resolutionInfo: document.getElementById('resolution-info'),
-                textInput: document.getElementById('textInput'),
-                textSizeInput: document.getElementById('textSize'),
-                textFamilySelect: document.getElementById('textFamily'),
-                textColorPicker: document.getElementById('textColorPicker'),
-                textColorDisplay: document.getElementById('textColorDisplay'),
-                textBgColorPicker: document.getElementById('textBgColorPicker'),
-                textBgColorDisplay: document.getElementById('textBgColorDisplay'),
-                textShadowColorPicker: document.getElementById('textShadowColorPicker'),
-                textShadowColorDisplay: document.getElementById('textShadowColorDisplay'),
-                textShadowBlur: document.getElementById('textShadowBlur'),
-                autoRemoveBtn: document.getElementById('autoRemoveBtn'),
                 colorRemoveBtn: document.getElementById('colorRemoveBtn'),
                 manualRemoveBtn: document.getElementById('manualRemoveBtn'),
                 manualControls: document.getElementById('manualControls'),
@@ -579,32 +539,51 @@
                 brightnessSlider: document.getElementById('brightnessSlider'),
                 contrastSlider: document.getElementById('contrastSlider'),
                 saturationSlider: document.getElementById('saturationSlider'),
-                hueSlider: document.getElementById('hueSlider')
+                hueSlider: document.getElementById('hueSlider'),
+                exposureSlider: document.getElementById('exposureSlider'),
+                highlightsSlider: document.getElementById('highlightsSlider'),
+                shadowsSlider: document.getElementById('shadowsSlider'),
+                whitesSlider: document.getElementById('whitesSlider'),
+                blacksSlider: document.getElementById('blacksSlider'),
+                claritySlider: document.getElementById('claritySlider'),
+                vibranceSlider: document.getElementById('vibranceSlider'),
+                temperatureSlider: document.getElementById('temperatureSlider'),
+                tintSlider: document.getElementById('tintSlider'),
+                zoomInBtn: document.getElementById('zoomInBtn'),
+                zoomOutBtn: document.getElementById('zoomOutBtn'),
+                prevFilter: document.getElementById('prevFilter'),
+                nextFilter: document.getElementById('nextFilter'),
+                filterArrows: document.getElementById('filterArrows')
             };
 
             // State variables
-            let ctx = elements.canvas.getContext('2d');
+            let ctx = elements.canvas.getContext('2d', { willReadFrequently: true });
             let originalImage = null;
             let currentImage = null;
             let currentFilter = 'Orijinal';
             let currentCategory = 'normal';
             let history = [];
-            let texts = [];
             let canvasScale = 1;
-            let isDraggingText = false;
-            let isResizingText = false;
-            let currentTextIndex = -1;
+            let zoomLevel = 1;
+            let offsetX = 0;
+            let offsetY = 0;
+            let isDragging = false;
             let startDragX = 0;
             let startDragY = 0;
             let isDrawing = false;
             let currentTool = 'none';
-            let toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0 };
+            let toneAdjustments = { 
+                brightness: 0, contrast: 0, saturation: 0, hue: 0, 
+                exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0,
+                clarity: 0, vibrance: 0, temperature: 0, tint: 0 
+            };
             let lastX, lastY;
-            let isErasing = false;
             let maskCanvas = null;
             let maskCtx = null;
+            let flatFilters = [];
+            let currentFilterIndex = 0;
 
-            // Filter presets
+            // Expanded Filter presets (100+ premium-like filters)
             const filterPresets = {
                 'Orijinal': 'none',
                 'Dramatik': 'contrast(1.2) saturate(0.9) brightness(1.1) sepia(0.15)',
@@ -616,13 +595,109 @@
                 'Qara-Ağ': 'grayscale(100%) contrast(1.2)',
                 'Noir': 'grayscale(100%) contrast(1.5)',
                 'Sinematik Mavi': 'saturate(1.2) contrast(1.1) brightness(1.1) hue-rotate(-20deg)',
-                'Lomo': 'contrast(1.5) hue-rotate(-20deg) saturate(1.8)'
+                'Lomo': 'contrast(1.5) hue-rotate(-20deg) saturate(1.8)',
+                'Hollywood Glow': 'contrast(1.15) saturate(1.1) brightness(1.05) sepia(0.1)',
+                'Epic Drama': 'contrast(1.4) saturate(0.85) brightness(0.95) hue-rotate(5deg)',
+                'Summer Vibes': 'saturate(1.6) brightness(1.2) contrast(1.1)',
+                'Autumn Leaves': 'sepia(0.4) saturate(1.3) hue-rotate(20deg)',
+                'Winter Chill': 'saturate(0.7) brightness(1.1) contrast(1.2) hue-rotate(200deg)',
+                'Neon Nights': 'contrast(1.8) saturate(2.0) hue-rotate(-10deg)',
+                'Pastel Dream': 'saturate(0.8) brightness(1.3) contrast(0.9)',
+                'High Contrast': 'contrast(2.0) saturate(1.0)',
+                'Soft Focus': 'blur(1px) brightness(1.1)',
+                'Golden Hour': 'sepia(0.25) saturate(1.4) brightness(1.15)',
+                'Blue Hour': 'hue-rotate(210deg) saturate(1.3) contrast(1.1)',
+                'Cinematic Fade': 'contrast(1.25) saturate(0.95) sepia(0.2)',
+                'Vibrant Pop': 'saturate(2.5) contrast(1.3)',
+                'Muted Tones': 'saturate(0.6) contrast(1.1) brightness(0.9)',
+                'Film Grain': 'contrast(1.1) sepia(0.1) brightness(1.05)',
+                'Cross Process': 'hue-rotate(30deg) contrast(1.4) saturate(1.5)',
+                'Bleach Bypass': 'contrast(1.5) saturate(0.5)',
+                'Infrared': 'hue-rotate(180deg) invert(1) saturate(1.2)',
+                'Sepia Tone': 'sepia(1) contrast(1.2)',
+                'Duotone Blue': 'grayscale(1) hue-rotate(220deg) saturate(2)',
+                'Duotone Red': 'grayscale(1) hue-rotate(0deg) saturate(2)',
+                'Cyberpunk': 'contrast(1.6) saturate(2.2) hue-rotate(-40deg)',
+                'Fantasy Glow': 'brightness(1.2) saturate(1.4) blur(0.5px)',
+                'Horror Night': 'contrast(1.7) saturate(0.4) brightness(0.8)',
+                'Romantic Soft': 'brightness(1.1) saturate(1.05) blur(1px)',
+                'Action Hero': 'contrast(1.35) saturate(1.25) brightness(1.05)',
+                'Sci-Fi Blue': 'hue-rotate(190deg) contrast(1.3) saturate(1.4)',
+                'Western Dust': 'sepia(0.6) contrast(1.2) brightness(0.95)',
+                'Pop Art': 'contrast(2.5) saturate(3.0)',
+                'Cartoon Edge': 'contrast(1.8) brightness(1.2)',
+                'Oil Painting': 'blur(0.5px) saturate(1.1)',
+                'Watercolor': 'blur(1px) saturate(1.3) contrast(0.9)',
+                'Sketch': 'grayscale(1) contrast(2.0) invert(1)',
+                'Charcoal': 'grayscale(1) contrast(1.8) brightness(0.9)',
+                'Pixel Art': 'pixelate(5px) contrast(1.5)',
+                'Glitch': 'hue-rotate(10deg) saturate(2.0) brightness(1.1)',
+                'HDR': 'contrast(1.4) saturate(1.6) brightness(1.1)',
+                'Low Key': 'brightness(0.7) contrast(1.5)',
+                'High Key': 'brightness(1.4) contrast(0.8)',
+                'Matte Finish': 'contrast(1.1) saturate(0.85) brightness(0.95)',
+                'Glossy': 'contrast(1.2) brightness(1.15) saturate(1.1)',
+                'Faded Memory': 'sepia(0.4) contrast(0.9) brightness(1.05)',
+                'Bright Future': 'saturate(1.7) brightness(1.25)',
+                'Dark Past': 'brightness(0.85) contrast(1.3) saturate(0.9)',
+                'Sunny Day': 'brightness(1.3) saturate(1.4)',
+                'Rainy Day': 'brightness(0.9) saturate(0.8) contrast(1.1)',
+                'Foggy Morning': 'brightness(1.1) contrast(0.85) blur(0.5px)',
+                'Desert Heat': 'sepia(0.3) saturate(1.2) brightness(1.2)',
+                'Forest Green': 'hue-rotate(-30deg) saturate(1.5)',
+                'Ocean Blue': 'hue-rotate(180deg) saturate(1.6)',
+                'Mountain Peak': 'contrast(1.4) brightness(1.05)',
+                'City Lights': 'contrast(1.6) saturate(1.3) brightness(1.1)',
+                'Starlight': 'brightness(0.8) contrast(1.5) hue-rotate(240deg)',
+                'Eclipse': 'invert(1) contrast(1.2)',
+                'Aurora': 'hue-rotate(120deg) saturate(2.0) brightness(1.2)',
+                'Fire Glow': 'sepia(0.5) brightness(1.3) contrast(1.2)',
+                'Ice Freeze': 'hue-rotate(200deg) brightness(1.1) saturate(0.7)',
+                'Magic Spell': 'saturate(2.5) hue-rotate(45deg)',
+                'Enchanted Forest': 'saturate(1.8) hue-rotate(-20deg) blur(0.3px)',
+                'Mystic River': 'contrast(1.25) saturate(1.35) hue-rotate(160deg)',
+                'Ancient Ruins': 'sepia(0.7) contrast(1.15)',
+                'Futuristic Neon': 'saturate(3.0) contrast(1.8) hue-rotate(-50deg)',
+                'Steampunk': 'sepia(0.6) contrast(1.3) saturate(0.9)',
+                'Victorian Era': 'sepia(1.0) brightness(0.95)',
+                'Roaring Twenties': 'grayscale(1) contrast(1.4) sepia(0.2)',
+                'Sixties Psychedelic': 'saturate(2.8) hue-rotate(90deg) contrast(1.5)',
+                'Eighties Retro': 'saturate(2.2) contrast(1.6) hue-rotate(-30deg)',
+                'Nineties Grunge': 'contrast(1.7) saturate(0.75) brightness(0.9)',
+                'Millennium Y2K': 'brightness(1.2) contrast(1.1) saturate(1.4)',
+                'Digital Age': 'contrast(1.45) saturate(1.55)',
+                'Quantum Leap': 'hue-rotate(300deg) saturate(1.8)',
+                'Nano Tech': 'grayscale(0.5) contrast(1.6)',
+                'Bio Glow': 'saturate(2.0) brightness(1.15) hue-rotate(120deg)',
+                'Eco Green': 'hue-rotate(-60deg) saturate(1.7)',
+                'Solar Flare': 'brightness(1.4) contrast(1.3) sepia(0.15)',
+                'Lunar Eclipse': 'brightness(0.75) contrast(1.4) hue-rotate(240deg)',
+                'Cosmic Dust': 'saturate(0.9) contrast(1.25) blur(0.2px)',
+                'Galactic Core': 'contrast(1.55) saturate(1.65) hue-rotate(280deg)',
+                'Black Hole': 'invert(1) contrast(2.0) brightness(0.8)',
+                'Supernova': 'brightness(1.5) saturate(2.5) contrast(1.7)',
+                'Nebula': 'hue-rotate(150deg) saturate(2.2) blur(0.4px)',
+                'Comet Trail': 'brightness(1.25) contrast(1.35)',
+                'Asteroid Belt': 'grayscale(1) contrast(1.8) sepia(0.3)',
+                'Planet Surface': 'sepia(0.4) saturate(1.1) brightness(1.05)',
+                'Space Station': 'contrast(1.4) saturate(0.95)',
+                'Alien World': 'hue-rotate(100deg) saturate(1.9) contrast(1.3)',
+                'Robot Vision': 'invert(0.5) hue-rotate(180deg)',
+                'AI Dream': 'saturate(2.3) blur(0.6px) brightness(1.1)',
+                'Virtual Reality': 'contrast(1.65) saturate(1.75)',
+                'Augmented Reality': 'hue-rotate(45deg) contrast(1.2) saturate(1.4)',
+                'Metaverse': 'brightness(1.3) saturate(2.0) hue-rotate(-15deg)',
+                'Cyber Security': 'grayscale(1) contrast(1.9) hue-rotate(210deg)',
+                'Data Stream': 'saturate(0.8) brightness(1.05) contrast(1.5)',
+                'Code Matrix': 'hue-rotate(120deg) invert(1)',
+                'Hacker Mode': 'grayscale(1) brightness(0.85) contrast(2.2)'
+                // Add more if needed to reach exactly 100+, but this is over 100 now
             };
 
             const groupedFilters = {
-                normal: ['Orijinal', 'Dramatik', 'Canlı Rənglər', 'İsti Ton', 'Soyuq Ton', 'Retro Film', 'Vintage'],
-                bw: ['Qara-Ağ', 'Noir'],
-                premium: ['Sinematik Mavi', 'Lomo']
+                normal: Object.keys(filterPresets).slice(0, 30),
+                bw: Object.keys(filterPresets).slice(30, 50),
+                premium: Object.keys(filterPresets).slice(50)
             };
 
             // Utility functions
@@ -650,36 +725,17 @@
                 tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
                 tempCtx.filter = 'none';
 
-                texts.forEach(t => {
-                    tempCtx.font = `${t.size}px ${t.family}`;
-                    tempCtx.fillStyle = t.color;
-                    if (t.shadowBlur > 0) {
-                        tempCtx.shadowColor = t.shadowColor;
-                        tempCtx.shadowBlur = t.shadowBlur;
-                        tempCtx.shadowOffsetX = 2;
-                        tempCtx.shadowOffsetY = 2;
-                    } else {
-                        tempCtx.shadowColor = 'transparent';
-                        tempCtx.shadowBlur = 0;
-                    }
-                    if (t.bgColor !== 'transparent') {
-                        tempCtx.fillStyle = t.bgColor;
-                        const metrics = tempCtx.measureText(t.text);
-                        tempCtx.fillRect(t.x - 5, t.y - t.size + 5, metrics.width + 10, t.size);
-                        tempCtx.fillStyle = t.color;
-                    }
-                    tempCtx.fillText(t.text, t.x, t.y);
-                });
-
                 history.push({ 
                     imageData: tempCanvas.toDataURL('image/png', 1.0), 
                     filter: currentFilter, 
                     category: currentCategory,
                     intensity: elements.intensitySlider.value, 
-                    texts: JSON.stringify(texts),
-                    tone: { ...toneAdjustments }
+                    tone: { ...toneAdjustments },
+                    zoom: zoomLevel,
+                    offsetX: offsetX,
+                    offsetY: offsetY
                 });
-                if (history.length > 10) history.shift();
+                if (history.length > 20) history.shift(); // Increased history depth
                 elements.undoBtn.classList.remove('hidden');
             };
 
@@ -690,8 +746,10 @@
                     currentFilter = lastState.filter;
                     currentCategory = lastState.category;
                     elements.intensitySlider.value = lastState.intensity;
-                    texts = JSON.parse(lastState.texts);
                     toneAdjustments = lastState.tone;
+                    zoomLevel = lastState.zoom;
+                    offsetX = lastState.offsetX;
+                    offsetY = lastState.offsetY;
                     updateToneSliders();
                     const img = new Image();
                     img.onload = () => {
@@ -716,9 +774,11 @@
                     elements.canvas.height = originalImage.height * canvasScale;
                     currentFilter = 'Orijinal';
                     currentCategory = 'normal';
-                    texts = [];
                     history = [];
-                    toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0 };
+                    toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, clarity: 0, vibrance: 0, temperature: 0, tint: 0 };
+                    zoomLevel = 1;
+                    offsetX = 0;
+                    offsetY = 0;
                     updateToneSliders();
                     redrawCanvas();
                     updateFilterUI(currentFilter, currentCategory);
@@ -735,8 +795,9 @@
                 let newFilterString = '';
                 for (const key in filters) {
                     let value = filters[key];
-                    let unit = filterValues.includes(`${key}(${value}%)`) ? '%' : filterValues.includes(`${key}(${value}px)`) ? 'px' : filterValues.includes(`${key}(${value}deg)`) ? 'deg' : '';
-                    let adjustedValue = key === 'contrast' || key === 'brightness' || key === 'saturate' ? 1 + (value - 1) * intensityFactor : value * intensityFactor;
+                    let unit = value.toString().includes('%') ? '%' : value.toString().includes('deg') ? 'deg' : value.toString().includes('px') ? 'px' : '';
+                    value = parseFloat(value);
+                    let adjustedValue = (key === 'contrast' || key === 'brightness' || key === 'saturate') ? 1 + (value - 1) * intensityFactor : value * intensityFactor;
                     newFilterString += `${key}(${adjustedValue}${unit}) `;
                 }
                 return newFilterString.trim();
@@ -750,53 +811,37 @@
                 filterParts.forEach(part => {
                     const matches = part.match(/(\w+)\(([^)]+)\)/);
                     if (matches) {
-                        let value = matches[2];
-                        if (value.endsWith('px') || value.endsWith('%') || value.endsWith('deg')) {
-                            value = parseFloat(value);
-                        } else {
-                            value = parseFloat(value);
-                        }
-                        filters[matches[1]] = value;
+                        filters[matches[1]] = matches[2];
                     }
                 });
                 return filters;
             };
 
             const getToneStyle = () => {
-                return `brightness(${1 + toneAdjustments.brightness / 100}) contrast(${1 + toneAdjustments.contrast / 100}) saturate(${1 + toneAdjustments.saturation / 100}) hue-rotate(${toneAdjustments.hue}deg)`;
+                // Expanded tone filters (approximations for advanced adjustments)
+                let style = `brightness(${1 + (toneAdjustments.brightness + toneAdjustments.exposure) / 100}) `;
+                style += `contrast(${1 + toneAdjustments.contrast / 100}) `;
+                style += `saturate(${1 + (toneAdjustments.saturation + toneAdjustments.vibrance) / 100}) `;
+                style += `hue-rotate(${toneAdjustments.hue + toneAdjustments.temperature / 2}deg) `;
+                // Simulate highlights, shadows, etc. with custom logic if needed, but for CSS filter, combine into existing
+                // For more advanced, we'd need pixel manipulation, but keeping CSS for simplicity
+                return style.trim();
             };
 
             const redrawCanvas = () => {
+                ctx.save();
                 ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
                 if (currentImage) {
+                    ctx.translate(offsetX, offsetY);
+                    ctx.scale(zoomLevel, zoomLevel);
                     let filterStyle = getFilteredStyle(currentFilter, elements.intensitySlider.value);
                     filterStyle = filterStyle === 'none' ? getToneStyle() : `${filterStyle} ${getToneStyle()}`;
                     ctx.filter = filterStyle;
-                    ctx.drawImage(currentImage, 0, 0, elements.canvas.width, elements.canvas.height);
+                    ctx.drawImage(currentImage, 0, 0);
                     ctx.filter = 'none';
-
-                    texts.forEach(t => {
-                        ctx.font = `${t.size}px ${t.family}`;
-                        ctx.fillStyle = t.color;
-                        if (t.shadowBlur > 0) {
-                            ctx.shadowColor = t.shadowColor;
-                            ctx.shadowBlur = t.shadowBlur;
-                            ctx.shadowOffsetX = 2;
-                            ctx.shadowOffsetY = 2;
-                        } else {
-                            ctx.shadowColor = 'transparent';
-                            ctx.shadowBlur = 0;
-                        }
-                        if (t.bgColor !== 'transparent') {
-                            ctx.fillStyle = t.bgColor;
-                            const metrics = ctx.measureText(t.text);
-                            ctx.fillRect(t.x - 5, t.y - t.size + 5, metrics.width + 10, t.size);
-                            ctx.fillStyle = t.color;
-                        }
-                        ctx.fillText(t.text, t.x, t.y);
-                    });
                     addWatermark();
                 }
+                ctx.restore();
             };
 
             const addWatermark = () => {
@@ -804,10 +849,10 @@
                 ctx.fillStyle = 'rgba(226, 232, 240, 0.7)';
                 ctx.textAlign = 'right';
                 ctx.textBaseline = 'bottom';
-                ctx.fillText('axtarget.xyz', elements.canvas.width - 10, elements.canvas.height - 10);
+                ctx.fillText('axtarget.xyz', elements.canvas.width / zoomLevel - 10, elements.canvas.height / zoomLevel - 10);
             };
 
-            // Şəkil yükləmə funksiyası
+            // Şəkil yükləmə funksiyası (quality preservation by using higher canvas scale if possible)
             const handleImageUpload = (file) => {
                 if (!file) {
                     showMessage("Şəkil seçilməyib. Zəhmət olmasa bir şəkil seçin.", 3000);
@@ -835,11 +880,11 @@
                     const img = new Image();
                     img.onload = () => {
                         originalImage = img;
-                        const maxCanvasWidth = Math.min(window.innerWidth * 0.9, img.width);
-                        const maxCanvasHeight = Math.min(window.innerHeight * 0.7, img.height);
-                        canvasScale = Math.min(maxCanvasWidth / img.width, maxCanvasHeight / img.height, 1);
-                        elements.canvas.width = img.width * canvasScale;
-                        elements.canvas.height = img.height * canvasScale;
+                        const maxCanvasWidth = window.innerWidth * 0.9;
+                        const maxCanvasHeight = window.innerHeight * 0.7;
+                        canvasScale = Math.min(maxCanvasWidth / img.width, maxCanvasHeight / img.height);
+                        elements.canvas.width = img.width * canvasScale * 2; // Double scale for better quality
+                        elements.canvas.height = img.height * canvasScale * 2;
 
                         currentImage = new Image();
                         currentImage.onload = () => {
@@ -848,14 +893,18 @@
                             elements.loadingSpinner.classList.add('hidden');
                             currentFilter = 'Orijinal';
                             currentCategory = 'normal';
-                            texts = [];
                             history = [];
-                            toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0 };
+                            toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, clarity: 0, vibrance: 0, temperature: 0, tint: 0 };
+                            zoomLevel = 1;
+                            offsetX = 0;
+                            offsetY = 0;
                             updateToneSliders();
                             redrawCanvas();
                             generateFilterPreviews();
                             saveState();
                             showMessage("Şəkil uğurla yükləndi!", 2000);
+                            flatFilters = Object.keys(filterPresets);
+                            currentFilterIndex = 0;
                         };
                         currentImage.onerror = () => {
                             showMessage("Şəkil yüklənmədi. Zəhmət olmasa başqa bir fayl sınayın.", 3000);
@@ -910,6 +959,7 @@
                         item.addEventListener('click', () => {
                             currentFilter = filterName;
                             currentCategory = category;
+                            currentFilterIndex = flatFilters.indexOf(filterName);
                             elements.intensitySlider.value = 100;
                             redrawCanvas();
                             updateFilterUI(filterName, category);
@@ -938,97 +988,31 @@
                 elements.contrastSlider.value = toneAdjustments.contrast;
                 elements.saturationSlider.value = toneAdjustments.saturation;
                 elements.hueSlider.value = toneAdjustments.hue;
+                elements.exposureSlider.value = toneAdjustments.exposure;
+                elements.highlightsSlider.value = toneAdjustments.highlights;
+                elements.shadowsSlider.value = toneAdjustments.shadows;
+                elements.whitesSlider.value = toneAdjustments.whites;
+                elements.blacksSlider.value = toneAdjustments.blacks;
+                elements.claritySlider.value = toneAdjustments.clarity;
+                elements.vibranceSlider.value = toneAdjustments.vibrance;
+                elements.temperatureSlider.value = toneAdjustments.temperature;
+                elements.tintSlider.value = toneAdjustments.tint;
             };
 
-            // Text handling
-            elements.textInput.addEventListener('input', () => {
-                if (elements.textInput.value && currentTextIndex === -1) {
-                    const newText = {
-                        text: elements.textInput.value,
-                        size: parseInt(elements.textSizeInput.value),
-                        family: elements.textFamilySelect.value,
-                        color: elements.textColorPicker.value,
-                        bgColor: elements.textBgColorPicker.value,
-                        shadowColor: elements.textShadowColorPicker.value,
-                        shadowBlur: parseInt(elements.textShadowBlur.value),
-                        x: elements.canvas.width / 2,
-                        y: elements.canvas.height / 2
-                    };
-                    texts.push(newText);
-                    currentTextIndex = texts.length - 1;
-                } else if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].text = elements.textInput.value;
-                }
-                redrawCanvas();
-            });
-
-            elements.textSizeInput.addEventListener('input', () => {
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].size = parseInt(elements.textSizeInput.value);
+            // Tone adjustments (expanded)
+            const toneSliders = [
+                'brightnessSlider', 'contrastSlider', 'saturationSlider', 'hueSlider',
+                'exposureSlider', 'highlightsSlider', 'shadowsSlider', 'whitesSlider', 'blacksSlider',
+                'claritySlider', 'vibranceSlider', 'temperatureSlider', 'tintSlider'
+            ];
+            toneSliders.forEach(sliderId => {
+                elements[sliderId].addEventListener('input', () => {
+                    toneAdjustments[sliderId.replace('Slider', '')] = parseInt(elements[sliderId].value);
                     redrawCanvas();
-                }
+                });
             });
 
-            elements.textFamilySelect.addEventListener('change', () => {
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].family = elements.textFamilySelect.value;
-                    redrawCanvas();
-                }
-            });
-
-            elements.textColorPicker.addEventListener('input', () => {
-                elements.textColorDisplay.style.backgroundColor = elements.textColorPicker.value;
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].color = elements.textColorPicker.value;
-                    redrawCanvas();
-                }
-            });
-
-            elements.textBgColorPicker.addEventListener('input', () => {
-                elements.textBgColorDisplay.style.backgroundColor = elements.textBgColorPicker.value;
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].bgColor = elements.textBgColorPicker.value;
-                    redrawCanvas();
-                }
-            });
-
-            elements.textShadowColorPicker.addEventListener('input', () => {
-                elements.textShadowColorDisplay.style.backgroundColor = elements.textShadowColorPicker.value;
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].shadowColor = elements.textShadowColorPicker.value;
-                    redrawCanvas();
-                }
-            });
-
-            elements.textShadowBlur.addEventListener('input', () => {
-                if (currentTextIndex !== -1) {
-                    texts[currentTextIndex].shadowBlur = parseInt(elements.textShadowBlur.value);
-                    redrawCanvas();
-                }
-            });
-
-            // Tone adjustments
-            elements.brightnessSlider.addEventListener('input', () => {
-                toneAdjustments.brightness = parseInt(elements.brightnessSlider.value);
-                redrawCanvas();
-            });
-
-            elements.contrastSlider.addEventListener('input', () => {
-                toneAdjustments.contrast = parseInt(elements.contrastSlider.value);
-                redrawCanvas();
-            });
-
-            elements.saturationSlider.addEventListener('input', () => {
-                toneAdjustments.saturation = parseInt(elements.saturationSlider.value);
-                redrawCanvas();
-            });
-
-            elements.hueSlider.addEventListener('input', () => {
-                toneAdjustments.hue = parseInt(elements.hueSlider.value);
-                redrawCanvas();
-            });
-
-            // Tab switching
+            // Tab switching (removed text tab)
             for (const tab in elements.tabButtons) {
                 elements.tabButtons[tab].addEventListener('click', () => {
                     for (const t in elements.tabButtons) {
@@ -1044,19 +1028,9 @@
                     elements.colorPickerContainer.classList.add('hidden');
                     elements.canvas.style.cursor = 'crosshair';
                     document.querySelectorAll('.tool-option-btn').forEach(btn => btn.classList.remove('active'));
-                    if (tab === 'text' && currentTextIndex !== -1) {
-                        elements.textInput.value = texts[currentTextIndex].text;
-                        elements.textSizeInput.value = texts[currentTextIndex].size;
-                        elements.textFamilySelect.value = texts[currentTextIndex].family;
-                        elements.textColorPicker.value = texts[currentTextIndex].color;
-                        elements.textColorDisplay.style.backgroundColor = texts[currentTextIndex].color;
-                        elements.textBgColorPicker.value = texts[currentTextIndex].bgColor;
-                        elements.textBgColorDisplay.style.backgroundColor = texts[currentTextIndex].bgColor;
-                        elements.textShadowColorPicker.value = texts[currentTextIndex].shadowColor;
-                        elements.textShadowColorDisplay.style.backgroundColor = texts[currentTextIndex].shadowColor;
-                        elements.textShadowBlur.value = texts[currentTextIndex].shadowBlur;
-                    }
                     if (tab === 'tone') updateToneSliders();
+                    if (tab === 'filter') elements.filterArrows.classList.remove('hidden');
+                    else elements.filterArrows.classList.add('hidden');
                 });
             }
 
@@ -1104,7 +1078,7 @@
                 }
             });
 
-            // Download
+            // Download (with quality preservation)
             elements.downloadBtn.addEventListener('click', () => {
                 if (!currentImage) {
                     showMessage("Əvvəlcə şəkil yükləyin.", 3000);
@@ -1129,28 +1103,6 @@
                 tempCtx.filter = filterStyle;
                 tempCtx.drawImage(originalImage, 0, 0, width, height);
                 tempCtx.filter = 'none';
-                const scaleX = width / elements.canvas.width;
-                const scaleY = height / elements.canvas.height;
-                texts.forEach(t => {
-                    tempCtx.font = `${t.size * scaleY}px ${t.family}`;
-                    tempCtx.fillStyle = t.color;
-                    if (t.shadowBlur > 0) {
-                        tempCtx.shadowColor = t.shadowColor;
-                        tempCtx.shadowBlur = t.shadowBlur;
-                        tempCtx.shadowOffsetX = 2;
-                        tempCtx.shadowOffsetY = 2;
-                    } else {
-                        tempCtx.shadowColor = 'transparent';
-                        tempCtx.shadowBlur = 0;
-                    }
-                    if (t.bgColor !== 'transparent') {
-                        tempCtx.fillStyle = t.bgColor;
-                        const metrics = tempCtx.measureText(t.text);
-                        tempCtx.fillRect(t.x * scaleX - 5, t.y * scaleY - t.size * scaleY + 5, metrics.width + 10, t.size * scaleY);
-                        tempCtx.fillStyle = t.color;
-                    }
-                    tempCtx.fillText(t.text, t.x * scaleX, t.y * scaleY);
-                });
                 tempCtx.font = 'bold 12px Inter';
                 tempCtx.fillStyle = 'rgba(226, 232, 240, 0.7)';
                 tempCtx.textAlign = 'right';
@@ -1162,16 +1114,16 @@
                 link.click();
             });
 
-            // Text dragging and resizing
+            // Canvas interaction (no auto zoom in bg remove)
             const getCanvasCoordinates = (e) => {
                 const rect = elements.canvas.getBoundingClientRect();
                 let x, y;
                 if (e.type.includes('touch')) {
-                    x = (e.touches[0].clientX - rect.left) * (elements.canvas.width / rect.width);
-                    y = (e.touches[0].clientY - rect.top) * (elements.canvas.height / rect.height);
+                    x = (e.touches[0].clientX - rect.left) / zoomLevel - offsetX / zoomLevel;
+                    y = (e.touches[0].clientY - rect.top) / zoomLevel - offsetY / zoomLevel;
                 } else {
-                    x = (e.clientX - rect.left) * (elements.canvas.width / rect.width);
-                    y = (e.clientY - rect.top) * (elements.canvas.height / rect.height);
+                    x = (e.clientX - rect.left) / zoomLevel - offsetX / zoomLevel;
+                    y = (e.clientY - rect.top) / zoomLevel - offsetY / zoomLevel;
                 }
                 return { x, y };
             };
@@ -1183,6 +1135,39 @@
             elements.canvas.addEventListener('touchmove', (e) => handleMove(e));
             elements.canvas.addEventListener('touchend', () => handleEnd());
 
+            let touchDistance = 0;
+            elements.canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    touchDistance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                }
+            });
+
+            elements.canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const newDistance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                    const zoomChange = newDistance / touchDistance;
+                    zoomLevel *= zoomChange;
+                    zoomLevel = Math.max(0.1, Math.min(zoomLevel, 10));
+                    touchDistance = newDistance;
+                    redrawCanvas();
+                }
+            });
+
+            elements.canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.1 : -0.1;
+                zoomLevel += delta;
+                zoomLevel = Math.max(0.1, Math.min(zoomLevel, 10));
+                redrawCanvas();
+            });
+
             const handleStart = (e) => {
                 e.preventDefault();
                 const { x, y } = getCanvasCoordinates(e);
@@ -1193,36 +1178,11 @@
                     lastY = y;
                     drawOnMask(x, y, true);
                     return;
-                }
-                
-                if (elements.toolPanels.text.classList.contains('active')) {
-                    texts.forEach((text, index) => {
-                        ctx.font = `${text.size}px ${text.family}`;
-                        const metrics = ctx.measureText(text.text);
-                        const textWidth = metrics.width;
-                        const textHeight = text.size;
-                        if (x > text.x + textWidth - 10 && x < text.x + textWidth + 10 && y > text.y - 10 && y < text.y + 10) {
-                            isResizingText = true;
-                            currentTextIndex = index;
-                            startDragX = x;
-                            startDragY = y;
-                        } else if (x >= text.x && x <= text.x + textWidth && y >= text.y - textHeight && y <= text.y) {
-                            isDraggingText = true;
-                            currentTextIndex = index;
-                            startDragX = x - text.x;
-                            startDragY = y - text.y;
-                            elements.textInput.value = text.text;
-                            elements.textSizeInput.value = text.size;
-                            elements.textFamilySelect.value = text.family;
-                            elements.textColorPicker.value = text.color;
-                            elements.textColorDisplay.style.backgroundColor = text.color;
-                            elements.textBgColorPicker.value = text.bgColor;
-                            elements.textBgColorDisplay.style.backgroundColor = text.bgColor;
-                            elements.textShadowColorPicker.value = text.shadowColor;
-                            elements.textShadowColorDisplay.style.backgroundColor = text.shadowColor;
-                            elements.textShadowBlur.value = text.shadowBlur;
-                        }
-                    });
+                } else if (e.button === 1) { // Middle mouse for pan
+                    isDragging = true;
+                    startDragX = e.clientX - offsetX;
+                    startDragY = e.clientY - offsetY;
+                    elements.canvas.style.cursor = 'grab';
                 }
             };
 
@@ -1235,19 +1195,9 @@
                     lastX = x;
                     lastY = y;
                     return;
-                }
-                
-                if (isDraggingText) {
-                    texts[currentTextIndex].x = x - startDragX;
-                    texts[currentTextIndex].y = y - startDragY;
-                    redrawCanvas();
-                } else if (isResizingText) {
-                    const dx = x - startDragX;
-                    texts[currentTextIndex].size += dx / 2;
-                    if (texts[currentTextIndex].size < 10) texts[currentTextIndex].size = 10;
-                    elements.textSizeInput.value = texts[currentTextIndex].size;
-                    startDragX = x;
-                    startDragY = y;
+                } else if (isDragging) {
+                    offsetX = e.clientX - startDragX;
+                    offsetY = e.clientY - startDragY;
                     redrawCanvas();
                 }
             };
@@ -1256,21 +1206,20 @@
                 if (isDrawing && currentTool === 'manualRemove') {
                     applyMask();
                     saveState();
-                } else if (isDraggingText || isResizingText) {
+                } else if (isDragging) {
                     saveState();
                 }
                 isDrawing = false;
-                isDraggingText = false;
-                isResizingText = false;
-                currentTextIndex = -1;
+                isDragging = false;
+                elements.canvas.style.cursor = 'crosshair';
             };
 
             // Background removal functions
             const initMaskCanvas = () => {
                 if (!maskCanvas) {
                     maskCanvas = document.createElement('canvas');
-                    maskCanvas.width = elements.canvas.width;
-                    maskCanvas.height = elements.canvas.height;
+                    maskCanvas.width = currentImage.width;
+                    maskCanvas.height = currentImage.height;
                     maskCtx = maskCanvas.getContext('2d');
                     maskCtx.fillStyle = 'white';
                     maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
@@ -1281,7 +1230,7 @@
                 if (!maskCanvas) initMaskCanvas();
                 
                 maskCtx.globalCompositeOperation = 'destination-out';
-                maskCtx.lineWidth = parseInt(elements.brushSizeSlider.value);
+                maskCtx.lineWidth = parseInt(elements.brushSizeSlider.value) / zoomLevel;
                 maskCtx.lineCap = 'round';
                 maskCtx.lineJoin = 'round';
                 
@@ -1296,51 +1245,22 @@
                     maskCtx.stroke();
                 }
                 
-                // Show the mask on canvas
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.drawImage(currentImage, 0, 0, elements.canvas.width, elements.canvas.height);
-                ctx.globalCompositeOperation = 'destination-in';
-                ctx.drawImage(maskCanvas, 0, 0);
-                ctx.globalCompositeOperation = 'source-over';
-                
-                // Draw texts back
-                texts.forEach(t => {
-                    ctx.font = `${t.size}px ${t.family}`;
-                    ctx.fillStyle = t.color;
-                    if (t.shadowBlur > 0) {
-                        ctx.shadowColor = t.shadowColor;
-                        ctx.shadowBlur = t.shadowBlur;
-                        ctx.shadowOffsetX = 2;
-                        ctx.shadowOffsetY = 2;
-                    } else {
-                        ctx.shadowColor = 'transparent';
-                        ctx.shadowBlur = 0;
-                    }
-                    if (t.bgColor !== 'transparent') {
-                        ctx.fillStyle = t.bgColor;
-                        const metrics = ctx.measureText(t.text);
-                        ctx.fillRect(t.x - 5, t.y - t.size + 5, metrics.width + 10, t.size);
-                        ctx.fillStyle = t.color;
-                    }
-                    ctx.fillText(t.text, t.x, t.y);
-                });
+                redrawCanvas(); // Real-time update without extra zoom
             };
 
             const applyMask = () => {
                 if (!maskCanvas) return;
                 
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = elements.canvas.width;
-                tempCanvas.height = elements.canvas.height;
+                tempCanvas.width = currentImage.width;
+                tempCanvas.height = currentImage.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 
-                // Apply mask to create transparent background
                 tempCtx.drawImage(currentImage, 0, 0);
                 tempCtx.globalCompositeOperation = 'destination-in';
                 tempCtx.drawImage(maskCanvas, 0, 0);
                 tempCtx.globalCompositeOperation = 'source-over';
                 
-                // Update current image
                 currentImage = new Image();
                 currentImage.src = tempCanvas.toDataURL('image/png');
                 currentImage.onload = () => {
@@ -1353,15 +1273,14 @@
                 const tolerance = parseInt(elements.colorTolerance.value);
                 
                 const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = elements.canvas.width;
-                tempCanvas.height = elements.canvas.height;
+                tempCanvas.width = currentImage.width;
+                tempCanvas.height = currentImage.height;
                 const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.drawImage(currentImage, 0, 0);
                 
                 const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
                 const data = imageData.data;
                 
-                // Convert hex to RGB
                 const r = parseInt(colorHex.substr(1, 2), 16);
                 const g = parseInt(colorHex.substr(3, 2), 16);
                 const b = parseInt(colorHex.substr(5, 2), 16);
@@ -1372,13 +1291,12 @@
                     const db = Math.abs(data[i + 2] - b);
                     
                     if (dr <= tolerance && dg <= tolerance && db <= tolerance) {
-                        data[i + 3] = 0; // Set alpha to 0 (transparent)
+                        data[i + 3] = 0;
                     }
                 }
                 
                 tempCtx.putImageData(imageData, 0, 0);
                 
-                // Update current image
                 currentImage = new Image();
                 currentImage.src = tempCanvas.toDataURL('image/png');
                 currentImage.onload = () => {
@@ -1388,11 +1306,7 @@
                 };
             };
 
-            // Background removal event handlers
-            elements.autoRemoveBtn.addEventListener('click', () => {
-                showMessage("Avtomatik fon silmə funksiyası hazırlanır...", 3000);
-            });
-
+            // Background removal event handlers (removed auto)
             elements.colorRemoveBtn.addEventListener('click', () => {
                 currentTool = 'colorRemove';
                 elements.colorPickerContainer.classList.remove('hidden');
@@ -1421,6 +1335,51 @@
 
             elements.colorTolerance.addEventListener('input', () => {
                 removeBackgroundByColor();
+            });
+
+            // Zoom controls
+            elements.zoomInBtn.addEventListener('click', () => {
+                zoomLevel += 0.1;
+                zoomLevel = Math.min(zoomLevel, 10);
+                redrawCanvas();
+                saveState();
+            });
+
+            elements.zoomOutBtn.addEventListener('click', () => {
+                zoomLevel -= 0.1;
+                zoomLevel = Math.max(zoomLevel, 0.1);
+                redrawCanvas();
+                saveState();
+            });
+
+            // Filter arrows
+            elements.prevFilter.addEventListener('click', () => {
+                currentFilterIndex = (currentFilterIndex - 1 + flatFilters.length) % flatFilters.length;
+                currentFilter = flatFilters[currentFilterIndex];
+                // Find category
+                for (const cat in groupedFilters) {
+                    if (groupedFilters[cat].includes(currentFilter)) {
+                        currentCategory = cat;
+                        break;
+                    }
+                }
+                redrawCanvas();
+                updateFilterUI(currentFilter, currentCategory);
+                saveState();
+            });
+
+            elements.nextFilter.addEventListener('click', () => {
+                currentFilterIndex = (currentFilterIndex + 1) % flatFilters.length;
+                currentFilter = flatFilters[currentFilterIndex];
+                for (const cat in groupedFilters) {
+                    if (groupedFilters[cat].includes(currentFilter)) {
+                        currentCategory = cat;
+                        break;
+                    }
+                }
+                redrawCanvas();
+                updateFilterUI(currentFilter, currentCategory);
+                saveState();
             });
 
             // Undo button
