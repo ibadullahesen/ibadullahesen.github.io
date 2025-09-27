@@ -1,1 +1,1265 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axtarget - İş Elanları (Firebase)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Custom Colors for Dark Mode and Green Theme */
+        :root {
+            --primary: #10b981; /* Emerald 500 - Green */
+            --primary-dark: #059669; /* Emerald 600 */
+            --background: #1f2937; /* Dark Gray 800 - Açıq Qara */
+            --card-bg: #374151; /* Dark Gray 700 - Kart fonu */
+            --text-dark: #e5e7eb;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .tab-button.active {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.4), 0 2px 4px -2px rgba(16, 185, 129, 0.4);
+        }
+        .input-label {
+            color: var(--text-dark);
+        }
+        .ad-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            background-color: var(--card-bg);
+            border-color: #4b5563; /* Gray 600 */
+        }
+        .ad-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
 
+    <!-- FIREBASE AND APP LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged,
+            setPersistence, browserSessionPersistence
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, setLogLevel,
+            updateDoc, deleteDoc, doc // NEW: Imports for editing and deleting
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase Instances and App State
+        let app, db, auth;
+        let userId = null; // Changed to null initially
+        let currentView = 'all'; 
+        let currentFormType = 'job_seeker';
+        let isAuthReady = false;
+        let unsubscribeAds = null; 
+
+        // Mandatory Global Variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Set logging to Debug for troubleshooting
+        setLogLevel('debug');
+
+        // --- Firebase Initialization and Authentication ---
+
+        const initFirebase = async () => {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    throw new Error("Firebase konfiqurasiyası tapılmadı.");
+                }
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                await setPersistence(auth, browserSessionPersistence);
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        document.getElementById('user-id-display').textContent = userId;
+                    } else {
+                        // User is signed out or anonymous
+                        userId = crypto.randomUUID(); // Use a temp ID if not authenticated (though canvas ensures auth)
+                        document.getElementById('user-id-display').textContent = 'Anonim İstifadəçi';
+                    }
+                    isAuthReady = true;
+                    // Start fetching data only after auth is ready
+                    startAdListener();
+                });
+            } catch (error) {
+                console.error("Firebase başlatma xətası:", error);
+                showCustomAlert('Sistem Xətası', `Firebase ilə əlaqə qurularkən xəta baş verdi. Zəhmət olmasa konsolu yoxlayın. (${error.message})`);
+            }
+        };
+
+        // --- Firestore Real-time Data Fetching (onSnapshot) ---
+
+        function getAdCollectionRef() {
+            // Public collection path: /artifacts/{appId}/public/data/job_ads
+            return collection(db, `artifacts/${appId}/public/data/job_ads`);
+        }
+        
+        function getAdDocRef(adId) {
+            return doc(db, `artifacts/${appId}/public/data/job_ads`, adId);
+        }
+
+        function startAdListener() {
+            if (!db || !isAuthReady) return;
+
+            if (unsubscribeAds) {
+                unsubscribeAds();
+            }
+            
+            const adsQuery = query(getAdCollectionRef());
+
+            unsubscribeAds = onSnapshot(adsQuery, (snapshot) => {
+                const adsList = [];
+                snapshot.forEach((doc) => {
+                    adsList.push({ id: doc.id, ...doc.data() });
+                });
+                
+                adsList.sort((a, b) => {
+                    const timeA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : 0;
+                    const timeB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : 0;
+                    return timeB - timeA;
+                });
+                
+                window.jobAdsData = adsList;
+                updateAdListings(currentView);
+            }, (error) => {
+                console.error("Elanların real-time yüklənməsi xətası:", error);
+                showCustomAlert('Yüklənmə Xətası', 'Elanlar yüklənərkən problem yaşandı. Zəhmət olmasa yenidən cəhd edin.');
+            });
+        }
+
+        // --- UI Rendering Helpers ---
+
+        function renderAdCard(data) {
+            const card = document.createElement('div');
+            card.className = 'ad-card p-6 rounded-xl shadow-lg border flex flex-col justify-between';
+            
+            const isJobSeeker = data.type === 'job_seeker';
+            const isOwner = data.userId === userId; // Check if the current user owns this ad
+            
+            const title = isJobSeeker
+                ? `<h3 class="text-xl font-bold text-gray-100 mb-2 flex items-center"><i class="fa-solid fa-briefcase mr-2 text-primary"></i> İş Axtaran: ${data.jobTitle || 'Vəzifə Qeyd Olunmayıb'}</h3>`
+                : `<h3 class="text-xl font-bold text-gray-100 mb-2 flex items-center"><i class="fa-solid fa-users-gear mr-2 text-primary"></i> İşçi Axtarılır: ${data.company || 'Şəxsi Elan'}</h3>`;
+
+            const badges = [];
+            if (data.gender) {
+                const icon = (data.gender === 'Kişi' || data.gender === 'Qadın') 
+                    ? (data.gender === 'Kişi' ? 'fa-mars' : 'fa-venus')
+                    : 'fa-user-group';
+                badges.push({ icon: icon, text: data.gender });
+            }
+            
+            if (data.region && data.region !== 'Fərqi yoxdur') badges.push({ icon: 'fa-location-dot', text: data.region });
+            
+            const formText = isJobSeeker 
+                ? (data.workForm === 'online' ? 'Online İş' : 'Fiziki İş') 
+                : (data.workerForm === 'online' ? 'Online İşçi' : 'Fiziki İşçi');
+            badges.push({ icon: 'fa-house-laptop', text: formText });
+
+            if (data.age) badges.push({ icon: 'fa-person', text: data.age + ' yaş' });
+            if (data.ageRange) badges.push({ icon: 'fa-person', text: data.ageRange + ' yaş aralığı' });
+            if (data.experience) badges.push({ icon: 'fa-ranking-star', text: data.experience + ' Təcrübə' });
+
+            const skillsText = isJobSeeker 
+                ? (data.skills === 'Bacarığım yoxdur' ? 'Bacarıq yoxdur' : data.skills)
+                : (data.requiredSkills || 'Qeyd edilməyib');
+
+            const details = isJobSeeker 
+                ? `<div class="text-gray-400 space-y-3"><p><strong>Bacarıqlar:</strong> ${skillsText}</p></div>`
+                : `<div class="text-gray-400 space-y-3">
+                    <p><strong>Şirkət:</strong> ${data.company || 'Şəxsi elan'}</p>
+                    <p><strong>Tələb olunan biliklər:</strong> ${skillsText}</p>
+                   </div>`;
+
+            // Contact Info
+            const isEmailAvailable = data.email && data.email !== 'E-poçt yoxdur';
+            
+            // Admin/Owner Panel (NEW)
+            const ownerPanel = isOwner ? `
+                <div class="mt-4 pt-4 border-t border-yellow-700">
+                    <p class="text-sm font-semibold text-yellow-400 mb-2 flex items-center">
+                        <i class="fa-solid fa-user-shield mr-2"></i> Mənim Elanım
+                    </p>
+                    <div class="flex justify-between space-x-2">
+                        <button onclick='window.openEditAdModal(${JSON.stringify(data)})' class="flex-1 py-1 px-3 text-xs font-semibold rounded-full bg-blue-600 hover:bg-blue-700 text-white transition duration-150">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i> Redaktə Et
+                        </button>
+                        <button onclick="window.openDeleteConfirmModal('${data.id}')" class="flex-1 py-1 px-3 text-xs font-semibold rounded-full bg-red-600 hover:bg-red-700 text-white transition duration-150">
+                            <i class="fa-solid fa-trash mr-1"></i> Sil
+                        </button>
+                    </div>
+                </div>
+            ` : '';
+
+            const contactInfo = `
+                <div class="mt-4 pt-4 border-t border-gray-600">
+                    <p class="text-sm font-semibold text-gray-300 mb-2">Əlaqə Məlumatları:</p>
+                    <div class="space-y-2 text-gray-400">
+                        <!-- Phone Contact -->
+                        <div class="flex items-center justify-between text-sm">
+                            <p class="flex items-center">
+                                <i class="fa-solid fa-phone mr-2 text-gray-500"></i> +994 (${data.contactNumber || 'Yoxdur'})
+                            </p>
+                            ${data.contactNumber ? `<button onclick="openContactConfirmModal('phone', '${data.contactNumber}')" class="text-xs font-semibold py-1 px-3 rounded-full bg-primary hover:bg-primary-dark text-white transition duration-150 shadow-md">Zəng Et</button>` : ''}
+                        </div>
+                        <!-- Email Contact -->
+                        <div class="flex items-center justify-between text-sm">
+                            <p class="flex items-center">
+                                <i class="fa-solid fa-envelope mr-2 text-gray-500"></i> ${data.email || 'Yoxdur'}
+                            </p>
+                            ${isEmailAvailable ? `<button onclick="openContactConfirmModal('email', '${data.email}')" class="text-xs font-semibold py-1 px-3 rounded-full bg-primary hover:bg-primary-dark text-white transition duration-150 shadow-md">E-mail Göndər</button>` : `<span class="text-xs text-red-400 italic">E-poçt yoxdur</span>`}
+                        </div>
+                    </div>
+                    <p class="text-right text-xs text-gray-600 mt-2">
+                        <i class="fa-solid fa-clock mr-1"></i> ${data.createdAt ? data.createdAt.toDate().toLocaleString('az-AZ') : 'Tarix yoxdur'}
+                    </p>
+                </div>
+            `;
+
+            card.innerHTML = `
+                ${title}
+                ${details}
+                
+                <div class="mt-4 flex flex-wrap gap-2">
+                    ${badges.map(badge => `
+                        <span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-emerald-900 text-emerald-300">
+                            <i class="fa-solid ${badge.icon} mr-2"></i> ${badge.text}
+                        </span>
+                    `).join('')}
+                </div>
+                ${contactInfo}
+                ${ownerPanel} 
+            `;
+            return card;
+        }
+
+        window.updateAdListings = (type) => {
+            const container = document.getElementById('ads-container');
+            currentView = type;
+            container.innerHTML = '';
+            
+            const filteredAds = (type === 'all')
+                ? window.jobAdsData
+                : window.jobAdsData.filter(ad => ad.type === type);
+
+            if (!filteredAds || filteredAds.length === 0) {
+                container.innerHTML = `<div class="col-span-full p-10 text-center bg-gray-800 rounded-xl shadow-inner border border-dashed border-gray-700">
+                    <i class="fa-solid fa-cloud-moon text-6xl text-gray-600 mb-4"></i>
+                    <p class="text-xl font-semibold text-gray-400">Hələlik aktiv ${type === 'job_seeker' ? 'iş axtaran' : 'işçi axtaran'} elanı yoxdur.</p>
+                    <p class="text-gray-500">Yeni elan əlavə edərək başlaya bilərsiniz.</p>
+                </div>`;
+                return;
+            }
+            
+            if (type === 'all') {
+                 container.innerHTML = `<h2 class="col-span-full text-2xl font-bold text-gray-100 mb-6 border-b border-gray-700 pb-2">Bütün Elanlar (${filteredAds.length})</h2>`;
+            } else {
+                 container.innerHTML = `<h2 class="col-span-full text-2xl font-bold text-gray-100 mb-6 border-b border-gray-700 pb-2">${type === 'job_seeker' ? 'İş Axtaran' : 'İşçi Axtaran'} Elanları (${filteredAds.length})</h2>`;
+            }
+
+            filteredAds.forEach(data => {
+                container.appendChild(renderAdCard(data));
+            });
+        }
+        
+        // --- Form Submission (Add Doc) ---
+
+        window.handleAdSubmit = async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const formData = new FormData(form);
+            const adData = {
+                type: currentFormType,
+                userId: userId,
+                createdAt: serverTimestamp(),
+            };
+
+            for (const [key, value] of formData.entries()) {
+                adData[key] = value.trim();
+            }
+
+            if (adData.contactNumber) {
+                adData.contactNumber = adData.contactNumber.replace(/[^\d]/g, '');
+            }
+
+            try {
+                await addDoc(getAdCollectionRef(), adData);
+                showCustomAlert('Uğurlu!', 'Yeni elanınız uğurla yerləşdirildi və real-time olaraq lövhədə görünəcək.');
+                form.reset();
+                window.closePostAdModal();
+                setupFormLogic('job-seeker-form', 'job_seeker');
+                setupFormLogic('employer-form', 'employer');
+
+            } catch (error) {
+                console.error("Elan paylaşılarkən xəta:", error);
+                showCustomAlert('Xəta', `Elanınızı paylaşmaq mümkün olmadı. Xəta: ${error.message}`);
+            }
+        }
+        
+        // --- Edit and Delete Logic (NEW) ---
+        
+        // 1. OPEN EDIT MODAL
+        window.openEditAdModal = (adData) => {
+            const modal = document.getElementById('edit-ad-modal');
+            const form = document.getElementById('edit-form');
+            form.setAttribute('data-ad-id', adData.id); 
+            
+            const isJobSeeker = adData.type === 'job_seeker';
+            
+            // Set Modal Title and Form Visibility
+            document.getElementById('edit-modal-title').textContent = isJobSeeker 
+                ? 'İş Axtaran Elanını Redaktə Et' 
+                : 'İşçi Axtaran Elanını Redaktə Et';
+
+            document.getElementById('edit-js-form-container').classList.toggle('hidden', !isJobSeeker);
+            document.getElementById('edit-em-form-container').classList.toggle('hidden', isJobSeeker);
+
+            // Populate form fields
+            const formElements = isJobSeeker ? form.querySelectorAll('#edit-js-form [name]') : form.querySelectorAll('#edit-em-form [name]');
+            
+            formElements.forEach(input => {
+                const key = input.name;
+                let value = adData[key];
+
+                if (key === 'contactNumber' && value) {
+                    // Format number for display
+                    value = value.replace(/(\d{2})(\d{3})(\d{2})(\d{2})/, '$1-$2-$3-$4');
+                }
+                
+                if (input.type === 'radio') {
+                    input.checked = (input.value === value);
+                } else if (input.type === 'checkbox') {
+                    // Checkbox logic for 'no-email', 'no-skills', etc.
+                    const isNoOption = (input.id.includes('no-email') && value === 'E-poçt yoxdur') ||
+                                       (input.id.includes('no-skills') && (value === 'Bacarığım yoxdur' || value === 'Fərqi yoxdur')) ||
+                                       (input.id.includes('no-region') && value === 'Fərqi yoxdur');
+
+                    input.checked = isNoOption;
+                    
+                    // Also disable the related input if the checkbox is checked
+                    const relatedInputId = input.id.replace('no-', '').replace('-js', '-js').replace('-em', '-em').replace('-employer', '-employer');
+                    const relatedInput = form.querySelector(`#${relatedInputId.replace('skills', 'js-skills').replace('skills-employer', 'em-required-skills')}`);
+
+                    if (relatedInput) {
+                         relatedInput.disabled = isNoOption;
+                         relatedInput.required = !isNoOption;
+                         if (isNoOption) relatedInput.value = value;
+                    }
+
+                } else if (value !== undefined && value !== null) {
+                    input.value = value;
+                }
+            });
+
+            // Re-apply form logic to handle toggles correctly after pre-filling
+            setupFormLogic('edit-js-form', 'job_seeker');
+            setupFormLogic('edit-em-form', 'employer');
+
+            modal.classList.remove('hidden');
+        }
+
+        window.closeEditAdModal = () => {
+            document.getElementById('edit-ad-modal').classList.add('hidden');
+        }
+
+        // 2. HANDLE EDIT SUBMISSION
+        window.handleEditSubmit = async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const adId = form.getAttribute('data-ad-id');
+            const formData = new FormData(form);
+            const updatedData = {};
+
+            // Collect all data from the currently visible form (js or em)
+            const currentFormContainerId = document.getElementById('edit-js-form-container').classList.contains('hidden') 
+                ? 'edit-em-form-container' : 'edit-js-form-container';
+            
+            const formInputs = document.querySelectorAll(`#${currentFormContainerId} [name]`);
+            
+            formInputs.forEach(input => {
+                 if (input.disabled || input.type === 'radio' && !input.checked) {
+                    return; // Skip disabled or unchecked radio buttons
+                }
+                updatedData[input.name] = input.value.trim();
+            });
+
+            if (updatedData.contactNumber) {
+                updatedData.contactNumber = updatedData.contactNumber.replace(/[^\d]/g, '');
+            }
+
+            try {
+                // Remove the 'type' field from the update, as it cannot be changed
+                delete updatedData.type;
+                
+                await updateDoc(getAdDocRef(adId), updatedData);
+                showCustomAlert('Uğurlu!', 'Elanınız uğurla redaktə edildi.');
+                window.closeEditAdModal();
+            } catch (error) {
+                console.error("Elan redaktə edilərkən xəta:", error);
+                showCustomAlert('Xəta', `Elanınızı redaktə etmək mümkün olmadı. Xəta: ${error.message}`);
+            }
+        }
+        
+        // 3. HANDLE DELETE
+        window.openDeleteConfirmModal = (adId) => {
+             const modal = document.getElementById('delete-confirm-modal');
+             const yesButton = document.getElementById('delete-yes-button');
+             yesButton.onclick = () => handleDelete(adId);
+             modal.classList.remove('hidden');
+        }
+        
+        window.closeDeleteConfirmModal = () => {
+             document.getElementById('delete-confirm-modal').classList.add('hidden');
+        }
+
+        window.handleDelete = async (adId) => {
+            closeDeleteConfirmModal();
+            try {
+                await deleteDoc(getAdDocRef(adId));
+                showCustomAlert('Uğurlu!', 'Elanınız uğurla silindi.');
+            } catch (error) {
+                console.error("Elan silinərkən xəta:", error);
+                showCustomAlert('Xəta', `Elanınızı silmək mümkün olmadı. Xəta: ${error.message}`);
+            }
+        }
+        
+        // --- Setup and Generic Helpers ---
+        
+        // ... (Existing helper functions: openContactConfirmModal, handleContactAction, closeContactConfirmModal, showCustomAlert, closeCustomAlert, switchView, openPostAdModal, closePostAdModal, switchFormType remain mostly the same) ...
+
+        window.openContactConfirmModal = (actionType, value) => {
+            const modal = document.getElementById('contact-confirm-modal');
+            const titleEl = document.getElementById('contact-confirm-title');
+            const messageEl = document.getElementById('contact-confirm-message');
+            const yesButton = document.getElementById('contact-yes-button');
+
+            if (actionType === 'phone') {
+                titleEl.textContent = 'Zəng Təsdiqi';
+                messageEl.textContent = `Siz +994 (${value}) nömrəsinə zəng etmək istəyirsiniz?`;
+                yesButton.onclick = () => handleContactAction('phone', value);
+            } else if (actionType === 'email') {
+                titleEl.textContent = 'E-mail Təsdiqi';
+                messageEl.textContent = `Siz ${value} ünvanına e-mail göndərmək istəyirsiniz?`;
+                yesButton.onclick = () => handleContactAction('email', value);
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        window.handleContactAction = (actionType, value) => {
+            closeContactConfirmModal();
+            if (actionType === 'email' && value === 'E-poçt yoxdur') {
+                showCustomAlert('Əməliyyat Mümkün Deyil', 'Bu istifadəçi e-poçt adresi təqdim etməyib.');
+                return;
+            }
+
+            if (actionType === 'phone') {
+                const cleanValue = value.replace(/-/g, ''); 
+                window.location.href = `tel:+994${cleanValue}`;
+            } else if (actionType === 'email') {
+                window.location.href = `mailto:${value}`;
+            }
+        }
+
+        window.closeContactConfirmModal = () => {
+            document.getElementById('contact-confirm-modal').classList.add('hidden');
+        }
+        
+        window.showCustomAlert = (title, message) => {
+            const alertEl = document.getElementById('custom-alert-modal');
+            document.getElementById('alert-title').textContent = title;
+            document.getElementById('alert-message').textContent = message;
+            alertEl.classList.remove('hidden');
+        }
+
+        window.closeCustomAlert = () => {
+            document.getElementById('custom-alert-modal').classList.add('hidden');
+        }
+        
+        // This function handles both 'create' and 'edit' form logic, controlled by the formId
+        function setupFormLogic(formId, type) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+
+            // Handle submit listeners (only for main forms)
+            if (formId === 'job-seeker-form' || formId === 'employer-form') {
+                form.removeEventListener('submit', window.handleAdSubmit); 
+                form.addEventListener('submit', window.handleAdSubmit);
+            } else if (formId === 'edit-js-form' || formId === 'edit-em-form') {
+                 form.removeEventListener('submit', window.handleEditSubmit); 
+                 form.addEventListener('submit', window.handleEditSubmit);
+            }
+
+            // 1. Phone Masking for all forms
+            const phoneInput = form.querySelector('[name="contactNumber"]');
+            if (phoneInput) {
+                phoneInput.setAttribute('placeholder', 'XX-XXX-XX-XX');
+                phoneInput.oninput = (e) => {
+                    let value = e.target.value.replace(/\D/g, ''); 
+                    if (value.length > 9) value = value.slice(0, 9); 
+
+                    let formattedValue = '';
+                    if (value.length > 0) formattedValue += value.substring(0, 2);
+                    if (value.length > 2) formattedValue += '-' + value.substring(2, 5);
+                    if (value.length > 5) formattedValue += '-' + value.substring(5, 7);
+                    if (value.length > 7) formattedValue += '-' + value.substring(7, 9);
+
+                    e.target.value = formattedValue;
+                };
+            }
+
+            // 2. Job Seeker Specific Toggles (Applies to both js-form and edit-js-form)
+            if (type === 'job_seeker') {
+                const skillsInput = form.querySelector('[name="skills"]');
+                const noSkillsCheckbox = form.querySelector('#no-skills-' + formId);
+                const regionInput = form.querySelector('[name="region"]');
+                const noRegionCheckbox = form.querySelector('#no-region-' + formId);
+                const emailInput = form.querySelector('[name="email"]');
+                const noEmailCheckbox = form.querySelector('#no-email-' + formId);
+                
+                // Email Toggle
+                if (noEmailCheckbox && emailInput) {
+                    noEmailCheckbox.onchange = () => {
+                        const checked = noEmailCheckbox.checked;
+                        emailInput.disabled = checked;
+                        emailInput.required = !checked;
+                        emailInput.value = checked ? 'E-poçt yoxdur' : '';
+                        emailInput.classList.toggle('bg-gray-700', checked);
+                    };
+                    noEmailCheckbox.onchange(); 
+                }
+                
+                // Skills Toggle
+                if (noSkillsCheckbox && skillsInput) {
+                    noSkillsCheckbox.onchange = () => {
+                        skillsInput.disabled = noSkillsCheckbox.checked;
+                        skillsInput.value = noSkillsCheckbox.checked ? 'Bacarığım yoxdur' : '';
+                        skillsInput.required = !noSkillsCheckbox.checked;
+                        skillsInput.classList.toggle('bg-gray-700', noSkillsCheckbox.checked);
+                    };
+                    noSkillsCheckbox.onchange(); 
+                    skillsInput.oninput = () => {
+                        if (skillsInput.value.trim() !== '' && noSkillsCheckbox.checked) {
+                            noSkillsCheckbox.checked = false;
+                            noSkillsCheckbox.onchange();
+                        }
+                    };
+                }
+
+                // Region Toggle
+                if (noRegionCheckbox && regionInput) {
+                    noRegionCheckbox.onchange = () => {
+                        regionInput.disabled = noRegionCheckbox.checked;
+                        regionInput.value = noRegionCheckbox.checked ? 'Fərqi yoxdur' : '';
+                        regionInput.required = !noRegionCheckbox.checked;
+                        regionInput.classList.toggle('bg-gray-700', noRegionCheckbox.checked);
+                    };
+                    noRegionCheckbox.onchange(); 
+                    regionInput.oninput = () => {
+                        if (regionInput.value.trim() !== '' && noRegionCheckbox.checked) {
+                            noRegionCheckbox.checked = false;
+                            noRegionCheckbox.onchange();
+                        }
+                    };
+                }
+            }
+            
+            // 3. Employer Specific Toggles (Applies to both employer-form and edit-em-form)
+            if (type === 'employer') {
+                const companyInput = form.querySelector('[name="company"]');
+                const noCompanyCheckbox = form.querySelector('#no-company-' + formId);
+                const regionInput = form.querySelector('[name="region"]');
+                const noRegionCheckbox = form.querySelector('#no-region-' + formId);
+                const skillsInput = form.querySelector('[name="requiredSkills"]'); 
+                const noSkillsCheckbox = form.querySelector('#no-skills-' + formId); 
+                const emailInput = form.querySelector('[name="email"]');
+                const noEmailCheckbox = form.querySelector('#no-email-' + formId);
+
+                // Email Toggle
+                if (noEmailCheckbox && emailInput) {
+                    noEmailCheckbox.onchange = () => {
+                        const checked = noEmailCheckbox.checked;
+                        emailInput.disabled = checked;
+                        emailInput.required = !checked;
+                        emailInput.value = checked ? 'E-poçt yoxdur' : '';
+                        emailInput.classList.toggle('bg-gray-700', checked);
+                    };
+                    noEmailCheckbox.onchange(); 
+                }
+
+                // Company Toggle
+                if (noCompanyCheckbox && companyInput) {
+                    noCompanyCheckbox.onchange = () => {
+                        companyInput.disabled = noCompanyCheckbox.checked;
+                        companyInput.value = noCompanyCheckbox.checked ? 'Şəxsi Elan' : '';
+                        companyInput.required = !noCompanyCheckbox.checked;
+                        companyInput.classList.toggle('bg-gray-700', noCompanyCheckbox.checked);
+                    };
+                    noCompanyCheckbox.onchange(); 
+                    companyInput.oninput = () => {
+                        if (companyInput.value.trim() !== '' && noCompanyCheckbox.checked) {
+                            noCompanyCheckbox.checked = false;
+                            noCompanyCheckbox.onchange();
+                        }
+                    };
+                }
+                
+                // Region Toggle
+                if (noRegionCheckbox && regionInput) {
+                    noRegionCheckbox.onchange = () => {
+                        regionInput.disabled = noRegionCheckbox.checked;
+                        regionInput.value = noRegionCheckbox.checked ? 'Fərqi yoxdur' : '';
+                        regionInput.required = !noRegionCheckbox.checked;
+                        regionInput.classList.toggle('bg-gray-700', noRegionCheckbox.checked);
+                    };
+                    noRegionCheckbox.onchange(); 
+                    regionInput.oninput = () => {
+                        if (regionInput.value.trim() !== '' && noRegionCheckbox.checked) {
+                            noRegionCheckbox.checked = false;
+                            noRegionCheckbox.onchange();
+                        }
+                    };
+                }
+                
+                // Skills Toggle
+                if (noSkillsCheckbox && skillsInput) {
+                    noSkillsCheckbox.onchange = () => {
+                        skillsInput.disabled = noSkillsCheckbox.checked;
+                        skillsInput.value = noSkillsCheckbox.checked ? 'Fərqi yoxdur' : '';
+                        skillsInput.required = !noSkillsCheckbox.checked;
+                        skillsInput.classList.toggle('bg-gray-700', noSkillsCheckbox.checked);
+                    };
+                    noSkillsCheckbox.onchange(); 
+                    skillsInput.oninput = () => {
+                        if (skillsInput.value.trim() !== '' && noSkillsCheckbox.checked) {
+                            noSkillsCheckbox.checked = false;
+                            noSkillsCheckbox.onchange();
+                        }
+                    };
+                }
+            }
+        }
+        
+        // ... (Remaining setup functions remain the same) ...
+
+        window.switchView = (view) => {
+            if (currentView === view) return; 
+            
+            document.getElementById('tab-all').classList.remove('active');
+            document.getElementById('tab-job-seeker').classList.remove('active');
+            document.getElementById('tab-employer').classList.remove('active');
+            
+            if (view === 'job_seeker') {
+                document.getElementById('tab-job-seeker').classList.add('active');
+            } else if (view === 'employer') {
+                document.getElementById('tab-employer').classList.add('active');
+            } else { // 'all'
+                document.getElementById('tab-all').classList.add('active');
+            }
+            
+            currentView = view;
+            updateAdListings(view);
+        };
+
+        window.openPostAdModal = () => {
+            if (!isAuthReady) {
+                showCustomAlert('Hazırlaşır', 'Sistem yüklənir. Zəhmət olmasa bir neçə saniyə gözləyin.');
+                return;
+            }
+            
+            document.getElementById('post-ad-modal').classList.remove('hidden');
+            window.switchFormType('job_seeker'); 
+        };
+
+        window.closePostAdModal = () => {
+            document.getElementById('post-ad-modal').classList.add('hidden');
+        };
+
+        window.switchFormType = (type) => {
+            currentFormType = type;
+            
+            document.getElementById('form-tab-job-seeker').classList.remove('active');
+            document.getElementById('form-tab-employer').classList.remove('active');
+
+            document.getElementById('job-seeker-form-container').classList.add('hidden');
+            document.getElementById('employer-form-container').classList.add('hidden');
+
+            if (type === 'job_seeker') {
+                document.getElementById('form-tab-job-seeker').classList.add('active');
+                document.getElementById('job-seeker-form-container').classList.remove('hidden');
+            } else {
+                document.getElementById('form-tab-employer').classList.add('active');
+                document.getElementById('employer-form-container').classList.remove('hidden');
+            }
+        };
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            // Pass form IDs to setupFormLogic
+            setupFormLogic('job-seeker-form', 'job_seeker'); 
+            setupFormLogic('employer-form', 'employer'); 
+            setupFormLogic('edit-js-form', 'job_seeker'); 
+            setupFormLogic('edit-em-form', 'employer'); 
+            switchView('all');
+        });
+
+    </script>
+
+
+    <!-- Custom Alert Modal -->
+    <div id="custom-alert-modal" class="modal-overlay fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id === 'custom-alert-modal') closeCustomAlert()">
+        <div class="bg-gray-800 border border-gray-700 w-full max-w-sm rounded-lg shadow-xl transform transition-all duration-300 scale-100 p-6">
+            <h3 id="alert-title" class="text-xl font-bold text-primary mb-3">Xəbərdarlıq</h3>
+            <p id="alert-message" class="text-gray-300 mb-6"></p>
+            <button onclick="closeCustomAlert()" class="w-full py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition duration-150">Bağla</button>
+        </div>
+    </div>
+    
+    <!-- Contact Confirmation Modal -->
+    <div id="contact-confirm-modal" class="modal-overlay fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id === 'contact-confirm-modal') closeContactConfirmModal()">
+        <div class="bg-gray-800 border border-gray-700 w-full max-w-sm rounded-lg shadow-xl transform transition-all duration-300 scale-100 p-6">
+            <h3 id="contact-confirm-title" class="text-xl font-bold text-primary mb-3">Təsdiq</h3>
+            <p id="contact-confirm-message" class="text-gray-300 mb-6">Əlaqə hərəkətini yerinə yetirmək istəyirsiniz?</p>
+            <div class="flex justify-end space-x-4">
+                <button onclick="closeContactConfirmModal()" class="py-2 px-4 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition duration-150">Xeyr</button>
+                <button id="contact-yes-button" class="py-2 px-4 bg-primary hover:bg-primary-dark text-white font-semibold rounded-lg transition duration-150">Bəli</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Delete Confirmation Modal (NEW) -->
+    <div id="delete-confirm-modal" class="modal-overlay fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id === 'delete-confirm-modal') closeDeleteConfirmModal()">
+        <div class="bg-gray-800 border border-gray-700 w-full max-w-sm rounded-lg shadow-xl transform transition-all duration-300 scale-100 p-6">
+            <h3 class="text-xl font-bold text-red-500 mb-3 flex items-center"><i class="fa-solid fa-triangle-exclamation mr-2"></i> Silmə Təsdiqi</h3>
+            <p class="text-gray-300 mb-6">Bu elanı silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarılmazdır.</p>
+            <div class="flex justify-end space-x-4">
+                <button onclick="closeDeleteConfirmModal()" class="py-2 px-4 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition duration-150">Ləğv Et</button>
+                <button id="delete-yes-button" class="py-2 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition duration-150">Əminəm, Sil</button>
+            </div>
+        </div>
+    </div>
+
+
+    <header class="bg-gray-900 shadow-md sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-3xl font-extrabold text-white">
+                <span class="text-primary">axtarget</span><span class="text-gray-500">.xyz</span>
+            </h1>
+            <div class="mt-3 sm:mt-0 flex flex-col sm:flex-row items-center space-x-0 sm:space-x-4">
+                <div class="text-xs text-center sm:text-right text-gray-500 mb-2 sm:mb-0">
+                    <p>Cari İstifadəçi ID-si:</p> 
+                    <span id="user-id-display" class="font-mono text-gray-400 break-all">Yüklənir...</span>
+                </div>
+                <button onclick="window.openPostAdModal()" class="flex items-center bg-primary hover:bg-primary-dark text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-lg shadow-primary/50">
+                    <i class="fa-solid fa-square-plus mr-2"></i> Elan Paylaş
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-8">
+            <div class="inline-flex rounded-full shadow-xl p-1 bg-gray-900 border border-gray-700" role="group">
+                 <button id="tab-all" onclick="window.switchView('all')" class="tab-button inline-flex items-center px-6 py-3 text-sm font-medium text-gray-300 rounded-full transition duration-300 hover:bg-gray-800 hover:text-primary">
+                    <i class="fa-solid fa-list-ul mr-2"></i> Hamısı
+                </button>
+                <button id="tab-job-seeker" onclick="window.switchView('job_seeker')" class="tab-button inline-flex items-center px-6 py-3 text-sm font-medium text-gray-300 rounded-full transition duration-300 hover:bg-gray-800 hover:text-primary">
+                    <i class="fa-solid fa-user-tag mr-2"></i> İş Axtaran
+                </button>
+                <button id="tab-employer" onclick="window.switchView('employer')" class="tab-button inline-flex items-center px-6 py-3 text-sm font-medium text-gray-300 rounded-full transition duration-300 hover:bg-gray-800 hover:text-primary">
+                    <i class="fa-solid fa-hard-hat mr-2"></i> İşçi Axtaran
+                </button>
+            </div>
+        </div>
+
+        <!-- Listings Container (Real-time Ads) -->
+        <div id="ads-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full p-10 text-center bg-gray-800 rounded-xl shadow-inner border border-dashed border-gray-700">
+                <i class="fa-solid fa-spinner fa-spin text-6xl text-primary mb-4"></i>
+                <p class="text-xl font-semibold text-gray-400">Elanlar yüklənir...</p>
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- Post Ad Modal -->
+    <div id="post-ad-modal" class="modal-overlay fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id === 'post-ad-modal') window.closePostAdModal()">
+        <div class="modal-content bg-gray-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-gray-700 transform transition-all duration-300 scale-100 p-6 sm:p-8">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-100 flex items-center"><i class="fa-solid fa-bullhorn mr-3 text-primary"></i> Yeni Elan Paylaş</h2>
+                <button onclick="window.closePostAdModal()" class="text-gray-400 hover:text-gray-200 transition">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Form Tabs -->
+            <div class="flex justify-center mb-6">
+                <div class="inline-flex rounded-lg border border-gray-700 p-1 bg-gray-800" role="group">
+                    <button id="form-tab-job-seeker" onclick="window.switchFormType('job_seeker')" class="tab-button px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition duration-300 hover:bg-gray-700 hover:shadow-sm">
+                        <i class="fa-solid fa-user-tag mr-2"></i> İş Axtaranam
+                    </button>
+                    <button id="form-tab-employer" onclick="window.switchFormType('employer')" class="tab-button px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition duration-300 hover:bg-gray-700 hover:shadow-sm">
+                        <i class="fa-solid fa-hard-hat mr-2"></i> İşçi Axtarıram
+                    </button>
+                </div>
+            </div>
+
+            <!-- Job Seeker Form (Create) -->
+            <div id="job-seeker-form-container" class="hidden">
+                <form id="job-seeker-form" class="space-y-6">
+                    <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 mb-4">İş Axtaran Elan Formu</h3>
+                    <div class="input-group">
+                        <label for="js-contactNumber" class="input-label block text-sm font-medium mb-1">1. Əlaqə Nömrən <span class="text-red-500">*</span></label>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-400 bg-gray-700 border border-r-0 border-gray-600 rounded-l-lg select-none">+994</span>
+                            <input type="text" id="js-contactNumber" name="contactNumber" required 
+                                pattern="\d{2}-\d{3}-\d{2}-\d{2}" 
+                                class="flex-1 block w-full rounded-none rounded-r-lg border-gray-600 focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Nümunə: 50-123-45-67</p>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="js-email" class="input-label block text-sm font-medium mb-1">2. E-posta Adresin <span class="text-red-500">*</span></label>
+                            <input type="email" id="js-email" name="email" required placeholder="adiniz@misal.com" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-email-job-seeker-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-email-job-seeker-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">E-poçtum yoxdur</label>
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="js-skills" class="input-label block text-sm font-medium mb-1">3. Bacarıqlar (Aralarına vergül qoyun) <span class="text-red-500">*</span></label>
+                            <input type="text" id="js-skills" name="skills" required placeholder="Məs: JS, React, SMM" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-skills-job-seeker-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-skills-job-seeker-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Bacarığım yoxdur</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">4. Hansı formada iş axdarırsan?</label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="js-online" name="workForm" type="radio" value="online" checked class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="js-online" class="ml-2 text-sm font-medium text-gray-300">Online</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="js-fiziki" name="workForm" type="radio" value="fiziki" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="js-fiziki" class="ml-2 text-sm font-medium text-gray-300">Fiziki</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="js-jobTitle" class="input-label block text-sm font-medium mb-1">5. Axtardığın İş (Vəzifə) <span class="text-red-500">*</span></label>
+                        <input type="text" id="js-jobTitle" name="jobTitle" required placeholder="Məs: Kiçik Frontend Developer" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">6. Cinsiniz <span class="text-red-500">*</span></label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="js-gender-male" name="gender" type="radio" value="Kişi" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="js-gender-male" class="ml-2 text-sm font-medium text-gray-300">Kişi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="js-gender-female" name="gender" type="radio" value="Qadın" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="js-gender-female" class="ml-2 text-sm font-medium text-gray-300">Qadın</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="js-age" class="input-label block text-sm font-medium mb-1">7. Yaşın <span class="text-red-500">*</span></label>
+                        <input type="number" id="js-age" name="age" required min="18" max="99" placeholder="Məs: 25" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                    </div>
+                    <div>
+                        <label for="js-experience" class="input-label block text-sm font-medium mb-1">8. İş Təcrübən (neçə il) <span class="text-red-500">*</span></label>
+                        <select id="js-experience" name="experience" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="Yoxdur">Yoxdur (Təcrübəsiz)</option>
+                            <option value="1 il">1 il</option>
+                            <option value="2 il">2 il</option>
+                            <option value="3 il">3 il</option>
+                            <option value="4 il">4 il</option>
+                            <option value="5+ il">5+ il</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="js-region" class="input-label block text-sm font-medium mb-1">9. Hansı bölgədə iş axtarırsan? <span class="text-red-500">*</span></label>
+                            <input type="text" id="js-region" name="region" required placeholder="Məs: Bakı, Nərimanov" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-region-job-seeker-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800" checked>
+                            <label for="no-region-job-seeker-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ring-offset-gray-900">
+                        Elanı Paylaş
+                    </button>
+                </form>
+            </div>
+
+            <!-- Employer Form (Create) -->
+            <div id="employer-form-container" class="hidden">
+                <form id="employer-form" class="space-y-6">
+                    <h3 class="text-lg font-semibold text-primary border-b border-gray-700 pb-2 mb-4">İşçi Axtaran Elan Formu</h3>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="em-company" class="input-label block text-sm font-medium mb-1">1. Şirkət Adı <span class="text-red-500">*</span></label>
+                            <input type="text" id="em-company" name="company" required placeholder="Məs: Axtarget MMC" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-company-employer-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-company-employer-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Şəxsi Elan</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="em-experience" class="input-label block text-sm font-medium mb-1">2. Tələb olunan Təcrübə (il) <span class="text-red-500">*</span></label>
+                        <select id="em-experience" name="experience" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="Təcrübəsiz">Təcrübəsiz</option>
+                            <option value="1 il">1 il</option>
+                            <option value="2 il">2 il</option>
+                            <option value="3 il">3 il</option>
+                            <option value="4+ il">4+ il</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="em-email" class="input-label block text-sm font-medium mb-1">3. E-posta Adresi <span class="text-red-500">*</span></label>
+                            <input type="email" id="em-email" name="email" required placeholder="hr@sirket.az" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-email-employer-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-email-employer-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">E-poçtum yoxdur</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="em-contactNumber" class="input-label block text-sm font-medium mb-1">4. Əlaqə Nömrəniz <span class="text-red-500">*</span></label>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-400 bg-gray-700 border border-r-0 border-gray-600 rounded-l-lg select-none">+994</span>
+                            <input type="text" id="em-contactNumber" name="contactNumber" required 
+                                pattern="\d{2}-\d{3}-\d{2}-\d{2}" 
+                                class="flex-1 block w-full rounded-none rounded-r-lg border-gray-600 focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Nümunə: 50-123-45-67</p>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">5. Axtardığınız İşçinin Cinsi <span class="text-red-500">*</span></label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="em-gender-male" name="gender" type="radio" value="Kişi" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="em-gender-male" class="ml-2 text-sm font-medium text-gray-300">Kişi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="em-gender-female" name="gender" type="radio" value="Qadın" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="em-gender-female" class="ml-2 text-sm font-medium text-gray-300">Qadın</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="em-gender-any" name="gender" type="radio" value="Fərqi yoxdur" checked class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="em-gender-any" class="ml-2 text-sm font-medium text-gray-300">Fərqi yoxdur</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">6. Axtardığınız İşçi Forması</label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="em-fiziki" name="workerForm" type="radio" value="fiziki" checked class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="em-fiziki" class="ml-2 text-sm font-medium text-gray-300">Fiziki</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="em-online" name="workerForm" type="radio" value="online" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="em-online" class="ml-2 text-sm font-medium text-gray-300">Online</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="em-region" class="input-label block text-sm font-medium mb-1">7. Axtardığınız Bölgə <span class="text-red-500">*</span></label>
+                            <input type="text" id="em-region" name="region" required placeholder="Məs: Bakı, Xətai" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-region-employer-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800" checked>
+                            <label for="no-region-employer-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="em-ageRange" class="input-label block text-sm font-medium mb-1">8. Yaş Aralığı <span class="text-red-500">*</span></label>
+                        <select id="em-ageRange" name="ageRange" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="18-26">18-26</option>
+                            <option value="26-35">26-35</option>
+                            <option value="35+">35+</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="em-required-skills" class="input-label block text-sm font-medium mb-1">
+                                9. Axtardığınız Sahə/Biliklər (İşçinin biliyi nə olmalıdır?) <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="em-required-skills" name="requiredSkills" required rows="3" 
+                                placeholder="Məs: React, Node.js, Mükəmməl Azərbaycan dili" 
+                                class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200 resize-y"></textarea>
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-skills-employer-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800" checked>
+                            <label for="no-skills-employer-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition duration-150 ring-offset-gray-900">
+                        Elanı Paylaş
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Ad Modal (NEW) -->
+    <div id="edit-ad-modal" class="modal-overlay fixed inset-0 hidden z-50 flex items-center justify-center p-4" onclick="if(event.target.id === 'edit-ad-modal') window.closeEditAdModal()">
+        <div class="modal-content bg-gray-900 w-full max-w-4xl rounded-2xl shadow-2xl border border-gray-700 transform transition-all duration-300 scale-100 p-6 sm:p-8">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <h2 id="edit-modal-title" class="text-2xl font-bold text-gray-100 flex items-center"><i class="fa-solid fa-pen-to-square mr-3 text-blue-400"></i> Elanı Redaktə Et</h2>
+                <button onclick="window.closeEditAdModal()" class="text-gray-400 hover:text-gray-200 transition">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            
+            <form id="edit-form">
+                <!-- Job Seeker Form (Edit) -->
+                <div id="edit-js-form-container" class="space-y-6">
+                    <h3 class="text-lg font-semibold text-blue-400 border-b border-gray-700 pb-2 mb-4">İş Axtaran Elanını Redaktə Et</h3>
+                    <div class="input-group">
+                        <label for="edit-js-contactNumber" class="input-label block text-sm font-medium mb-1">1. Əlaqə Nömrən <span class="text-red-500">*</span></label>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-400 bg-gray-700 border border-r-0 border-gray-600 rounded-l-lg select-none">+994</span>
+                            <input type="text" id="edit-js-contactNumber" name="contactNumber" required 
+                                pattern="\d{2}-\d{3}-\d{2}-\d{2}" 
+                                class="flex-1 block w-full rounded-none rounded-r-lg border-gray-600 focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-js-email" class="input-label block text-sm font-medium mb-1">2. E-posta Adresin <span class="text-red-500">*</span></label>
+                            <input type="email" id="edit-js-email" name="email" required placeholder="adiniz@misal.com" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-email-edit-js-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-email-edit-js-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">E-poçtum yoxdur</label>
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-js-skills" class="input-label block text-sm font-medium mb-1">3. Bacarıqlar (Aralarına vergül qoyun) <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-js-skills" name="skills" required placeholder="Məs: JS, React, SMM" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-skills-edit-js-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-skills-edit-js-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Bacarığım yoxdur</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">4. Hansı formada iş axdarırsan?</label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="edit-js-online" name="workForm" type="radio" value="online" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-js-online" class="ml-2 text-sm font-medium text-gray-300">Online</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-js-fiziki" name="workForm" type="radio" value="fiziki" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-js-fiziki" class="ml-2 text-sm font-medium text-gray-300">Fiziki</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit-js-jobTitle" class="input-label block text-sm font-medium mb-1">5. Axtardığın İş (Vəzifə) <span class="text-red-500">*</span></label>
+                        <input type="text" id="edit-js-jobTitle" name="jobTitle" required placeholder="Məs: Kiçik Frontend Developer" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">6. Cinsiniz <span class="text-red-500">*</span></label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="edit-js-gender-male" name="gender" type="radio" value="Kişi" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-js-gender-male" class="ml-2 text-sm font-medium text-gray-300">Kişi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-js-gender-female" name="gender" type="radio" value="Qadın" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-js-gender-female" class="ml-2 text-sm font-medium text-gray-300">Qadın</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit-js-age" class="input-label block text-sm font-medium mb-1">7. Yaşın <span class="text-red-500">*</span></label>
+                        <input type="number" id="edit-js-age" name="age" required min="18" max="99" placeholder="Məs: 25" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                    </div>
+                    <div>
+                        <label for="edit-js-experience" class="input-label block text-sm font-medium mb-1">8. İş Təcrübən (neçə il) <span class="text-red-500">*</span></label>
+                        <select id="edit-js-experience" name="experience" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="Yoxdur">Yoxdur (Təcrübəsiz)</option>
+                            <option value="1 il">1 il</option>
+                            <option value="2 il">2 il</option>
+                            <option value="3 il">3 il</option>
+                            <option value="4 il">4 il</option>
+                            <option value="5+ il">5+ il</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-js-region" class="input-label block text-sm font-medium mb-1">9. Hansı bölgədə iş axtarırsan? <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-js-region" name="region" required placeholder="Məs: Bakı, Nərimanov" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-region-edit-js-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-region-edit-js-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Employer Form (Edit) -->
+                <div id="edit-em-form-container" class="space-y-6 hidden">
+                    <h3 class="text-lg font-semibold text-blue-400 border-b border-gray-700 pb-2 mb-4">İşçi Axtaran Elanını Redaktə Et</h3>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-em-company" class="input-label block text-sm font-medium mb-1">1. Şirkət Adı <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-em-company" name="company" required placeholder="Məs: Axtarget MMC" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-company-edit-em-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-company-edit-em-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Şəxsi Elan</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit-em-experience" class="input-label block text-sm font-medium mb-1">2. Tələb olunan Təcrübə (il) <span class="text-red-500">*</span></label>
+                        <select id="edit-em-experience" name="experience" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="Təcrübəsiz">Təcrübəsiz</option>
+                            <option value="1 il">1 il</option>
+                            <option value="2 il">2 il</option>
+                            <option value="3 il">3 il</option>
+                            <option value="4+ il">4+ il</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-em-email" class="input-label block text-sm font-medium mb-1">3. E-posta Adresi <span class="text-red-500">*</span></label>
+                            <input type="email" id="edit-em-email" name="email" required placeholder="hr@sirket.az" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-email-edit-em-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-email-edit-em-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">E-poçtum yoxdur</label>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="edit-em-contactNumber" class="input-label block text-sm font-medium mb-1">4. Əlaqə Nömrəniz <span class="text-red-500">*</span></label>
+                        <div class="flex items-center">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-400 bg-gray-700 border border-r-0 border-gray-600 rounded-l-lg select-none">+994</span>
+                            <input type="text" id="edit-em-contactNumber" name="contactNumber" required 
+                                pattern="\d{2}-\d{3}-\d{2}-\d{2}" 
+                                class="flex-1 block w-full rounded-none rounded-r-lg border-gray-600 focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">5. Axtardığınız İşçinin Cinsi <span class="text-red-500">*</span></label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="edit-em-gender-male" name="gender" type="radio" value="Kişi" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-em-gender-male" class="ml-2 text-sm font-medium text-gray-300">Kişi</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-em-gender-female" name="gender" type="radio" value="Qadın" required class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-em-gender-female" class="ml-2 text-sm font-medium text-gray-300">Qadın</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-em-gender-any" name="gender" type="radio" value="Fərqi yoxdur" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-em-gender-any" class="ml-2 text-sm font-medium text-gray-300">Fərqi yoxdur</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="input-label block text-sm font-medium mb-2">6. Axtardığınız İşçi Forması</label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input id="edit-em-fiziki" name="workerForm" type="radio" value="fiziki" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-em-fiziki" class="ml-2 text-sm font-medium text-gray-300">Fiziki</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-em-online" name="workerForm" type="radio" value="online" class="h-4 w-4 text-primary border-gray-600 focus:ring-primary bg-gray-800">
+                                <label for="edit-em-online" class="ml-2 text-sm font-medium text-gray-300">Online</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-em-region" class="input-label block text-sm font-medium mb-1">7. Axtardığınız Bölgə <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-em-region" name="region" required placeholder="Məs: Bakı, Xətai" class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-region-edit-em-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-region-edit-em-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit-em-ageRange" class="input-label block text-sm font-medium mb-1">8. Yaş Aralığı <span class="text-red-500">*</span></label>
+                        <select id="edit-em-ageRange" name="ageRange" required class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200">
+                            <option value="18-26">18-26</option>
+                            <option value="26-35">26-35</option>
+                            <option value="35+">35+</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end space-x-4">
+                        <div class="flex-1">
+                            <label for="edit-em-required-skills" class="input-label block text-sm font-medium mb-1">
+                                9. Axtardığınız Sahə/Biliklər (İşçinin biliyi nə olmalıdır?) <span class="text-red-500">*</span>
+                            </label>
+                            <textarea id="edit-em-required-skills" name="requiredSkills" required rows="3" 
+                                placeholder="Məs: React, Node.js, Mükəmməl Azərbaycan dili" 
+                                class="block w-full border-gray-600 rounded-lg focus:ring-primary focus:border-primary p-3 shadow-sm text-base bg-gray-800 text-gray-200 resize-y"></textarea>
+                        </div>
+                        <div class="flex items-center h-12">
+                            <input id="no-skills-edit-em-form" type="checkbox" class="h-4 w-4 text-primary border-gray-600 rounded focus:ring-primary bg-gray-800">
+                            <label for="no-skills-edit-em-form" class="ml-2 block text-sm font-medium text-gray-300 whitespace-nowrap">Fərqi yoxdur</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="mt-6 w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 transition duration-150 ring-offset-gray-900">
+                    Dəyişiklikləri Yadda Saxla
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
