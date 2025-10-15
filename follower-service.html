@@ -358,6 +358,25 @@
                     </p>
                 </div>
             </div>
+            <!-- Pulsuz Servis Description -->
+            <div id="free-desc" class="hidden">
+                <div class="card-header"> <h3 class="card-title text-lg">Pulsuz Xidmət Haqqında Qeydlər</h3> </div>
+                <div class="card-content space-y-3 text-sm text-muted">
+                    <p class="flex items-start space-x-2">
+                        <i class="fas fa-gift text-green-500 w-4 h-4 mt-0.5"></i>
+                        <span>Bu xidmət pulsuzdur və gündə yalnız bir dəfə istifadə edilə bilər. 50 bəyəni göndəriləcək.</span>
+                    </p>
+                    <p class="flex items-start space-x-2">
+                        <i class="fas fa-clock w-4 h-4 mt-0.5"></i>
+                        <span>Son istifadədən sonra 24 saat keçməlidir. Qalan vaxt: <span id="free-cooldown-timer">Yüklənir...</span></span>
+                    </p>
+                    <div class="separator"></div>
+                    <p class="flex items-start space-x-2">
+                        <i class="fas fa-info-circle w-4 h-4 mt-0.5"></i>
+                        <span>Əgər 24 saat dolmayıbsa, sifariş yaradılmayacaq.</span>
+                    </p>
+                </div>
+            </div>
         </div>
         
         <div id="campaigns-section" class="card mt-8 text-white" style="background: linear-gradient(90deg, #34d399, #38b2ac);">
@@ -450,13 +469,15 @@
             { platform: 'Youtube', category: 'Youtube Abonəçi Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } ] },
             { platform: 'Youtube', category: 'Youtube Bəyəni Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } ] },
             { platform: 'Youtube', category: 'Youtube İzlənmə Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } ] },
+            { platform: 'Pulsuz', category: 'Pulsuz Servislər 🎁', categoryIconClass: 'fas fa-gift text-green-500', isFree: true, items: [ { id: 'free_instagram_like', name: 'Instagram Pulsuz Bəyəni (50)', iconClass: 'fab fa-instagram text-pink-500', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeInstagramLike' }, { id: 'free_tiktok_like', name: 'TikTok Pulsuz Bəyəni (50)', iconClass: 'fab fa-tiktok', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeTikTokLike' } ] }
         ];
         
-        let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null;
-        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), defaultDesc: document.getElementById('default-desc'), kesfetDesc: document.getElementById('kesfet-desc'), kesfetDescText: document.getElementById('kesfet-desc-text'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section'), categoryWrapper: document.getElementById('category-wrapper'), serviceWrapper: document.getElementById('service-wrapper'), linkWrapper: document.getElementById('link-wrapper'), quantityWrapper: document.getElementById('quantity-wrapper'), kesfetWrapper: document.getElementById('kesfet-wrapper'), kesfetSlider: document.getElementById('kesfet-slider'), kesfetNumber: document.getElementById('kesfet-number'), serviceDetailsWrapper: document.getElementById('service-details-container') };
+        let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
+        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), defaultDesc: document.getElementById('default-desc'), kesfetDesc: document.getElementById('kesfet-desc'), freeDesc: document.getElementById('free-desc'), kesfetDescText: document.getElementById('kesfet-desc-text'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), freeCooldownTimer: document.getElementById('free-cooldown-timer'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section'), categoryWrapper: document.getElementById('category-wrapper'), serviceWrapper: document.getElementById('service-wrapper'), linkWrapper: document.getElementById('link-wrapper'), quantityWrapper: document.getElementById('quantity-wrapper'), kesfetWrapper: document.getElementById('kesfet-wrapper'), kesfetSlider: document.getElementById('kesfet-slider'), kesfetNumber: document.getElementById('kesfet-number'), serviceDetailsWrapper: document.getElementById('service-details-container') };
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         const formatPriceForDisplay = (num) => parseFloat(num.toFixed(6));
+        const COOLDOWN_HOURS = 24;
         
         const showAlert = (message, type = 'error', duration = 4000) => {
             const alertBox = document.createElement('div');
@@ -475,7 +496,8 @@
             const userDocRef = doc(db, 'users', uid);
             try {
                 const snap = await getDoc(userDocRef);
-                userBalance = (snap.exists() && typeof snap.data().balance === 'number') ? snap.data().balance : 0;
+                userDocData = snap.exists() ? snap.data() : {};
+                userBalance = (typeof userDocData.balance === 'number') ? userDocData.balance : 0;
                 DOMElements.userBalance.textContent = `${userBalance.toFixed(4)} AZN`;
             } catch (e) { 
                 console.error("Error updating balance:", e); 
@@ -483,6 +505,25 @@
                 DOMElements.userBalance.textContent = `0.0000 AZN`;
             }
             updateUIDisplay();
+        };
+
+        const formatTimeRemaining = (remainingMs) => {
+            if (remainingMs <= 0) return '0 saat 0 dəqiqə';
+            const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+            const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours} saat ${minutes} dəqiqə`;
+        };
+
+        const updateCooldownTimer = (cooldownField) => {
+            if (!userDocData || !userDocData[cooldownField]) {
+                DOMElements.freeCooldownTimer.textContent = '0 saat 0 dəqiqə';
+                return;
+            }
+            const lastTime = userDocData[cooldownField].toMillis();
+            const now = Date.now();
+            const elapsed = now - lastTime;
+            const remaining = (COOLDOWN_HOURS * 60 * 60 * 1000) - elapsed;
+            DOMElements.freeCooldownTimer.textContent = formatTimeRemaining(remaining > 0 ? remaining : 0);
         };
 
         const updateUIDisplay = () => {
@@ -497,7 +538,20 @@
                 isDetailsVisible = true;
                 DOMElements.defaultDesc.classList.add('hidden');
                 DOMElements.kesfetDesc.classList.remove('hidden');
+                DOMElements.freeDesc.classList.add('hidden');
                 DOMElements.kesfetDescText.textContent = selectedService.description;
+            } else if (selectedCategory && selectedCategory.isFree) {
+                price = 0;
+                avgTime = selectedService.avgTime;
+                isDetailsVisible = true;
+                DOMElements.quantityInput.value = '50';
+                DOMElements.quantityInput.disabled = true;
+                DOMElements.minQuantity.textContent = '50';
+                DOMElements.maxQuantity.textContent = '50';
+                DOMElements.defaultDesc.classList.add('hidden');
+                DOMElements.kesfetDesc.classList.add('hidden');
+                DOMElements.freeDesc.classList.remove('hidden');
+                updateCooldownTimer(selectedService.cooldownField);
             } else if (selectedService) {
                 const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
                 price = (quantity / 1000) * selectedService.pricePerK;
@@ -515,6 +569,7 @@
                 isDetailsVisible = true;
                 DOMElements.defaultDesc.classList.remove('hidden');
                 DOMElements.kesfetDesc.classList.add('hidden');
+                DOMElements.freeDesc.classList.add('hidden');
                 DOMElements.descMinQuantity.textContent = formatNumber(selectedService.min);
                 DOMElements.descMaxQuantity.textContent = formatNumber(selectedService.max);
                 DOMElements.descAvgTime.textContent = avgTime;
@@ -585,7 +640,7 @@
         categoryDropdown.populate(
             allServices.map(catData => ({
                 value: catData.category,
-                label: catData.category.replace(/Youtube|TikTok|Instagram/g, '').trim(),
+                label: catData.category.replace(/Youtube|TikTok|Instagram|Pulsuz/g, '').trim(),
                 iconClass: catData.categoryIconClass
             }))
         );
@@ -605,6 +660,14 @@
                 DOMElements.kesfetWrapper.style.order = "3";
                 DOMElements.serviceDetailsWrapper.style.order = "4";
                 DOMElements.linkInput.placeholder = 'Sadəcə post linkini daxil edin';
+            } else if (selectedCategory && selectedCategory.isFree) {
+                DOMElements.serviceWrapper.classList.remove('hidden');
+                DOMElements.quantityWrapper.classList.add('hidden');
+                DOMElements.kesfetWrapper.classList.add('hidden');
+                DOMElements.serviceWrapper.style.order = "2";
+                DOMElements.linkWrapper.style.order = "3";
+                DOMElements.serviceDetailsWrapper.style.order = "4";
+                DOMElements.linkInput.placeholder = 'Paylaşım linkini daxil edin';
             } else {
                 DOMElements.serviceWrapper.classList.remove('hidden');
                 DOMElements.quantityWrapper.classList.remove('hidden');
@@ -614,18 +677,18 @@
                 DOMElements.quantityWrapper.style.order = "4";
                 DOMElements.serviceDetailsWrapper.style.order = "5";
                 DOMElements.linkInput.placeholder = 'Profil və ya paylaşım linkini daxil edin';
+            }
 
-                if (selectedCategory) {
-                    const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => {
-                        const priceText = formatPriceForDisplay(service.pricePerK);
-                        return {
-                            value: service.id,
-                            label: `${service.name} - (${priceText} AZN/1K)`,
-                            iconClass: service.iconClass
-                        }
-                    });
-                    serviceDropdown.populate(serviceItems);
-                }
+            if (selectedCategory) {
+                const serviceItems = selectedCategory.items.sort((a,b) => a.pricePerK - b.pricePerK).map(service => {
+                    const priceText = formatPriceForDisplay(service.pricePerK);
+                    return {
+                        value: service.id,
+                        label: `${service.name} - (${priceText} AZN/1K)`,
+                        iconClass: service.iconClass
+                    }
+                });
+                serviceDropdown.populate(serviceItems);
             }
             updateUIDisplay();
         });
@@ -690,6 +753,11 @@
                     errorMsg = "Post linkini daxil edin.";
                     isValid = false;
                 }
+            } else if (selectedCategory && selectedCategory.isFree) {
+                if(!DOMElements.linkInput.value.trim()){
+                    errorMsg = "Linki daxil edin.";
+                    isValid = false;
+                }
             } else {
                  if (!selectedService || !DOMElements.linkInput.value.trim() || !DOMElements.quantityInput.value.trim()) {
                     errorMsg = "Bütün sahələri doldurun.";
@@ -707,6 +775,14 @@
             return isValid;
         }
 
+        const checkCooldown = async (cooldownField) => {
+            if (!userDocData || !userDocData[cooldownField]) return true;
+            const lastTime = userDocData[cooldownField].toMillis();
+            const now = Date.now();
+            const elapsed = now - lastTime;
+            return elapsed >= (COOLDOWN_HOURS * 60 * 60 * 1000);
+        };
+
         const toggleModal = (show) => {
             const modal = DOMElements.topUpModal;
             if (show) {
@@ -723,17 +799,26 @@
         DOMElements.placeOrderButton.addEventListener('click', async () => {
             if (!validateInputs()) return;
 
-            let quantity, totalPrice, orderData;
+            let quantity, totalPrice = 0, orderData;
+            const isFree = selectedCategory.isFree;
             
             if (selectedCategory.isDiscoveryPackage) {
                 quantity = parseInt(DOMElements.kesfetNumber.value);
                 totalPrice = parseFloat(((quantity / 100) * selectedService.pricePer100Percent).toFixed(4));
+            } else if (isFree) {
+                quantity = 50;
+                const cooldownOk = await checkCooldown(selectedService.cooldownField);
+                if (!cooldownOk) {
+                    showAlert("Bu pulsuz xidməti gündə yalnız bir dəfə istifadə edə bilərsiniz. 24 saat gözləyin.", 'error', 5000);
+                    DOMElements.descriptionBox.scrollIntoView({ behavior: 'smooth' });
+                    return;
+                }
             } else {
                 quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
                 totalPrice = parseFloat(((quantity / 1000) * selectedService.pricePerK).toFixed(4));
             }
 
-            if (userBalance < totalPrice) {
+            if (!isFree && userBalance < totalPrice) {
                 showAlert("Balansınız yetərli deyil! Zəhmət olmasa artırın.", 'error', 5000);
                 toggleModal(true);
                 return;
@@ -742,8 +827,14 @@
             try {
                 DOMElements.placeOrderButton.disabled = true;
                 DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
-                const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
-                await updateDoc(doc(db, 'users', currentUserId), { balance: newBalance });
+                const userDocRef = doc(db, 'users', currentUserId);
+                if (!isFree) {
+                    const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
+                    await updateDoc(userDocRef, { balance: newBalance });
+                } else {
+                    await updateDoc(userDocRef, { [selectedService.cooldownField]: serverTimestamp() });
+                    await updateBalanceUI(currentUserId); // Refresh user data
+                }
                 
                 orderData = { 
                     userId: currentUserId, 
@@ -783,4 +874,3 @@
     </script>
 </body>
 </html>
-
