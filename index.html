@@ -11,7 +11,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
     
     <!-- === LOQO DÜZƏLİŞLƏRİ BAŞLAYIR === -->
-    <!-- Brauzer vərəqindəki (tab) ikona (Favicon) -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/Dw6kgzbh/logo.png">
 
@@ -184,6 +183,106 @@
             transform: rotate(15deg) scale(1.1);
             box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
+        
+        /* Axtarış motoru üçün yeni stillər - Nəticələr Ön Planda və Düymədən Sonra */
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .search-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-primary);
+            width: 100%;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(56, 229, 183, 0.3);
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-top: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000; /* Yüksək z-index ilə ön planda */
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 1px solid rgba(56, 229, 183, 0.1);
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: rgba(56, 229, 183, 0.1);
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .search-result-description {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        
+        .no-results {
+            padding: 1rem;
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            cursor: pointer;
+            z-index: 101;
+        }
+        
+        .search-icon:hover {
+            color: var(--primary);
+        }
+        
+        /* Hero bölməsində axtarış nəticələrinin ön planda olması */
+        #hero .search-results {
+            z-index: 1000;
+        }
+        
+        /* Hero bölməsində axtarış konteyneri - nəticələr düymədən sonra */
+        #hero .search-container {
+            margin-bottom: 1.5rem;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -197,6 +296,16 @@
                 <img src="https://i.postimg.cc/Dw6kgzbh/logo.png" alt="AxtarGet Logo" class="w-10 h-10 rounded-full border-2 border-primary shadow-lg shadow-primary/20">
                 <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
             </a>
+            
+            <!-- Axtarış Motoru -->
+            <div class="search-container hidden md:block">
+                <input type="text" id="search-input" class="search-box" placeholder="Axtar Get...">
+                <div class="search-icon" id="search-button">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div id="search-results" class="search-results"></div>
+            </div>
+            
             <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
                 <a href="#services" class="text-gray-300 hover:text-primary transition-colors">Niyə Biz?</a>
                 <a href="follower-service.html" class="text-gray-300 hover:text-primary transition-colors">Takipçi Xidməti</a>
@@ -225,6 +334,17 @@
             <a href="https://ai.axtarget.xyz" target="_blank">AxtarGet AI</a>
             <a href="digital-products.html">Rəqəmsal Məhsullar</a>
             <a href="#contact">Əlaqə</a>
+            
+            <!-- Mobil menyuda axtarış -->
+            <div class="p-4 border-b border-gray-800">
+                <div class="search-container">
+                    <input type="text" id="mobile-search-input" class="search-box" placeholder="Axtar Get...">
+                    <div class="search-icon" id="mobile-search-button">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div id="mobile-search-results" class="search-results"></div>
+                </div>
+            </div>
         </nav>
     </div>
 
@@ -239,10 +359,21 @@
                 <p class="text-lg md:text-xl text-text-muted max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s;">
                     Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
                 </p>
+                
+                <!-- Hero bölməsində axtarış - Nəticələr Ön Planda və Düymədən Sonra -->
                 <div class="fade-in" style="transition-delay: 0.4s;">
                     <a href="#products" class="btn-primary px-10 py-4 text-lg inline-block">
                         <i class="fas fa-rocket mr-2"></i> Xidmətlərimizə Keçid
                     </a>
+                </div>
+                
+                <!-- Axtarış konteyneri düymədən sonra -->
+                <div class="search-container max-w-2xl mx-auto mt-10 fade-in" style="transition-delay: 0.6s;">
+                    <input type="text" id="hero-search-input" class="search-box" placeholder="Axtar Get...">
+                    <div class="search-icon" id="hero-search-button">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div id="hero-search-results" class="search-results"></div>
                 </div>
             </div>
         </section>
@@ -590,8 +721,167 @@
                     matrixCanvas.height = window.innerHeight;
                 });
             }
+            
+            // Axtarış Motoru Funksionallığı
+            const searchData = [
+                {
+                    title: "Takipçi Xidməti",
+                    description: "Sosial media hesablarınız üçün izlənmə, bəyəni və digər SMM xidmətləri",
+                    url: "follower-service.html",
+                    keywords: ["takipci", "takipçi", "izlənmə", "bəyəni", "follower", "followers", "smm", "sosial media", "instagram", "tiktok", "youtube"]
+                },
+                {
+                    title: "Şəkil Redaktəsi Xidməti",
+                    description: "Şəkillərinizin peşəkar səviyyədə redaktəsi və qrafik dizayn xidmətləri",
+                    url: "photo.html",
+                    keywords: ["şəkil", "redakte", "redaktə", "foto", "photo", "edit", "redaktəsi", "redakte", "qrafik", "dizayn", "retuş", "fon silme"]
+                },
+                {
+                    title: "Premium CV Hazırla",
+                    description: "Peşəkar CV hazırlanması xidməti ilə işə qəbul şansınızı artırın",
+                    url: "prmiumCV.html",
+                    keywords: ["cv", "cv hazırla", "premium cv", "iş", "vakansiya", "karyera", "rezume", "cv yaz", "cv yarat"]
+                },
+                {
+                    title: "AxtarGet AI",
+                    description: "Süni intellekt ilə mətn yazın, şəkil yaradın və problemləri həll edin",
+                    url: "https://ai.axtarget.xyz",
+                    keywords: ["ai", "süni intellekt", "axtarget ai", "chatgpt", "mətn", "şəkil yarat", "problem həll"]
+                },
+                {
+                    title: "Rəqəmsal Məhsullar",
+                    description: "Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesabları",
+                    url: "digital-products.html",
+                    keywords: ["rəqəmsal", "məhsul", "netflix", "exxen", "chatgpt", "spotify", "premium", "hesab", "abunə"]
+                },
+                {
+                    title: "Biznesini Paylaş",
+                    description: "Biznesinizi geniş auditoriyaya çatdırmaq üçün fürsət",
+                    url: "share-business.html",
+                    keywords: ["biznes", "paylaş", "tanıt", "reklam", "marketinq", "biznesini paylaş"]
+                },
+                {
+                    title: "QR kod yarat",
+                    description: "Öz QR kodunuzu asanlıqla yaradın",
+                    url: "qr.html",
+                    keywords: ["qr", "qr kod", "qrcode", "kod yarat", "qr generator"]
+                },
+                {
+                    title: "İş Elanları",
+                    description: "Özünüzə uyğun iş tapmaq üçün vakansiyalar",
+                    url: "https://vakansiya.axtarget.xyz",
+                    keywords: ["iş", "vakansiya", "elan", "karyera", "iş elanları", "iş axtarırəm"]
+                }
+            ];
+
+            // Axtarış funksiyası
+            function performSearch(query, resultsContainer) {
+                const normalizedQuery = query.toLowerCase().trim();
+                
+                if (normalizedQuery.length < 2) {
+                    resultsContainer.style.display = 'none';
+                    return;
+                }
+                
+                const results = searchData.filter(item => {
+                    // Başlıq və açıqlama üzrə axtarış
+                    if (item.title.toLowerCase().includes(normalizedQuery) || 
+                        item.description.toLowerCase().includes(normalizedQuery)) {
+                        return true;
+                    }
+                    
+                    // Açar sözlər üzrə axtarış
+                    return item.keywords.some(keyword => 
+                        keyword.toLowerCase().includes(normalizedQuery)
+                    );
+                });
+                
+                displayResults(results, resultsContainer);
+            }
+            
+            // Nəticələri göstər
+            function displayResults(results, container) {
+                container.innerHTML = '';
+                
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="no-results">Heç bir nəticə tapılmadı</div>';
+                } else {
+                    results.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'search-result-item';
+                        resultElement.innerHTML = `
+                            <div class="search-result-title">${result.title}</div>
+                            <div class="search-result-description">${result.description}</div>
+                        `;
+                        
+                        resultElement.addEventListener('click', () => {
+                            if (result.url.startsWith('http')) {
+                                window.open(result.url, '_blank');
+                            } else {
+                                window.location.href = result.url;
+                            }
+                        });
+                        
+                        container.appendChild(resultElement);
+                    });
+                }
+                
+                container.style.display = 'block';
+            }
+            
+            // Axtarış konteynerləri üçün event listener-lar
+            const searchInputs = [
+                { input: 'search-input', results: 'search-results' },
+                { input: 'hero-search-input', results: 'hero-search-results' },
+                { input: 'mobile-search-input', results: 'mobile-search-results' }
+            ];
+            
+            searchInputs.forEach(({ input, results }) => {
+                const inputElement = document.getElementById(input);
+                const resultsElement = document.getElementById(results);
+                
+                if (inputElement && resultsElement) {
+                    // Yazarkən axtarış
+                    inputElement.addEventListener('input', (e) => {
+                        performSearch(e.target.value, resultsElement);
+                    });
+                    
+                    // Enter düyməsi ilə axtarış
+                    inputElement.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            performSearch(e.target.value, resultsElement);
+                            if (resultsElement.children.length > 0) {
+                                const firstResult = resultsElement.children[0];
+                                if (firstResult.classList.contains('search-result-item')) {
+                                    firstResult.click();
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Axtarış ikonuna klik
+                    const searchButton = document.getElementById(input.replace('input', 'button'));
+                    if (searchButton) {
+                        searchButton.addEventListener('click', () => {
+                            performSearch(inputElement.value, resultsElement);
+                            if (resultsElement.children.length > 0) {
+                                const firstResult = resultsElement.children[0];
+                                if (firstResult.classList.contains('search-result-item')) {
+                                    firstResult.click();
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Sənfdən kənarına klikləndikdə nəticələri gizlət
+                    document.addEventListener('click', (e) => {
+                        if (!inputElement.contains(e.target) && !resultsElement.contains(e.target)) {
+                            resultsElement.style.display = 'none';
+                        }
+                    });
+                }
+            });
         });
     </script>
 </body>
 </html>
-
