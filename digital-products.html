@@ -10,8 +10,8 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Tünd qara/boz fon */
-            color: #e2e8f0; /* Kontrast üçün açıq boz mətn */
+            background-color: #1a202c;
+            color: #e2e8f0;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -19,12 +19,12 @@
         }
         .main-content {
             flex-grow: 1;
-            padding-top: 6rem; /* Header boşluğu */
+            padding-top: 6rem;
             padding-bottom: 2rem;
-            position: relative; /* Modal overlay üçün */
+            position: relative;
         }
         .container {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 1.5rem;
         }
@@ -37,10 +37,13 @@
             transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .product-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(52, 211, 153, 0.7); /* Neon parıltı */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(52, 211, 153, 0.7);
             border-color: #34d399;
         }
         .product-card::before {
@@ -59,11 +62,12 @@
             transform: rotate(0deg);
             opacity: 1;
         }
-        .product-icon {
-            font-size: 3rem;
+        .product-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
             margin-bottom: 1rem;
-            color: #34d399;
-            text-shadow: 0 0 10px #34d399; /* Neon ikon kölgəsi */
+            filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.5));
         }
         .product-title {
             font-size: 1.75rem;
@@ -75,7 +79,7 @@
         .product-price {
             font-size: 1.5rem;
             font-weight: bold;
-            color: #f97316; /* Narıncı qiymət */
+            color: #f97316;
             margin-bottom: 1rem;
         }
         .buy-button {
@@ -92,7 +96,31 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 0 15px rgba(16, 185, 129, 0.7);
         }
-        /* Product Option Modal Stilleri */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .whatsapp-float a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            color: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .whatsapp-float a:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        .whatsapp-float i {
+            font-size: 2rem;
+        }
         .product-options-modal {
             position: fixed;
             top: 0;
@@ -121,7 +149,7 @@
             max-width: 400px;
             text-align: center;
             position: relative;
-            border: 1px solid #34d399; /* Neon çərçivə */
+            border: 1px solid #34d399;
             animation: modal-fade-in 0.3s ease-out;
         }
         @keyframes modal-fade-in {
@@ -184,97 +212,27 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
-        /* Balans Artır Modal Stilleri */
-        .top-up-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        }
-        .top-up-modal.open {
-            opacity: 1;
-            visibility: visible;
-        }
-        .top-up-modal-content {
-            background-color: #2d3748;
-            padding: 2.5rem;
-            border-radius: 1rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-            border: 1px solid #34d399;
-            animation: modal-fade-in 0.3s ease-out;
-        }
-        .top-up-modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 1.8rem;
-            color: #a0aec0;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-        .top-up-modal-close:hover {
-            color: white;
-        }
-        .payment-card-image {
-            width: 100%;
-            max-width: 250px;
-            margin: 0 auto 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        .whatsapp-topup-button {
-            background-color: #25D366;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            transition: background-color 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-        .whatsapp-topup-button:hover {
-            background-color: #1DA851;
-        }
     </style>
 </head>
 <body>
-
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
             <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
             <div id="header-right-section" class="flex items-center space-x-4">
-                <!-- Balans göstəricisi və Balans Artır düyməsi silindi -->
-                <!-- Sifarişlər düyməsi silindi -->
+                <!-- Əlavə funksiyalar buraya əlavə oluna bilər -->
             </div>
         </div>
     </header>
 
     <div class="main-content">
         <div class="container">
-            <!-- İstifadəçi ID'si də silindi -->
-            
-            <h1 class="text-4xl font-bold text-center text-green-400 mb-8">Rəqəmsal Məhsullar</h1>
+            <h1 class="text-4xl font-bold text-center text-green-400 mb-8 animate-pulse">Rəqəmsal Məhsullar</h1>
             <p class="text-center text-gray-400 mb-12">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin!</p>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Netflix Kartı -->
                 <div class="product-card text-center" data-product-id="netflix">
-                    <i class="fas fa-film product-icon"></i>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix Logo" class="product-logo">
                     <h2 class="product-title">Netflix Hesab Satışı</h2>
                     <p class="text-gray-300 mb-4">Premium keyfiyyətdə filmlər və seriallar izləyin.</p>
                     <p class="product-price">Başlayan Qiymət: 7 AZN</p>
@@ -283,7 +241,7 @@
 
                 <!-- Exxen Kartı -->
                 <div class="product-card text-center" data-product-id="exxen">
-                    <i class="fas fa-tv product-icon"></i>
+                    <img src="https://seeklogo.com/images/E/exxen-logo-4B6D40C8BA-seeklogo.com.png" alt="Exxen Logo" class="product-logo">
                     <h2 class="product-title">Exxen Hesab Satışı</h2>
                     <p class="text-gray-300 mb-4">Türkiyənin ən populyar platformasından məzmunlar.</p>
                     <p class="product-price">Başlayan Qiymət: 12 AZN</p>
@@ -292,14 +250,30 @@
 
                 <!-- ChatGPT Kartı -->
                 <div class="product-card text-center" data-product-id="chatgpt">
-                    <i class="fas fa-comments product-icon"></i>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Logo" class="product-logo">
                     <h2 class="product-title">ChatGPT Hesab Satışı</h2>
                     <p class="text-gray-300 mb-4">Süni intellektin gücündən istifadə edin.</p>
                     <p class="product-price">Başlayan Qiymət: 13 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
 
-                <!-- Digər Məhsullar (əlavə edə bilərsiniz) -->
+                <!-- Canva Pro Kartı -->
+                <div class="product-card text-center" data-product-id="canva">
+                    <img src="https://www.canva.com/about/brand/_next/static/images/logo.3b505fa3e5e3296ae163.png" alt="Canva Pro Logo" class="product-logo">
+                    <h2 class="product-title">Canva Pro Hesab Satışı</h2>
+                    <p class="text-gray-300 mb-4">Dizaynlarınızı peşəkar səviyyəyə qaldırın.</p>
+                    <p class="product-price">Başlayan Qiymət: 3.10 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- Freepik Kartı -->
+                <div class="product-card text-center" data-product-id="freepik">
+                    <img src="https://freepik.cdnpk.net/img/logos/freepik-logo.svg" alt="Freepik Logo" class="product-logo">
+                    <h2 class="product-title">Freepik Hesab Satışı</h2>
+                    <p class="text-gray-300 mb-4">Yüksək keyfiyyətli qrafik resurslar əldə edin.</p>
+                    <p class="product-price">Başlayan Qiymət: 14 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
             </div>
         </div>
     </div>
@@ -316,38 +290,37 @@
         </div>
     </div>
 
+    <!-- WhatsApp Dəstək Balonu -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/994606006162?text=Salam! Dəstək üçün yazırıq." target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        // getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc artık kullanılmayacağı için kaldırıldı
-        // import { getFirestore, doc, getDoc, setDoc, addDoc, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        // Firebase konfiqurasiyası (yalnız autentifikasiya üçün)
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
             projectId: "axtargetbotwebsite",
-            storageBucket: "axtargetbotwebsite.firebasestorage.app", 
+            storageBucket: "axtargetbotwebsite.firebasestorage.app",
             messagingSenderId: "808698399196",
             appId: "1:808698399196:web:61b6be0721b94f24c3a719",
             measurementId: "G-VLWZG4Q5TD"
         };
-        const firebaseProjectId = firebaseConfig.projectId; // Artıq istifadə olunmur
 
-        // Firebase'i Başlat
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        // const db = getFirestore(app); // Firestore artıq istifadə olunmur
 
-        let currentUser = null; // Cari Firebase istifadəçisi obyekti
-        let selectedProduct = null; // Seçilmiş məhsul (kart)
-        let selectedOption = null; // Seçilmiş məhsul seçimi (məsələn, 1 aylıq Netflix)
+        let currentUser = null;
+        let selectedProduct = null;
+        let selectedOption = null;
 
-        // Məhsul Məlumatları
         const productsData = {
             netflix: {
                 name: "Netflix Hesab Satışı",
-                icon: "fas fa-film",
                 options: [
                     { duration: "1 Aylıq", price: 7 },
                     { duration: "3 Aylıq", price: 12 },
@@ -356,7 +329,6 @@
             },
             exxen: {
                 name: "Exxen Hesab Satışı",
-                icon: "fas fa-tv",
                 options: [
                     { duration: "1 Aylıq", price: 12 },
                     { duration: "3 Aylıq", price: 23 }
@@ -364,24 +336,31 @@
             },
             chatgpt: {
                 name: "ChatGPT Hesab Satışı",
-                icon: "fas fa-comments",
                 options: [
                     { duration: "1 Aylıq", price: 13 },
                     { duration: "3 Aylıq", price: 21 }
                 ]
+            },
+            canva: {
+                name: "Canva Pro Hesab Satışı",
+                options: [
+                    { duration: "1 Aylıq", price: 3.10 }
+                ]
+            },
+            freepik: {
+                name: "Freepik Hesab Satışı",
+                options: [
+                    { duration: "1 Aylıq", price: 14 }
+                ]
             }
         };
 
-        // DOM Elementləri
         const productOptionsModal = document.getElementById('product-options-modal');
         const productOptionsClose = document.getElementById('product-options-close');
         const productOptionsTitle = document.getElementById('product-options-title');
         const productOptionsList = document.getElementById('product-options-list');
         const confirmProductOrderButton = document.getElementById('confirm-product-order');
-        
-        // --- Funksiyalar ---
 
-        // Alert mesajı göstər
         function showAlert(message, type = 'error', duration = 3000) {
             const alertBox = document.createElement('div');
             alertBox.className = `fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-${type === 'success' ? 'green' : 'red'}-600 text-white p-3 rounded-lg shadow-md z-[1001]`;
@@ -392,20 +371,16 @@
             }, duration);
         }
 
-        // Məhsul seçimləri modalını aç/bağla
         function toggleProductOptionsModal(open = true) {
             if (open) {
                 productOptionsModal.classList.add('open');
             } else {
                 productOptionsModal.classList.remove('open');
-                selectedOption = null; // Seçimi sıfırla
-                confirmProductOrderButton.disabled = true; // Düyməni deaktiv et
+                selectedOption = null;
+                confirmProductOrderButton.disabled = true;
             }
         }
 
-        // --- Hadisə Dinləyiciləri ---
-
-        // Anonim giriş
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
@@ -419,55 +394,41 @@
             }
         });
 
-        // Məhsul seçimləri modalını bağla
         productOptionsClose.addEventListener('click', () => toggleProductOptionsModal(false));
 
-        // Məhsul kartlarına klikləmə hadisəsi
         document.querySelectorAll('.product-card').forEach(card => {
             card.addEventListener('click', (event) => {
                 selectedProduct = productsData[card.dataset.productId];
                 if (selectedProduct) {
                     productOptionsTitle.textContent = selectedProduct.name + " Seçimləri";
-                    productOptionsList.innerHTML = ''; // Əvvəlki seçimləri təmizlə
-                    selectedOption = null; // Seçimi sıfırla
+                    productOptionsList.innerHTML = '';
+                    selectedOption = null;
                     confirmProductOrderButton.disabled = true;
 
-                    // Exxen və ChatGPT üçün sadə təsdiqlə düyməsi
-                    if (selectedProduct.name === "Exxen Hesab Satışı" || selectedProduct.name === "ChatGPT Hesab Satışı") {
-                        const defaultOption = selectedProduct.options[0]; // İlk seçimi default olaraq götür
-                        productOptionsList.innerHTML = `
-                            <div class="option-item selected">
-                                <span>${defaultOption.duration}</span>
-                                <span class="price">${defaultOption.price} AZN</span>
-                            </div>
+                    selectedProduct.options.forEach((option, index) => {
+                        const optionDiv = document.createElement('div');
+                        optionDiv.className = `option-item ${index === 0 ? 'selected' : ''}`;
+                        optionDiv.innerHTML = `
+                            <span>${option.duration}</span>
+                            <span class="price">${option.price} AZN</span>
                         `;
-                        selectedOption = defaultOption;
-                        confirmProductOrderButton.disabled = false;
-                    } else {
-                        selectedProduct.options.forEach((option, index) => {
-                            const optionDiv = document.createElement('div');
-                            optionDiv.className = `option-item`;
-                            optionDiv.innerHTML = `
-                                <span>${option.duration}</span>
-                                <span class="price">${option.price} AZN</span>
-                            `;
-                            optionDiv.addEventListener('click', () => {
-                                // Bütün seçimlərdən "selected" sinfini qaldır
-                                document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-                                // Seçilənə "selected" sinfini əlavə et
-                                optionDiv.classList.add('selected');
-                                selectedOption = option; // Seçimi qeyd et
-                                confirmProductOrderButton.disabled = false; // Düyməni aktiv et
-                            });
-                            productOptionsList.appendChild(optionDiv);
+                        optionDiv.addEventListener('click', () => {
+                            document.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
+                            optionDiv.classList.add('selected');
+                            selectedOption = option;
+                            confirmProductOrderButton.disabled = false;
                         });
-                    }
+                        productOptionsList.appendChild(optionDiv);
+                        if (index === 0) {
+                            selectedOption = option;
+                            confirmProductOrderButton.disabled = false;
+                        }
+                    });
                     toggleProductOptionsModal(true);
                 }
             });
         });
 
-        // Sifarişi Təsdiqlə düyməsi (WhatsApp mesajı göndərir)
         confirmProductOrderButton.addEventListener('click', () => {
             if (!currentUser || !selectedProduct || !selectedOption) {
                 showAlert("Sifariş etmək üçün məhsul seçməlisiniz.", 'error');
@@ -485,14 +446,8 @@
             window.open(whatsappUrl, '_blank');
 
             showAlert("Sifarişiniz WhatsApp vasitəsilə göndərildi! Tezliklə sizinlə əlaqə saxlanılacaq.", 'success', 7000);
-            toggleProductOptionsModal(false); // Modalı bağla
+            toggleProductOptionsModal(false);
         });
-
-        // Səhifə yükləndikdə (başlanğıc UI-ni təyin etmək üçün)
-        document.addEventListener('DOMContentLoaded', () => {
-            // onAuthStateChanged avtomatik olaraq anonim girişi idarə edir
-        });
-
     </script>
 </body>
 </html>
