@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AxtarGet - Rəqəmsal Məhsullar</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -40,6 +40,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            height: 100%;
+            cursor: pointer; /* Bütün kartın kliklənə bilən olduğunu göstərmək üçün */
         }
         .product-card:hover {
             transform: translateY(-5px);
@@ -67,14 +69,16 @@
             height: 80px;
             object-fit: contain;
             margin-bottom: 1rem;
+            /* Loqoların tünd fonda yaxşı görünməsi üçün filter/shadow əlavə edildi */
             filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.5));
         }
         .product-title {
-            font-size: 1.75rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
             margin-bottom: 0.75rem;
             text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            text-align: center;
         }
         .product-price {
             font-size: 1.5rem;
@@ -90,6 +94,8 @@
             font-weight: 600;
             transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-top: auto;
+            pointer-events: none; /* Karta klikləməyi təmin etmək üçün düymənin özünün klik hadisəsini ləğv edirik */
         }
         .buy-button:hover {
             background-color: #059669;
@@ -212,6 +218,49 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .product-description {
+            flex-grow: 1;
+            margin-bottom: 1rem;
+        }
+        .category-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #34d399;
+        }
+        .hero-section {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+        }
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #a0aec0;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        .featured-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #f97316;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
@@ -226,52 +275,118 @@
 
     <div class="main-content">
         <div class="container">
-            <h1 class="text-4xl font-bold text-center text-green-400 mb-8 animate-pulse">Rəqəmsal Məhsullar</h1>
-            <p class="text-center text-gray-400 mb-12">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin!</p>
+            <div class="hero-section">
+                <h1 class="hero-title">Rəqəmsal Məhsullar</h1>
+                <p class="hero-subtitle">Hesab satışlarımızla rəqəmsal dünyada üstünlük əldə edin! Yüksək keyfiyyət, sürətli çatdırılma və əlverişli qiymətlər.</p>
+            </div>
 
+            <h2 class="category-title">Video & Media Platformaları</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Netflix Kartı -->
+                <!-- Netflix Kartı (İŞLƏYİR) -->
                 <div class="product-card text-center" data-product-id="netflix">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix Logo" class="product-logo">
                     <h2 class="product-title">Netflix Hesab Satışı</h2>
-                    <p class="text-gray-300 mb-4">Premium keyfiyyətdə filmlər və seriallar izləyin.</p>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Premium keyfiyyətdə filmlər və seriallar izləyin.</p>
+                    </div>
                     <p class="product-price">Başlayan Qiymət: 7 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
 
-                <!-- Exxen Kartı -->
+                <!-- Exxen Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
                 <div class="product-card text-center" data-product-id="exxen">
-                    <img src="https://seeklogo.com/images/E/exxen-logo-4B6D40C8BA-seeklogo.com.png" alt="Exxen Logo" class="product-logo">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=EXXEN" alt="Exxen Logo" class="product-logo">
                     <h2 class="product-title">Exxen Hesab Satışı</h2>
-                    <p class="text-gray-300 mb-4">Türkiyənin ən populyar platformasından məzmunlar.</p>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Türkiyənin ən populyar platformasından məzmunlar.</p>
+                    </div>
                     <p class="product-price">Başlayan Qiymət: 12 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
 
-                <!-- ChatGPT Kartı -->
-                <div class="product-card text-center" data-product-id="chatgpt">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Logo" class="product-logo">
-                    <h2 class="product-title">ChatGPT Hesab Satışı</h2>
-                    <p class="text-gray-300 mb-4">Süni intellektin gücündən istifadə edin.</p>
-                    <p class="product-price">Başlayan Qiymət: 13 AZN</p>
+                <!-- Disney Plus Kartı (İŞLƏYİR) -->
+                <div class="product-card text-center" data-product-id="disneyplus">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney Plus Logo" class="product-logo">
+                    <h2 class="product-title">Disney+ Hesab Satışı</h2>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Disney, Pixar, Marvel, Star Wars və National Geographic məzmunları.</p>
+                    </div>
+                    <p class="product-price">Başlayan Qiymət: 6 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
+            </div>
 
-                <!-- Canva Pro Kartı -->
+            <h2 class="category-title">Dizayn & Yaradıcılıq Platformaları</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Canva Pro Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
                 <div class="product-card text-center" data-product-id="canva">
-                    <img src="https://www.canva.com/about/brand/_next/static/images/logo.3b505fa3e5e3296ae163.png" alt="Canva Pro Logo" class="product-logo">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=CANVA" alt="Canva Pro Logo" class="product-logo">
                     <h2 class="product-title">Canva Pro Hesab Satışı</h2>
-                    <p class="text-gray-300 mb-4">Dizaynlarınızı peşəkar səviyyəyə qaldırın.</p>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Dizaynlarınızı peşəkar səviyyəyə qaldırın.</p>
+                    </div>
                     <p class="product-price">Başlayan Qiymət: 3.10 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
 
-                <!-- Freepik Kartı -->
+                <!-- Freepik Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
                 <div class="product-card text-center" data-product-id="freepik">
-                    <img src="https://freepik.cdnpk.net/img/logos/freepik-logo.svg" alt="Freepik Logo" class="product-logo">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=FREEPIK" alt="Freepik Logo" class="product-logo">
                     <h2 class="product-title">Freepik Hesab Satışı</h2>
-                    <p class="text-gray-300 mb-4">Yüksək keyfiyyətli qrafik resurslar əldə edin.</p>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Yüksək keyfiyyətli qrafik resurslar əldə edin.</p>
+                    </div>
                     <p class="product-price">Başlayan Qiymət: 14 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+            </div>
+
+            <h2 class="category-title">AI & Texnologiya Platformaları</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- ChatGPT Kartı (İŞLƏYİR) -->
+                <div class="product-card text-center" data-product-id="chatgpt">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Logo" class="product-logo">
+                    <h2 class="product-title">ChatGPT Hesab Satışı</h2>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Süni intellektin gücündən istifadə edin.</p>
+                    </div>
+                    <p class="product-price">Başlayan Qiymət: 13 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+            </div>
+
+            <h2 class="category-title">Əməliyyat Sistemləri</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Windows 10 Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
+                <div class="product-card text-center" data-product-id="windows10">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=WIN+10" alt="Windows 10 Logo" class="product-logo">
+                    <h2 class="product-title">Windows 10 Lisenziyası</h2>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Microsoft-un populyar əməliyyat sistemi.</p>
+                    </div>
+                    <p class="product-price">Qiymət: 6 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- Windows 11 Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
+                <div class="product-card text-center" data-product-id="windows11">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=WIN+11" alt="Windows 11 Logo" class="product-logo">
+                    <h2 class="product-title">Windows 11 Lisenziyası</h2>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Ən son Windows əməliyyat sistemi.</p>
+                    </div>
+                    <p class="product-price">Qiymət: 7 AZN</p>
+                    <button class="buy-button">İndi Al</button>
+                </div>
+
+                <!-- Microsoft Office Kartı (YER TUTUCU İLƏ ƏVƏZ EDİLDİ) -->
+                <div class="product-card text-center" data-product-id="microsoft">
+                    <img src="https://placehold.co/80x80/1a202c/34d399?text=OFFICE" alt="Microsoft Office Logo" class="product-logo">
+                    <h2 class="product-title">Microsoft Office Lisenziyası</h2>
+                    <div class="product-description">
+                        <p class="text-gray-300 mb-4">Ofis proqramlarının tam paketi.</p>
+                    </div>
+                    <p class="product-price">Qiymət: 10 AZN</p>
                     <button class="buy-button">İndi Al</button>
                 </div>
             </div>
@@ -299,9 +414,12 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        // Firestore istifadə edilməyib, ona görə getFirestore import edilmir.
 
-        const firebaseConfig = {
+        // FIREBASE GLOBAL VARIABLES (MANDATORY)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
             projectId: "axtargetbotwebsite",
@@ -310,7 +428,8 @@
             appId: "1:808698399196:web:61b6be0721b94f24c3a719",
             measurementId: "G-VLWZG4Q5TD"
         };
-
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
@@ -334,6 +453,13 @@
                     { duration: "3 Aylıq", price: 23 }
                 ]
             },
+            disneyplus: {
+                name: "Disney+ Hesab Satışı",
+                options: [
+                    { duration: "1 Aylıq", price: 6 },
+                    { duration: "3 Aylıq", price: 15 }
+                ]
+            },
             chatgpt: {
                 name: "ChatGPT Hesab Satışı",
                 options: [
@@ -344,13 +470,31 @@
             canva: {
                 name: "Canva Pro Hesab Satışı",
                 options: [
-                    { duration: "1 Aylıq", price: 3.10 }
+                    { duration: "30 Günlük", price: 3.10 }
                 ]
             },
             freepik: {
                 name: "Freepik Hesab Satışı",
                 options: [
                     { duration: "1 Aylıq", price: 14 }
+                ]
+            },
+            windows10: {
+                name: "Windows 10 Lisenziyası",
+                options: [
+                    { duration: "Ömürlük", price: 6 }
+                ]
+            },
+            windows11: {
+                name: "Windows 11 Lisenziyası",
+                options: [
+                    { duration: "Ömürlük", price: 7 }
+                ]
+            },
+            microsoft: {
+                name: "Microsoft Office Lisenziyası",
+                options: [
+                    { duration: "Ömürlük", price: 10 }
                 ]
             }
         };
@@ -380,25 +524,43 @@
                 confirmProductOrderButton.disabled = true;
             }
         }
+        
+        // Firebase Authentication Setup
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken).catch(error => {
+                console.error("Custom token ilə girişdə xəta:", error);
+                showAlert("Giriş xətası baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+            });
+        } else {
+            signInAnonymously(auth).catch(error => {
+                console.error("Anonim girişdə xəta:", error);
+                showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+            });
+        }
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
             } else {
-                signInAnonymously(auth).then(anonUserCredential => {
-                    currentUser = anonUserCredential.user;
-                }).catch(error => {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
-                });
+                currentUser = null;
             }
         });
 
         productOptionsClose.addEventListener('click', () => toggleProductOptionsModal(false));
+        productOptionsModal.addEventListener('click', (e) => {
+             if (e.target === productOptionsModal) {
+                 toggleProductOptionsModal(false);
+             }
+         });
+
 
         document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', (event) => {
+            // Sifariş düyməsinə klikləmə əsas funksiyanı işə salırdı.
+            // İndi bütün kartın üzərinə klikləmə funksiyasını əlavə edirik.
+            card.addEventListener('click', () => { 
+                
                 selectedProduct = productsData[card.dataset.productId];
+                
                 if (selectedProduct) {
                     productOptionsTitle.textContent = selectedProduct.name + " Seçimləri";
                     productOptionsList.innerHTML = '';
@@ -407,7 +569,7 @@
 
                     selectedProduct.options.forEach((option, index) => {
                         const optionDiv = document.createElement('div');
-                        optionDiv.className = `option-item ${index === 0 ? 'selected' : ''}`;
+                        optionDiv.className = `option-item`;
                         optionDiv.innerHTML = `
                             <span>${option.duration}</span>
                             <span class="price">${option.price} AZN</span>
@@ -420,8 +582,8 @@
                         });
                         productOptionsList.appendChild(optionDiv);
                         if (index === 0) {
-                            selectedOption = option;
-                            confirmProductOrderButton.disabled = false;
+                             // İlk elementi default seçilmiş etmək üçün
+                             optionDiv.click();
                         }
                     });
                     toggleProductOptionsModal(true);
@@ -440,6 +602,7 @@
                 `Məhsul: ${selectedProduct.name}\n` +
                 `Seçim: ${selectedOption.duration}\n` +
                 `Qiymət: ${selectedOption.price} AZN\n` +
+                `Müştəri ID: ${currentUser.uid}\n\n` + // İstifadəçi ID-sini əlavə etmək vacibdir
                 `Zəhmət olmasa, hesab məlumatlarını mənə göndərin.`;
             
             const whatsappUrl = `https://wa.me/994606006162?text=${encodeURIComponent(whatsappMessage)}`;
