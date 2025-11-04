@@ -155,9 +155,6 @@
                         userId = user.uid;  
                         isAuthReady = true;  
                         console.log("✅ Autentifikasiya uğurlu:", userId.substring(0, 8));  
-                        
-                        // Köhnə məlumatları təmizlə
-                        await cleanupOldData();
                     } else {  
                         await signInAnonymously(auth);  
                     }  
@@ -166,16 +163,6 @@
                 console.error("Firebase xətası:", e);  
             }  
         }
-
-        // Köhnə məlumatları təmizlə
-        async function cleanupOldData() {
-            try {
-                // Köhnə user document-i sil
-                await deleteDoc(doc(db, CHAT_COLLECTION, userId));
-            } catch (e) {
-                // Document mövcud olmaya bilər, problem deyil
-            }
-        }  
 
         // Ekranları idarə et  
         function showScreen(screenId) {  
@@ -298,8 +285,8 @@
                 return;  
             }
 
-            // Köhnə məlumatları təmizlə
-            await cleanupOldData();  
+            // ƏSAS DÜZELİŞ: Köhnə məlumatları təmizlə
+            await cleanupBeforeStart();
 
             const inputName = document.getElementById('user-name-input').value.trim();  
             userName = inputName || `Anonim-${userId.substring(0, 6)}`;  
@@ -307,6 +294,45 @@
             showScreen('matching-screen');  
             startMatching();  
         };  
+
+        // ƏSAS DÜZELİŞ: Başlamazdan əvvəl təmizlik
+        async function cleanupBeforeStart() {
+            console.log("🔄 Başlamazdan əvvəl təmizlik...");
+            
+            // 1. Bütün listenerləri dayandır
+            if (unsubscribeChat) {
+                unsubscribeChat();
+                unsubscribeChat = null;
+            }
+            if (matchingTimeout) {
+                clearInterval(matchingTimeout);
+                matchingTimeout = null;
+            }
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+                typingTimeout = null;
+            }
+
+            // 2. Növbədən çıxar (SADƏCƏ növbə)
+            try {
+                const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
+                await runTransaction(db, async (transaction) => {
+                    const queueDoc = await transaction.get(queueRef);
+                    if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {
+                        transaction.set(queueRef, { 
+                            waitingUserId: null, 
+                            waitingUserName: null,
+                            timestamp: serverTimestamp() 
+                        });
+                        console.log("✅ Növbədən çıxarıldı");
+                    }
+                });
+            } catch (e) {}
+
+            // 3. Məlumatları sıfırla
+            chatId = null;
+            partnerId = null;
+        }
 
         // Tərəfdaş axtar  
         async function startMatching() {  
@@ -337,7 +363,9 @@
                         // Tərəfdaş tapıldı  
                         const waiting = queueDoc.data();  
                         partnerId = waiting.waitingUserId;  
-                        chatId = doc(collection(db, CHAT_COLLECTION)).id;  
+                        
+                        // ƏSAS DÜZELİŞ: Hər dəfə YENİ chatId yarat
+                        chatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
                         const newChat = {  
                             createdAt: serverTimestamp(),  
@@ -376,6 +404,7 @@
                             timestamp: serverTimestamp()  
                         });  
 
+                        // ƏSAS DÜZELİŞ: User document-i YENİSİNİ yarat
                         transaction.set(doc(db, CHAT_COLLECTION, userId), {  
                             status: 'waiting',  
                             userName: userName,  
@@ -411,11 +440,6 @@
                       
                     showScreen('chat-screen');  
                     setupChatListener();  
-                    
-                    // User document-i təmizlə
-                    setTimeout(() => {
-                        deleteDoc(userRef).catch(() => {});
-                    }, 1000);
                 }  
             });  
         }  
@@ -462,7 +486,7 @@
             });  
         }  
 
-        // Söhbətdən çıx - BÜTÜN məlumatları təmizlə  
+        // Söhbətdən çıx  
         async function disconnect(backToStart = true) {  
             // Bütün timeout və listenerləri təmizlə  
             if (unsubscribeChat) {  
@@ -478,6 +502,7 @@
                 typingTimeout = null;  
             }  
 
+            // ƏSAS DÜZELİŞ: SADƏCƏ növbədən çıx
             try {  
                 const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);  
                 await runTransaction(db, async (transaction) => {  
@@ -488,11 +513,9 @@
                 });  
             } catch (e) {}  
 
-            try {  
-                await deleteDoc(doc(db, CHAT_COLLECTION, userId));  
-            } catch (e) {}  
+            // ƏSAS DÜZELİŞ: User document-i SİLMİRİK
 
-            // Söhbət məlumatlarını TAMAMEN təmizlə  
+            // Söhbət məlumatlarını təmizlə  
             chatId = null;  
             partnerId = null;  
 
@@ -509,40 +532,27 @@
                 return;  
             }  
 
-            const currentChatId = chatId;  
-
-            // Əvvəlcə istifadəçini başlanğıca qaytar
-            await disconnect(true);
-
-            // Sonra söhbəti təmizlə
+            // ƏSAS DÜZELİŞ: SADƏCƏ statusu dəyiş, SİLMƏ
             try {  
-                // Söhbəti bağla statusu ilə işarələ
-                await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {  
+                await updateDoc(doc(db, CHAT_COLLECTION, chatId), {  
                     status: 'closed',  
                     closedBy: userId,  
                     closedAt: serverTimestamp()  
                 });  
-
-                // 5 saniyə sonra söhbəti tam sil
-                setTimeout(async () => {  
-                    try {  
-                        await deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));  
-                    } catch (e) {}  
-                }, 5000);  
-
             } catch (e) {  
                 console.error("Bağlama xətası:", e);  
             }  
+
+            await disconnect(true);  
         };  
 
         // Söhbəti dəyiş  
         window.handleChangeChat = async function() {  
             if (!chatId) return;  
 
-            const currentChatId = chatId;  
-
+            // ƏSAS DÜZELİŞ: SADƏCƏ statusu dəyiş, SİLMƏ
             try {  
-                await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {  
+                await updateDoc(doc(db, CHAT_COLLECTION, chatId), {  
                     status: 'closed',  
                     closedBy: userId,  
                     closedReason: 'changed'  
@@ -550,13 +560,6 @@
             } catch (e) {}  
 
             await disconnect(false);  
-
-            // Köhnə söhbəti təmizlə
-            setTimeout(() => {  
-                try {  
-                    deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));  
-                } catch (e) {}  
-            }, 2000);  
 
             showScreen('matching-screen');  
             document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";  
