@@ -158,12 +158,18 @@
 
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* Default config here if needed for local test */ };
+        
+        // DÜZƏLİŞ: Təhlükəsizlik üçün default 'projectId' əlavə edildi
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { 
+             projectId: 'canvas-placeholder',
+        };
+
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Firebase-i Başlatmaq
         async function initializeFirebase() {
             try {
+                // Burada firebaseConfig istifadə edilir, hansı ki, artıq projectId-yə malikdir.
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -241,7 +247,6 @@
 
         // Firebase yolunu təhlükəsizlik qaydalarına uyğun qurmaq
         const CHAT_COLLECTION = `artifacts/${appId}/public/data/job_ads`;
-        // Xətanı düzəltmək üçün tam path əvəzinə yalnız Document ID-ni saxlayırıq.
         const MATCH_QUEUE_DOC_NAME = 'match_queue_doc'; 
 
         /**
@@ -306,7 +311,6 @@
 
             if (matchingTimeout) clearTimeout(matchingTimeout); // Əvvəlki sayacı təmizlə
 
-            // Qeyd: doc(db, collectionPath, docId) istifadəsi xətanı aradan qaldırır.
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
 
             await runTransaction(db, async (transaction) => {
@@ -535,7 +539,6 @@
             }
             
             // İstifadəçinin növbə sənədini təmizləyirik (əgər növbədə idisə)
-            // Qeyd: doc(db, collectionPath, docId) istifadəsi xətanı aradan qaldırır.
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
 
             try {
