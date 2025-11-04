@@ -68,7 +68,7 @@
         </div>
 
         <!-- 1. Başlanğıc Ekranı -->
-        <div id="start-screen" class="hidden space-y-6">
+        <div id="start-screen" class="space-y-6">
             <div class="space-y-2">
                 <label for="user-name-input" class="block text-sm font-medium text-gray-300">Adınız (Anonim qalmaq istəyirsinizsə boş buraxın):</label>
                 <input type="text" id="user-name-input" placeholder="Məsələn: Gecə Bayquşu" maxlength="20"
@@ -146,11 +146,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, updateDoc, onSnapshot, collection, runTransaction, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // Firestore üçün Debug səviyyəsini təyin edirik
-        setLogLevel('Debug');
-
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
         const firebaseConfig = {
@@ -180,6 +176,36 @@
         const DISCONNECT_WAIT_TIME = 500; // 500ms tərəfdaşın statusu qəbul etməsi üçün
 
         /**
+         * Mesaj göndərmək üçün funksiya - PROBLEM BURA IDI
+         */
+        window.sendMessage = function() {
+            const messageInput = document.getElementById('message-input');
+            const messageText = messageInput.value.trim();
+
+            if (!messageText || !chatId || !userId) {
+                return;
+            }
+
+            // Inputu təmizlə
+            messageInput.value = '';
+
+            const chatDocRef = doc(db, CHAT_COLLECTION, chatId);
+            
+            // Mesajı Firestore-a əlavə et - serverTimestamp problemi aradan qaldırıldı
+            updateDoc(chatDocRef, {
+                messages: arrayUnion({
+                    senderId: userId,
+                    senderName: userName,
+                    text: messageText,
+                    timestamp: new Date().toISOString() // serverTimestamp yerine ISO string istifadə et
+                })
+            }).catch(e => {
+                console.error("Mesaj göndərmə xətası:", e);
+                alert("Mesaj göndərilə bilmədi. Zəhmət olmasa yenidən cəhd edin.");
+            });
+        };
+
+        /**
          * Firebase-i Başlatmaq və Autentifikasiya etmək
          */
         async function initializeFirebase() {
@@ -193,14 +219,12 @@
                         userId = user.uid;
                         console.log("Autentifikasiya uğurlu. İstifadəçi ID:", userId);
                         isAuthReady = true;
-                        showScreen('start-screen');
                     } else {
                         try {
                             await signInAnonymously(auth);
                         } catch (error) {
                             console.error("Anonim Giriş Xətası:", error);
                             isAuthReady = true;
-                            showScreen('start-screen'); 
                         }
                     }
                 });
@@ -208,7 +232,6 @@
                 console.error("Firebase başlatma xətası:", e);
                 document.getElementById('start-button').textContent = "Kritik Xəta: Başlatma Uğursuz Oldu";
                 document.getElementById('start-button').disabled = true;
-                document.getElementById('start-screen').classList.remove('hidden');
             }
         }
         
@@ -285,10 +308,6 @@
             const typingKey = `typingStatus.${userId}`;
             const updateData = { [typingKey]: isTyping };
 
-            if (isTyping) {
-                 updateData.lastTypingUpdate = serverTimestamp(); // Yazma başladıqda zaman damğası
-            }
-
             updateDoc(chatDocRef, updateData).catch(e => console.error("Typing status yenilənmə xətası:", e));
         };
 
@@ -303,7 +322,6 @@
                 // Əgər input boşalsa, dərhal 'yazmır' vəziyyətinə keç
                 updateTypingStatus(false);
             }
-
 
             // Yazma hərəkəti dayandıqdan 1.5 saniyə sonra 'yazmır' vəziyyətinə keç
             if (typingDebounceTimer) clearTimeout(typingDebounceTimer);
@@ -398,7 +416,7 @@
 
                     // Yeni söhbət sənədini yarat
                     const newChatData = {
-                        createdAt: serverTimestamp(),
+                        createdAt: new Date().toISOString(),
                         users: {
                             [userId]: { name: userName },
                             [partnerId]: { name: partnerName }
@@ -410,7 +428,7 @@
                     transaction.set(doc(db, CHAT_COLLECTION, chatId), newChatData);
 
                     // Növbəni təmizlə
-                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
+                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: new Date().toISOString() });
 
                     // Tərəfdaşı xəbərdar etmək üçün öz müvəqqəti sənədini update et
                     transaction.set(doc(db, CHAT_COLLECTION, partnerId), { 
@@ -433,7 +451,7 @@
                     const waitingData = {
                         waitingUserId: userId,
                         waitingUserName: userName,
-                        timestamp: serverTimestamp()
+                        timestamp: new Date().toISOString()
                     };
                     
                     // Növbə sənədini yaz
@@ -442,7 +460,7 @@
                     // Cari istifadəçi üçün öz müvəqqəti sənədini yarat (tərəfdaşın cavabını gözləmək üçün)
                     transaction.set(doc(db, CHAT_COLLECTION, userId), { 
                         status: 'waiting',
-                        timestamp: serverTimestamp(),
+                        timestamp: new Date().toISOString(),
                         userName: userName
                     });
                     
@@ -552,7 +570,7 @@
                     messagesContainer.innerHTML = '';
                     
                     // Mesajları zamana görə sırala (ehtiyat üçün)
-                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    messages.sort((a, b) => new Date(a.timestamp || 0) - new Date(b.timestamp || 0));
 
                     messages.forEach(msg => {
                         addMessageToUI(msg.senderName, msg.text, msg.timestamp, msg.senderId === userId);
@@ -604,7 +622,7 @@
                 await runTransaction(db, async (transaction) => {
                     const queueDoc = await transaction.get(queueRef);
                     if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {
-                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
+                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: new Date().toISOString() });
                     }
                 });
             } catch (e) {
@@ -687,7 +705,6 @@
             await disconnect(shouldReturnToStart);
             console.log("Axtarış ləğv edildi.");
         }
-
 
         // Tətbiqi Başlat
         window.onload = initializeFirebase;
