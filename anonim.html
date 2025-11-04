@@ -145,15 +145,15 @@
         // Firestore üçün Debug səviyyəsini təyin edirik
         setLogLevel('Debug');
 
-        // Sizin tərəfinizdən təmin edilən Firebase konfiqurasiyası
+        // YENİ Firebase Konfiqurasiyası
         const firebaseConfig = {
-            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
-            authDomain: "axtargetbotwebsite.firebaseapp.com",
-            projectId: "axtargetbotwebsite",
-            storageBucket: "axtargetbotwebsite.firebasestorage.app",
-            messagingSenderId: "808698399196",
-            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
-            measurementId: "G-VLWZG4Q5TD"
+            apiKey: "AIzaSyAAbLWwzSE9WgqFKK_n9hqsl5mokZlNacM",
+            authDomain: "axtargetbot.firebaseapp.com",
+            projectId: "axtargetbot",
+            storageBucket: "axtargetbot.firebasestorage.app",
+            messagingSenderId: "509543495829",
+            appId: "1:509543495829:web:833feb9c271328f8e4039c",
+            measurementId: "G-DS98Q6L5WF"
         };
 
         // Global dəyişənlər
@@ -168,6 +168,7 @@
         const MATCHING_SECONDS = 20;
 
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
+        // Qeyd: Bu dəyər əslində tətbiqin unikal ID-sidir, lakin Firebase qaydalarına görə bu yol istifadə olunur.
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
 
         /**
@@ -188,13 +189,11 @@
                         isAuthReady = true;
                         showScreen('start-screen'); // Uğurlu girişdən sonra başlanğıc ekranını göstər
                     } else {
-                        // ƏVVƏLKI XƏTANI DÜZƏLDİRİK: custom token-i yoxlamağı ləğv edirik
+                        // Birbaşa anonim daxil oluruq (Custom Token xətasından qaçınmaq üçün)
                         try {
-                            // Birbaşa anonim daxil oluruq
                             await signInAnonymously(auth);
                         } catch (error) {
                             console.error("Anonim Giriş Xətası:", error);
-                            // Xəta olsa belə, UI-ı göstər
                             isAuthReady = true;
                             showScreen('start-screen'); 
                         }
@@ -274,7 +273,7 @@
          */
         window.handleStart = async function() {
             if (!isAuthReady || !userId) {
-                console.error("Autentifikasiya hələ hazır deyil və ya uğursuzdur.");
+                console.error("Autentifikasiya hələ hazır deyil və ya uğursuzdur. Zəhmət olmasa yenidən cəhd edin.");
                 return; // Əgər hazır deyilsə, sadəcə çıx
             }
 
@@ -294,10 +293,13 @@
                 // Axtarış prosesini işə salırıq
                 await startMatching();
             } catch (error) {
+                // Əsasən icazə xətaları burda tutulur
                 console.error("Axtarış prosesi xətası:", error);
-                document.getElementById('matching-text').textContent = "Xəta baş verdi. Yenidən cəhd edin.";
-                // 3 saniyə sonra başlanğıc ekrana qayıt
-                setTimeout(() => showScreen('start-screen'), 3000);
+                document.getElementById('matching-text').textContent = "Xəta baş verdi (İCazə). Zəhmət olmasa Firebase qaydalarını yoxlayın.";
+                
+                // Vaxt sayacı bitsin
+                if (matchingTimeout) clearInterval(matchingTimeout);
+                document.getElementById('retry-container').classList.remove('hidden');
             }
         }
 
@@ -559,6 +561,7 @@
                 });
             } catch (e) {
                 console.error("Növbəni təmizləmə xətası:", e);
+                // Qeyd: Bu xəta da icazə xətası ola bilər. Qaydalara baxın.
             }
 
             // Müvəqqəti koordinasiya sənədini sil
