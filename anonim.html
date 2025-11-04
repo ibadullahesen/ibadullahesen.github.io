@@ -159,18 +159,28 @@
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
         
-        // DÜZƏLİŞ: Təhlükəsizlik üçün default 'apiKey' və 'projectId' əlavə edildi
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { 
-             apiKey: 'placeholder', // Əsas düzəliş burada
-             projectId: 'canvas-placeholder',
-        };
+        // DÜZƏLİŞ: Təhlükəli placeholder ləğv edildi. Yalnız real konfiqurasiya istifadə olunur.
+        let firebaseConfig = null;
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
+        } catch (e) {
+            console.error("Firebase konfiqurasiyasını parçalamaqda xəta:", e);
+        }
 
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Firebase-i Başlatmaq
         async function initializeFirebase() {
+            if (!firebaseConfig) {
+                console.error("Firebase konfiqurasiyası tapılmadı. Tətbiq işə salınmayacaq.");
+                document.getElementById('start-button').textContent = "Xəta: Konfiqurasiya Tapılmadı";
+                document.getElementById('start-button').disabled = true;
+                return;
+            }
+
             try {
-                // Burada firebaseConfig istifadə edilir, hansı ki, artıq apiKey-yə malikdir.
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -189,13 +199,16 @@
                                 await signInAnonymously(auth);
                             }
                         } catch (error) {
-                            // Xətanı artıq auth/invalid-api-key xətası kimi göstərməməlidir
+                            // API Key xətası baş versə, bunu yalnız konsola yazırıq, UI-ı bloklamırıq.
                             console.error("Anonim giriş və ya tokenlə giriş zamanı xəta:", error);
                         }
                     }
                     isAuthReady = true;
                     // Autentifikasiya bitdikdən sonra başlanğıc ekranı göstərilir
                     if (userId) showScreen('start-screen');
+                    // Əgər userId hələ də yoxdursa, bu o deməkdir ki, Auth cəhdi uğursuz oldu. 
+                    // Bu halda da istifadəçiyə start düyməsini göstəririk.
+                    else showScreen('start-screen'); 
                 });
             } catch (e) {
                 console.error("Firebase başlatma xətası:", e);
@@ -248,14 +261,20 @@
         // --- Firebase Məntiqi və Söhbətin İdarə Edilməsi ---
 
         // Firebase yolunu təhlükəsizlik qaydalarına uyğun qurmaq
-        const CHAT_COLLECTION = `artifacts/${appId}/public/data/job_ads`;
+        // Qeyd: Bu kolleksiya yolu platforma tərəfindən idarə olunur.
+        const CHAT_COLLECTION = `artifacts/${appId}/public/data/chats`;
         const MATCH_QUEUE_DOC_NAME = 'match_queue_doc'; 
 
         /**
          * "Başla" düyməsinin kliklənməsi zamanı işləyir.
          */
         window.handleStart = async function() {
-            if (!isAuthReady) return;
+            if (!isAuthReady || !userId) {
+                 // Əgər autentifikasiya uğursuz olubsa, istifadəçiyə xəta göstər.
+                console.error("Autentifikasiya hələ hazır deyil və ya uğursuzdur.");
+                alert("Tətbiqin işə düşməsi üçün autentifikasiya gözlənilir. Zəhmət olmasa bir neçə saniyə gözləyin.");
+                return;
+            }
 
             // İstifadəçi adını alırıq, boşdursa anonim ID təyin edirik
             const inputName = document.getElementById('user-name-input').value.trim();
@@ -347,6 +366,7 @@
                     // Tərəfdaşı xəbərdar etmək üçün öz chat sənədini update et
                     // (Bu, tərəfdaşın onSnapshot dinləyicisi vasitəsilə işləyəcək)
                     // Tərəfdaş, `chatId` ilə bu sənədi oxuyacaq
+                    // Qeyd: Bu sənəd sadəcə koordinasiya üçün `userId` adlanır.
                     transaction.update(doc(db, CHAT_COLLECTION, partnerId), { 
                         chatId: chatId, 
                         partnerId: userId, 
@@ -374,6 +394,7 @@
 
                     // Cari istifadəçi üçün öz sənədini yarat (tərəfdaşın cavabını gözləmək üçün)
                     // Buraya tərəfdaş tapıldıqda chat ID yazılacaq.
+                    // Qeyd: Bu sənəd sadəcə koordinasiya üçün `userId` adlanır.
                     transaction.set(doc(db, CHAT_COLLECTION, userId), { 
                         status: 'waiting',
                         timestamp: serverTimestamp(),
@@ -384,7 +405,7 @@
                     setupMatchingListener();
 
                 } else {
-                    // Nəzəri olaraq əlçatmaz vəziyyət (bunu əlavə yoxlama kimi saxlayırıq)
+                    // Gözlənilməyən vəziyyət
                     throw new Error("Gözlənilməyən növbə vəziyyəti.");
                 }
             });
