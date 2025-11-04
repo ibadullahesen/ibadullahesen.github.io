@@ -64,11 +64,11 @@
 
         <!-- Diqqət Plakatı -->
         <div id="warning-banner" class="mb-6 p-3 bg-secondary-light text-primary-dark text-center rounded-lg font-semibold shadow-md border-l-4 border-yellow-500">
-            Bu söhbətdən çıxacağınız zaman söhbət silinəcəkdir.
+            **XƏBƏRDARLIQ:** Bu, **çox-istifadəçili söhbətdir.** Real tərəfdaşlar tapılmasa, axtarış vaxtı bitəcək.
         </div>
 
         <!-- 1. Başlanğıc Ekranı -->
-        <div id="start-screen" class="space-y-6">
+        <div id="start-screen" class="hidden space-y-6">
             <div class="space-y-2">
                 <label for="user-name-input" class="block text-sm font-medium text-gray-300">Adınız (Anonim qalmaq istəyirsinizsə boş buraxın):</label>
                 <input type="text" id="user-name-input" placeholder="Məsələn: Gecə Bayquşu" maxlength="20"
@@ -138,12 +138,23 @@
     <!-- Firebase və Tətbiq Məntiqi -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, serverTimestamp, arrayUnion, runTransaction, getDoc, where, getDocs, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, serverTimestamp, arrayUnion, runTransaction, getDoc, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
         // Firestore üçün Debug səviyyəsini təyin edirik
         setLogLevel('Debug');
+
+        // Sizin tərəfinizdən təmin edilən Firebase konfiqurasiyası
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
+            authDomain: "axtargetbotwebsite.firebaseapp.com",
+            projectId: "axtargetbotwebsite",
+            storageBucket: "axtargetbotwebsite.firebasestorage.app",
+            messagingSenderId: "808698399196",
+            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
+            measurementId: "G-VLWZG4Q5TD"
+        };
 
         // Global dəyişənlər
         let app, db, auth;
@@ -152,51 +163,19 @@
         let chatId = null;
         let partnerId = null;
         let isAuthReady = false;
-        let unsubscribeChat = null; // Söhbət dinləyicisi
-        let matchingTimeout = null; // Axtarış sayacı
+        let unsubscribeChat = null; 
+        let matchingTimeout = null; 
         const MATCHING_SECONDS = 20;
 
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // DÜZƏLİŞ: Konfiqurasiya tapılmadıqda tətbiqin başlamasını təmin etmək üçün
-        // Fallback (Alternativ) Konfiqurasiyası
-        const fallbackConfig = {
-            apiKey: "AIzaSy_MockAPIKey", 
-            authDomain: "mock-project.firebaseapp.com",
-            projectId: "mock-project",
-            storageBucket: "mock-project.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef0123456789abcdef"
-        };
-        
-        let firebaseConfig = null;
-        try {
-            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                // Əgər konfiqurasiya varsa, ondan istifadə et
-                firebaseConfig = JSON.parse(__firebase_config);
-            } else {
-                // Əgər konfiqurasiya yoxdursa, fallback istifadə et və xəbərdarlıq et
-                console.warn("WARNING: __firebase_config tapılmadı. Fallback konfiqurasiyası istifadə edilir.");
-                firebaseConfig = fallbackConfig;
-            }
-        } catch (e) {
-            console.error("Firebase konfiqurasiyasını parçalamaqda xəta:", e);
-            firebaseConfig = fallbackConfig; // Parçalanma xətasında da fallback istifadə et
-        }
-        
-
-        // Firebase-i Başlatmaq
+        /**
+         * Firebase-i Başlatmaq və Autentifikasiya etmək
+         */
         async function initializeFirebase() {
-            // Konfiqurasiyanın həmişə mövcud olduğundan əmin oluruq
-            if (!firebaseConfig) {
-                 // Bu halda, yuxarıdakı məntiq sayəsində bura gəlməməliyik.
-                 console.error("Kritik Xəta: firebaseConfig hələ də boşdur. Tətbiq dayandırıldı.");
-                 return;
-            }
-
             try {
+                // Əsl konfiqurasiya istifadə olunur
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -206,30 +185,27 @@
                     if (user) {
                         userId = user.uid;
                         console.log("Autentifikasiya uğurlu. İstifadəçi ID:", userId);
+                        isAuthReady = true;
+                        showScreen('start-screen'); // Uğurlu girişdən sonra başlanğıc ekranını göstər
                     } else {
-                        // Əgər auth yoxdursa, anonim daxil oluruq
+                        // ƏVVƏLKI XƏTANI DÜZƏLDİRİK: custom token-i yoxlamağı ləğv edirik
                         try {
-                             if (initialAuthToken) {
-                                await signInWithCustomToken(auth, initialAuthToken);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
+                            // Birbaşa anonim daxil oluruq
+                            await signInAnonymously(auth);
                         } catch (error) {
-                            // API Key xətası baş versə, bunu yalnız konsola yazırıq, UI-ı bloklamırıq.
-                            console.error("Anonim giriş və ya tokenlə giriş zamanı xəta:", error);
+                            console.error("Anonim Giriş Xətası:", error);
+                            // Xəta olsa belə, UI-ı göstər
+                            isAuthReady = true;
+                            showScreen('start-screen'); 
                         }
                     }
-                    isAuthReady = true;
-                    // Autentifikasiya bitdikdən sonra başlanğıc ekranı göstərilir
-                    if (userId) showScreen('start-screen');
-                    // Əgər userId hələ də yoxdursa, bu o deməkdir ki, Auth cəhdi uğursuz oldu. 
-                    // Bu halda da istifadəçiyə start düyməsini göstəririk.
-                    else showScreen('start-screen'); 
                 });
             } catch (e) {
                 console.error("Firebase başlatma xətası:", e);
-                document.getElementById('start-button').textContent = "Xəta: Başlatma Uğursuz Oldu";
+                // Xəta halında istifadəçiyə bildiriş ver və düyməni deaktiv et
+                document.getElementById('start-button').textContent = "Kritik Xəta: Başlatma Uğursuz Oldu";
                 document.getElementById('start-button').disabled = true;
+                document.getElementById('start-screen').classList.remove('hidden');
             }
         }
         
@@ -253,22 +229,35 @@
          * @param {string} text - Mesaj mətni.
          * @param {boolean} isSelf - Mesajı cari istifadəçinin göndərib-göndərmədiyi.
          */
-        function addMessageToUI(senderName, text, isSelf) {
+        function addMessageToUI(senderName, text, timestamp, isSelf) {
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             
+            // Vaxtı formatlaşdır
+            const time = new Date(timestamp).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });
+
             // Mesajın stili
             const baseClasses = 'max-w-[75%] p-3 rounded-xl shadow-md';
             if (isSelf) {
                 messageElement.className = `${baseClasses} bg-accent-blue ml-auto`;
+                messageElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-xs font-bold text-blue-200">${senderName}</p>
+                        <span class="text-[10px] text-blue-300 opacity-70">${time}</span>
+                    </div>
+                    <p class="text-sm break-words">${text}</p>
+                `;
             } else {
                 messageElement.className = `${baseClasses} bg-gray-600 mr-auto`;
+                messageElement.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-xs font-bold text-gray-300">${senderName}</p>
+                        <span class="text-[10px] text-gray-400 opacity-70">${time}</span>
+                    </div>
+                    <p class="text-sm break-words">${text}</p>
+                `;
             }
 
-            messageElement.innerHTML = `
-                <p class="text-xs font-bold ${isSelf ? 'text-blue-200' : 'text-gray-300'} mb-1">${senderName}</p>
-                <p class="text-sm break-words">${text}</p>
-            `;
             messagesContainer.appendChild(messageElement);
             // Aşağı scroll et
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -276,8 +265,7 @@
 
         // --- Firebase Məntiqi və Söhbətin İdarə Edilməsi ---
 
-        // Firebase yolunu təhlükəsizlik qaydalarına uyğun qurmaq
-        // Qeyd: Bu kolleksiya yolu platforma tərəfindən idarə olunur.
+        // Firestore kolleksiyası yolunu təhlükəsizlik qaydalarına uyğun qurmaq
         const CHAT_COLLECTION = `artifacts/${appId}/public/data/chats`;
         const MATCH_QUEUE_DOC_NAME = 'match_queue_doc'; 
 
@@ -286,10 +274,8 @@
          */
         window.handleStart = async function() {
             if (!isAuthReady || !userId) {
-                 // Əgər autentifikasiya uğursuz olubsa, istifadəçiyə xəta göstər.
                 console.error("Autentifikasiya hələ hazır deyil və ya uğursuzdur.");
-                alert("Tətbiqin işə düşməsi üçün autentifikasiya gözlənilir. Zəhmət olmasa bir neçə saniyə gözləyin.");
-                return;
+                return; // Əgər hazır deyilsə, sadəcə çıx
             }
 
             // İstifadəçi adını alırıq, boşdursa anonim ID təyin edirik
@@ -299,15 +285,9 @@
             showScreen('matching-screen');
 
             // Yeni təsviri mesajı yarat
-            let searchMessage = "";
-            if (inputName) {
-                // Ad yazılıbsa
-                searchMessage = `"${userName}" adı ilə tərəfdaş axtarılır...`;
-            } else {
-                // Anonim qalıbsa
-                const displayId = userId.substring(0, 8);
-                searchMessage = `Anonim istifadəçi (${displayId}) ID-si ilə tərəfdaş axtarılır...`;
-            }
+            const displayId = userId.substring(0, 8);
+            const searchMessage = `Anonim istifadəçi (${displayId}) tərəfdaş axtarır...`;
+
             document.getElementById('matching-text').textContent = searchMessage;
             
             try {
@@ -334,22 +314,35 @@
             if (spinner) spinner.classList.remove('hidden');
             if (cancelButton) cancelButton.classList.remove('hidden');
 
-            // Axtarış UI mətnini yenidən təyin edirik
-            let searchMessage = "";
-            const inputName = document.getElementById('user-name-input').value.trim();
-            if (inputName) {
-                searchMessage = `"${userName}" adı ilə tərəfdaş axtarılır...`;
-            } else {
-                const displayId = userId.substring(0, 8);
-                searchMessage = `Anonim istifadəçi (${displayId}) ID-si ilə tərəfdaş axtarılır...`;
-            }
-            document.getElementById('matching-text').textContent = searchMessage;
-
-
-            if (matchingTimeout) clearTimeout(matchingTimeout); // Əvvəlki sayacı təmizlə
-
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
 
+            // Tərəfdaş tapılana qədər 20 saniyəlik sayacı başlat
+            let remaining = MATCHING_SECONDS;
+            document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;
+
+            if (matchingTimeout) clearInterval(matchingTimeout); // Əvvəlki sayacı təmizlə
+
+            matchingTimeout = setInterval(() => {
+                remaining--;
+                document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;
+
+                if (remaining <= 0) {
+                    clearInterval(matchingTimeout);
+                    matchingTimeout = null;
+                    
+                    document.getElementById('matching-text').textContent = "Hazırda aktiv istifadəçi yoxdur.";
+                    document.getElementById('countdown-text').textContent = "Zəhmət olmasa, bir az sonra yenidən cəhd edin.";
+                    
+                    // Növbədən çıxarıldığından əmin ol (vaxt bitdi)
+                    handleCancelMatching(false); 
+
+                    if (retryContainer) retryContainer.classList.remove('hidden');
+                    if (spinner) spinner.classList.add('hidden'); 
+                    if (cancelButton) cancelButton.classList.add('hidden'); 
+                }
+            }, 1000);
+
+            // --- Axtarış Məntiqi ---
             await runTransaction(db, async (transaction) => {
                 const queueDoc = await transaction.get(queueRef);
                 
@@ -371,32 +364,30 @@
                             [userId]: { name: userName },
                             [partnerId]: { name: partnerName }
                         },
-                        messages: [], // Mesajlar ilkin boş array
+                        messages: [],
                         status: 'active'
                     };
                     transaction.set(doc(db, CHAT_COLLECTION, chatId), newChatData);
 
-                    // Növbəni təmizlə (boş saxla)
-                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null });
+                    // Növbəni təmizlə (növbəni boşaldır)
+                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
 
-                    // Tərəfdaşı xəbərdar etmək üçün öz chat sənədini update et
-                    // (Bu, tərəfdaşın onSnapshot dinləyicisi vasitəsilə işləyəcək)
-                    // Tərəfdaş, `chatId` ilə bu sənədi oxuyacaq
-                    // Qeyd: Bu sənəd sadəcə koordinasiya üçün `userId` adlanır.
-                    transaction.update(doc(db, CHAT_COLLECTION, partnerId), { 
+                    // Tərəfdaşı xəbərdar etmək üçün öz müvəqqəti sənədini update et
+                    transaction.set(doc(db, CHAT_COLLECTION, partnerId), { 
                         chatId: chatId, 
                         partnerId: userId, 
-                        partnerName: userName 
+                        partnerName: userName,
+                        status: 'matched'
                     });
 
                     // Cari istifadəçinin UI-ni yenilə
                     document.getElementById('partner-name').textContent = partnerName;
                     showScreen('chat-screen');
                     setupChatListener();
-                    if (matchingTimeout) clearInterval(matchingTimeout); // Uğurlu əlaqə quruldu, sayacı dayandır
+                    if (matchingTimeout) clearInterval(matchingTimeout); 
 
                 } else if (!queueDoc.exists() || !queueDoc.data().waitingUserId || queueDoc.data().waitingUserId === userId) {
-                    // 2. Növbəyə daxil ol və ya özünü yenilə
+                    // 2. Növbəyə daxil ol
                     console.log("Növbəyə daxil olundu. Dinləmə başladı.");
                     
                     const waitingData = {
@@ -408,9 +399,7 @@
                     // Növbə sənədini yaz
                     transaction.set(queueRef, waitingData);
 
-                    // Cari istifadəçi üçün öz sənədini yarat (tərəfdaşın cavabını gözləmək üçün)
-                    // Buraya tərəfdaş tapıldıqda chat ID yazılacaq.
-                    // Qeyd: Bu sənəd sadəcə koordinasiya üçün `userId` adlanır.
+                    // Cari istifadəçi üçün öz müvəqqəti sənədini yarat (tərəfdaşın cavabını gözləmək üçün)
                     transaction.set(doc(db, CHAT_COLLECTION, userId), { 
                         status: 'waiting',
                         timestamp: serverTimestamp(),
@@ -425,36 +414,13 @@
                     throw new Error("Gözlənilməyən növbə vəziyyəti.");
                 }
             });
-
-            // 20 saniyəlik sayacı başlat
-            let remaining = MATCHING_SECONDS;
-            document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;
-
-            matchingTimeout = setInterval(() => {
-                remaining--;
-                document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;
-
-                if (remaining <= 0) {
-                    clearInterval(matchingTimeout);
-                    matchingTimeout = null;
-                    
-                    // Məlumatı yenilə
-                    document.getElementById('matching-text').textContent = "Hazırda aktiv istifadəçi yoxdur.";
-                    document.getElementById('countdown-text').textContent = "Zəhmət olmasa, bir az sonra yenidən cəhd edin.";
-                    
-                    // UI elementlərini göstər/gizlə
-                    if (retryContainer) retryContainer.classList.remove('hidden');
-                    if (spinner) spinner.classList.add('hidden'); // Spinneri gizlət
-                    if (cancelButton) cancelButton.classList.add('hidden'); // Ləğv et düyməsini gizlət
-                }
-            }, 1000);
         }
 
         /**
          * Tərəfdaşın cavabını dinləyən funksiya (Növbəyə daxil olduqdan sonra)
          */
         function setupMatchingListener() {
-            // İstifadəçinin öz sənədini dinləyirik. Tərəfdaş tərəfindən update edildikdə cavab verəcək.
+            // İstifadəçinin öz müvəqqəti sənədini dinləyirik.
             const userDocRef = doc(db, CHAT_COLLECTION, userId);
 
             // Əgər əvvəlki dinləyici varsa ləğv et
@@ -472,7 +438,7 @@
 
                     // Dinləyicini ləğv et
                     if (unsubscribeChat) unsubscribeChat();
-                    if (matchingTimeout) clearInterval(matchingTimeout); // Uğurlu əlaqə quruldu, sayacı dayandır
+                    if (matchingTimeout) clearInterval(matchingTimeout); 
 
                     // UI-ni söhbət ekranına keçir
                     document.getElementById('partner-name').textContent = partnerName;
@@ -481,7 +447,7 @@
                     // Söhbət mesajları üçün dinləyici qur
                     setupChatListener();
 
-                    // Tərəfdaş tapıldıqdan sonra bu müvəqqəti sənədi silə bilərik (bu, yalnız koordinasiya üçün idi)
+                    // Tərəfdaş tapıldıqdan sonra bu müvəqqəti sənədi silə bilərik 
                     deleteDoc(userDocRef).catch(e => console.error("Müvəqqəti sənədin silinməsi xətası:", e));
                 }
             }, (error) => {
@@ -499,6 +465,10 @@
 
             if (!text || !chatId) return;
 
+            // Əsasən UI düyməsinin funksionallığını idarə edir.
+            const sendButton = document.getElementById('send-button');
+            sendButton.disabled = true; // Mesaj göndərilənə qədər deaktiv et
+
             try {
                 // Söhbət sənədini yeniləyirik (mesajı array-ə əlavə edirik)
                 const chatDocRef = doc(db, CHAT_COLLECTION, chatId);
@@ -508,13 +478,16 @@
                         senderId: userId,
                         senderName: userName,
                         text: text,
-                        timestamp: new Date().getTime() // Client tərəfindən timestamp
+                        timestamp: new Date().getTime() 
                     })
                 });
                 
                 inputElement.value = ''; // Girişi təmizlə
             } catch (error) {
                 console.error("Mesaj göndərmə xətası:", error);
+            } finally {
+                sendButton.disabled = false; // Yenidən aktiv et
+                inputElement.focus();
             }
         }
 
@@ -527,9 +500,8 @@
             const chatDocRef = doc(db, CHAT_COLLECTION, chatId);
             const messagesContainer = document.getElementById('chat-messages');
 
-            // Əgər əvvəlki dinləyici varsa ləğv et
             if (unsubscribeChat) unsubscribeChat();
-            messagesContainer.innerHTML = ''; // Köhnə mesajları təmizlə
+            messagesContainer.innerHTML = ''; 
 
             unsubscribeChat = onSnapshot(chatDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -544,27 +516,26 @@
                     // Mesajları yenidən çək
                     messagesContainer.innerHTML = '';
                     
-                    // Mesajları zamana görə sırala (Firebase ArrayUnion sıralama təmin etmədiyi üçün)
+                    // Mesajları zamana görə sırala
                     messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
                     messages.forEach(msg => {
-                        addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);
+                        addMessageToUI(msg.senderName, msg.text, msg.timestamp, msg.senderId === userId);
                     });
 
                 } else {
-                    console.log("Söhbət sənədi tapılmadı (silinmədi, lakin əlaqə kəsildi).");
-                    // Bu, yalnız bir tərəfin söhbəti bağlayıb getməsi halında ola bilər.
-                    handleCloseChat(false); // Avtomatik olaraq başlanğıca qayıt
+                    console.log("Söhbət sənədi silindi (ehtimal ki, tərəfdaş tərəfindən).");
+                    // Tərəfdaş söhbəti bağlayarsa
+                    handleCloseChat(false); 
                 }
             }, (error) => {
                 console.error("Söhbət dinləyicisində xəta:", error);
-                // Xəta halında söhbəti bağla
                 handleCloseChat(false);
             });
         }
 
         /**
-         * Söhbətdən çıxmaq və ya söhbəti dəyişmək üçün əlaqəni kəsir.
+         * Söhbətdən çıxmaq üçün əlaqəni kəsir və növbəni təmizləyir.
          * @param {boolean} shouldReturnToStart - Başlanğıc ekrana qayıtmaq lazımdırsa.
          */
         async function disconnect(shouldReturnToStart = true) {
@@ -577,43 +548,29 @@
                 matchingTimeout = null;
             }
             
-            // İstifadəçinin növbə sənədini təmizləyirik (əgər növbədə idisə)
+            // Növbəni təmizlə (əgər növbədə idisə)
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
-
             try {
                 await runTransaction(db, async (transaction) => {
                     const queueDoc = await transaction.get(queueRef);
                     if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {
-                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null });
+                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
                     }
                 });
             } catch (e) {
                 console.error("Növbəni təmizləmə xətası:", e);
             }
 
-            // Müvəqqəti koordinasiya sənədini sil (əgər hələ də mövcuddursa)
-            await deleteDoc(doc(db, CHAT_COLLECTION, userId)).catch(e => { /* Error is fine if it doesn't exist */ });
+            // Müvəqqəti koordinasiya sənədini sil
+            await deleteDoc(doc(db, CHAT_COLLECTION, userId)).catch(e => { /* Silinməsə də problem deyil */ });
             
-            // --- Axtarış Ekranı Elementlərini Sıfırla (Lazım olarsa) ---
-            const retryContainer = document.getElementById('retry-container');
-            const spinner = document.getElementById('matching-spinner');
-            const cancelButton = document.getElementById('cancel-matching-button');
-            const countdownText = document.getElementById('countdown-text');
-            const matchingText = document.getElementById('matching-text');
-
-            if (retryContainer) retryContainer.classList.add('hidden');
-            if (spinner) spinner.classList.remove('hidden');
-            if (cancelButton) cancelButton.classList.remove('hidden');
-            if (countdownText) countdownText.textContent = `Qalan vaxt: ${MATCHING_SECONDS} saniyə`;
-            if (matchingText) matchingText.textContent = "Tərəfdaş Axtarılır..."; // Generic reset
-            // --------------------------------------------------------
-
             // Local state-i təmizlə
             chatId = null;
             partnerId = null;
 
             if (shouldReturnToStart) {
                 showScreen('start-screen');
+                document.getElementById('chat-messages').innerHTML = ''; // Mesajları təmizlə
             }
         }
 
@@ -621,36 +578,38 @@
          * "Söhbəti Bağla" düyməsinin kliklənməsi zamanı işləyir.
          */
         window.handleCloseChat = async function(shouldReturnToStart = true) {
+            if (chatId) {
+                // Söhbətin əsas sənədini sil (tərəfdaşın UI-ı avtomatik yenilənməsi üçün)
+                await deleteDoc(doc(db, CHAT_COLLECTION, chatId)).catch(e => console.error("Söhbəti silmə xətası:", e));
+            }
             await disconnect(shouldReturnToStart);
-            console.log("Söhbət bağlanıldı. Bütün məlumatlar firebasede qaldı.");
+            console.log("Söhbət bağlandı. (Söhbət sənədi silindi)");
         }
 
         /**
          * "Söhbəti Dəyiş" düyməsinin kliklənməsi zamanı işləyir.
          */
         window.handleChangeChat = async function() {
-            await disconnect(false); // Əvvəlki söhbətdən çıx
-            document.getElementById('chat-messages').innerHTML = ''; // Mesajları təmizlə
+            await handleCloseChat(false); // Əvvəlki söhbətdən çıx (Söhbət sənədini sil)
             showScreen('matching-screen'); // Axtarış ekranına keç
-            document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır..."; // Təkrar başlama üçün default mətn
+            document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";
             await startMatching(); // Yenidən axtarışa başla
         }
 
         /**
-         * "Yenidən Dene" düyməsinin kliklənməsi zamanı işləyir (Vaxt bitdikdə).
+         * "Yenidən Dene" düyməsinin kliklənməsi zamanı işləyir.
          */
         window.handleRetry = async function() {
-            // handleStart metodu istifadəçi adını avtomatik olaraq userName dəyişənindən götürür.
             await handleStart();
         }
 
         /**
          * "Axtarışı Dayandır" düyməsinin kliklənməsi zamanı işləyir.
+         * @param {boolean} shouldReturnToStart - Başlanğıc ekrana qayıtmaq lazımdırsa.
          */
-        window.handleCancelMatching = async function() {
-            // Əlaqəni kəs və Başlanğıc ekrana qayıt
-            await disconnect(true);
-            console.log("Axtarış istifadəçi tərəfindən ləğv edildi.");
+        window.handleCancelMatching = async function(shouldReturnToStart = true) {
+            await disconnect(shouldReturnToStart);
+            console.log("Axtarış ləğv edildi.");
         }
 
 
