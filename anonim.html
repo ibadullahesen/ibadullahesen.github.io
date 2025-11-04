@@ -422,33 +422,30 @@
 
                 const data = docSnap.data();
 
-                // Söhbət statusunu yoxla
-                if (data.status === 'closed' && data.closedBy !== userId) {
-                    if (unsubscribeChat) unsubscribeChat();
-                    addSystemMessageToUI(`❌ Tərəfdaş söhbəti ${data.closedReason === 'changed' ? 'dəyişdi' : 'bağladı'}`);
-                    setTimeout(() => disconnect(true), 2000);
-                    return;
-                }
+                // Söhbət statusunu yoxla - YALNIZ aktiv söhbət zamanı
+                if (data.status === 'active') {
+                    // Yazma statusu
+                    const isTyping = data.typingStatus?.[partnerId];
+                    if (isTyping) {
+                        typingElement.classList.remove('opacity-0');
+                    } else {
+                        typingElement.classList.add('opacity-0');
+                    }
 
-                // Yazma statusu
-                const isTyping = data.typingStatus?.[partnerId];
-                if (isTyping) {
-                    typingElement.classList.remove('opacity-0');
-                } else {
-                    typingElement.classList.add('opacity-0');
+                    // Mesajları göstər
+                    const messages = data.messages || [];
+                    messagesContainer.innerHTML = '';
+                    messages.forEach(msg => {
+                        addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);
+                    });
                 }
-
-                // Mesajları göstər
-                const messages = data.messages || [];
-                messagesContainer.innerHTML = '';
-                messages.forEach(msg => {
-                    addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);
-                });
+                // Bağlı söhbətləri nəzərə alma - yalnız bağla/dəyiş düyməsi ilə bağlansın
             });
         }
 
-        // Söhbətdən çıx
+        // Söhbətdən çıx - BÜTÜN məlumatları təmizlə
         async function disconnect(backToStart = true) {
+            // Bütün timeout və listenerləri təmizlə
             if (unsubscribeChat) {
                 unsubscribeChat();
                 unsubscribeChat = null;
@@ -476,16 +473,7 @@
                 await deleteDoc(doc(db, CHAT_COLLECTION, userId));
             } catch (e) {}
 
-            if (chatId) {
-                try {
-                    await updateDoc(doc(db, CHAT_COLLECTION, chatId), {
-                        status: 'closed',
-                        closedBy: userId,
-                        closedReason: 'disconnected'
-                    });
-                } catch (e) {}
-            }
-
+            // Söhbət məlumatlarını TAMAMEN təmizlə
             chatId = null;
             partnerId = null;
 
