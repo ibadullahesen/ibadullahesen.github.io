@@ -159,8 +159,9 @@
         // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
         
-        // DÜZƏLİŞ: Təhlükəsizlik üçün default 'projectId' əlavə edildi
+        // DÜZƏLİŞ: Təhlükəsizlik üçün default 'apiKey' və 'projectId' əlavə edildi
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { 
+             apiKey: 'placeholder', // Əsas düzəliş burada
              projectId: 'canvas-placeholder',
         };
 
@@ -169,7 +170,7 @@
         // Firebase-i Başlatmaq
         async function initializeFirebase() {
             try {
-                // Burada firebaseConfig istifadə edilir, hansı ki, artıq projectId-yə malikdir.
+                // Burada firebaseConfig istifadə edilir, hansı ki, artıq apiKey-yə malikdir.
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -188,6 +189,7 @@
                                 await signInAnonymously(auth);
                             }
                         } catch (error) {
+                            // Xətanı artıq auth/invalid-api-key xətası kimi göstərməməlidir
                             console.error("Anonim giriş və ya tokenlə giriş zamanı xəta:", error);
                         }
                     }
