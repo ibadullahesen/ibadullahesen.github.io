@@ -13,7 +13,7 @@
                 extend: {
                     colors: {
                         'primary-dark': '#1e293b',
-                        'secondary-light': '#fef3c7', // Sarı diqqət rəngi
+                        'secondary-light': '#fef3c7',
                         'accent-blue': '#3b82f6',
                         'accent-green': '#10b981',
                         'accent-red': '#ef4444',
@@ -36,7 +36,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Çox tünd fon */
+            background-color: #0f172a;
             color: white;
             display: flex;
             justify-content: center;
@@ -44,7 +44,6 @@
             min-height: 100vh;
             padding: 1rem;
         }
-        /* Custom scrollbar for chat box */
         #chat-messages::-webkit-scrollbar {
             width: 6px;
         }
@@ -68,7 +67,7 @@
         </div>
 
         <!-- 1. Başlanğıc Ekranı -->
-        <div id="start-screen" class="hidden space-y-6">
+        <div id="start-screen" class="space-y-6">
             <div class="space-y-2">
                 <label for="user-name-input" class="block text-sm font-medium text-gray-300">Adınız (Anonim qalmaq istəyirsinizsə boş buraxın):</label>
                 <input type="text" id="user-name-input" placeholder="Məsələn: Gecə Bayquşu" maxlength="20"
@@ -90,13 +89,11 @@
             <p id="matching-text" class="text-xl font-semibold">Tərəfdaş Axtarılır...</p>
             <p id="countdown-text" class="text-sm text-gray-400">Qalan vaxt: 20 saniyə</p>
             
-            <!-- Axtarışı Dayandır düyməsi -->
             <button onclick="handleCancelMatching(true)" id="cancel-matching-button"
                     class="w-full py-3 mt-4 text-md font-bold text-white bg-accent-red hover:bg-red-600 rounded-lg shadow-lg transition duration-300">
                 Axtarışı Dayandır
             </button>
 
-            <!-- Yenidən cəhd etmə konteyneri (Vaxt bitdikdə görünür) -->
             <div id="retry-container" class="hidden space-y-3 mt-4">
                 <button onclick="handleRetry()"
                         class="w-full py-3 text-lg font-bold text-white bg-accent-green hover:bg-green-600 rounded-lg shadow-lg transform hover:scale-[1.02] transition duration-300">
@@ -110,7 +107,6 @@
             <div id="chat-header" class="p-3 bg-gray-700 rounded-lg shadow-inner flex flex-col sm:flex-row sm:justify-between sm:items-center">
                 <div class="flex flex-col sm:flex-row sm:items-center mb-2 sm:mb-0">
                     <p class="text-lg font-semibold text-accent-blue">Söhbət Tərəfdaşı: <span id="partner-name" class="text-white"></span></p>
-                    <!-- YENİ: Yazma Statusu -->
                     <p id="partner-typing-status" class="text-xs text-yellow-400 italic transition-opacity duration-300 opacity-0 sm:ml-4 mt-1 sm:mt-0">Yazır...</p>
                 </div>
 
@@ -132,7 +128,7 @@
                 <input type="text" id="message-input" placeholder="Mesajınızı yazın..."
                         class="flex-grow p-3 rounded-lg bg-gray-700 border border-gray-600 focus:ring-accent-blue focus:border-accent-blue transition duration-200 text-white"
                         onkeypress="if(event.key === 'Enter') sendMessage()"
-                        onkeyup="handleInputKeyup()"> <!-- YENİ: Keyup hadisəsi -->
+                        onkeyup="handleInputKeyup()">
                 <button onclick="sendMessage()" id="send-button"
                         class="p-3 bg-accent-blue text-white rounded-lg hover:bg-blue-600 shadow-md transform hover:scale-[1.05] transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -146,13 +142,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, updateDoc, onSnapshot, collection, runTransaction, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Firestore üçün Debug səviyyəsini təyin edirik
-        setLogLevel('Debug');
 
-        // Canvas/Immersive tərəfindən təmin edilən qlobal dəyişənlər
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'axtarget-anonimchat';
         const firebaseConfig = {
             apiKey: "AIzaSyAAbLWwzSE9WgqFKK_n9hqsl5mokZlNacM",
             authDomain: "axtargetbot.firebaseapp.com",
@@ -172,12 +162,12 @@
         let isAuthReady = false;
         let unsubscribeChat = null; 
         let matchingTimeout = null; 
-        let typingDebounceTimer = null; // Yazma statusu üçün debounser
+        let typingDebounceTimer = null;
         const MATCHING_SECONDS = 20;
-        const CHAT_COLLECTION = `artifacts/${appId}/public/data/chats`;
-        const MATCH_QUEUE_DOC_NAME = 'match_queue_doc';
-        const TYPING_TIMEOUT = 1500; // 1.5 saniyə
-        const DISCONNECT_WAIT_TIME = 500; // 500ms tərəfdaşın statusu qəbul etməsi üçün
+        const CHAT_COLLECTION = "chats";
+        const MATCH_QUEUE_DOC_NAME = 'match_queue';
+        const TYPING_TIMEOUT = 1500;
+        const DISCONNECT_WAIT_TIME = 500;
 
         /**
          * Mesaj göndərmək üçün funksiya
@@ -201,7 +191,7 @@
                     senderId: userId,
                     senderName: userName,
                     text: messageText,
-                    timestamp: serverTimestamp()
+                    timestamp: new Date().toISOString() // serverTimestamp problemi üçün fix
                 })
             }).catch(e => {
                 console.error("Mesaj göndərmə xətası:", e);
@@ -223,14 +213,12 @@
                         userId = user.uid;
                         console.log("Autentifikasiya uğurlu. İstifadəçi ID:", userId);
                         isAuthReady = true;
-                        showScreen('start-screen');
                     } else {
                         try {
                             await signInAnonymously(auth);
                         } catch (error) {
                             console.error("Anonim Giriş Xətası:", error);
                             isAuthReady = true;
-                            showScreen('start-screen'); 
                         }
                     }
                 });
@@ -238,7 +226,6 @@
                 console.error("Firebase başlatma xətası:", e);
                 document.getElementById('start-button').textContent = "Kritik Xəta: Başlatma Uğursuz Oldu";
                 document.getElementById('start-button').disabled = true;
-                document.getElementById('start-screen').classList.remove('hidden');
             }
         }
         
@@ -259,10 +246,8 @@
             const messagesContainer = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             
-            // Vaxtı formatlaşdır
             const time = timestamp ? new Date(timestamp).toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' }) : '';
 
-            // Mesajın stili
             const baseClasses = 'max-w-[75%] p-3 rounded-xl shadow-md';
             if (isSelf) {
                 messageElement.className = `${baseClasses} bg-accent-blue ml-auto`;
@@ -285,7 +270,6 @@
             }
 
             messagesContainer.appendChild(messageElement);
-            // Aşağı scroll et
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
@@ -298,16 +282,11 @@
             messageElement.className = 'text-center my-3';
             messageElement.innerHTML = `<span class="text-xs text-yellow-400 p-2 bg-gray-700 rounded-full shadow-lg italic">${text}</span>`;
             messagesContainer.appendChild(messageElement);
-            // Aşağı scroll et
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         // --- Yazma Statusu Məntiqi ---
 
-        /**
-         * Cari istifadəçinin yazma statusunu Firestore-da yeniləyir.
-         * @param {boolean} isTyping - Yazırsa true, yoxsa false.
-         */
         window.updateTypingStatus = function(isTyping) {
             if (!chatId || !userId) return;
 
@@ -315,41 +294,27 @@
             const typingKey = `typingStatus.${userId}`;
             const updateData = { [typingKey]: isTyping };
 
-            if (isTyping) {
-                 updateData.lastTypingUpdate = serverTimestamp(); // Yazma başladıqda zaman damğası
-            }
-
             updateDoc(chatDocRef, updateData).catch(e => console.error("Typing status yenilənmə xətası:", e));
         };
 
-        /**
-         * Mesaj input-da klaviatura hərəkəti baş verdikdə işləyir (Debounce).
-         */
         window.handleInputKeyup = function() {
-            // Hər klaviatura hərəkətində tərəfimizi 'yazır' vəziyyətinə gətir
             if (document.getElementById('message-input').value.trim().length > 0) {
                 updateTypingStatus(true);
             } else {
-                // Əgər input boşalsa, dərhal 'yazmır' vəziyyətinə keç
                 updateTypingStatus(false);
             }
 
-
-            // Yazma hərəkəti dayandıqdan 1.5 saniyə sonra 'yazmır' vəziyyətinə keç
             if (typingDebounceTimer) clearTimeout(typingDebounceTimer);
             typingDebounceTimer = setTimeout(() => {
                 updateTypingStatus(false);
             }, TYPING_TIMEOUT);
         };
 
-        // --- Firebase Məntiqi və Söhbətin İdarə Edilməsi ---
+        // --- Əsas Məntiq ---
 
-        /**
-         * "Başla" düyməsinin kliklənməsi zamanı işləyir.
-         */
         window.handleStart = async function() {
             if (!isAuthReady || !userId) {
-                console.error("Autentifikasiya hələ hazır deyil və ya uğursuzdur.");
+                console.error("Autentifikasiya hələ hazır deyil.");
                 return;
             }
 
@@ -358,10 +323,7 @@
             
             showScreen('matching-screen');
 
-            const displayId = userId.substring(0, 8);
-            const searchMessage = `Anonim istifadəçi (${displayId}) tərəfdaş axtarır...`;
-
-            document.getElementById('matching-text').textContent = searchMessage;
+            document.getElementById('matching-text').textContent = "Tərəfdaş Axtarılır...";
             
             try {
                 await startMatching();
@@ -374,9 +336,6 @@
             }
         }
 
-        /**
-         * Söhbət tərəfdaşı tapmaq üçün mürəkkəb funksiya.
-         */
         async function startMatching() {
             const retryContainer = document.getElementById('retry-container');
             const spinner = document.getElementById('matching-spinner');
@@ -388,7 +347,6 @@
 
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
 
-            // Tərəfdaş tapılana qədər 20 saniyəlik sayacı başlat
             let remaining = MATCHING_SECONDS;
             document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;
 
@@ -405,19 +363,19 @@
                     document.getElementById('matching-text').textContent = "Hazırda aktiv istifadəçi yoxdur.";
                     document.getElementById('countdown-text').textContent = "Zəhmət olmasa, bir az sonra yenidən cəhd edin.";
                     
-                    handleCancelMatching(false); // Növbədən çıxar
+                    handleCancelMatching(false);
                     if (retryContainer) retryContainer.classList.remove('hidden');
                     if (spinner) spinner.classList.add('hidden'); 
                     if (cancelButton) cancelButton.classList.add('hidden'); 
                 }
             }, 1000);
 
-            // --- Axtarış Məntiqi ---
+            // Axtarış məntiqi
             await runTransaction(db, async (transaction) => {
                 const queueDoc = await transaction.get(queueRef);
                 
                 if (queueDoc.exists() && queueDoc.data().waitingUserId && queueDoc.data().waitingUserId !== userId) {
-                    // 1. Tərəfdaş tapıldı
+                    // Tərəfdaş tapıldı
                     const waitingUser = queueDoc.data();
                     partnerId = waitingUser.waitingUserId;
                     const partnerName = waitingUser.waitingUserName;
@@ -426,23 +384,23 @@
 
                     console.log("Tərəfdaş tapıldı. Yeni Chat ID:", chatId);
 
-                    // Yeni söhbət sənədini yarat
+                    // Yeni söhbət yarat
                     const newChatData = {
-                        createdAt: serverTimestamp(),
+                        createdAt: new Date().toISOString(),
                         users: {
                             [userId]: { name: userName },
                             [partnerId]: { name: partnerName }
                         },
                         messages: [],
-                        typingStatus: { [userId]: false, [partnerId]: false }, // Əlavə olundu
+                        typingStatus: { [userId]: false, [partnerId]: false },
                         status: 'active'
                     };
                     transaction.set(doc(db, CHAT_COLLECTION, chatId), newChatData);
 
                     // Növbəni təmizlə
-                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
+                    transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: new Date().toISOString() });
 
-                    // Tərəfdaşı xəbərdar etmək üçün öz müvəqqəti sənədini update et
+                    // Tərəfdaşı xəbərdar et
                     transaction.set(doc(db, CHAT_COLLECTION, partnerId), { 
                         chatId: chatId, 
                         partnerId: userId, 
@@ -450,33 +408,31 @@
                         status: 'matched'
                     });
 
-                    // Cari istifadəçinin UI-ni yenilə
+                    // UI yenilə
                     document.getElementById('partner-name').textContent = partnerName;
                     showScreen('chat-screen');
                     setupChatListener();
                     if (matchingTimeout) clearInterval(matchingTimeout);
 
                 } else if (!queueDoc.exists() || !queueDoc.data().waitingUserId || queueDoc.data().waitingUserId === userId) {
-                    // 2. Növbəyə daxil ol
-                    console.log("Növbəyə daxil olundu. Dinləmə başladı.");
+                    // Növbəyə daxil ol
+                    console.log("Növbəyə daxil olundu.");
                     
                     const waitingData = {
                         waitingUserId: userId,
                         waitingUserName: userName,
-                        timestamp: serverTimestamp()
+                        timestamp: new Date().toISOString()
                     };
                     
-                    // Növbə sənədini yaz
                     transaction.set(queueRef, waitingData);
 
-                    // Cari istifadəçi üçün öz müvəqqəti sənədini yarat (tərəfdaşın cavabını gözləmək üçün)
+                    // Gözləmə sənədi yarat
                     transaction.set(doc(db, CHAT_COLLECTION, userId), { 
                         status: 'waiting',
-                        timestamp: serverTimestamp(),
+                        timestamp: new Date().toISOString(),
                         userName: userName
                     });
                     
-                    // Növbəyə daxil olandan sonra dinləməni qururuq
                     setupMatchingListener();
 
                 } else {
@@ -485,9 +441,6 @@
             });
         }
 
-        /**
-         * Tərəfdaşın cavabını dinləyən funksiya (Növbəyə daxil olduqdan sonra)
-         */
         function setupMatchingListener() {
             const userDocRef = doc(db, CHAT_COLLECTION, userId);
 
@@ -517,9 +470,6 @@
             });
         }
 
-        /**
-         * Mesajları real-time dinləmək üçün funksiya.
-         */
         function setupChatListener() {
             if (!chatId) return;
 
@@ -529,7 +479,7 @@
 
             if (unsubscribeChat) unsubscribeChat();
             messagesContainer.innerHTML = ''; 
-            typingElement.classList.add('opacity-0'); // Həmişə əvvəlcə gizlət
+            typingElement.classList.add('opacity-0');
 
             unsubscribeChat = onSnapshot(chatDocRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -538,34 +488,24 @@
                     const users = chatData.users || {};
                     const partnerInfo = users[partnerId] || { name: 'Anonim Tərəfdaş' };
                     
-                    // --- YENİ: Söhbət Bağlanması (Graceful Exit) Yoxlanışı ---
+                    // Söhbət bağlanması yoxlanışı
                     if (chatData.status === 'closed' && chatData.closedBy !== userId) {
                         const initiatorName = chatData.users?.[chatData.closedBy]?.name || 'Anonim Tərəfdaş';
-                        let reasonText = '';
-                        
-                        if (chatData.closedReason === 'changed') {
-                            reasonText = `${initiatorName} söhbəti dəyişdi.`;
-                        } else {
-                            reasonText = `${initiatorName} söhbəti bağladı.`;
-                        }
+                        let reasonText = chatData.closedReason === 'changed' ? 
+                            `${initiatorName} söhbəti dəyişdi.` : 
+                            `${initiatorName} söhbəti bağladı.`;
 
-                        // Sistem mesajını əlavə et
                         addSystemMessageToUI(reasonText);
                         
-                        // Dinləyicini ləğv et
                         if (unsubscribeChat) unsubscribeChat(); 
 
-                        // UI-ı 3 saniyə sonra başlatma ekranına qaytar
                         setTimeout(() => {
-                            disconnect(true); // Local clean up, back to start
-                            console.log("Tərəfdaş söhbəti bağladı/dəyişdi. Local state təmizləndi.");
+                            disconnect(true);
                         }, 3000); 
-
-                        return; // Mesajların yenilənməsini dayandır
+                        return;
                     }
-                    // -----------------------------------------------------------------
 
-                    // --- YENİ: Yazma Statusunu Yoxla ---
+                    // Yazma statusu
                     const partnerTypingStatus = chatData.typingStatus?.[partnerId];
                     if (partnerTypingStatus === true) {
                         typingElement.textContent = `${partnerInfo.name} yazır...`;
@@ -573,48 +513,37 @@
                     } else {
                         typingElement.classList.add('opacity-0');
                     }
-                    // --------------------------------------------------
 
-                    // İstifadəçi adını yenilə
                     document.getElementById('partner-name').textContent = partnerInfo.name;
 
-                    // Mesajları yenidən çək (Yazıların üst-üstə düşməməsini təmin edir)
                     messagesContainer.innerHTML = '';
                     
-                    // Mesajları zamana görə sırala (ehtiyat üçün)
-                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
                     messages.forEach(msg => {
                         addMessageToUI(msg.senderName, msg.text, msg.timestamp, msg.senderId === userId);
                     });
 
                 } else {
-                    // Söhbət sənədi silindi (ehtimal ki, initiator tərəfindən silindi)
                     if (chatId) {
-                        console.log("Söhbət sənədi silindi (Tərəfdaşın hərəkəti nəticəsində).");
+                        console.log("Söhbət sənədi silindi.");
                         addSystemMessageToUI("Söhbət tərəfdaş tərəfindən dayandırıldı.");
                         
-                        // Dinləyicini ləğv et
                         if (unsubscribeChat) unsubscribeChat(); 
 
                         setTimeout(() => {
-                            disconnect(true); // Local clean up, back to start
+                            disconnect(true);
                         }, 3000);
                     }
                 }
             }, (error) => {
                 console.error("Söhbət dinləyicisində xəta:", error);
-                // Xəta halında bağla
                 addSystemMessageToUI("Söhbətdə xəta baş verdi. Bağlanır...");
                 setTimeout(() => disconnect(true), 3000);
             });
         }
 
-        /**
-         * Söhbətdən çıxmaq üçün əlaqəni kəsir və növbəni təmizləyir.
-         */
         async function disconnect(shouldReturnToStart = true) {
-            // Unsubscribe listeners
             if (unsubscribeChat) {
                 unsubscribeChat();
                 unsubscribeChat = null;
@@ -628,36 +557,29 @@
                 typingDebounceTimer = null;
             }
             
-            // Növbəni təmizlə (əgər növbədə idisə)
             const queueRef = doc(db, CHAT_COLLECTION, MATCH_QUEUE_DOC_NAME);
             try {
                 await runTransaction(db, async (transaction) => {
                     const queueDoc = await transaction.get(queueRef);
                     if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {
-                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });
+                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: new Date().toISOString() });
                     }
                 });
             } catch (e) {
                 console.error("Növbəni təmizləmə xətası:", e);
             }
 
-            // Müvəqqəti koordinasiya sənədini sil
-            await deleteDoc(doc(db, CHAT_COLLECTION, userId)).catch(e => { /* Silinməsə də problem deyil */ });
+            await deleteDoc(doc(db, CHAT_COLLECTION, userId)).catch(e => { });
             
-            // Local state-i təmizlə
             chatId = null;
             partnerId = null;
 
             if (shouldReturnToStart) {
                 showScreen('start-screen');
-                document.getElementById('chat-messages').innerHTML = ''; // Mesajları təmizlə
+                document.getElementById('chat-messages').innerHTML = '';
             }
         }
 
-        /**
-         * "Söhbəti Bağla" düyməsinin kliklənməsi zamanı işləyir.
-         * Yeni: Söhbətin statusunu yeniləyir və sonra silir.
-         */
         window.handleCloseChat = async function(shouldReturnToStart = true, reason = 'closed') {
             if (!chatId) {
                 await disconnect(shouldReturnToStart);
@@ -667,20 +589,16 @@
             const currentChatId = chatId;
             const chatDocRef = doc(db, CHAT_COLLECTION, currentChatId);
             
-            // 1. Yazma statusunu söndür
             updateTypingStatus(false); 
 
-            // 2. Söhbət statusunu dəyiş (Tərəfdaşın qəbul etməsi üçün)
             await updateDoc(chatDocRef, {
                 status: 'closed',
                 closedBy: userId,
                 closedReason: reason
             }).catch(e => console.error("Söhbət statusunu yeniləmə xətası:", e));
 
-            // 3. Local state-i təmizlə (dinləyicini ləğv et)
             await disconnect(shouldReturnToStart);
 
-            // 4. Tərəfdaşın yenilənməsi üçün qısa fasilə verin və sonra sənədi silin
             setTimeout(async () => {
                 await deleteDoc(chatDocRef).catch(e => console.error("Söhbəti silmə xətası:", e));
             }, DISCONNECT_WAIT_TIME);
@@ -688,36 +606,23 @@
             console.log(`Söhbət bağlandı (${reason}).`);
         }
 
-        /**
-         * "Söhbəti Dəyiş" düyməsinin kliklənməsi zamanı işləyir.
-         */
         window.handleChangeChat = async function() {
-            // Əvvəlki söhbəti 'changed' səbəbi ilə bağla. disconnect(false) ilə lokal state təmizlənir.
             await handleCloseChat(false, 'changed'); 
             
-            // Axtarış ekranına keç
             showScreen('matching-screen');
             document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";
             
-            // Yenidən axtarışa başla
             await startMatching();
         }
 
-        /**
-         * "Yenidən Dene" düyməsinin kliklənməsi zamanı işləyir.
-         */
         window.handleRetry = async function() {
             await handleStart();
         }
 
-        /**
-         * "Axtarışı Dayandır" düyməsinin kliklənməsi zamanı işləyir.
-         */
         window.handleCancelMatching = async function(shouldReturnToStart = true) {
             await disconnect(shouldReturnToStart);
             console.log("Axtarış ləğv edildi.");
         }
-
 
         // Tətbiqi Başlat
         window.onload = initializeFirebase;
