@@ -250,28 +250,31 @@
 
             if (!messageText || !chatId || !userId) return;
 
+            // Əvvəlcə UI-ə əlavə et
+            addMessageToUI(userName, messageText, true);
             input.value = '';
             input.focus();
 
             try {
-                // Yazma statusunu söndür və mesaj əlavə et
+                // Firebase-ə mesajı göndər
+                const messageData = {
+                    senderId: userId,
+                    senderName: userName,
+                    text: messageText,
+                    timestamp: new Date().toISOString() // serverTimestamp yerine client timestamp
+                };
+
                 await updateDoc(doc(db, CHAT_COLLECTION, chatId), {
                     [`typingStatus.${userId}`]: false,
-                    messages: arrayUnion({
-                        senderId: userId,
-                        senderName: userName,
-                        text: messageText,
-                        timestamp: serverTimestamp()
-                    }),
+                    messages: arrayUnion(messageData),
                     lastActivity: serverTimestamp()
                 });
-                
-                // Mesajı UI-ə dərhal əlavə et
-                addMessageToUI(userName, messageText, true);
+
             } catch (e) {
                 console.error("Mesaj göndərə xətası:", e);
+                // Xəta halında mesajı geri al
                 input.value = messageText;
-                addSystemMessageToUI("⚠️ Mesaj göndərilə bilmədi");
+                addSystemMessageToUI("⚠️ Mesaj göndərilə bilmədi. Yenidən yoxlayın.");
             }
         };
 
@@ -435,18 +438,12 @@
                     typingElement.classList.add('opacity-0');
                 }
 
-                // Mesajları göstər (yalnız yeni mesajlar üçün)
+                // Mesajları göstər
                 const messages = data.messages || [];
-                const currentMessageCount = messagesContainer.children.length - 
-                    Array.from(messagesContainer.children).filter(el => 
-                        el.classList.contains('text-center')).length; // Sistem mesajlarını saymırıq
-                
-                if (messages.length > currentMessageCount) {
-                    messagesContainer.innerHTML = '';
-                    messages.forEach(msg => {
-                        addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);
-                    });
-                }
+                messagesContainer.innerHTML = '';
+                messages.forEach(msg => {
+                    addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);
+                });
             });
         }
 
@@ -481,16 +478,11 @@
 
             if (chatId) {
                 try {
-                    const chatRef = doc(db, CHAT_COLLECTION, chatId);
-                    const chatDoc = await getDoc(chatRef);
-                    if (chatDoc.exists() && chatDoc.data().status === 'active') {
-                        // Söhbəti yalnız bağlamaq, silməmək
-                        await updateDoc(chatRef, {
-                            status: 'closed',
-                            closedBy: userId,
-                            closedReason: 'disconnected'
-                        });
-                    }
+                    await updateDoc(doc(db, CHAT_COLLECTION, chatId), {
+                        status: 'closed',
+                        closedBy: userId,
+                        closedReason: 'disconnected'
+                    });
                 } catch (e) {}
             }
 
@@ -528,12 +520,11 @@
             setTimeout(() => {
                 try {
                     deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
-                deleteDoc(doc(db, CHAT_COLLECTION, userId));
-                deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
-                console.log("✅ Söhbət sənədləri təmizləndi");
-                } catch (e) {
-                    console.log("ℹ️ Sənədlər artıq silinib");
-                }
+                    deleteDoc(doc(db, CHAT_COLLECTION, userId));
+                    if (partnerId) {
+                        deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
+                    }
+                } catch (e) {}
             }, 2000);
         };
 
@@ -557,7 +548,9 @@
                 try {
                     deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
                     deleteDoc(doc(db, CHAT_COLLECTION, userId));
-                    deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
+                    if (partnerId) {
+                        deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
+                    }
                 } catch (e) {}
             }, 1000);
 
