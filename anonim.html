@@ -55,8 +55,8 @@
             </div>  
             
             <!-- Aktiv istifadəçi sayı -->
-            <div class="p-3 bg-blue-900 rounded-lg text-center">
-                <p class="text-sm">🟢 Aktiv istifadəçilər: <span id="active-users-count">0</span></p>
+            <div id="active-users-container" class="p-3 bg-blue-900 rounded-lg text-center hidden">
+                <p class="text-sm">🟢 <span id="active-users-text">Aktiv istifadəçilər yoxlanılır...</span></p>
             </div>
               
             <div class="space-y-2">  
@@ -123,7 +123,7 @@
     <script type="module">  
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";  
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";  
-        import { getFirestore, doc, updateDoc, onSnapshot, collection, runTransaction, deleteDoc, serverTimestamp, arrayUnion } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";  
+        import { getFirestore, doc, updateDoc, onSnapshot, collection, runTransaction, deleteDoc, serverTimestamp, arrayUnion, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";  
           
         const firebaseConfig = {  
             apiKey: "AIzaSyAAbLWwzSE9WgqFKK_n9hqsl5mokZlNacM",  
@@ -144,12 +144,463 @@
         let unsubscribeChat = null;  
         let matchingTimeout = null;  
         let typingTimeout = null;  
-        let sessionId = null; // YENİ: Hər session üçün unikal ID
+        let sessionId = null;
+        let activeUsersListener = null;
         const MATCHING_SECONDS = 20;  
         
-        // ƏSAS DÜZELİŞ: Hər dəfə YENİ collection adı
         function getCurrentCollection() {
-            // Hər session üçün yeni collection
+            const today = new Date().toISOString().split('T')[0];
+            return `artifacts/axtarget-anonimchat/public/data/chats_${today}`;
+        }
+        
+        function getMatchQueueDocName() {
+            return 'match_queue_doc';
+        }
+
+        // Firebase Başlat  
+        async function initializeFirebase() {  
+            try {  
+                app = initializeApp(firebaseConfig);  
+                db = getFirestore(app);  
+                auth = getAuth(app);  
+                  
+                onAuthStateChanged(auth, async (user) => {  
+                    if (user) {  
+                        userId = user.uid;  
+                        isAuthReady = true;  
+                        sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                        console.log("✅ Autentifikasiya uğurlu. Session:", sessionId);  
+                        
+                        // Aktiv istifadəçi sayını göstər
+                        setupActiveUsersCounter();
+                    } else {  
+                        await signInAnonymously(auth);  
+                    }  
+                });  
+            } catch (e) {  
+                console.error("Firebase xətası:", e);  
+            }  
+        }
+
+        // Aktiv istifadəçi sayını göstər
+        function setupActiveUsersCounter() {
+            const activeUsersContainer = document.getElementById('active-users-container');
+            const activeUsersText = document.getElementById('active-users-text');
+            
+            activeUsersContainer.classList.remove('hidden');
+            activeUsersText.textContent = "Aktiv istifadəçilər yoxlanılır...";
+
+            // Növbə sənədini dinlə
+            const queueRef = doc(db, getCurrentCollection(), getMatchQueueDocName());
+            
+            if (activeUsersListener) {
+                activeUsersListener();
+            }
+
+            activeUsersListener = onSnapshot(queueRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const queueData = docSnap.data();
+                    
+                    if (queueData.waitingUserId) {
+                        // Növbədə 1 nəfər var
+                        activeUsersText.textContent = "1 nəfər söhbət axtarır";
+                        activeUsersContainer.classList.remove('hidden');
+                    } else {
+                        // Növbədə heç kim yoxdur
+                        activeUsersText.textContent = "Heç kim söhbət axtarmır";
+                        activeUsersContainer.classList.remove('hidden');
+                    }
+                } else {
+                    // Növbə sənədi yoxdur
+                    activeUsersText.textContent = "Heç kim söhbət axtarmır";
+                    activeUsersContainer.classList.remove('hidden');
+                }
+            }, (error) => {
+                console.error("Aktiv istifadəçi sayı xətası:", error);
+                activeUsersText.textContent = "Say göstərilə bilmədi";
+            });
+        }
+
+        // Ekranları idarə et  
+        function showScreen(screenId) {  
+            document.getElementById('start-screen').classList.add('hidden');  
+            document.getElementById('matching-screen').classList.add('hidden');  
+            document.getElementById('chat-screen').classList.add('hidden');  
+            document.getElementById(screenId).classList.remove('hidden');  
+        }  
+
+        // Mesajı UI-ye əlavə et  
+        function addMessageToUI(senderName, text, isSelf) {  
+            const messagesContainer = document.getElementById('chat-messages');  
+            const messageElement = document.createElement('div');  
+            const time = new Date().toLocaleTimeString('az-AZ', { hour: '2-digit', minute: '2-digit' });  
+
+            if (isSelf) {  
+                messageElement.className = 'max-w-[75%] p-3 rounded-xl bg-accent-blue ml-auto shadow-md';  
+                messageElement.innerHTML = `  
+                    <div class="flex justify-between items-center gap-2 mb-1">  
+                        <p class="text-xs font-bold">Siz</p>  
+                        <span class="text-[10px] opacity-70">${time}</span>  
+                    </div>  
+                    <p class="text-sm break-words">${escapeHtml(text)}</p>  
+                `;  
+            } else {  
+                messageElement.className = 'max-w-[75%] p-3 rounded-xl bg-gray-600 mr-auto shadow-md';  
+                messageElement.innerHTML = `  
+                    <div class="flex justify-between items-center gap-2 mb-1">  
+                        <p class="text-xs font-bold">${senderName}</p>  
+                        <span class="text-[10px] opacity-70">${time}</span>  
+                    </div>  
+                    <p class="text-sm break-words">${escapeHtml(text)}</p>  
+                `;  
+            }  
+            messagesContainer.appendChild(messageElement);  
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;  
+        }  
+
+        // XSS üçün HTML kaçış  
+        function escapeHtml(text) {  
+            const div = document.createElement('div');  
+            div.textContent = text;  
+            return div.innerHTML;  
+        }  
+
+        // Sistem mesajı əlavə et  
+        function addSystemMessageToUI(text) {  
+            const messagesContainer = document.getElementById('chat-messages');  
+            const messageElement = document.createElement('div');  
+            messageElement.className = 'text-center my-2';  
+            messageElement.innerHTML = `<span class="text-xs text-yellow-400 p-2 bg-gray-700 rounded italic">${text}</span>`;  
+            messagesContainer.appendChild(messageElement);  
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;  
+        }  
+
+        // Yazma statusunu güncəllə  
+        window.handleTyping = async function() {  
+            if (!chatId || !userId) return;  
+              
+            const hasText = document.getElementById('message-input').value.trim().length > 0;  
+              
+            if (typingTimeout) clearTimeout(typingTimeout);  
+              
+            try {  
+                await updateDoc(doc(db, getCurrentCollection(), chatId), {  
+                    [`typingStatus.${userId}`]: hasText  
+                });  
+            } catch (e) {  
+                console.error("Yazma statusu xətası:", e);  
+            }  
+
+            typingTimeout = setTimeout(() => {  
+                try {  
+                    updateDoc(doc(db, getCurrentCollection(), chatId), {  
+                        [`typingStatus.${userId}`]: false  
+                    });  
+                } catch (e) {}  
+            }, 2000);  
+        };  
+
+        // Mesaj göndər  
+        window.sendMessage = async function() {  
+            const input = document.getElementById('message-input');  
+            const messageText = input.value.trim();  
+
+            if (!messageText || !chatId || !userId) return;  
+
+            addMessageToUI(userName, messageText, true);  
+            input.value = '';  
+            input.focus();  
+
+            try {  
+                const messageData = {  
+                    senderId: userId,  
+                    senderName: userName,  
+                    text: messageText,  
+                    timestamp: new Date().toISOString()  
+                };  
+
+                await updateDoc(doc(db, getCurrentCollection(), chatId), {  
+                    [`typingStatus.${userId}`]: false,  
+                    messages: arrayUnion(messageData),  
+                    lastActivity: serverTimestamp()  
+                });  
+
+            } catch (e) {  
+                console.error("Mesaj göndərə xətası:", e);  
+                input.value = messageText;  
+                addSystemMessageToUI("⚠️ Mesaj göndərilə bilmədi. Yenidən yoxlayın.");  
+            }  
+        };  
+
+        // Söhbətə başla  
+        window.handleStart = async function() {  
+            if (!isAuthReady || !userId) {  
+                alert("Xahiş edirik bir neçə saniyə gözləyin...");  
+                return;  
+            }
+
+            await completeCleanup();
+
+            const inputName = document.getElementById('user-name-input').value.trim();  
+            userName = inputName || `Anonim-${userId.substring(0, 6)}`;  
+              
+            showScreen('matching-screen');  
+            startMatching();  
+        };  
+
+        // Tam təmizlik
+        async function completeCleanup() {
+            console.log("🔄 Tam təmizlik... Session:", sessionId);
+            
+            if (unsubscribeChat) {
+                unsubscribeChat();
+                unsubscribeChat = null;
+            }
+            if (matchingTimeout) {
+                clearInterval(matchingTimeout);
+                matchingTimeout = null;
+            }
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+                typingTimeout = null;
+            }
+
+            try {
+                const queueRef = doc(db, getCurrentCollection(), getMatchQueueDocName());
+                await runTransaction(db, async (transaction) => {
+                    const queueDoc = await transaction.get(queueRef);
+                    if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {
+                        transaction.set(queueRef, { 
+                            waitingUserId: null, 
+                            waitingUserName: null,
+                            timestamp: serverTimestamp() 
+                        });
+                    }
+                });
+            } catch (e) {}
+
+            try {
+                await deleteDoc(doc(db, getCurrentCollection(), userId));
+            } catch (e) {}
+
+            chatId = null;
+            partnerId = null;
+        }
+
+        // Tərəfdaş axtar  
+        async function startMatching() {  
+            const currentCollection = getCurrentCollection();
+            const queueRef = doc(db, currentCollection, getMatchQueueDocName());  
+            let remaining = MATCHING_SECONDS;  
+
+            document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;  
+            document.getElementById('matching-text').textContent = "Tərəfdaş Axtarılır...";  
+            if (matchingTimeout) clearInterval(matchingTimeout);  
+
+            matchingTimeout = setInterval(() => {  
+                remaining--;  
+                document.getElementById('countdown-text').textContent = `Qalan vaxt: ${remaining} saniyə`;  
+
+                if (remaining <= 0) {  
+                    clearInterval(matchingTimeout);  
+                    document.getElementById('matching-text').textContent = "Aktiv istifadəçi tapılmadı";  
+                    document.getElementById('countdown-text').textContent = "Zəhmət olmasa yenidən dene";  
+                    document.getElementById('retry-container').classList.remove('hidden');  
+                }  
+            }, 1000);  
+
+            try {  
+                await runTransaction(db, async (transaction) => {  
+                    const queueDoc = await transaction.get(queueRef);  
+                      
+                    if (queueDoc.exists() && queueDoc.data().waitingUserId && queueDoc.data().waitingUserId !== userId) {  
+                        const waiting = queueDoc.data();  
+                        partnerId = waiting.waitingUserId;  
+                        chatId = `chat_${sessionId}`;
+
+                        const newChat = {  
+                            createdAt: serverTimestamp(),  
+                            users: {  
+                                [userId]: { name: userName, sessionId: sessionId },  
+                                [partnerId]: { name: waiting.waitingUserName, sessionId: sessionId }  
+                            },  
+                            messages: [],  
+                            typingStatus: { [userId]: false, [partnerId]: false },  
+                            status: 'active',  
+                            lastActivity: serverTimestamp(),
+                            sessionId: sessionId
+                        };  
+
+                        transaction.set(doc(db, currentCollection, chatId), newChat);  
+                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null, timestamp: serverTimestamp() });  
+                          
+                        transaction.set(doc(db, currentCollection, partnerId), {  
+                            matched: true,  
+                            chatId: chatId,  
+                            partnerId: userId,  
+                            partnerName: userName,  
+                            sessionId: sessionId,
+                            _timestamp: serverTimestamp()  
+                        });  
+
+                        document.getElementById('partner-name').textContent = waiting.waitingUserName;  
+                        showScreen('chat-screen');  
+                        setupChatListener();  
+                        clearInterval(matchingTimeout);  
+
+                    } else {  
+                        transaction.set(queueRef, {  
+                            waitingUserId: userId,  
+                            waitingUserName: userName,  
+                            sessionId: sessionId,
+                            timestamp: serverTimestamp()  
+                        });  
+
+                        transaction.set(doc(db, currentCollection, userId), {  
+                            status: 'waiting',  
+                            userName: userName,  
+                            sessionId: sessionId,
+                            _timestamp: serverTimestamp()  
+                        });  
+
+                        setupMatchingListener();  
+                    }  
+                });  
+            } catch (e) {  
+                console.error("Matching xətası:", e);  
+                document.getElementById('matching-text').textContent = "Xəta baş verdi";  
+            }  
+        }  
+
+        // Tərəfdaşın cavabını dinlə  
+        function setupMatchingListener() {  
+            const userRef = doc(db, getCurrentCollection(), userId);  
+
+            if (unsubscribeChat) unsubscribeChat();  
+
+            unsubscribeChat = onSnapshot(userRef, (docSnap) => {  
+                if (docSnap.exists() && docSnap.data().matched) {  
+                    const data = docSnap.data();  
+                    
+                    if (data.sessionId === sessionId) {
+                        chatId = data.chatId;  
+                        partnerId = data.partnerId;  
+
+                        document.getElementById('partner-name').textContent = data.partnerName;  
+                          
+                        if (unsubscribeChat) unsubscribeChat();  
+                        if (matchingTimeout) clearInterval(matchingTimeout);  
+                          
+                        showScreen('chat-screen');  
+                        setupChatListener();  
+                    }
+                }  
+            });  
+        }  
+
+        // Söhbət dinləyicisi  
+        function setupChatListener() {  
+            if (!chatId) return;  
+
+            const chatRef = doc(db, getCurrentCollection(), chatId);  
+            const messagesContainer = document.getElementById('chat-messages');  
+            const typingElement = document.getElementById('partner-typing-status');  
+
+            if (unsubscribeChat) unsubscribeChat();  
+            messagesContainer.innerHTML = '';  
+
+            unsubscribeChat = onSnapshot(chatRef, (docSnap) => {  
+                if (!docSnap.exists()) {  
+                    if (unsubscribeChat) unsubscribeChat();  
+                    addSystemMessageToUI("❌ Tərəfdaş söhbəti bağladı.");  
+                    setTimeout(() => disconnect(true), 2000);  
+                    return;  
+                }  
+
+                const data = docSnap.data();  
+                
+                if (data.sessionId === sessionId && data.status === 'active') {  
+                    const isTyping = data.typingStatus?.[partnerId];  
+                    if (isTyping) {  
+                        typingElement.classList.remove('opacity-0');  
+                    } else {  
+                        typingElement.classList.add('opacity-0');  
+                    }  
+
+                    const messages = data.messages || [];  
+                    messagesContainer.innerHTML = '';  
+                    messages.forEach(msg => {  
+                        addMessageToUI(msg.senderName, msg.text, msg.senderId === userId);  
+                    });  
+                } else if (data.status === 'closed') {
+                    addSystemMessageToUI("🔒 Söhbət bağlandı");  
+                    setTimeout(() => disconnect(true), 1500);  
+                }
+            });  
+        }  
+
+        // Söhbətdən çıx  
+        async function disconnect(backToStart = true) {  
+            if (unsubscribeChat) {  
+                unsubscribeChat();  
+                unsubscribeChat = null;  
+            }  
+            if (matchingTimeout) {  
+                clearInterval(matchingTimeout);  
+                matchingTimeout = null;  
+            }  
+            if (typingTimeout) {  
+                clearTimeout(typingTimeout);  
+                typingTimeout = null;  
+            }  
+
+            try {  
+                const queueRef = doc(db, getCurrentCollection(), getMatchQueueDocName());  
+                await runTransaction(db, async (transaction) => {  
+                    const queueDoc = await transaction.get(queueRef);  
+                    if (queueDoc.exists() && queueDoc.data().waitingUserId === userId) {  
+                        transaction.set(queueRef, { waitingUserId: null, waitingUserName: null });  
+                    }  
+                });  
+            } catch (e) {}  
+
+            try {  
+                await deleteDoc(doc(db, getCurrentCollection(), userId));  
+            } catch (e) {}  
+
+            chatId = null;  
+            partnerId = null;  
+
+            if (backToStart) {  
+                showScreen('start-screen');  
+                document.getElementById('user-name-input').value = '';  
+            }  
+        }  
+
+        // Söhbəti bağla  
+        window.handleCloseChat = async function() {  
+            await disconnect(true);  
+        };  
+
+        // Söhbəti dəyiş  
+        window.handleChangeChat = async function() {  
+            await disconnect(false);  
+            showScreen('matching-screen');  
+            document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";  
+            document.getElementById('retry-container').classList.add('hidden');  
+            startMatching();  
+        };  
+
+        // Axtarışı ləğv et  
+        window.handleCancelMatching = async function() {  
+            await disconnect(false);  
+            showScreen('start-screen');  
+        };  
+
+        window.onload = initializeFirebase;  
+    </script>  
+</body>  
+</html>            // Hər session üçün yeni collection
             const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
             return `artifacts/axtarget-anonimchat/public/data/chats_${today}`;
         }
