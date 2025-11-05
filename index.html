@@ -70,17 +70,22 @@
 
         .content-overlay { position: relative; z-index: 1; }
 
-        .glass-card {
+        /* YENİ KART DİZAYNI */
+        .feature-card {
+            display: flex;
+            align-items: center;
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border);
             border-radius: 1.5rem;
+            overflow: hidden;
             transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
             position: relative;
-            overflow: hidden;
+            margin-bottom: 2rem;
         }
-        .glass-card:before {
+        
+        .feature-card:before {
             content: '';
             position: absolute;
             top: -50%;
@@ -92,13 +97,93 @@
             transition: transform 0.6s ease;
             pointer-events: none;
         }
-        .glass-card:hover:before {
+        
+        .feature-card:hover:before {
             transform: scale(1);
         }
-        .glass-card:hover {
+        
+        .feature-card:hover {
             transform: translateY(-10px) scale(1.02);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
             border-color: rgba(56, 229, 183, 0.5);
+        }
+        
+        .card-content {
+            flex: 1;
+            padding: 2.5rem;
+            position: relative;
+        }
+        
+        .card-image {
+            flex: 0 0 40%;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .feature-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+        
+        .card-tag {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary) 0%, #10B981 100%);
+            color: #05080E;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 0.875rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 15px rgba(56, 229, 183, 0.4);
+        }
+        
+        .card-title {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .card-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            color: var(--primary);
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .card-link i {
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .card-link:hover {
+            color: var(--primary-hover);
+        }
+        
+        .card-link:hover i {
+            transform: translateX(5px);
+        }
+        
+        /* Alternativ kartlar (məlumat solda, şəkil sağda) */
+        .feature-card.reverse {
+            flex-direction: row-reverse;
         }
 
         .btn-primary {
@@ -283,6 +368,18 @@
         #hero .search-container {
             margin-bottom: 1.5rem;
         }
+        
+        /* Responsive üçün düzəlişlər */
+        @media (max-width: 1024px) {
+            .feature-card, .feature-card.reverse {
+                flex-direction: column;
+            }
+            
+            .card-image {
+                flex: 0 0 250px;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -378,68 +475,120 @@
                         Rəqəmsal dünyada ehtiyacınız olan hər şey bir ünvanda.
                     </p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <a href="prmiumCV.html" class="block fade-in group" style="transition-delay: 0.1s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-file-invoice-dollar"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Premium CV Hazırla</h3>
-                            <p class="text-text-muted">Arzuladığınız işə qəbul üçün peşəkar CV lazımdır? Düzgün ünvandasınız. Rəqiblərinizdən fərqlənin, premium keyfiyyətli CV ilə ilk təəssüratdan qalib olun.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                
+                <!-- Yeni Kart Dizaynı -->
+                <div class="space-y-12">
+                    <!-- Premium CV Hazırla -->
+                    <div class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Premium</span>
+                            <h3 class="card-title">Premium CV Hazırla</h3>
+                            <p class="card-description">Arzuladığınız işə qəbul üçün peşəkar CV lazımdır? Düzgün ünvandasınız. Rəqiblərinizdən fərqlənin, premium keyfiyyətli CV ilə ilk təəssüratdan qalib olun.</p>
+                            <a href="prmiumCV.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    <a href="photo.html" class="block fade-in group" style="transition-delay: 0.2s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-camera-retro"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Şəkil Redaktəsi Xidməti</h3>
-                            <p class="text-text-muted">Şəkillərinizi peşəkar səviyyəyə qaldırın! Rəng korreksiyası, arxa fonun silinməsi, retuş və digər qrafik dizayn xidmətləri ilə fotolarınıza unikal görünüş bəxş edin.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/qvztVKYZ/rush-resume-template-2.jpg" alt="Premium CV Hazırlama">
                         </div>
-                    </a>
-                    <a href="follower-service.html" class="block fade-in group" style="transition-delay: 0.2s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-users-line"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Takipçi Xidməti</h3>
-                            <p class="text-text-muted">Fenomen olmaq bir addım uzaqlıqda! İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü ən sərfəli qiymətlərlə zirvəyə daşıyın.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    
+                    <!-- Şəkil Redaktəsi Xidməti -->
+                    <div class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Dizayn</span>
+                            <h3 class="card-title">Şəkil Redaktəsi Xidməti</h3>
+                            <p class="card-description">Şəkillərinizi peşəkar səviyyəyə qaldırın! Rəng korreksiyası, arxa fonun silinməsi, retuş və digər qrafik dizayn xidmətləri ilə fotolarınıza unikal görünüş bəxş edin.</p>
+                            <a href="photo.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    <a href="https://ai.axtarget.xyz" target="_blank" class="block fade-in group" style="transition-delay: 0.3s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-brain"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">AxtarGet AI</h3>
-                            <p class="text-text-muted">AxtarGet AI-nin gücü ilə yaradıcılığınızın sərhədlərini aşın. Mətn yazın, şəkil yaradın, kompleks problemləri həll edin – süni intellekt hər an yanınızdadır.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/sfbfQL0N/cerceveli-poster-renkli-geometrik-sekillerle-arka-plan-jpg.png" alt="Şəkil Redaktəsi">
                         </div>
-                    </a>
-                    <a href="digital-products.html" class="block fade-in group" style="transition-delay: 0.4s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-store"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Rəqəmsal Məhsullar</h3>
-                            <p class="text-text-muted">Əyləncə və məhsuldarlıq dünyasına bir addımla daxil olun. Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    
+                    <!-- Takipçi Xidməti -->
+                    <div class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">SMM</span>
+                            <h3 class="card-title">Takipçi Xidməti</h3>
+                            <p class="card-description">Fenomen olmaq bir addım uzaqlıqda! İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü ən sərfəli qiymətlərlə zirvəyə daşıyın.</p>
+                            <a href="follower-service.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    <a href="share-business.html" class="block fade-in group" style="transition-delay: 0.5s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-bullhorn"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Biznesini Paylaş</h3>
-                            <p class="text-text-muted">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət! Bizimlə paylaşın, hədəf auditoriyanıza daha sürətli və effektiv şəkildə çatmağınıza dəstək olaq.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/L6S7bBJb/2025032713351869129.jpg" alt="Takipçi Xidməti">
                         </div>
-                    </a>
-                    <a href="qr.html" class="block fade-in group" style="transition-delay: 0.5s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-qrcode"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">QR kod yarat</h3>
-                            <p class="text-text-muted">Öz QR kodunu asanlıqla yaratmaq üçün bu səhifəyə keçid et. Sadə və sürətli.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                    </div>
+                    
+                    <!-- AxtarGet AI -->
+                    <div class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">AI</span>
+                            <h3 class="card-title">AxtarGet AI</h3>
+                            <p class="card-description">AxtarGet AI-nin gücü ilə yaradıcılığınızın sərhədlərini aşın. Mətn yazın, şəkil yaradın, kompleks problemləri həll edin – süni intellekt hər an yanınızdadır.</p>
+                            <a href="https://ai.axtarget.xyz" target="_blank" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    <a href="https://vakansiya.axtarget.xyz" class="block fade-in group" style="transition-delay: 0.5s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-briefcase"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">İş Elanları</h3>
-                            <p class="text-text-muted">Özünə uyğun iş tapmaq və karyerana başlamaq üçün vakansiyalarımıza bax. Yeni fürsətlər səni gözləyir!</p>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/pX0ZJDzk/ai-concept-with-spin-lines-effect-background-3d-rendering-video.jpg" alt="AxtarGet AI">
+                        </div>
+                    </div>
+                    
+                    <!-- Rəqəmsal Məhsullar -->
+                    <div class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Premium</span>
+                            <h3 class="card-title">Rəqəmsal Məhsullar</h3>
+                            <p class="card-description">Əyləncə və məhsuldarlıq dünyasına bir addımla daxil olun. Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
+                            <a href="digital-products.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/MTKH5jyQ/Bm7K3Sm-L7x-V4x-Cp-BKag-Mg-P.jpg" alt="Rəqəmsal Məhsullar">
+                        </div>
+                    </div>
+                    
+                    <!-- Biznesini Paylaş -->
+                    <div class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Marketinq</span>
+                            <h3 class="card-title">Biznesini Paylaş</h3>
+                            <p class="card-description">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət! Bizimlə paylaşın, hədəf auditoriyanıza daha sürətli və effektiv şəkildə çatmağınıza dəstək olaq.</p>
+                            <a href="share-business.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/DysG8L5w/depositphotos-52467319-stock-photo-business-people-working-in-office.webp" alt="Biznesini Paylaş">
+                        </div>
+                    </div>
+                    
+                    <!-- QR kod yarat -->
+                    <div class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Tool</span>
+                            <h3 class="card-title">QR kod yarat</h3>
+                            <p class="card-description">Öz QR kodunu asanlıqla yaratmaq üçün bu səhifəyə keçid et. Sadə və sürətli.</p>
+                            <a href="qr.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/zfPvdGp0/a-guide-to-qr-codes-and-how-to-scan-qr-codes-3.jpg" alt="QR kod yarat">
+                        </div>
+                    </div>
+                    
+                    <!-- İş Elanları -->
+                    <div class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Karyera</span>
+                            <h3 class="card-title">İş Elanları</h3>
+                            <p class="card-description">Özünə uyğun iş tapmaq və karyerana başlamaq üçün vakansiyalarımıza bax. Yeni fürsətlər səni gözləyir!</p>
                             <div class="mt-6">
                                 <button
                                     onclick="window.open('https://github.com/ibadullahesen/app/releases/download/v1.0/AxtarGet.4.apk', '_blank')"
@@ -449,31 +598,29 @@
                                     Aplikasiyamızı yüklə
                                 </button>
                             </div>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                            <a href="https://vakansiya.axtarget.xyz" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
-                    <a href="https://chat.axtarget.xyz" target="_blank" class="block fade-in group" style="transition-delay: 0.6s;">
-                        <div class="glass-card p-8 h-full relative">
-                            <div class="service-icon-wrapper mb-6"><i class="fas fa-user-plus"></i></div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Bu bir Testdir: Hazırsan?</h3>
-                            <p class="text-text-muted">Qeydiyyatdan keçə biləcəksən? Platformamızın bütün imkanlarından yararlanmaq üçün bu sadə addımı at və AxtarGet dünyasının bir parçası ol.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-text-muted group-hover:text-primary transition-all duration-300 transform group-hover:translate-x-2"><i class="fas fa-arrow-right"></i></span>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/kXnCbdvt/01JWFWAS7M72K1623JC6JDV20V.jpg" alt="İş Elanları">
                         </div>
-                    </a>
-                    <a href="https://axtarget.xyz/anonim.html" class="block fade-in group" style="transition-delay: 0.2s;">
-                        <div class="glass-card p-8 h-full relative bg-black text-white border-2 border-green-500 shadow-[0_0_15px_rgba(0,255,0,0.3)] rounded-xl hover:shadow-[0_0_25px_rgba(0,255,0,0.6)] transition-all duration-300">
-                          <div class="service-icon-wrapper mb-6 text-red-500 text-5xl drop-shadow-[0_0_10px_rgba(255,0,0,0.6)]">
-                              <i class="fas fa-pen-fancy"></i>
-                              </div>
-                            <h3 class="text-2xl font-bold font-heading mb-3">Anonim Mesajlaşma</h3>
-                            <p class="text-gray-300">Heç kimin kim olduğunu bilmədən bir-birinizlə sərbəst yazışın. Tam anonim, təhlükəsiz və sadə mesajlaşma platforması.</p>
-                            <span class="absolute bottom-8 right-8 text-2xl text-gray-400 group-hover:text-green-400 transition-all duration-300 transform group-hover:translate-x-2">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
+                    </div>
+                    
+                    <!-- Anonim Mesajlaşma -->
+                    <div class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Təhlükəsizlik</span>
+                            <h3 class="card-title">Anonim Mesajlaşma</h3>
+                            <p class="card-description">Heç kimin kim olduğunu bilmədən bir-birinizlə sərbəst yazışın. Tam anonim, təhlükəsiz və sadə mesajlaşma platforması.</p>
+                            <a href="https://axtarget.xyz/anonim.html" class="card-link">
+                                Daha ətraflı <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
-                    </a>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/ZnbQCJzL/pngtree-an-anonymous-hacker-with-computer-image-16301009.jpg" alt="Anonim Mesajlaşma">
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
