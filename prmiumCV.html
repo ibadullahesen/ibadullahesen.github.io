@@ -963,6 +963,11 @@
                 <div class="input-group">
                     <label data-i18n="website">Vebsayt</label>
                     <input type="text" id="website-input" placeholder="https://example.com">
+                    <!-- Website checkbox'ı əlavə et -->
+                    <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="hide-website-checkbox" style="cursor: pointer;">
+                        <label for="hide-website-checkbox" style="cursor: pointer; margin: 0;" data-i18n="hideWebsite">Vebsaytı Gizlət</label>
+                    </div>
                 </div>
 
                 <div class="input-group">
@@ -1094,6 +1099,8 @@
                                 <div class="modern-contact-item"><strong>Email:</strong><br><span id="timeline-email">email@example.com</span></div>
                                 <div class="modern-contact-item"><strong>Telefon:</strong><br><span id="timeline-phone">+994 50 123 45 67</span></div>
                                 <div class="modern-contact-item"><strong>Ünvan:</strong><br><span id="timeline-address">Bakı, Azərbaycan</span></div>
+                                <!-- Timeline template - Add website div -->
+                                <div id="timeline-website-div" class="modern-contact-item" style="display: none;"><strong>Vebsayt:</strong><br><span id="timeline-website"></span></div>
                             </div>
                         </div>
                     </div>
@@ -1134,6 +1141,8 @@
                                 <div class="modern-contact-item"><strong>Email:</strong><br><span id="infographic-email">email@example.com</span></div>
                                 <div class="modern-contact-item"><strong>Telefon:</strong><br><span id="infographic-phone">+994 50 123 45 67</span></div>
                                 <div class="modern-contact-item"><strong>Ünvan:</strong><br><span id="infographic-address">Bakı, Azərbaycan</span></div>
+                                <!-- Infographic template - Add website div -->
+                                <div id="infographic-website-div" class="modern-contact-item" style="display: none;"><strong>Vebsayt:</strong><br><span id="infographic-website"></span></div>
                             </div>
                         </div>
                     </div>
@@ -1280,6 +1289,7 @@
                 phone: "Telefon",
                 address: "Ünvan",
                 website: "Vebsayt",
+                hideWebsite: "Vebsaytı Gizlət",
                 profileSection: "Profil",
                 experienceSection: "İş Təcrübəsi",
                 educationSection: "Təhsil",
@@ -1317,6 +1327,7 @@
                 phone: "Telefon",
                 address: "Adres",
                 website: "Web Sitesi",
+                hideWebsite: "Web Sitesini Gizle",
                 profileSection: "Profil",
                 experienceSection: "İş Deneyimi",
                 educationSection: "Eğitim",
@@ -1354,6 +1365,7 @@
                 phone: "Phone",
                 address: "Address",
                 website: "Website",
+                hideWebsite: "Hide Website",
                 profileSection: "Profile",
                 experienceSection: "Work Experience",
                 educationSection: "Education",
@@ -1440,9 +1452,16 @@
             cvContainer.style.fontSize = fontSize + 'px';
             cvContainer.style.lineHeight = lineHeight;
 
-            const sections = cvContainer.querySelectorAll('.exp-item, .exp-desc li, .modern-card-desc li, .info-card p');
+            const sections = cvContainer.querySelectorAll('[class*="exp-item"], [class*="exp-desc"], [class*="card"], ul li');
             sections.forEach(section => {
-                section.style.marginBottom = (spacing * 0.5) + 'rem'; // Adjust spacing for different elements
+                const isListItem = section.tagName === 'LI';
+                section.style.marginBottom = (spacing * (isListItem ? 0.3 : 0.5)) + 'rem';
+                section.style.lineHeight = lineHeight;
+            });
+
+            // Başlık aralıklarını da ayarla
+            cvContainer.querySelectorAll('h2, h3, h4').forEach(heading => {
+                heading.style.marginBottom = (spacing * 0.8) + 'rem';
             });
         }
 
@@ -1451,7 +1470,7 @@
                 const val = e.target.value || 'Ad Soyad';
                 document.getElementById('preview-name').textContent = val;
                 document.getElementById('timeline-name').textContent = val;
-                document.getElementById('modern-name').textContent = val;
+                document.getElementById('modern-name').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-name').textContent = val;
                 document.getElementById('minimal-preview-name').textContent = val;
             });
@@ -1460,7 +1479,7 @@
                 const val = e.target.value || 'Peşə / Vəzifə';
                 document.getElementById('preview-title').textContent = val;
                 document.getElementById('timeline-title').textContent = val;
-                document.getElementById('modern-title').textContent = val;
+                document.getElementById('modern-title').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-title').textContent = val;
                 document.getElementById('minimal-preview-title').textContent = val;
             });
@@ -1469,7 +1488,7 @@
                 const val = e.target.value || 'email@example.com';
                 document.getElementById('preview-email').textContent = val;
                 document.getElementById('timeline-email').textContent = val;
-                document.getElementById('modern-email').textContent = val;
+                document.getElementById('modern-email').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-email').textContent = val;
                 document.getElementById('minimal-preview-email').textContent = val;
             });
@@ -1478,7 +1497,7 @@
                 const val = e.target.value || '+994 50 123 45 67';
                 document.getElementById('preview-phone').textContent = val;
                 document.getElementById('timeline-phone').textContent = val;
-                document.getElementById('modern-phone').textContent = val;
+                document.getElementById('modern-phone').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-phone').textContent = val;
                 document.getElementById('minimal-preview-phone').textContent = val;
             });
@@ -1486,18 +1505,53 @@
             document.getElementById('address-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'Bakı, Azərbaycan';
                 document.getElementById('preview-address').textContent = val;
-                document.getElementById('modern-address').textContent = val;
+                document.getElementById('modern-address').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-address').textContent = val;
                 document.getElementById('minimal-preview-address').textContent = val;
             });
 
             document.getElementById('website-input').addEventListener('input', (e) => {
                 const websiteDiv = document.getElementById('website-div');
+                const timelineWebsite = document.getElementById('timeline-website-div');
+                const infographicWebsite = document.getElementById('infographic-website-div');
+                const minimalWebsite = document.getElementById('minimal-website-div');
+
                 if (e.target.value) {
                     websiteDiv.style.display = 'flex';
+                    if (timelineWebsite) timelineWebsite.style.display = 'flex';
+                    if (infographicWebsite) infographicWebsite.style.display = 'flex';
+                    if (minimalWebsite) minimalWebsite.style.display = 'flex';
+                    
                     document.getElementById('preview-website').textContent = e.target.value;
+                    if (timelineWebsite) timelineWebsite.querySelector('span').textContent = e.target.value;
+                    if (infographicWebsite) infographicWebsite.querySelector('span').textContent = e.target.value;
+                    if (minimalWebsite) minimalWebsite.querySelector('span').textContent = e.target.value;
                 } else {
                     websiteDiv.style.display = 'none';
+                    if (timelineWebsite) timelineWebsite.style.display = 'none';
+                    if (infographicWebsite) infographicWebsite.style.display = 'none';
+                    if (minimalWebsite) minimalWebsite.style.display = 'none';
+                }
+            });
+
+            document.getElementById('hide-website-checkbox').addEventListener('change', (e) => {
+                const websiteDiv = document.getElementById('website-div');
+                const timelineWebsite = document.getElementById('timeline-website-div');
+                const infographicWebsite = document.getElementById('infographic-website-div');
+                const minimalWebsite = document.getElementById('minimal-website-div');
+                
+                if (e.target.checked) {
+                    websiteDiv.style.display = 'none';
+                    if (timelineWebsite) timelineWebsite.style.display = 'none';
+                    if (infographicWebsite) infographicWebsite.style.display = 'none';
+                    if (minimalWebsite) minimalWebsite.style.display = 'none';
+                } else {
+                    if (document.getElementById('website-input').value) {
+                        websiteDiv.style.display = 'flex';
+                        if (timelineWebsite) timelineWebsite.style.display = 'flex';
+                        if (infographicWebsite) infographicWebsite.style.display = 'flex';
+                        if (minimalWebsite) minimalWebsite.style.display = 'flex';
+                    }
                 }
             });
 
@@ -1532,6 +1586,8 @@
             document.getElementById('font-size-slider').addEventListener('input', updateTypography);
             document.getElementById('line-height-slider').addEventListener('input', updateTypography);
             document.getElementById('spacing-slider').addEventListener('input', updateTypography);
+
+            updateTypography();
 
             document.getElementById('font-family-select').addEventListener('change', (e) => {
                 document.getElementById('cv-container').style.fontFamily = e.target.value;
@@ -1570,7 +1626,7 @@
         // Function to trigger cropping for profile images
         function triggerImageCrop(imgElementId, modalId) {
             const imgElement = document.getElementById(imgElementId);
-            if (imgElement && imgElement.src && imgElement.src !== 'data:image/svg+xml;base64,') { // Check if it's not the default placeholder
+            if (imgElement && imgElement.src && imgElement.src !== 'data:image/svg+xml;base64,' && !imgElement.src.includes('placeholder.svg')) { // Check if it's not the default placeholder
                 document.getElementById('cropper-image').src = imgElement.src;
                 document.getElementById(modalId).classList.add('active');
 
@@ -1599,7 +1655,9 @@
                 
                 // Update all profile images
                 document.getElementById('profile-pic').src = croppedImage;
-                document.getElementById('modern-profile-pic').src = croppedImage; // Assuming modern-profile-pic exists if template 6 was used
+                // Assuming template 6 has a modern-profile-pic, need to add it if it exists
+                const modernProfilePic = document.getElementById('modern-profile-pic'); 
+                if (modernProfilePic) modernProfilePic.src = croppedImage;
                 document.getElementById('timeline-profile-pic').src = croppedImage;
                 document.getElementById('infographic-profile-pic').src = croppedImage;
                 document.getElementById('minimal-profile-pic').src = croppedImage;
@@ -1643,6 +1701,9 @@
             updateEducationPreview();
             updateSkillsPreview();
             updateLanguagesPreview();
+
+            // Update website visibility based on checkbox after all other updates
+            document.getElementById('hide-website-checkbox').dispatchEvent(new Event('change'));
         }
 
         function updateExperiencePreview() {
@@ -1857,7 +1918,7 @@
             timelineSection.style.display = hasSkills ? 'block' : 'none';
             infographicSection.style.display = hasSkills ? 'block' : 'none';
             minimalSection.style.display = hasSkills ? 'block' : 'none';
-            modernSection.style.display = hasSkills ? 'block' : 'none';
+            if (modernSection) modernSection.style.display = hasSkills ? 'block' : 'none';
 
             preview.innerHTML = '';
             timelinePreview.innerHTML = '';
@@ -1932,7 +1993,7 @@
             timelineSection.style.display = hasLanguages ? 'block' : 'none';
             infographicSection.style.display = hasLanguages ? 'block' : 'none';
             minimalSection.style.display = hasLanguages ? 'block' : 'none';
-            modernSection.style.display = hasLanguages ? 'block' : 'none';
+            if (modernSection) modernSection.style.display = hasLanguages ? 'block' : 'none';
 
             preview.innerHTML = '';
             timelinePreview.innerHTML = '';
