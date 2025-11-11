@@ -1470,7 +1470,6 @@
                 const val = e.target.value || 'Ad Soyad';
                 document.getElementById('preview-name').textContent = val;
                 document.getElementById('timeline-name').textContent = val;
-                document.getElementById('modern-name').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-name').textContent = val;
                 document.getElementById('minimal-preview-name').textContent = val;
             });
@@ -1479,7 +1478,6 @@
                 const val = e.target.value || 'Peşə / Vəzifə';
                 document.getElementById('preview-title').textContent = val;
                 document.getElementById('timeline-title').textContent = val;
-                document.getElementById('modern-title').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-title').textContent = val;
                 document.getElementById('minimal-preview-title').textContent = val;
             });
@@ -1488,7 +1486,6 @@
                 const val = e.target.value || 'email@example.com';
                 document.getElementById('preview-email').textContent = val;
                 document.getElementById('timeline-email').textContent = val;
-                document.getElementById('modern-email').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-email').textContent = val;
                 document.getElementById('minimal-preview-email').textContent = val;
             });
@@ -1497,7 +1494,6 @@
                 const val = e.target.value || '+994 50 123 45 67';
                 document.getElementById('preview-phone').textContent = val;
                 document.getElementById('timeline-phone').textContent = val;
-                document.getElementById('modern-phone').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-phone').textContent = val;
                 document.getElementById('minimal-preview-phone').textContent = val;
             });
@@ -1505,7 +1501,6 @@
             document.getElementById('address-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'Bakı, Azərbaycan';
                 document.getElementById('preview-address').textContent = val;
-                document.getElementById('modern-address').textContent = val; // Assuming template 6 has this element
                 document.getElementById('infographic-address').textContent = val;
                 document.getElementById('minimal-preview-address').textContent = val;
             });
@@ -1655,9 +1650,6 @@
                 
                 // Update all profile images
                 document.getElementById('profile-pic').src = croppedImage;
-                // Assuming template 6 has a modern-profile-pic, need to add it if it exists
-                const modernProfilePic = document.getElementById('modern-profile-pic'); 
-                if (modernProfilePic) modernProfilePic.src = croppedImage;
                 document.getElementById('timeline-profile-pic').src = croppedImage;
                 document.getElementById('infographic-profile-pic').src = croppedImage;
                 document.getElementById('minimal-profile-pic').src = croppedImage;
@@ -1794,13 +1786,14 @@
             const id = eduCount++;
             const item = document.createElement('div');
             item.className = 'list-item';
+            item.setAttribute('data-edu-id', id);
             item.innerHTML = `
                 <div class="list-item-content">
-                    <input type="text" placeholder="Dərəcə / İxtisas" class="edu-degree-${id}">
+                    <input type="text" placeholder="Dərəcə / İxtisas" class="edu-degree" data-id="${id}">
                     <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
                 </div>
-                <input type="text" placeholder="Universitet, Ölkə" class="edu-uni-${id}" style="width: 100%; margin-top: 0.5rem;">
-                <input type="text" placeholder="Tarixlər (Sen 2018 - İyn 2022)" class="edu-dates-${id}" style="width: 100%; margin-top: 0.5rem;">
+                <input type="text" placeholder="Universitet, Ölkə" class="edu-uni" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
+                <input type="text" placeholder="Tarixlər (Sen 2018 - İyn 2022)" class="edu-dates" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
             `;
             document.getElementById('education-list').appendChild(item);
             
@@ -1823,7 +1816,7 @@
             const items = document.querySelectorAll('#education-list .list-item');
             
             const hasEducation = items.length > 0 && Array.from(items).some(item => 
-                item.querySelector('input[type="text"]')?.value
+                item.querySelector('.edu-degree')?.value
             );
 
             section.style.display = hasEducation ? 'block' : 'none';
@@ -1836,10 +1829,11 @@
             infographicPreview.innerHTML = '';
             minimalPreview.innerHTML = '';
             
-            items.forEach((item, idx) => {
-                const degree = item.querySelector(`.edu-degree-${idx}`)?.value || '';
-                const uni = item.querySelector(`.edu-uni-${idx}`)?.value || '';
-                const dates = item.querySelector(`.edu-dates-${idx}`)?.value || '';
+            items.forEach((item) => {
+                const id = item.getAttribute('data-edu-id');
+                const degree = item.querySelector(`.edu-degree[data-id="${id}"]`)?.value || '';
+                const uni = item.querySelector(`.edu-uni[data-id="${id}"]`)?.value || '';
+                const dates = item.querySelector(`.edu-dates[data-id="${id}"]`)?.value || '';
                 
                 if (degree || uni || dates) {
                     const eduDiv = document.createElement('div');
@@ -1902,13 +1896,11 @@
             const preview = document.getElementById('preview-skills');
             const timelinePreview = document.getElementById('preview-skills-timeline');
             const infographicPreview = document.getElementById('preview-skills'); // Infographic uses the same list element
-            const modernPreview = document.getElementById('preview-skills-modern'); // Assuming template 6 uses this
             
             const section = document.getElementById('skills-section');
             const timelineSection = document.getElementById('skills-section-timeline');
-            const infographicSection = document.getElementById('skills-section');
+            const infographicSection = document.getElementById('skills-section'); // Infographic section is the same as template 1 skill section
             const minimalSection = document.getElementById('skills-section'); // Assuming minimal uses the same
-            const modernSection = document.getElementById('modern-skills-section'); // Assuming template 6 uses this
 
             const items = document.querySelectorAll('#skills-list .list-item');
             
@@ -1918,12 +1910,10 @@
             timelineSection.style.display = hasSkills ? 'block' : 'none';
             infographicSection.style.display = hasSkills ? 'block' : 'none';
             minimalSection.style.display = hasSkills ? 'block' : 'none';
-            if (modernSection) modernSection.style.display = hasSkills ? 'block' : 'none';
 
             preview.innerHTML = '';
             timelinePreview.innerHTML = '';
             infographicPreview.innerHTML = '';
-            if(modernPreview) modernPreview.innerHTML = '';
             
             items.forEach((item, idx) => {
                 const skill = item.querySelector(`.skill-name-${idx}`)?.value || '';
@@ -1942,13 +1932,6 @@
                     const infographicLi = document.createElement('li');
                     infographicLi.textContent = skill; // Text content only, styling applied via CSS
                     infographicPreview.appendChild(infographicLi);
-
-                    if(modernPreview) {
-                        const badge = document.createElement('span');
-                        badge.className = 'skill-badge';
-                        badge.textContent = skill;
-                        modernPreview.appendChild(badge);
-                    }
                 }
             });
         }
@@ -1957,10 +1940,11 @@
             const id = langCount++;
             const item = document.createElement('div');
             item.className = 'list-item';
+            item.setAttribute('data-lang-id', id);
             item.innerHTML = `
                 <div class="list-item-content">
-                    <input type="text" placeholder="Dil (məs: İngilis)" class="lang-name-${id}" style="flex: 2;">
-                    <input type="text" placeholder="Səviyyə (məs: Əla)" class="lang-level-${id}" style="flex: 1; margin-left: 0.5rem;">
+                    <input type="text" placeholder="Dil (məs: İngilis)" class="lang-name" data-id="${id}" style="flex: 2;">
+                    <input type="text" placeholder="Səviyyə (məs: Əla)" class="lang-level" data-id="${id}" style="flex: 1; margin-left: 0.5rem;">
                     <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
                 </div>
             `;
@@ -1975,13 +1959,12 @@
             const preview = document.getElementById('preview-languages');
             const timelinePreview = document.getElementById('preview-languages-timeline');
             const infographicPreview = document.getElementById('preview-languages-infographic');
-            const modernPreview = document.getElementById('preview-languages-modern'); // Assuming template 6 uses this
+            const minimalPreview = document.getElementById('minimal-preview-languages');
             
             const section = document.getElementById('languages-section');
             const timelineSection = document.getElementById('languages-section-timeline');
-            const infographicSection = document.getElementById('languages-section');
-            const minimalSection = document.getElementById('languages-section'); // Assuming minimal uses the same
-            const modernSection = document.getElementById('modern-languages-section'); // Assuming template 6 uses this
+            const infographicSection = document.getElementById('languages-section-infographic');
+            const minimalSection = document.getElementById('minimal-languages-section');
 
             const items = document.querySelectorAll('#languages-list .list-item');
             
@@ -1993,16 +1976,17 @@
             timelineSection.style.display = hasLanguages ? 'block' : 'none';
             infographicSection.style.display = hasLanguages ? 'block' : 'none';
             minimalSection.style.display = hasLanguages ? 'block' : 'none';
-            if (modernSection) modernSection.style.display = hasLanguages ? 'block' : 'none';
 
             preview.innerHTML = '';
             timelinePreview.innerHTML = '';
             infographicPreview.innerHTML = '';
-            if(modernPreview) modernPreview.innerHTML = '';
+            minimalPreview.innerHTML = '';
             
-            items.forEach((item, idx) => {
-                const lang = item.querySelector(`.lang-name-${idx}`)?.value || '';
-                const level = item.querySelector(`.lang-level-${idx}`)?.value || '';
+            items.forEach((item) => {
+                const id = item.getAttribute('data-lang-id');
+                const lang = item.querySelector(`.lang-name[data-id="${id}"]`)?.value || '';
+                const level = item.querySelector(`.lang-level[data-id="${id}"]`)?.value || '';
+                
                 if (lang) {
                     const li = document.createElement('li');
                     li.style.marginBottom = '0.5rem';
@@ -2015,15 +1999,14 @@
                     timelinePreview.appendChild(timelineLi);
 
                     const infographicLi = document.createElement('li');
+                    infographicLi.style.marginBottom = '0.5rem';
                     infographicLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
                     infographicPreview.appendChild(infographicLi);
 
-                    if(modernPreview) {
-                        const modernLi = document.createElement('div');
-                        modernLi.style.marginBottom = '0.5rem';
-                        modernLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
-                        modernPreview.appendChild(modernLi);
-                    }
+                    const minimalLi = document.createElement('div');
+                    minimalLi.style.marginBottom = '0.5rem';
+                    minimalLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
+                    minimalPreview.appendChild(minimalLi);
                 }
             });
         }
