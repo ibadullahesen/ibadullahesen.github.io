@@ -2,7 +2,7 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AxtarGet - Takipçi Xidməti</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
@@ -28,8 +28,6 @@
             background-color: var(--background);
             color: var(--text-primary);
             padding-bottom: 80px;
-            -webkit-font-smoothing: antialiased;
-            -webkit-overflow-scrolling: touch;
         }
         .container { max-width: 640px; }
         header {
@@ -42,8 +40,6 @@
             border-radius: 0.75rem;
             border: 1px solid var(--border);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            -webkit-backface-visibility: hidden;
-            -webkit-transform: translateZ(0);
         }
         .card-header { padding: 1.5rem 1.5rem 1rem; }
         .card-content { padding: 1.5rem; }
@@ -63,8 +59,6 @@
             color: var(--text-primary);
             border: 1px solid var(--border);
             transition: border-color 0.2s, box-shadow 0.2s;
-            font-size: 16px; /* iOS zoom önlemi */
-            -webkit-appearance: none;
         }
         .input:focus {
             outline: none;
@@ -81,7 +75,6 @@
             transition: all 0.2s;
             cursor: pointer;
             border: none;
-            -webkit-tap-highlight-color: transparent;
         }
         .btn-lg { padding: 1rem 1.75rem; font-size: 1rem; }
         .btn-primary { background-color: var(--primary); color: #ffffff; }
@@ -89,126 +82,60 @@
         .btn-secondary { background-color: var(--secondary); color: var(--text-primary); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .separator { height: 1px; background-color: var(--border); margin: 1.5rem 0; }
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            background-color: var(--card-background); 
-            border-top: 1px solid var(--border); 
-            z-index: 50;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--card-background); border-top: 1px solid var(--border); z-index: 50; }
         .bottom-nav a.active { color: var(--primary); }
         .dialog-overlay {
-            position: fixed; 
-            inset: 0; 
-            background-color: rgba(0,0,0,0.8); 
-            z-index: 100;
-            display: none; 
-            align-items: center; 
-            justify-content: center;
-            padding: 1rem; 
-            opacity: 0; 
-            transition: opacity 0.3s ease;
-            -webkit-transform: translateZ(0);
+            position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 100;
+            display: none; align-items: center; justify-content: center;
+            padding: 1rem; opacity: 0; transition: opacity 0.3s ease;
         }
         .dialog-overlay.show { opacity: 1; }
         .dialog-content {
-            background-color: var(--card-background); 
-            border-radius: 0.75rem; 
-            padding: 1.5rem;
-            width: 100%; 
-            max-width: 420px; 
-            position: relative;
-            transform: scale(0.95); 
-            opacity: 0; 
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            -webkit-transform: translateZ(0);
-            will-change: transform, opacity;
+            background-color: var(--card-background); border-radius: 0.75rem; padding: 1.5rem;
+            width: 100%; max-width: 420px; position: relative;
+            transform: scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease;
         }
         .dialog-overlay.show .dialog-content { transform: scale(1); opacity: 1; }
         .dialog-close { position: absolute; top: 1rem; right: 1rem; color: var(--text-muted); cursor: pointer; font-size: 1.5rem; }
         #floating-whatsapp-bubble {
-            position: fixed; 
-            bottom: calc(90px + env(safe-area-inset-bottom)); 
-            right: 20px; 
-            background-color: #25D366;
-            width: 56px; 
-            height: 56px; 
-            border-radius: 50%;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
-            z-index: 40; 
-            transition: transform 0.2s ease;
-            -webkit-tap-highlight-color: transparent;
+            position: fixed; bottom: 90px; right: 20px; background-color: #25D366;
+            width: 56px; height: 56px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 40; transition: transform 0.2s ease;
         }
         #floating-whatsapp-bubble:hover { transform: scale(1.1); }
         .alert-message {
-            position: fixed; 
-            bottom: calc(90px + env(safe-area-inset-bottom)); 
-            left: 50%;
-            transform: translateX(-50%); 
-            color: white; 
-            padding: 10px 20px;
-            border-radius: 8px; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            z-index: 1000; 
-            opacity: 0; 
-            transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
-            min-width: 300px; 
-            text-align: center;
+            position: fixed; bottom: 90px; left: 50%;
+            transform: translateX(-50%); color: white; padding: 10px 20px;
+            border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out, bottom 0.3s ease-in-out;
+            min-width: 300px; text-align: center;
         }
-        .alert-message.show { opacity: 1; bottom: calc(100px + env(safe-area-inset-bottom)); }
+        .alert-message.show { opacity: 1; bottom: 100px; }
         .alert-message.success { background-color: #10b981; }
         .alert-message.error { background-color: var(--destructive); }
         .custom-select-wrapper { position: relative; }
         .custom-select-trigger {
-            width: 100%; 
-            padding: 0.75rem; 
-            border-radius: 0.5rem;
-            background-color: var(--input-bg); 
-            color: var(--text-primary);
-            border: 1px solid var(--border); 
-            transition: border-color 0.2s, box-shadow 0.2s;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            cursor: pointer;
-            font-size: 16px; /* iOS zoom önlemi */
-            -webkit-appearance: none;
+            width: 100%; padding: 0.75rem; border-radius: 0.5rem;
+            background-color: var(--input-bg); color: var(--text-primary);
+            border: 1px solid var(--border); transition: border-color 0.2s, box-shadow 0.2s;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
         }
         .custom-select-wrapper.open .custom-select-trigger {
             border-color: var(--primary);
             box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
         }
         .custom-select-options {
-            position: absolute; 
-            top: 105%; 
-            left: 0; 
-            right: 0;
-            background-color: var(--card-background); 
-            border: 1px solid var(--border);
-            border-radius: 0.5rem; 
-            z-index: 10;
-            max-height: 200px; 
-            overflow-y: auto;
-            display: none; 
-            list-style: none; 
-            padding: 0.25rem; 
-            margin: 0;
-            -webkit-overflow-scrolling: touch;
+            position: absolute; top: 105%; left: 0; right: 0;
+            background-color: var(--card-background); border: 1px solid var(--border);
+            border-radius: 0.5rem; z-index: 10;
+            max-height: 200px; overflow-y: auto;
+            display: none; list-style: none; padding: 0.25rem; margin: 0;
         }
         .custom-select-wrapper.open .custom-select-options { display: block; }
         .custom-select-options li {
-            padding: 0.75rem; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center;
-            gap: 0.75rem; 
-            border-radius: 0.375rem;
+            padding: 0.75rem; cursor: pointer; display: flex; align-items: center;
+            gap: 0.75rem; border-radius: 0.375rem;
         }
         .custom-select-options li:hover { background-color: var(--secondary); }
         .custom-select-options li .icon { width: 1.25em; text-align: center; }
@@ -277,35 +204,6 @@
             cursor: pointer;
             -webkit-appearance: none;
             margin-top: -7px;
-        }
-        
-        /* iOS-specific fixes */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                -webkit-user-select: none;
-                -webkit-touch-callout: none;
-            }
-            
-            input, textarea, .input {
-                -webkit-user-select: text;
-            }
-            
-            .btn, .custom-select-trigger {
-                -webkit-tap-highlight-color: rgba(0,0,0,0);
-            }
-        }
-        
-        /* Safe area insets for iPhone X and newer */
-        @media screen and (max-width: 767px) {
-            body {
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-            }
-            
-            .container {
-                padding-left: max(1rem, env(safe-area-inset-left));
-                padding-right: max(1rem, env(safe-area-inset-right));
-            }
         }
     </style>
 </head>
@@ -602,9 +500,6 @@
         const formatPriceForDisplay = (num) => parseFloat(num.toFixed(6));
         const COOLDOWN_HOURS = 24;
         
-        // iOS tespiti
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        
         const showAlert = (message, type = 'error', duration = 4000) => {
             const alertBox = document.createElement('div');
             alertBox.className = `alert-message ${type}`;
@@ -725,7 +620,6 @@
             const optionsList = wrapper.querySelector('.custom-select-options');
             const triggerText = trigger.querySelector('span');
             
-            // iOS için touch event desteği
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 document.querySelectorAll('.custom-select-wrapper.open').forEach(openWrapper => {
@@ -740,8 +634,6 @@
                     const li = document.createElement('li');
                     li.dataset.value = item.value;
                     li.innerHTML = `<i class="icon ${item.iconClass}"></i><span>${item.label}</span>`;
-                    
-                    // iOS için touch event
                     li.addEventListener('click', () => {
                         triggerText.innerHTML = li.innerHTML;
                         triggerText.classList.remove('placeholder');
@@ -749,7 +641,6 @@
                         wrapper.dispatchEvent(new CustomEvent('change', { detail: { value: item.value } }));
                         wrapper.classList.remove('open');
                     });
-                    
                     optionsList.appendChild(li);
                 });
             };
@@ -917,15 +808,11 @@
             const modal = DOMElements.topUpModal;
             if (show) {
                 modal.style.display = 'flex';
-                // iOS için force reflow
-                modal.offsetHeight;
                 setTimeout(() => modal.classList.add('show'), 10);
             } else {
                 modal.classList.remove('show');
                 modal.addEventListener('transitionend', () => {
-                    if (!modal.classList.contains('show')) {
-                        modal.style.display = 'none';
-                    }
+                    if (!modal.classList.contains('show')) modal.style.display = 'none';
                 }, { once: true });
             }
         };
@@ -1004,20 +891,6 @@
         DOMElements.topUpModal.addEventListener('click', (e) => { if (e.target === DOMElements.topUpModal) toggleModal(false); });
         DOMElements.newOrderNav.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
         DOMElements.headerCampaignsButton.addEventListener('click', e => { e.preventDefault(); DOMElements.campaignsSection.scrollIntoView({ behavior: 'smooth' }); });
-        
-        // iOS için özel touch event'ler
-        if (isIOS) {
-            document.querySelectorAll('.btn, .custom-select-trigger').forEach(element => {
-                element.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    this.style.transform = 'scale(0.98)';
-                }, { passive: false });
-                
-                element.addEventListener('touchend', function() {
-                    this.style.transform = '';
-                });
-            });
-        }
         
     </script>
 </body>
