@@ -14,16 +14,32 @@
     <link rel="icon" type="image/png" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
 
-    <!-- Google axtarış nəticələrində loqonun görünməsi üçün schema kodu -->
+    <!-- Google SEO üçün yeni schema kodu - Google axtarışında logosu göstərilməsi üçün -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "AxtarGet",
       "url": "https://axtarget.xyz/",
-      "logo": "https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg"
+      "logo": "https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg",
+      "sameAs": [
+        "https://www.instagram.com/ibadulla_hasanov_official",
+        "https://www.facebook.com/axtarget"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "telephone": "+994606006162"
+      }
     }
     </script>
+    
+    <!-- Open Graph meta tags - Sosial media və Google üçün -->
+    <meta property="og:title" content="AxtarGet - Gələcəyin Rəqəmsal Həlləri">
+    <meta property="og:description" content="Web sayt hazırlama, SMM, AI xidmətləri və daha çoxu">
+    <meta property="og:image" content="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
+    <meta property="og:url" content="https://axtarget.xyz/">
+    <meta property="og:type" content="website">
     <!-- === LOQO DÜZƏLİŞLƏRİ BİTİR === -->
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-62M9RVVRTY"></script>
@@ -278,7 +294,7 @@
             box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
         
-        /* Axtarış motoru üçün yeni stillər - Nəticələr Ön Planda və Düymədən Sonra */
+        /* Axtarış motoru üçün yenilənmiş stillər - nəticələr haqqında görünürlük */
         .search-container {
             position: relative;
             max-width: 500px;
@@ -316,21 +332,27 @@
             border: 1px solid var(--border);
             border-radius: 1rem;
             margin-top: 0.5rem;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
-            z-index: 1000; /* Yüksək z-index ilə ön planda */
+            z-index: 1000;
             display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .search-results.show {
+            display: block;
         }
         
         .search-result-item {
-            padding: 0.75rem 1.5rem;
+            padding: 1rem 1.5rem;
             border-bottom: 1px solid rgba(56, 229, 183, 0.1);
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: all 0.2s ease;
         }
         
         .search-result-item:hover {
-            background-color: rgba(56, 229, 183, 0.1);
+            background-color: rgba(56, 229, 183, 0.15);
+            padding-left: 2rem;
         }
         
         .search-result-item:last-child {
@@ -341,17 +363,20 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 0.25rem;
+            font-size: 0.95rem;
         }
         
         .search-result-description {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
+            line-height: 1.4;
         }
         
         .no-results {
-            padding: 1rem;
+            padding: 1.5rem;
             text-align: center;
             color: var(--text-muted);
+            font-size: 0.95rem;
         }
         
         .search-icon {
@@ -362,20 +387,11 @@
             color: var(--text-muted);
             cursor: pointer;
             z-index: 101;
+            transition: color 0.2s ease;
         }
         
         .search-icon:hover {
             color: var(--primary);
-        }
-        
-        /* Hero bölməsində axtarış nəticələrinin ön planda olması */
-        #hero .search-results {
-            z-index: 1000;
-        }
-        
-        /* Hero bölməsində axtarış konteyneri - nəticələr düymədən sonra */
-        #hero .search-container {
-            margin-bottom: 1.5rem;
         }
         
         /* Responsive üçün düzəlişlər */
@@ -457,14 +473,13 @@
                     Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
                 </p>
                 
-                <!-- Hero bölməsində axtarış - Nəticələr Ön Planda və Düymədən Sonra -->
                 <div class="fade-in" style="transition-delay: 0.4s;">
                     <a href="#products" class="btn-primary px-10 py-4 text-lg inline-block">
                         <i class="fas fa-rocket mr-2"></i> Xidmətlərimizə Keçid
                     </a>
                 </div>
                 
-                <!-- Axtarış konteyneri düymədən sonra -->
+                <!-- Axtarış konteyneri - anında nəticə göstərmə -->
                 <div class="search-container max-w-2xl mx-auto mt-10 fade-in" style="transition-delay: 0.6s;">
                     <input type="text" id="hero-search-input" class="search-box" placeholder="Axtar Get...">
                     <div class="search-icon" id="hero-search-button">
@@ -828,8 +843,8 @@
                         const vertices = [];
                         const radius = 2;
 
-                        for (let y = 0; y < canvas.height; y+=4) { // Optimallaşdırma: Daha az nöqtə
-                            for (let x = 0; x < canvas.width; x+=4) { // Optimallaşdırma: Daha az nöqtə
+                        for (let y = 0; y < canvas.height; y+=4) {
+                            for (let x = 0; x < canvas.width; x+=4) {
                                 const index = (y * canvas.width + x) * 4;
                                 const r = imageData.data[index];
 
@@ -927,7 +942,6 @@
                 });
             }
             
-            // Axtarış Motoru Funksionallığı
             const searchData = [
                 {
                     title: "Takipçi Xidməti",
@@ -976,15 +990,33 @@
                     description: "Özünüzə uyğun iş tapmaq üçün vakansiyalar",
                     url: "https://vakansiya.axtarget.xyz",
                     keywords: ["iş", "vakansiya", "elan", "karyera", "iş elanları", "iş axtarırəm"]
+                },
+                {
+                    title: "Web sayt hazırlama xidməti",
+                    description: "Güclü SEO, güclü dizayn, ucuz qiymət ilə web sayt hazırlama",
+                    url: "https://web.axtarget.xyz",
+                    keywords: ["web", "sayt", "website", "hazırla", "yaradı", "vebsayt", "web sayt", "seo", "dizayn"]
+                },
+                {
+                    title: "HTML/CSS/JavaScript Redaktoru",
+                    description: "HTML, CSS, JavaScript kodlarını yazın və canlı önizləyin",
+                    url: "html.html",
+                    keywords: ["html", "css", "javascript", "kod", "redaktər", "editor", "program"]
+                },
+                {
+                    title: "Anonim Mesajlaşma",
+                    description: "Tam anonim, təhlükəsiz mesajlaşma platforması",
+                    url: "https://axtarget.xyz/anonim.html",
+                    keywords: ["anonim", "mesaj", "chat", "yaz", "istifadəçi", "gizli"]
                 }
             ];
 
-            // Axtarış funksiyası
             function performSearch(query, resultsContainer) {
                 const normalizedQuery = query.toLowerCase().trim();
                 
-                if (normalizedQuery.length < 2) {
-                    resultsContainer.style.display = 'none';
+                // 1 hərfdən başlayaraq axtarış göstər
+                if (normalizedQuery.length < 1) {
+                    resultsContainer.classList.remove('show');
                     return;
                 }
                 
@@ -1031,12 +1063,11 @@
                     });
                 }
                 
-                container.style.display = 'block';
+                container.classList.add('show');
             }
             
             // Axtarış konteynerləri üçün event listener-lar
             const searchInputs = [
-                { input: 'search-input', results: 'search-results' },
                 { input: 'hero-search-input', results: 'hero-search-results' },
                 { input: 'mobile-search-input', results: 'mobile-search-results' }
             ];
@@ -1046,7 +1077,7 @@
                 const resultsElement = document.getElementById(results);
                 
                 if (inputElement && resultsElement) {
-                    // Yazarkən axtarış
+                    // Yazarkən axtarış (input event)
                     inputElement.addEventListener('input', (e) => {
                         performSearch(e.target.value, resultsElement);
                     });
@@ -1081,7 +1112,7 @@
                     // Sənfdən kənarına klikləndikdə nəticələri gizlət
                     document.addEventListener('click', (e) => {
                         if (!inputElement.contains(e.target) && !resultsElement.contains(e.target)) {
-                            resultsElement.style.display = 'none';
+                            resultsElement.classList.remove('show');
                         }
                     });
                 }
