@@ -108,6 +108,7 @@
             transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
             position: relative;
             margin-bottom: 2rem;
+            cursor: pointer;
         }
         
         .feature-card:before {
@@ -185,25 +186,80 @@
             margin-bottom: 1.5rem;
         }
         
+        /* YENİ "DAVAM ET" BUTONU - ANİMASİYALI */
+        .box {
+            width: 140px;
+            height: auto;
+            float: left;
+            transition: .5s linear;
+            position: relative;
+            display: block;
+            overflow: hidden;
+            padding: 15px;
+            text-align: center;
+            margin: 0 5px;
+            background: transparent;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: white;
+            cursor: pointer;
+        }
+
+        .box:before {
+            position: absolute;
+            content: '';
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 100%;
+            border-bottom: 4px solid transparent;
+            border-left: 4px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(100%);
+        }
+
+        .box:after {
+            position: absolute;
+            content: '';
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-top: 4px solid transparent;
+            border-right: 4px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(-100%);
+        }
+
+        .feature-card:hover .box {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-card:hover .box:before {
+            border-color: var(--primary);
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .3s;
+        }
+
+        .feature-card:hover .box:after {
+            border-color: var(--primary);
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .5s;
+        }
+
         .card-link {
             display: inline-flex;
+            justify-content: center;
             align-items: center;
-            color: var(--primary);
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .card-link i {
-            margin-left: 0.5rem;
-            transition: transform 0.3s ease;
-        }
-        
-        .card-link:hover {
-            color: var(--primary-hover);
-        }
-        
-        .card-link:hover i {
-            transform: translateX(5px);
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+            outline: none;
+            border: none;
+            background: transparent;
+            margin-top: 1rem;
         }
         
         /* Alternativ kartlar (məlumat solda, şəkil sağda) */
@@ -294,31 +350,308 @@
             box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
         
-        /* Axtarış motoru üçün yenilənmiş stillər - nəticələr haqqında görünürlük */
+        /* YENİ AXTARMA ÇUBUĞU STİLLƏRİ - IZGARA OLMADAN */
         .search-container {
             position: relative;
             max-width: 500px;
             margin: 0 auto;
         }
         
-        .search-box {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 9999px;
-            padding: 0.75rem 1.5rem;
-            color: var(--text-primary);
+        .white, .border, .darkBorderBg, .glow {
+            max-height: 70px;
+            max-width: 314px;
+            height: 100%;
             width: 100%;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            z-index: 100;
+            position: absolute;
+            overflow: hidden;
+            z-index: -1;
+            border-radius: 12px;
+            filter: blur(3px);
         }
         
-        .search-box:focus {
+        .input {
+            background-color: #010201;
+            border: none;
+            width: 301px;
+            height: 56px;
+            border-radius: 10px;
+            color: white;
+            padding-inline: 59px;
+            font-size: 18px;
+        }
+        
+        #poda {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 314px;
+            height: 70px;
+            margin: 0 auto;
+        }
+        
+        .input::placeholder {
+            color: #c0b9c0;
+        }
+        
+        .input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(56, 229, 183, 0.3);
+        }
+        
+        #main:focus-within > #input-mask {
+            display: none;
+        }
+        
+        #input-mask {
+            pointer-events: none;
+            width: 100px;
+            height: 20px;
+            position: absolute;
+            background: linear-gradient(90deg, transparent, black);
+            top: 18px;
+            left: 70px;
+        }
+        
+        #pink-mask {
+            pointer-events: none;
+            width: 30px;
+            height: 20px;
+            position: absolute;
+            background: #cf30aa;
+            top: 10px;
+            left: 5px;
+            filter: blur(20px);
+            opacity: 0.8;
+            transition: all 2s;
+        }
+        
+        #main:hover > #pink-mask {
+            opacity: 0;
+        }
+        
+        .white {
+            max-height: 63px;
+            max-width: 307px;
+            border-radius: 10px;
+            filter: blur(2px);
+        }
+        
+        .white::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(83deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            filter: brightness(1.4);
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0) 0%,
+                #a099d8,
+                rgba(0, 0, 0, 0) 8%,
+                rgba(0, 0, 0, 0) 50%,
+                #dfa2da,
+                rgba(0, 0, 0, 0) 58%
+            );
+            transition: all 2s;
+        }
+        
+        .border {
+            max-height: 59px;
+            max-width: 303px;
+            border-radius: 11px;
+            filter: blur(0.5px);
+        }
+        
+        .border::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(70deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            filter: brightness(1.3);
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                #1c191c,
+                #402fb5 5%,
+                #1c191c 14%,
+                #1c191c 50%,
+                #cf30aa 60%,
+                #1c191c 64%
+            );
+            transition: all 2s;
+        }
+        
+        .darkBorderBg {
+            max-height: 65px;
+            max-width: 312px;
+        }
+        
+        .darkBorderBg::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(82deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0),
+                #18116a,
+                rgba(0, 0, 0, 0) 10%,
+                rgba(0, 0, 0, 0) 50%,
+                #6e1b60,
+                rgba(0, 0, 0, 0) 60%
+            );
+            transition: all 2s;
+        }
+        
+        #poda:hover > .darkBorderBg::before {
+            transform: translate(-50%, -50%) rotate(-98deg);
+        }
+        
+        #poda:hover > .glow::before {
+            transform: translate(-50%, -50%) rotate(-120deg);
+        }
+        
+        #poda:hover > .white::before {
+            transform: translate(-50%, -50%) rotate(-97deg);
+        }
+        
+        #poda:hover > .border::before {
+            transform: translate(-50%, -50%) rotate(-110deg);
+        }
+        
+        #poda:focus-within > .darkBorderBg::before {
+            transform: translate(-50%, -50%) rotate(442deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .glow::before {
+            transform: translate(-50%, -50%) rotate(420deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .white::before {
+            transform: translate(-50%, -50%) rotate(443deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .border::before {
+            transform: translate(-50%, -50%) rotate(430deg);
+            transition: all 4s;
+        }
+        
+        .glow {
+            overflow: hidden;
+            filter: blur(30px);
+            opacity: 0.4;
+            max-height: 130px;
+            max-width: 354px;
+        }
+        
+        .glow:before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(60deg);
+            position: absolute;
+            width: 999px;
+            height: 999px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                #000,
+                #402fb5 5%,
+                #000 38%,
+                #000 50%,
+                #cf30aa 60%,
+                #000 87%
+            );
+            transition: all 2s;
+        }
+        
+        @keyframes rotate {
+            100% {
+                transform: translate(-50%, -50%) rotate(450deg);
+            }
+        }
+        
+        #filter-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            max-height: 40px;
+            max-width: 38px;
+            height: 100%;
+            width: 100%;
+            isolation: isolate;
+            overflow: hidden;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #161329, black, #1d1b4b);
+            border: 1px solid transparent;
+        }
+        
+        .filterBorder {
+            height: 42px;
+            width: 40px;
+            position: absolute;
+            overflow: hidden;
+            top: 7px;
+            right: 7px;
+            border-radius: 10px;
+        }
+        
+        .filterBorder::before {
+            content: "";
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            filter: brightness(1.35);
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0),
+                #3d3a4f,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(0, 0, 0, 0) 50%,
+                #3d3a4f,
+                rgba(0, 0, 0, 0) 100%
+            );
+            animation: rotate 4s linear infinite;
+        }
+        
+        #main {
+            position: relative;
+        }
+        
+        #search-icon {
+            position: absolute;
+            left: 20px;
+            top: 15px;
         }
         
         .search-results {
@@ -379,19 +712,179 @@
             font-size: 0.95rem;
         }
         
-        .search-icon {
-            position: absolute;
-            right: 1.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
+        /* YENİ HAQQIMIZDA KARTI */
+        .about-card {
+            width: 300px;
+            height: 200px;
+            perspective: 1000px;
+            margin: 2rem auto;
+        }
+
+        .about-card-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.999s;
             cursor: pointer;
-            z-index: 101;
-            transition: color 0.2s ease;
+        }
+
+        .about-card:hover .about-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .about-card-front,
+        .about-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .about-card-front {
+            background-color: var(--glass-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .about-card-back {
+            background-color: var(--glass-bg);
+            color: var(--text-primary);
+            border: 2px solid var(--primary);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transform: rotateY(180deg);
+        }
+
+        .about-card-front p {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-card-front small {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .about-card-back p {
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
         
-        .search-icon:hover {
+        /* YENİ TV EFEKTLİ VİDEO KONTEYNERİ */
+        .tv-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+            border: 15px solid #1a1a1a;
+            background: #1a1a1a;
+        }
+        
+        .tv-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .tv-screen {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .tv-screen iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .tv-stand {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 40px;
+            background: #333;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tv-stand:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        /* YENİ İLETİŞİM KARTLARI */
+        .contact-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(56, 229, 183, 0.2);
+        }
+        
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
             color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: all 0.4s ease;
+        }
+        
+        .contact-card:hover .contact-icon {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
         
         /* Responsive üçün düzəlişlər */
@@ -403,6 +896,47 @@
             .card-image {
                 flex: 0 0 250px;
                 width: 100%;
+            }
+            
+            #poda {
+                width: 280px;
+            }
+            
+            .input {
+                width: 270px;
+            }
+            
+            .about-card {
+                width: 280px;
+                height: 220px;
+            }
+            
+            .tv-container {
+                max-width: 90%;
+                border-width: 10px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .about-card {
+                width: 260px;
+                height: 240px;
+            }
+            
+            .tv-container {
+                border-width: 8px;
+            }
+            
+            .tv-stand {
+                width: 80px;
+                height: 30px;
+                bottom: -30px;
+            }
+            
+            .tv-stand:before {
+                width: 60px;
+                height: 8px;
+                top: -8px;
             }
         }
     </style>
@@ -451,14 +985,74 @@
             <!-- Mobil menyuda axtarış -->
             <div class="p-4 border-b border-gray-800">
                 <div class="search-container">
-                    <input type="text" id="mobile-search-input" class="search-box" placeholder="Axtar Get...">
-                    <div class="search-icon" id="mobile-search-button">
-                        <i class="fas fa-search"></i>
+                    <div id="poda">
+                        <div class="glow"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="white"></div>
+                        <div class="border"></div>
+                        <div id="main">
+                            <input placeholder="Axtar Get..." type="text" name="text" class="input" id="mobile-search-input" />
+                            <div id="input-mask"></div>
+                            <div id="pink-mask"></div>
+                            <div class="filterBorder"></div>
+                            <div id="filter-icon">
+                                <svg
+                                    preserveAspectRatio="none"
+                                    height="27"
+                                    width="27"
+                                    viewBox="4.8 4.56 14.832 15.408"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M8.16 6.65002H15.83C16.47 6.65002 16.99 7.17002 16.99 7.81002V9.09002C16.99 9.56002 16.7 10.14 16.41 10.43L13.91 12.64C13.56 12.93 13.33 13.51 13.33 13.98V16.48C13.33 16.83 13.1 17.29 12.81 17.47L12 17.98C11.24 18.45 10.2 17.92 10.2 16.99V13.91C10.2 13.5 9.97 12.98 9.73 12.69L7.52 10.36C7.23 10.08 7 9.55002 7 9.20002V7.87002C7 7.17002 7.52 6.65002 8.16 6.65002Z"
+                                        stroke="#d6d6e6"
+                                        stroke-width="1"
+                                        stroke-miterlimit="10"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <div id="search-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linejoin="round"
+                                    stroke-linecap="round"
+                                    height="24"
+                                    fill="none"
+                                    class="feather feather-search"
+                                >
+                                    <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                                    <line
+                                        stroke="url(#searchl)"
+                                        y2="16.65"
+                                        y1="22"
+                                        x2="16.65"
+                                        x1="22"
+                                    ></line>
+                                    <defs>
+                                        <linearGradient gradientTransform="rotate(50)" id="search">
+                                            <stop stop-color="#f8e7f8" offset="0%"></stop>
+                                            <stop stop-color="#b6a9b7" offset="50%"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="searchl">
+                                            <stop stop-color="#b6a9b7" offset="0%"></stop>
+                                            <stop stop-color="#837484" offset="50%"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                     <div id="mobile-search-results" class="search-results"></div>
                 </div>
-            </nav>
-        </div>
+            </div>
+        </nav>
     </div>
 
     <main>
@@ -481,9 +1075,69 @@
                 
                 <!-- Axtarış konteyneri - anında nəticə göstərmə -->
                 <div class="search-container max-w-2xl mx-auto mt-10 fade-in" style="transition-delay: 0.6s;">
-                    <input type="text" id="hero-search-input" class="search-box" placeholder="Axtar Get...">
-                    <div class="search-icon" id="hero-search-button">
-                        <i class="fas fa-search"></i>
+                    <div id="poda">
+                        <div class="glow"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="white"></div>
+                        <div class="border"></div>
+                        <div id="main">
+                            <input placeholder="Axtar Get..." type="text" name="text" class="input" id="hero-search-input" />
+                            <div id="input-mask"></div>
+                            <div id="pink-mask"></div>
+                            <div class="filterBorder"></div>
+                            <div id="filter-icon">
+                                <svg
+                                    preserveAspectRatio="none"
+                                    height="27"
+                                    width="27"
+                                    viewBox="4.8 4.56 14.832 15.408"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M8.16 6.65002H15.83C16.47 6.65002 16.99 7.17002 16.99 7.81002V9.09002C16.99 9.56002 16.7 10.14 16.41 10.43L13.91 12.64C13.56 12.93 13.33 13.51 13.33 13.98V16.48C13.33 16.83 13.1 17.29 12.81 17.47L12 17.98C11.24 18.45 10.2 17.92 10.2 16.99V13.91C10.2 13.5 9.97 12.98 9.73 12.69L7.52 10.36C7.23 10.08 7 9.55002 7 9.20002V7.87002C7 7.17002 7.52 6.65002 8.16 6.65002Z"
+                                        stroke="#d6d6e6"
+                                        stroke-width="1"
+                                        stroke-miterlimit="10"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <div id="search-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linejoin="round"
+                                    stroke-linecap="round"
+                                    height="24"
+                                    fill="none"
+                                    class="feather feather-search"
+                                >
+                                    <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                                    <line
+                                        stroke="url(#searchl)"
+                                        y2="16.65"
+                                        y1="22"
+                                        x2="16.65"
+                                        x1="22"
+                                    ></line>
+                                    <defs>
+                                        <linearGradient gradientTransform="rotate(50)" id="search">
+                                            <stop stop-color="#f8e7f8" offset="0%"></stop>
+                                            <stop stop-color="#b6a9b7" offset="50%"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="searchl">
+                                            <stop stop-color="#b6a9b7" offset="0%"></stop>
+                                            <stop stop-color="#837484" offset="50%"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                     <div id="hero-search-results" class="search-results"></div>
                 </div>
@@ -501,128 +1155,144 @@
                 </div>
                 
                 <!-- Yeni Kart Dizaynı -->
-                <div class="feature-card reverse fade-in">
+                <a href="https://web.axtarget.xyz" class="feature-card reverse fade-in">
                     <div class="card-content">
                         <span class="card-tag">Dizayn</span>
                         <h3 class="card-title">Web sayt hazırlama xidməti</h3>
                         <p class="card-description">web saytınızı biz hazırlayaq. Güclü seo, güclü dizayn, ucuz qiymət. Sayıtınızın qiymətini hesablayıb dərhal sifariş verə bilərsiniz</p>
-                        <a href="https://web.axtarget.xyz" class="card-link">
-                            Daha ətraflı <i class="fas fa-arrow-right"></i>
-                        </a>
+                        <div class="card-link">
+                            <span class="box">
+                                Davam et
+                            </span>
+                        </div>
                     </div>
                     <div class="card-image">
                         <img src="https://i.postimg.cc/FsqjkjvZ/opt1-scaled.jpg" alt="Şəkil Redaktəsi">
                     </div>
-                </div>
+                </a>
                 
                 <div class="space-y-12">
                     <!-- Premium CV Hazırla -->
-                    <div class="feature-card fade-in">
+                    <a href="prmiumCV.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Premium</span>
                             <h3 class="card-title">Premium CV Hazırla</h3>
                             <p class="card-description">Arzuladığınız işə qəbul üçün peşəkar CV lazımdır? Düzgün ünvandasınız. Rəqiblərinizdən fərqlənin, premium keyfiyyətli CV ilə ilk təəssüratdan qalib olun.</p>
-                            <a href="prmiumCV.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/qvztVKYZ/rush-resume-template-2.jpg" alt="Premium CV Hazırlama">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- Şəkil Redaktəsi Xidməti -->
-                    <div class="feature-card reverse fade-in">
+                    <a href="photo.html" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Dizayn</span>
                             <h3 class="card-title">Şəkil Redaktəsi Xidməti</h3>
                             <p class="card-description">Şəkillərinizi peşəkar səviyyəyə qaldırın! Rəng korreksiyası, arxa fonun silinməsi, retuş və digər qrafik dizayn xidmətləri ilə fotolarınıza unikal görünüş bəxş edin.</p>
-                            <a href="photo.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/sfbfQL0N/cerceveli-poster-renkli-geometrik-sekillerle-arka-plan-jpg.png" alt="Şəkil Redaktəsi">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- Takipçi Xidməti -->
-                    <div class="feature-card fade-in">
+                    <a href="follower-service.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">SMM</span>
                             <h3 class="card-title">Takipçi Xidməti</h3>
                             <p class="card-description">Fenomen olmaq bir addım uzaqlıqda! İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü ən sərfəli qiymətlərlə zirvəyə daşıyın.</p>
-                            <a href="follower-service.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/L6S7bBJb/2025032713351869129.jpg" alt="Takipçi Xidməti">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- AxtarGet AI -->
-                    <div class="feature-card reverse fade-in">
+                    <a href="https://ai.axtarget.xyz" target="_blank" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">AI</span>
                             <h3 class="card-title">AxtarGet AI</h3>
                             <p class="card-description">AxtarGet AI-nin gücü ilə yaradıcılığınızın sərhədlərini aşın. Mətn yazın, şəkil yaradın, kompleks problemləri həll edin – süni intellekt hər an yanınızdadır.</p>
-                            <a href="https://ai.axtarget.xyz" target="_blank" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/pX0ZJDzk/ai-concept-with-spin-lines-effect-background-3d-rendering-video.jpg" alt="AxtarGet AI">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- Rəqəmsal Məhsullar -->
-                    <div class="feature-card fade-in">
+                    <a href="digital-products.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Premium</span>
                             <h3 class="card-title">Rəqəmsal Məhsullar</h3>
                             <p class="card-description">Əyləncə və məhsuldarlıq dünyasına bir addımla daxil olun. Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
-                            <a href="digital-products.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/MTKH5jyQ/Bm7K3Sm-L7x-V4x-Cp-BKag-Mg-P.jpg" alt="Rəqəmsal Məhsullar">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- Biznesini Paylaş -->
-                    <div class="feature-card reverse fade-in">
+                    <a href="share-business.html" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Marketinq</span>
                             <h3 class="card-title">Biznesini Paylaş</h3>
                             <p class="card-description">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət! Bizimlə paylaşın, hədəf auditoriyanıza daha sürətli və effektiv şəkildə çatmağınıza dəstək olaq.</p>
-                            <a href="share-business.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/DysG8L5w/depositphotos-52467319-stock-photo-business-people-working-in-office.webp" alt="Biznesini Paylaş">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- QR kod yarat -->
-                    <div class="feature-card fade-in">
+                    <a href="qr.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Tool</span>
                             <h3 class="card-title">QR kod yarat</h3>
                             <p class="card-description">Öz QR kodunu asanlıqla yaratmaq üçün bu səhifəyə keçid et. Sadə və sürətli.</p>
-                            <a href="qr.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/zfPvdGp0/a-guide-to-qr-codes-and-how-to-scan-qr-codes-3.jpg" alt="QR kod yarat">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- İş Elanları -->
-                    <div class="feature-card reverse fade-in">
+                    <a href="https://vakansiya.axtarget.xyz" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Karyera</span>
                             <h3 class="card-title">İş Elanları</h3>
@@ -636,43 +1306,49 @@
                                     Aplikasiyamızı yüklə
                                 </button>
                             </div>
-                            <a href="https://vakansiya.axtarget.xyz" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/kXnCbdvt/01JWFWAS7M72K1623JC6JDV20V.jpg" alt="İş Elanları">
                         </div>
-                    </div>
+                    </a>
                     
                     <!-- Anonim Mesajlaşma -->
-                    <div class="feature-card fade-in">
+                    <a href="https://axtarget.xyz/anonim.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Təhlükəsizlik</span>
                             <h3 class="card-title">Anonim Mesajlaşma</h3>
                             <p class="card-description">Heç kimin kim olduğunu bilmədən bir-birinizlə sərbəst yazışın. Tam anonim, təhlükəsiz və sadə mesajlaşma platforması.</p>
-                            <a href="https://axtarget.xyz/anonim.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/ZnbQCJzL/pngtree-an-anonymous-hacker-with-computer-image-16301009.jpg" alt="Anonim Mesajlaşma">
                         </div>
-                    </div>
+                    </a>
 
-                    <div class="feature-card reverse fade-in">
+                    <a href="html.html" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">dizayn</span>
                             <h3 class="card-title">HTML/CSS/JavaScript Redaktoru</h3>
                             <p class="card-description">HTML,CSS,JavaScript Redaktoru ilə siz hazırladığınız faylın önizləməsinə baxa və düzəlişlər edə biləsiniz. Tamamilə pulsuz şekildə isdifadə edin.</p>
-                            <a href="html.html" class="card-link">
-                                Daha ətraflı <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
                         </div>
                         <div class="card-image">
                             <img src="https://i.postimg.cc/jS6xhkXm/programming-3173456-1920.jpg" alt="Biznesini Paylaş">
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -715,20 +1391,26 @@
                     Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək və ideyanızı rəqəmsal reallığa çevirək.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 fade-in" style="transition-delay: 0.2s;">
-                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
-                        <i class="fab fa-whatsapp text-5xl text-primary"></i>
+                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
                         <span class="text-xl font-bold">WhatsApp</span>
-                        <span class="text-text-muted text-sm">060-600-61-62</span>
+                        <span class="text-text-muted text-sm mt-2">060-600-61-62</span>
                     </a>
-                    <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
-                        <i class="fas fa-envelope-open-text text-5xl text-primary"></i>
+                    <a href="mailto:ibadulla.hesen@gmail.com" target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
                         <span class="text-xl font-bold">Email</span>
-                        <span class="text-text-muted text-sm">ibadulla.hesen@gmail.com</span>
+                        <span class="text-text-muted text-sm mt-2">ibadulla.hesen@gmail.com</span>
                     </a>
-                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="glass-card p-6 flex flex-col items-center justify-center gap-3">
-                        <i class="fab fa-instagram text-5xl text-primary"></i>
+                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-instagram"></i>
+                        </div>
                         <span class="text-xl font-bold">Instagram</span>
-                        <span class="text-text-muted text-sm">@ibadulla_hasanov_official</span>
+                        <span class="text-text-muted text-sm mt-2">@ibadulla_hasanov_official</span>
                     </a>
                 </div>
             </div>
@@ -743,16 +1425,31 @@
                         Bizim xidmətlərimiz və vizyonumuz haqqında daha ətraflı məlumat əldə edin.
                     </p>
                 </div>
-                <div class="glass-card p-6 md:p-8 fade-in mx-auto max-w-5xl" style="transition-delay: 0.2s;">
-                    <div class="relative w-full" style="padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                
+                <!-- TV Efektli Video -->
+                <div class="tv-container fade-in" style="transition-delay: 0.2s;">
+                    <div class="tv-screen">
                         <iframe 
-                            class="absolute top-0 left-0 w-full h-full rounded-xl"
                             src="https://www.youtube.com/embed/qBbF_wrr73M?si=g4TGI6vfasaHyRwl&autoplay=0&rel=0&modestbranding=1&controls=1"
                             title="AxtarGet Təqdimat Videosu"
                             frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowfullscreen>
                         </iframe>
+                    </div>
+                    <div class="tv-stand"></div>
+                </div>
+                
+                <!-- Haqqımızda Kartı -->
+                <div class="about-card fade-in mt-16">
+                    <div class="about-card-inner">
+                        <div class="about-card-front">
+                            <p>Haqqımızda</p>
+                            <small>(Oxumaq üçün toxun)</small>
+                        </div>
+                        <div class="about-card-back">
+                            <p>AxtarGet.xyz - İbadulla Həsənovun yaratdığı öndə gələn rəqəmsal platformalardan biridir. Biz innovativ texnologiya həlləri ilə müştərilərimizə ən yaxşı xidməti təqdim edirik.</p>
+                        </div>
                     </div>
                 </div>
             </div>
