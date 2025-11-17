@@ -100,10 +100,12 @@
         #cv-container.template-4 { --accent-color: #9b59b6; }
 
         /* Template 1: Modern - Sidebar */
-        #cv-container.template-1 { display: flex; }
+        #cv-container.template-1 { 
+            display: flex; 
+        }
         #cv-container.template-1 .cv-left {
             width: 40%;
-            background: linear-gradient(180deg, var(--accent-color) 0%, color-mix(in srgb, var(--accent-color) 85%, black));
+            background: linear-gradient(180deg, var(--accent-color) 0%, rgba(0, 0, 0, 0.7));
             color: white;
             padding: 2.5rem 1.8rem;
             overflow-y: auto;
@@ -793,7 +795,7 @@
                     <!-- Sol Sütun -->
                     <div class="cv-left" id="cv-left">
                         <div class="profile-image-container" id="profile-pic-container">
-                            <img id="profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                            <img id="profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
                         </div>
 
                         <div style="text-align: center; margin-bottom: 2rem;">
@@ -868,7 +870,7 @@
                 <div id="template-clean-container" style="display: none; width: 100%;">
                     <div class="cv-header">
                         <div class="profile-image-container" style="width: 120px; height: 120px; margin: 0 auto 1.5rem;">
-                            <img id="clean-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                            <img id="clean-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
                         </div>
                         <div>
                             <div class="profile-name editable" id="clean-name" contenteditable="true" style="font-size: 2rem;">Ad Soyad</div>
@@ -929,7 +931,7 @@
                     <div class="cv-header">
                         <div style="display: flex; align-items: center; gap: 2rem;">
                             <div class="profile-image-container" style="width: 120px; height: 120px; margin: 0;">
-                                <img id="executive-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                                <img id="executive-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
                             </div>
                             <div>
                                 <div class="profile-name editable" id="executive-name" contenteditable="true" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Ad Soyad</div>
@@ -984,11 +986,11 @@
                 </div>
 
                 <!-- TEMPLATE 4: Pro Minimal -->
-                <div id="template-minimal-container" style="display: flex; width: 100%;">
+                <div id="template-minimal-container" style="display: none; width: 100%;">
                     <!-- Sol Sütun -->
                     <div class="cv-left" id="cv-left-minimal">
                         <div class="profile-image-container" id="minimal-profile-pic-container">
-                            <img id="minimal-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                            <img id="minimal-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
                         </div>
 
                         <div style="text-align: center; margin-bottom: 2rem;">
@@ -1229,11 +1231,22 @@
             });
             document.querySelector(`.template-btn[data-template="${templateNum}"]`).classList.add('active');
 
-            // Şablon konteynerlərini göstər/gizlət
-            document.getElementById('template-sidebar-container').style.display = templateNum === 1 ? 'flex' : 'none';
-            document.getElementById('template-clean-container').style.display = templateNum === 2 ? 'block' : 'none';
-            document.getElementById('template-executive-container').style.display = templateNum === 3 ? 'block' : 'none';
-            document.getElementById('template-minimal-container').style.display = templateNum === 4 ? 'flex' : 'none';
+            // BÜTÜN şablon konteynerlərini gizlət
+            document.getElementById('template-sidebar-container').style.display = 'none';
+            document.getElementById('template-clean-container').style.display = 'none';
+            document.getElementById('template-executive-container').style.display = 'none';
+            document.getElementById('template-minimal-container').style.display = 'none';
+
+            // Seçilmiş şablonu göstər
+            if (templateNum === 1) {
+                document.getElementById('template-sidebar-container').style.display = 'flex';
+            } else if (templateNum === 2) {
+                document.getElementById('template-clean-container').style.display = 'block';
+            } else if (templateNum === 3) {
+                document.getElementById('template-executive-container').style.display = 'block';
+            } else if (templateNum === 4) {
+                document.getElementById('template-minimal-container').style.display = 'flex';
+            }
 
             // Şablon rənglərini təyin et
             const colors = {
@@ -1825,7 +1838,7 @@
             });
         }
 
-        // PDF yükləmə
+        // PDF yükləmə - DÜZƏLDİLMİŞ VERSİYA
         document.getElementById('download-pdf').addEventListener('click', async () => {
             const loader = document.querySelector('.loader');
             const overlay = document.querySelector('.loader-overlay');
@@ -1834,12 +1847,36 @@
             overlay.style.display = 'block';
 
             try {
+                // PDF yaradılmazdan əvvəl bütün şablonları gizlət
+                document.getElementById('template-clean-container').style.display = 'none';
+                document.getElementById('template-executive-container').style.display = 'none';
+                document.getElementById('template-minimal-container').style.display = 'none';
+                
+                // Yalnız aktiv şablonu göstər
+                if (currentTemplate === 1) {
+                    document.getElementById('template-sidebar-container').style.display = 'flex';
+                } else if (currentTemplate === 2) {
+                    document.getElementById('template-clean-container').style.display = 'block';
+                } else if (currentTemplate === 3) {
+                    document.getElementById('template-executive-container').style.display = 'block';
+                } else if (currentTemplate === 4) {
+                    document.getElementById('template-minimal-container').style.display = 'flex';
+                }
+
                 const cvContainer = document.getElementById('cv-container');
+                
+                // Bir az gözlə ki, DOM yenilənsin
+                await new Promise(resolve => setTimeout(resolve, 100));
+
                 const canvas = await html2canvas(cvContainer, {
                     scale: 2,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    width: 794, // A4 eni pixel olaraq
+                    height: 1123, // A4 hündürlüyü pixel olaraq
+                    windowWidth: 794,
+                    windowHeight: 1123
                 });
 
                 const { jsPDF } = window.jspdf;
@@ -1850,15 +1887,32 @@
                 });
 
                 const imgWidth = 210;
+                const pageHeight = 297;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                
+                let heightLeft = imgHeight;
+                let position = 0;
 
-                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                // Əgər şəkil bir səhifədən böyükdürsə, çox səhifəli PDF yarat
+                pdf.addImage(canvas, 'JPEG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(canvas, 'JPEG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
                 pdf.save('cv.pdf');
+                
             } catch (error) {
                 console.error('PDF error:', error);
-                alert('PDF yaradılarkən xəta baş verdi');
+                alert('PDF yaradılarkən xəta baş verdi: ' + error.message);
             } finally {
+                // Şablonları yenidən düzgün qur
+                switchTemplate(currentTemplate);
+                
                 loader.style.display = 'none';
                 overlay.style.display = 'none';
             }
@@ -1899,7 +1953,13 @@
             // İlkin dəyərləri təyin et
             changeLanguage('az');
             setupRealTimeUpdates();
-            switchTemplate(1);
+            
+            // Əvvəlcə bütün şablonları gizlət, sonra modern şablonu göstər
+            document.getElementById('template-sidebar-container').style.display = 'flex';
+            document.getElementById('template-clean-container').style.display = 'none';
+            document.getElementById('template-executive-container').style.display = 'none';
+            document.getElementById('template-minimal-container').style.display = 'none';
+            
             updateAllPreviews();
         });
     </script>
