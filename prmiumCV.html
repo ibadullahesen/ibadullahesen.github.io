@@ -21,7 +21,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Courier+Prime:wght@400;700&family=Roboto:wght@300;400;500;700&family=Playfair+Display:wght@400;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         * {
@@ -89,13 +89,15 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.2);
             overflow: hidden;
             page-break-after: always;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
-        /* Template colors updated - removed 6 template colors, keeping Modern + 3 new */
+        /* Template colors */
         #cv-container.template-1 { --accent-color: #2c3e50; }
         #cv-container.template-2 { --accent-color: #e74c3c; }
-        #cv-container.template-3 { --accent-color: #9b59b6; }
-        #cv-container.template-4 { --accent-color: #16a085; }
+        #cv-container.template-3 { --accent-color: #16a085; }
+        #cv-container.template-4 { --accent-color: #9b59b6; }
 
         /* Template 1: Modern - Sidebar */
         #cv-container.template-1 { display: flex; }
@@ -113,101 +115,82 @@
             overflow-y: auto;
         }
 
-        /* Template 2: Timeline - Horizontal timeline layout */
-        #cv-container.template-2 { display: flex; flex-direction: column; }
+        /* Template 2: Clean Timeline */
+        #cv-container.template-2 { 
+            display: flex; 
+            flex-direction: column;
+            padding: 2.5rem;
+        }
         #cv-container.template-2 .cv-header {
-            width: 100%;
-            background: linear-gradient(90deg, #2c3e50 0%, #34495e 100%);
-            color: white;
-            padding: 2rem;
-            display: flex;
-            align-items: center;
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 3px solid var(--accent-color);
+        }
+        #cv-container.template-2 .cv-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
-        #cv-container.template-2 .cv-header .profile-image-container {
-            width: 120px;
-            height: 120px;
-            margin: 0;
-        }
-        #cv-container.template-2 .cv-right {
-            width: 100%;
-            background: white;
-            padding: 2.5rem;
-            overflow-y: auto;
+        #cv-container.template-2 .timeline-item {
             position: relative;
-            padding-left: 3rem;
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
         }
-        #cv-container.template-2 .exp-item {
-            position: relative;
-            padding-left: 2rem;
-            margin-bottom: 2rem;
-        }
-        #cv-container.template-2 .exp-item::before {
+        #cv-container.template-2 .timeline-item::before {
             content: '';
             position: absolute;
-            left: 1rem;
-            top: 0;
-            width: 16px;
-            height: 16px;
+            left: 0;
+            top: 0.3rem;
+            width: 10px;
+            height: 10px;
             background: var(--accent-color);
             border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px var(--accent-color);
         }
-        #cv-container.template-2 .exp-item::after {
+        #cv-container.template-2 .timeline-item::after {
             content: '';
             position: absolute;
-            left: 7.5px;
-            top: 25px;
-            width: 1px;
-            height: calc(100% + 1rem);
-            background: #ddd;
+            left: 4px;
+            top: 1.2rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: #e0e0e0;
         }
 
-        /* Template 3: Infographic - Visual skills cards */
-        #cv-container.template-3 { display: flex; flex-direction: column; }
+        /* Template 3: Executive */
+        #cv-container.template-3 { 
+            display: flex; 
+            flex-direction: column;
+            background: #f8f9fa;
+        }
         #cv-container.template-3 .cv-header {
-            width: 100%;
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-            color: white;
-            padding: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #cv-container.template-3 .cv-header .profile-image-container {
-            width: 140px;
-            height: 140px;
-        }
-        #cv-container.template-3 .cv-header > div:last-child {
-            flex: 1;
-            margin-left: 2rem;
-        }
-        #cv-container.template-3 .cv-right {
-            width: 100%;
-            background: #f9f9f9;
+            background: white;
             padding: 2.5rem;
-            overflow-y: auto;
-        }
-        #cv-container.template-3 #preview-skills {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.8rem;
-        }
-        #cv-container.template-3 #preview-skills li {
-            background: var(--accent-color);
-            color: white;
-            padding: 0.6rem 1rem;
-            border-radius: 20px;
             text-align: center;
-            font-size: 0.85rem !important;
-            margin-bottom: 0 !important;
+            border-bottom: 3px solid var(--accent-color);
+            margin-bottom: 2rem;
+        }
+        #cv-container.template-3 .cv-content {
+            padding: 0 2.5rem 2.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        #cv-container.template-3 .executive-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--accent-color);
         }
 
-        /* Template 4: Pro Minimal - Serif elegant */
-        #cv-container.template-4 { display: flex; font-family: 'Merriweather', serif; }
+        /* Template 4: Pro Minimal */
+        #cv-container.template-4 { 
+            display: flex; 
+            font-family: 'Merriweather', serif;
+        }
         #cv-container.template-4 .cv-left {
-            width: 30%;
+            width: 35%;
             background: #f5f5f5;
             color: #333;
             padding: 3rem 2rem;
@@ -215,31 +198,10 @@
             border-right: 2px solid #000;
         }
         #cv-container.template-4 .cv-right {
-            width: 70%;
+            width: 65%;
             background: white;
             padding: 3rem 2.5rem;
             overflow-y: auto;
-        }
-        #cv-container.template-4 .profile-image-container {
-            width: 100px;
-            height: 100px;
-        }
-        #cv-container.template-4 .profile-name {
-            font-family: 'Courier Prime', monospace;
-            letter-spacing: 2px;
-        }
-
-        .cv-right::-webkit-scrollbar {
-            width: 4px;
-        }
-        .cv-right::-webkit-scrollbar-thumb {
-            background: #ddd;
-        }
-        .cv-left::-webkit-scrollbar {
-            width: 4px;
-        }
-        .cv-left::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
         }
 
         .section-title {
@@ -279,12 +241,18 @@
             border: 4px solid rgba(255,255,255,0.2);
             cursor: pointer;
             flex-shrink: 0;
+            position: relative;
         }
 
         .profile-image-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image-container:hover img {
+            transform: scale(1.05);
         }
 
         .profile-name {
@@ -329,7 +297,7 @@
             padding: 0.6rem;
             background: #2a2a3e;
             border: 1px solid #404050;
-            color: #000 !important;
+            color: #ffffff !important;
             border-radius: 4px;
             font-size: 0.9rem;
             font-family: 'Inter', sans-serif;
@@ -338,7 +306,7 @@
 
         .input-group input::placeholder,
         .input-group textarea::placeholder {
-            color: #666;
+            color: #888;
         }
 
         .input-group input:focus,
@@ -439,6 +407,11 @@
 
         .list-item-content input {
             flex: 1;
+            color: #ffffff !important;
+            background: #1a1a2e;
+            border: 1px solid #404050;
+            padding: 0.5rem;
+            border-radius: 3px;
         }
 
         .btn-remove {
@@ -454,15 +427,6 @@
 
         .btn-remove:hover {
             background: #c0392b;
-        }
-
-        /* Color Picker */
-        .color-picker {
-            width: 100%;
-            height: 40px;
-            border: 1px solid #404050;
-            border-radius: 4px;
-            cursor: pointer;
         }
 
         /* Modal */
@@ -590,216 +554,28 @@
             margin-bottom: 0.3rem;
         }
 
-        /* TEMPLATE 5: TIMELINE STYLES */
-        .timeline-header {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 3px solid var(--accent-color);
+        /* Editable preview styles */
+        .editable {
+            cursor: text;
+            border-bottom: 1px dashed transparent;
+            transition: border-color 0.2s;
+            padding: 2px 4px;
+            border-radius: 3px;
         }
 
-        .timeline-header h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.3rem;
+        .editable:hover {
+            border-bottom: 1px dashed #ccc;
+            background-color: rgba(102, 126, 234, 0.05);
         }
 
-        .timeline-header p {
-            color: var(--accent-color);
-            font-size: 1rem;
-            font-weight: 600;
+        .editable:focus {
+            outline: none;
+            border-bottom: 1px solid #667eea;
+            background-color: rgba(102, 126, 234, 0.1);
         }
 
-        .timeline-content {
-            display: flex;
-            gap: 3rem;
-        }
-
-        .timeline-left {
-            flex: 1;
-            position: relative;
-            padding-left: 2rem;
-        }
-
-        .timeline-line {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(to bottom, var(--accent-color), #ddd);
-        }
-
-        .timeline-dot {
-            position: absolute;
-            left: -8.5px;
-            width: 16px;
-            height: 16px;
-            background: white;
-            border: 3px solid var(--accent-color);
-            border-radius: 50%;
-            margin-top: 0.2rem;
-        }
-
-        .timeline-item {
-            margin-bottom: 2.5rem;
-            padding-left: 1rem;
-        }
-
-        .timeline-right {
-            flex: 1;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-
-        .info-card {
-            background: #f8f9fa;
-            padding: 1.2rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .info-card h3 {
-            color: var(--accent-color);
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            margin-bottom: 0.8rem;
-        }
-
-        .info-card p {
-            color: #555;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        /* TEMPLATE 6: MODERN CARD STYLES */
-        .modern-header {
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 3rem;
-            align-items: center;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .modern-header-left {
-            flex-shrink: 0;
-        }
-
-        .modern-header-left img {
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            border: 3px solid var(--accent-color);
-        }
-
-        .modern-header-right {
-            flex: 1;
-        }
-
-        .modern-header-right h1 {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 0.3rem;
-        }
-
-        .modern-header-right p {
-            color: var(--accent-color);
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .modern-contact {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            font-size: 0.85rem;
-        }
-
-        .modern-contact-item {
-            color: #666;
-        }
-
-        .modern-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .modern-section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 2px solid var(--accent-color);
-        }
-
-        .modern-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1.2rem;
-            margin-bottom: 1.2rem;
-            transition: all 0.3s ease;
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .modern-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .modern-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
-        }
-
-        .modern-card-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-
-        .modern-card-date {
-            font-size: 0.85rem;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        .modern-card-subtitle {
-            font-size: 0.9rem;
-            color: #666;
-            font-weight: 500;
-            margin-bottom: 0.8rem;
-        }
-
-        .modern-card-desc {
-            font-size: 0.9rem;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .modern-card-desc li {
-            margin-left: 1.5rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .skill-badge {
-            display: inline-block;
-            background: var(--accent-color);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
+        .hidden {
+            display: none !important;
         }
 
         /* Print Stilləri */
@@ -842,6 +618,35 @@
                 min-height: 50vh;
             }
         }
+
+        /* Font Family Selector */
+        .font-selector {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #404050;
+        }
+
+        .font-option {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            background: #2a2a3e;
+            border: 1px solid #404050;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .font-option:hover {
+            border-color: #667eea;
+            background: #353550;
+        }
+
+        .font-option.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -865,6 +670,7 @@
                         <option value="az">Azərbaycanca</option>
                         <option value="tr">Türkçe</option>
                         <option value="en">English</option>
+                        <option value="ru">Русский</option>
                     </select>
                 </div>
 
@@ -883,48 +689,23 @@
             <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #404050;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;" data-i18n="selectTemplate">Şablon Seçin</h3>
                 <div class="template-selector">
-                    <button class="template-btn active" onclick="switchTemplate(1)" data-i18n="template1">Modern</button>
-                    <button class="template-btn" onclick="switchTemplate(2)" data-i18n="template2">Timeline</button>
-                    <button class="template-btn" onclick="switchTemplate(3)" data-i18n="template3">Infographic</button>
-                    <button class="template-btn" onclick="switchTemplate(4)" data-i18n="template4">Pro Minimal</button>
+                    <button class="template-btn active" data-template="1" data-i18n="template1">Modern</button>
+                    <button class="template-btn" data-template="2" data-i18n="template2">Clean</button>
+                    <button class="template-btn" data-template="3" data-i18n="template3">Executive</button>
+                    <button class="template-btn" data-template="4" data-i18n="template4">Pro Minimal</button>
                 </div>
             </div>
 
-
-            <!-- Stil Ayarları -->
-            <div style="margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #404050;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;" data-i18n="styleSettings">Stil Ayarları</h3>
-                
-                <div class="input-group">
-                    <label data-i18n="primaryColor">Əsas Rəng</label>
-                    <input type="color" id="color-picker" value="#2c3e50" class="color-picker">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="fontSize">Mətn Ölçüsü: <span id="font-size-value">14</span>px</label>
-                    <input type="range" id="font-size-slider" min="12" max="16" value="14" style="cursor: pointer;">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="lineHeight">Sətir Aralığı: <span id="line-height-value">1.5</span></label>
-                    <input type="range" id="line-height-slider" min="1" max="2" step="0.1" value="1.5" style="cursor: pointer;">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="spacing">Elementlər Arası Boşluq: <span id="spacing-value">1.5</span>rem</label>
-                    <input type="range" id="spacing-slider" min="0.5" max="3" step="0.5" value="1.5" style="cursor: pointer;">
-                </div>
-
-                <div class="input-group">
-                    <label data-i18n="fontFamily">Şrift Ailəsi</label>
-                    <select id="font-family-select">
-                        <option value="'Inter', sans-serif">Inter (Standart)</option>
-                        <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                        <option value="'Arial', sans-serif">Arial</option>
-                        <option value="'Georgia', serif">Georgia</option>
-                        <option value="'Merriweather', serif">Merriweather</option>
-                        <option value="'Courier Prime', monospace">Courier Prime</option>
-                    </select>
+            <!-- Şrift Seçimi -->
+            <div class="font-selector">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem;">Şrift Seçin</h3>
+                <div>
+                    <span class="font-option active" data-font="'Inter', sans-serif">Inter</span>
+                    <span class="font-option" data-font="'Roboto', sans-serif">Roboto</span>
+                    <span class="font-option" data-font="'Montserrat', sans-serif">Montserrat</span>
+                    <span class="font-option" data-font="'Playfair Display', serif">Playfair</span>
+                    <span class="font-option" data-font="'Georgia', serif">Georgia</span>
+                    <span class="font-option" data-font="'Arial', sans-serif">Arial</span>
                 </div>
             </div>
 
@@ -963,7 +744,6 @@
                 <div class="input-group">
                     <label data-i18n="website">Vebsayt</label>
                     <input type="text" id="website-input" placeholder="https://example.com">
-                    <!-- Website checkbox'ı əlavə et -->
                     <div style="margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
                         <input type="checkbox" id="hide-website-checkbox" style="cursor: pointer;">
                         <label for="hide-website-checkbox" style="cursor: pointer; margin: 0;" data-i18n="hideWebsite">Vebsaytı Gizlət</label>
@@ -1017,8 +797,8 @@
                         </div>
 
                         <div style="text-align: center; margin-bottom: 2rem;">
-                            <div class="profile-name" id="preview-name">Ad Soyad</div>
-                            <div class="profile-title" id="preview-title">Peşə / Vəzifə</div>
+                            <div class="profile-name editable" id="preview-name" contenteditable="true">Ad Soyad</div>
+                            <div class="profile-title editable" id="preview-title" contenteditable="true">Peşə / Vəzifə</div>
                         </div>
 
                         <section>
@@ -1028,37 +808,35 @@
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                     </svg>
-                                    <span id="preview-phone">+994 50 123 45 67</span>
+                                    <span class="editable" id="preview-phone" contenteditable="true">+994 50 123 45 67</span>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.8rem;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                                     </svg>
-                                    <span id="preview-email">email@example.com</span>
+                                    <span class="editable" id="preview-email" contenteditable="true">email@example.com</span>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.8rem;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                         <circle cx="12" cy="10" r="3"></circle>
                                     </svg>
-                                    <span id="preview-address">Bakı, Azərbaycan</span>
+                                    <span class="editable" id="preview-address" contenteditable="true">Bakı, Azərbaycan</span>
                                 </div>
                                 <div id="website-div" style="display: flex; gap: 0.5rem; align-items: flex-start;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                                     </svg>
-                                    <span id="preview-website">https://example.com</span>
+                                    <span class="editable" id="preview-website" contenteditable="true">https://example.com</span>
                                 </div>
                             </div>
                         </section>
 
                         <section>
                             <div class="section-title" data-i18n="skillsSection">Bacarıqlar</div>
-                            <ul id="preview-skills" style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 1.7;">
-                                <li style="margin-bottom: 0.5rem;">• Placeholder</li>
-                            </ul>
+                            <ul id="preview-skills" style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 1.7;"></ul>
                         </section>
 
                         <section>
@@ -1071,7 +849,7 @@
                     <div class="cv-right" id="cv-right">
                         <section id="profile-section" style="display: none; margin-bottom: 1.5rem;">
                             <div class="section-title" data-i18n="profileSection">Profil</div>
-                            <p id="preview-profile" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
+                            <p class="editable" id="preview-profile" contenteditable="true" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
                         </section>
 
                         <section id="experience-section" style="display: none; margin-bottom: 1.5rem;">
@@ -1086,87 +864,122 @@
                     </div>
                 </div>
 
-                <!-- TEMPLATE 2: Timeline -->
-                <div id="template-timeline-container" style="display: none; width: 100%;">
+                <!-- TEMPLATE 2: Clean Timeline -->
+                <div id="template-clean-container" style="display: none; width: 100%;">
                     <div class="cv-header">
-                        <div class="profile-image-container" id="timeline-profile-pic-container">
-                            <img id="timeline-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                        <div class="profile-image-container" style="width: 120px; height: 120px; margin: 0 auto 1.5rem;">
+                            <img id="clean-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
                         </div>
                         <div>
-                            <div class="profile-name" id="timeline-name">Ad Soyad</div>
-                            <div class="profile-title" id="timeline-title">Peşə / Vəzifə</div>
-                            <div class="modern-contact">
-                                <div class="modern-contact-item"><strong>Email:</strong><br><span id="timeline-email">email@example.com</span></div>
-                                <div class="modern-contact-item"><strong>Telefon:</strong><br><span id="timeline-phone">+994 50 123 45 67</span></div>
-                                <div class="modern-contact-item"><strong>Ünvan:</strong><br><span id="timeline-address">Bakı, Azərbaycan</span></div>
-                                <!-- Timeline template - Add website div -->
-                                <div id="timeline-website-div" class="modern-contact-item" style="display: none;"><strong>Vebsayt:</strong><br><span id="timeline-website"></span></div>
-                            </div>
+                            <div class="profile-name editable" id="clean-name" contenteditable="true" style="font-size: 2rem;">Ad Soyad</div>
+                            <div class="profile-title editable" id="clean-title" contenteditable="true" style="font-size: 1.2rem; color: var(--accent-color);">Peşə / Vəzifə</div>
                         </div>
                     </div>
-                    <div class="cv-right">
-                        <section id="timeline-profile-section" style="display: none; margin-bottom: 1.5rem;">
-                            <div class="section-title" data-i18n="profileSection">Profil</div>
-                            <p id="preview-profile-timeline" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
-                        </section>
-                        <section id="experience-section-timeline" style="display: none;">
-                            <div class="section-title" data-i18n="experienceSection">İş Təcrübəsi</div>
-                            <div id="preview-experience-timeline"></div>
-                        </section>
-                        <section id="education-section-timeline" style="display: none;">
-                            <div class="section-title" data-i18n="educationSection">Təhsil</div>
-                            <div id="preview-education-timeline"></div>
-                        </section>
-                        <section id="skills-section-timeline" style="display: none;">
-                            <div class="section-title" data-i18n="skillsSection">Bacarıqlar</div>
-                            <div id="preview-skills-timeline" style="font-size: 0.85rem;"></div>
-                        </section>
-                        <section id="languages-section-timeline" style="display: none;">
-                            <div class="section-title" data-i18n="languagesSection">Dillər</div>
-                            <div id="preview-languages-timeline" style="font-size: 0.85rem;"></div>
-                        </section>
+                    <div class="cv-content">
+                        <div class="left-column">
+                            <section id="clean-profile-section" style="display: none; margin-bottom: 2rem;">
+                                <div class="section-title">Profil</div>
+                                <p class="editable" id="preview-profile-clean" contenteditable="true" style="font-size: 0.9rem; line-height: 1.6; color: #555;"></p>
+                            </section>
+                            <section>
+                                <div class="section-title">Əlaqə</div>
+                                <div style="font-size: 0.9rem; line-height: 1.8;">
+                                    <div style="margin-bottom: 0.8rem;">
+                                        <strong>Email:</strong><br>
+                                        <span class="editable" id="clean-email" contenteditable="true">email@example.com</span>
+                                    </div>
+                                    <div style="margin-bottom: 0.8rem;">
+                                        <strong>Telefon:</strong><br>
+                                        <span class="editable" id="clean-phone" contenteditable="true">+994 50 123 45 67</span>
+                                    </div>
+                                    <div style="margin-bottom: 0.8rem;">
+                                        <strong>Ünvan:</strong><br>
+                                        <span class="editable" id="clean-address" contenteditable="true">Bakı, Azərbaycan</span>
+                                    </div>
+                                    <div id="clean-website-div" style="display: none;">
+                                        <strong>Vebsayt:</strong><br>
+                                        <span class="editable" id="clean-website" contenteditable="true"></span>
+                                    </div>
+                                </div>
+                            </section>
+                            <section id="skills-section-clean" style="display: none; margin-top: 2rem;">
+                                <div class="section-title">Bacarıqlar</div>
+                                <div id="preview-skills-clean" style="font-size: 0.9rem;"></div>
+                            </section>
+                            <section id="languages-section-clean" style="display: none; margin-top: 2rem;">
+                                <div class="section-title">Dillər</div>
+                                <div id="preview-languages-clean" style="font-size: 0.9rem;"></div>
+                            </section>
+                        </div>
+                        <div class="right-column">
+                            <section id="experience-section-clean" style="display: none; margin-bottom: 2rem;">
+                                <div class="section-title">İş Təcrübəsi</div>
+                                <div id="preview-experience-clean"></div>
+                            </section>
+                            <section id="education-section-clean" style="display: none;">
+                                <div class="section-title">Təhsil</div>
+                                <div id="preview-education-clean"></div>
+                            </section>
+                        </div>
                     </div>
                 </div>
 
-                <!-- TEMPLATE 3: Infographic -->
-                <div id="template-infographic-container" style="display: none; width: 100%;">
+                <!-- TEMPLATE 3: Executive -->
+                <div id="template-executive-container" style="display: none; width: 100%;">
                     <div class="cv-header">
-                        <div class="profile-image-container" id="infographic-profile-pic-container">
-                            <img id="infographic-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
-                        </div>
-                        <div>
-                            <div class="profile-name" id="infographic-name">Ad Soyad</div>
-                            <div class="profile-title" id="infographic-title">Peşə / Vəzifə</div>
-                            <div class="modern-contact">
-                                <div class="modern-contact-item"><strong>Email:</strong><br><span id="infographic-email">email@example.com</span></div>
-                                <div class="modern-contact-item"><strong>Telefon:</strong><br><span id="infographic-phone">+994 50 123 45 67</span></div>
-                                <div class="modern-contact-item"><strong>Ünvan:</strong><br><span id="infographic-address">Bakı, Azərbaycan</span></div>
-                                <!-- Infographic template - Add website div -->
-                                <div id="infographic-website-div" class="modern-contact-item" style="display: none;"><strong>Vebsayt:</strong><br><span id="infographic-website"></span></div>
+                        <div style="display: flex; align-items: center; gap: 2rem;">
+                            <div class="profile-image-container" style="width: 120px; height: 120px; margin: 0;">
+                                <img id="executive-profile-pic" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23e0e0e0' width='200' height='200'/%3E%3Ctext x='50%' y='50%' font-size='40' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3EFoto%3C/text%3E%3C/svg%3E" alt="Profil">
+                            </div>
+                            <div>
+                                <div class="profile-name editable" id="executive-name" contenteditable="true" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Ad Soyad</div>
+                                <div class="profile-title editable" id="executive-title" contenteditable="true" style="font-size: 1.3rem; color: var(--accent-color); margin-bottom: 1rem;">Peşə / Vəzifə</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
+                                    <div><strong>Email:</strong> <span class="editable" id="executive-email" contenteditable="true">email@example.com</span></div>
+                                    <div><strong>Telefon:</strong> <span class="editable" id="executive-phone" contenteditable="true">+994 50 123 45 67</span></div>
+                                    <div><strong>Ünvan:</strong> <span class="editable" id="executive-address" contenteditable="true">Bakı, Azərbaycan</span></div>
+                                    <div id="executive-website-div" style="display: none;">
+                                        <strong>Vebsayt:</strong> <span class="editable" id="executive-website" contenteditable="true"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="cv-right">
-                        <section id="infographic-profile-section" style="display: none; margin-bottom: 1.5rem;">
-                            <div class="section-title" data-i18n="profileSection">Profil</div>
-                            <p id="preview-profile-infographic" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
-                        </section>
-                        <section id="experience-section-infographic" style="display: none; margin-bottom: 1.5rem;">
-                            <div class="section-title" data-i18n="experienceSection">İş Təcrübəsi</div>
-                            <div id="preview-experience-infographic"></div>
-                        </section>
-                        <section id="education-section-infographic" style="display: none;">
-                            <div class="section-title" data-i18n="educationSection">Təhsil</div>
-                            <div id="preview-education-infographic"></div>
-                        </section>
-                        <section style="margin-bottom: 1.5rem;">
-                            <div class="section-title" data-i18n="skillsSection">Bacarıqlar</div>
-                            <ul id="preview-skills"></ul>
-                        </section>
-                        <section>
-                            <div class="section-title" data-i18n="languagesSection">Dillər</div>
-                            <ul id="preview-languages-infographic" style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 1.7;"></ul>
-                        </section>
+                    <div class="cv-content">
+                        <div class="left-column">
+                            <section id="executive-profile-section" style="display: none; margin-bottom: 2rem;">
+                                <div class="executive-card">
+                                    <div class="section-title">Profil</div>
+                                    <p class="editable" id="preview-profile-executive" contenteditable="true" style="font-size: 0.9rem; line-height: 1.6; color: #555;"></p>
+                                </div>
+                            </section>
+                            <section id="skills-section-executive" style="display: none; margin-bottom: 2rem;">
+                                <div class="executive-card">
+                                    <div class="section-title">Bacarıqlar</div>
+                                    <div id="preview-skills-executive" style="font-size: 0.9rem;"></div>
+                                </div>
+                            </section>
+                            <section id="languages-section-executive" style="display: none;">
+                                <div class="executive-card">
+                                    <div class="section-title">Dillər</div>
+                                    <div id="preview-languages-executive" style="font-size: 0.9rem;"></div>
+                                </div>
+                            </section>
+                        </div>
+                        <div class="right-column">
+                            <section id="experience-section-executive" style="display: none; margin-bottom: 2rem;">
+                                <div class="executive-card">
+                                    <div class="section-title">İş Təcrübəsi</div>
+                                    <div id="preview-experience-executive"></div>
+                                </div>
+                            </section>
+                            <section id="education-section-executive" style="display: none;">
+                                <div class="executive-card">
+                                    <div class="section-title">Təhsil</div>
+                                    <div id="preview-education-executive"></div>
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </div>
 
@@ -1179,8 +992,8 @@
                         </div>
 
                         <div style="text-align: center; margin-bottom: 2rem;">
-                            <div class="profile-name" id="minimal-preview-name">Ad Soyad</div>
-                            <div class="profile-title" id="minimal-preview-title">Peşə / Vəzifə</div>
+                            <div class="profile-name editable" id="minimal-preview-name" contenteditable="true">Ad Soyad</div>
+                            <div class="profile-title editable" id="minimal-preview-title" contenteditable="true">Peşə / Vəzifə</div>
                         </div>
 
                         <section>
@@ -1190,37 +1003,35 @@
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                                     </svg>
-                                    <span id="minimal-preview-phone">+994 50 123 45 67</span>
+                                    <span class="editable" id="minimal-preview-phone" contenteditable="true">+994 50 123 45 67</span>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.8rem;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                                         <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
                                     </svg>
-                                    <span id="minimal-preview-email">email@example.com</span>
+                                    <span class="editable" id="minimal-preview-email" contenteditable="true">email@example.com</span>
                                 </div>
                                 <div style="display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.8rem;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                                         <circle cx="12" cy="10" r="3"></circle>
                                     </svg>
-                                    <span id="minimal-preview-address">Bakı, Azərbaycan</span>
+                                    <span class="editable" id="minimal-preview-address" contenteditable="true">Bakı, Azərbaycan</span>
                                 </div>
                                 <div id="minimal-website-div" style="display: flex; gap: 0.5rem; align-items: flex-start;">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
                                         <circle cx="12" cy="12" r="10"></circle>
                                         <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                                     </svg>
-                                    <span id="minimal-preview-website">https://example.com</span>
+                                    <span class="editable" id="minimal-preview-website" contenteditable="true">https://example.com</span>
                                 </div>
                             </div>
                         </section>
 
                         <section>
                             <div class="section-title" data-i18n="skillsSection">Bacarıqlar</div>
-                            <ul id="minimal-preview-skills" style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 1.7;">
-                                <li style="margin-bottom: 0.5rem;">• Placeholder</li>
-                            </ul>
+                            <ul id="minimal-preview-skills" style="list-style: none; padding: 0; font-size: 0.9rem; line-height: 1.7;"></ul>
                         </section>
 
                         <section>
@@ -1233,7 +1044,7 @@
                     <div class="cv-right" id="cv-right-minimal">
                         <section id="minimal-profile-section" style="display: none; margin-bottom: 1.5rem;">
                             <div class="section-title" data-i18n="profileSection">Profil</div>
-                            <p id="minimal-preview-profile" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
+                            <p class="editable" id="minimal-preview-profile" contenteditable="true" style="font-size: 0.95rem; line-height: 1.6; color: #555;"></p>
                         </section>
 
                         <section id="minimal-experience-section" style="display: none; margin-bottom: 1.5rem;">
@@ -1267,20 +1078,15 @@
     </div>
 
     <script>
+        // Tərcümələr
         const translations = {
             az: {
                 downloadPDF: "PDF olaraq Yüklə",
                 selectTemplate: "Şablon Seçin",
                 template1: "Modern",
-                template2: "Timeline",
-                template3: "Infographic",
+                template2: "Clean",
+                template3: "Executive",
                 template4: "Pro Minimal",
-                styleSettings: "Stil Ayarları",
-                primaryColor: "Əsas Rəng",
-                fontFamily: "Şrift Ailəsi",
-                fontSize: "Mətn Ölçüsü",
-                lineHeight: "Sətir Aralığı",
-                spacing: "Elementlər Arası Boşluq",
                 personalInfo: "Şəxsi Məlumatlar",
                 uploadImage: "Profil Şəkli Yüklə",
                 fullName: "Ad Soyad",
@@ -1310,15 +1116,9 @@
                 downloadPDF: "PDF Olarak İndir",
                 selectTemplate: "Şablon Seçin",
                 template1: "Modern",
-                template2: "Zaman Şeridi",
-                template3: "Bilgi Grafiği",
+                template2: "Temiz",
+                template3: "Yönetici",
                 template4: "Pro Minimal",
-                styleSettings: "Stil Ayarları",
-                primaryColor: "Ana Renk",
-                fontFamily: "Yazı Tipi Ailesi",
-                fontSize: "Metin Boyutu",
-                lineHeight: "Satır Aralığı",
-                spacing: "Elementler Arası Boşluk",
                 personalInfo: "Kişisel Bilgiler",
                 uploadImage: "Profil Fotoğrafı Yükle",
                 fullName: "Ad Soyad",
@@ -1348,15 +1148,9 @@
                 downloadPDF: "Download as PDF",
                 selectTemplate: "Select Template",
                 template1: "Modern",
-                template2: "Timeline",
-                template3: "Infographic",
+                template2: "Clean",
+                template3: "Executive",
                 template4: "Pro Minimal",
-                styleSettings: "Style Settings",
-                primaryColor: "Primary Color",
-                fontFamily: "Font Family",
-                fontSize: "Font Size",
-                lineHeight: "Line Height",
-                spacing: "Element Spacing",
                 personalInfo: "Personal Information",
                 uploadImage: "Upload Profile Picture",
                 fullName: "Full Name",
@@ -1381,49 +1175,79 @@
                 cancel: "Cancel",
                 confirm: "Confirm",
                 remove: "Remove"
+            },
+            ru: {
+                downloadPDF: "Скачать как PDF",
+                selectTemplate: "Выберите шаблон",
+                template1: "Современный",
+                template2: "Чистый",
+                template3: "Исполнительный",
+                template4: "Про Минимальный",
+                personalInfo: "Личная информация",
+                uploadImage: "Загрузить фото профиля",
+                fullName: "ФИО",
+                jobTitle: "Должность / Позиция",
+                email: "Эл. почта",
+                phone: "Телефон",
+                address: "Адрес",
+                website: "Веб-сайт",
+                hideWebsite: "Скрыть веб-сайт",
+                profileSection: "Профиль",
+                experienceSection: "Опыт работы",
+                educationSection: "Образование",
+                skillsSection: "Навыки",
+                languagesSection: "Языки",
+                contactSection: "Контакты",
+                addExperience: "Добавить опыт",
+                addEducation: "Добавить образование",
+                addSkill: "Добавить навык",
+                addLanguage: "Добавить язык",
+                cropImageTitle: "Настройте изображение",
+                cropImageSubtitle: "Выберите нужную область и подтвердите",
+                cancel: "Отмена",
+                confirm: "Подтвердить",
+                remove: "Удалить"
             }
         };
 
+        // Global dəyişənlər
         let currentLang = 'az';
         let currentTemplate = 1;
         let cropper = null;
         let originalImageData = null;
+        let expCount = 0, eduCount = 0, skillCount = 0, langCount = 0;
 
+        // Şablon dəyişdiricisi
         function switchTemplate(templateNum) {
             currentTemplate = templateNum;
             const cv = document.getElementById('cv-container');
             cv.className = `template-${templateNum}`;
             
-            document.querySelectorAll('.template-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', idx + 1 === templateNum);
+            // Şablon butonlarını yenilə
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
+            document.querySelector(`.template-btn[data-template="${templateNum}"]`).classList.add('active');
 
+            // Şablon konteynerlərini göstər/gizlət
             document.getElementById('template-sidebar-container').style.display = templateNum === 1 ? 'flex' : 'none';
-            document.getElementById('template-timeline-container').style.display = templateNum === 2 ? 'block' : 'none';
-            document.getElementById('template-infographic-container').style.display = templateNum === 3 ? 'block' : 'none';
+            document.getElementById('template-clean-container').style.display = templateNum === 2 ? 'block' : 'none';
+            document.getElementById('template-executive-container').style.display = templateNum === 3 ? 'block' : 'none';
             document.getElementById('template-minimal-container').style.display = templateNum === 4 ? 'flex' : 'none';
 
+            // Şablon rənglərini təyin et
             const colors = {
                 1: '#2c3e50',
                 2: '#e74c3c',
-                3: '#9b59b6',
-                4: '#16a085'
+                3: '#16a085',
+                4: '#9b59b6'
             };
             cv.style.setProperty('--accent-color', colors[templateNum]);
-
-            // Update font family for template 4
-            if (templateNum === 4) {
-                document.body.style.fontFamily = "'Merriweather', serif";
-                document.getElementById('cv-container').style.fontFamily = "'Merriweather', serif";
-            } else {
-                document.body.style.fontFamily = "'Inter', sans-serif";
-                document.getElementById('cv-container').style.fontFamily = "'Inter', sans-serif";
-            }
-
 
             updateAllPreviews();
         }
 
+        // Dil dəyişdiricisi
         function changeLanguage(lang) {
             currentLang = lang;
             document.documentElement.lang = lang;
@@ -1435,116 +1259,103 @@
             });
         }
 
-        function updateTypography() {
-            const fontSize = document.getElementById('font-size-slider').value;
-            const lineHeight = document.getElementById('line-height-slider').value;
-            const spacing = document.getElementById('spacing-slider').value;
-
-            document.getElementById('font-size-value').textContent = fontSize;
-            document.getElementById('line-height-value').textContent = lineHeight;
-            document.getElementById('spacing-value').textContent = spacing;
-
-            const previewPane = document.getElementById('preview-pane');
-            previewPane.style.fontSize = fontSize + 'px';
-            previewPane.style.lineHeight = lineHeight;
-
-            const cvContainer = document.getElementById('cv-container');
-            cvContainer.style.fontSize = fontSize + 'px';
-            cvContainer.style.lineHeight = lineHeight;
-
-            const sections = cvContainer.querySelectorAll('[class*="exp-item"], [class*="exp-desc"], [class*="card"], ul li');
-            sections.forEach(section => {
-                const isListItem = section.tagName === 'LI';
-                section.style.marginBottom = (spacing * (isListItem ? 0.3 : 0.5)) + 'rem';
-                section.style.lineHeight = lineHeight;
+        // Şrift dəyişdiricisi
+        function changeFont(fontFamily) {
+            const cv = document.getElementById('cv-container');
+            if (currentTemplate !== 4) { // Minimal şablon üçün xüsusi şrift saxla
+                cv.style.fontFamily = fontFamily;
+            }
+            
+            // Şrift seçimlərini yenilə
+            document.querySelectorAll('.font-option').forEach(option => {
+                option.classList.remove('active');
             });
-
-            // Başlık aralıklarını da ayarla
-            cvContainer.querySelectorAll('h2, h3, h4').forEach(heading => {
-                heading.style.marginBottom = (spacing * 0.8) + 'rem';
-            });
+            event.target.classList.add('active');
         }
 
+        // Real-time yeniləmələri qur
         function setupRealTimeUpdates() {
+            // Şəxsi məlumatlar
             document.getElementById('name-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'Ad Soyad';
                 document.getElementById('preview-name').textContent = val;
-                document.getElementById('timeline-name').textContent = val;
-                document.getElementById('infographic-name').textContent = val;
+                document.getElementById('clean-name').textContent = val;
+                document.getElementById('executive-name').textContent = val;
                 document.getElementById('minimal-preview-name').textContent = val;
             });
 
             document.getElementById('title-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'Peşə / Vəzifə';
                 document.getElementById('preview-title').textContent = val;
-                document.getElementById('timeline-title').textContent = val;
-                document.getElementById('infographic-title').textContent = val;
+                document.getElementById('clean-title').textContent = val;
+                document.getElementById('executive-title').textContent = val;
                 document.getElementById('minimal-preview-title').textContent = val;
             });
 
             document.getElementById('email-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'email@example.com';
                 document.getElementById('preview-email').textContent = val;
-                document.getElementById('timeline-email').textContent = val;
-                document.getElementById('infographic-email').textContent = val;
+                document.getElementById('clean-email').textContent = val;
+                document.getElementById('executive-email').textContent = val;
                 document.getElementById('minimal-preview-email').textContent = val;
             });
 
             document.getElementById('phone-input').addEventListener('input', (e) => {
                 const val = e.target.value || '+994 50 123 45 67';
                 document.getElementById('preview-phone').textContent = val;
-                document.getElementById('timeline-phone').textContent = val;
-                document.getElementById('infographic-phone').textContent = val;
+                document.getElementById('clean-phone').textContent = val;
+                document.getElementById('executive-phone').textContent = val;
                 document.getElementById('minimal-preview-phone').textContent = val;
             });
 
             document.getElementById('address-input').addEventListener('input', (e) => {
                 const val = e.target.value || 'Bakı, Azərbaycan';
                 document.getElementById('preview-address').textContent = val;
-                document.getElementById('infographic-address').textContent = val;
+                document.getElementById('clean-address').textContent = val;
+                document.getElementById('executive-address').textContent = val;
                 document.getElementById('minimal-preview-address').textContent = val;
             });
 
             document.getElementById('website-input').addEventListener('input', (e) => {
                 const websiteDiv = document.getElementById('website-div');
-                const timelineWebsite = document.getElementById('timeline-website-div');
-                const infographicWebsite = document.getElementById('infographic-website-div');
+                const cleanWebsite = document.getElementById('clean-website-div');
+                const executiveWebsite = document.getElementById('executive-website-div');
                 const minimalWebsite = document.getElementById('minimal-website-div');
 
                 if (e.target.value) {
                     websiteDiv.style.display = 'flex';
-                    if (timelineWebsite) timelineWebsite.style.display = 'flex';
-                    if (infographicWebsite) infographicWebsite.style.display = 'flex';
+                    if (cleanWebsite) cleanWebsite.style.display = 'block';
+                    if (executiveWebsite) executiveWebsite.style.display = 'block';
                     if (minimalWebsite) minimalWebsite.style.display = 'flex';
                     
                     document.getElementById('preview-website').textContent = e.target.value;
-                    if (timelineWebsite) timelineWebsite.querySelector('span').textContent = e.target.value;
-                    if (infographicWebsite) infographicWebsite.querySelector('span').textContent = e.target.value;
+                    if (cleanWebsite) cleanWebsite.querySelector('span').textContent = e.target.value;
+                    if (executiveWebsite) executiveWebsite.querySelector('span').textContent = e.target.value;
                     if (minimalWebsite) minimalWebsite.querySelector('span').textContent = e.target.value;
                 } else {
                     websiteDiv.style.display = 'none';
-                    if (timelineWebsite) timelineWebsite.style.display = 'none';
-                    if (infographicWebsite) infographicWebsite.style.display = 'none';
+                    if (cleanWebsite) cleanWebsite.style.display = 'none';
+                    if (executiveWebsite) executiveWebsite.style.display = 'none';
                     if (minimalWebsite) minimalWebsite.style.display = 'none';
                 }
             });
 
             document.getElementById('hide-website-checkbox').addEventListener('change', (e) => {
                 const websiteDiv = document.getElementById('website-div');
-                const timelineWebsite = document.getElementById('timeline-website-div');
-                const infographicWebsite = document.getElementById('infographic-website-div');
+                const cleanWebsite = document.getElementById('clean-website-div');
+                const executiveWebsite = document.getElementById('executive-website-div');
                 const minimalWebsite = document.getElementById('minimal-website-div');
                 
                 if (e.target.checked) {
                     websiteDiv.style.display = 'none';
-                    if (timelineWebsite) timelineWebsite.style.display = 'none';
-                    if (infographicWebsite) infographicWebsite.style.display = 'none';
+                    if (cleanWebsite) cleanWebsite.style.display = 'none';
+                    if (executiveWebsite) executiveWebsite.style.display = 'none';
                     if (minimalWebsite) minimalWebsite.style.display = 'none';
                 } else {
                     if (document.getElementById('website-input').value) {
                         websiteDiv.style.display = 'flex';
-                        if (timelineWebsite) timelineWebsite.style.display = 'flex';
-                        if (infographicWebsite) infographicWebsite.style.display = 'flex';
+                        if (cleanWebsite) cleanWebsite.style.display = 'block';
+                        if (executiveWebsite) executiveWebsite.style.display = 'block';
                         if (minimalWebsite) minimalWebsite.style.display = 'flex';
                     }
                 }
@@ -1552,44 +1363,68 @@
 
             document.getElementById('profile-input').addEventListener('input', (e) => {
                 const profileSection = document.getElementById('profile-section');
-                const timelineProfileSection = document.getElementById('timeline-profile-section');
-                const infographicProfileSection = document.getElementById('infographic-profile-section');
+                const cleanProfileSection = document.getElementById('clean-profile-section');
+                const executiveProfileSection = document.getElementById('executive-profile-section');
                 const minimalProfileSection = document.getElementById('minimal-profile-section');
 
                 if (e.target.value) {
                     profileSection.style.display = 'block';
-                    timelineProfileSection.style.display = 'block';
-                    infographicProfileSection.style.display = 'block';
+                    cleanProfileSection.style.display = 'block';
+                    executiveProfileSection.style.display = 'block';
                     minimalProfileSection.style.display = 'block';
 
                     document.getElementById('preview-profile').textContent = e.target.value;
-                    document.getElementById('preview-profile-timeline').textContent = e.target.value;
-                    document.getElementById('preview-profile-infographic').textContent = e.target.value;
+                    document.getElementById('preview-profile-clean').textContent = e.target.value;
+                    document.getElementById('preview-profile-executive').textContent = e.target.value;
                     document.getElementById('minimal-preview-profile').textContent = e.target.value;
                 } else {
                     profileSection.style.display = 'none';
-                    timelineProfileSection.style.display = 'none';
-                    infographicProfileSection.style.display = 'none';
+                    cleanProfileSection.style.display = 'none';
+                    executiveProfileSection.style.display = 'none';
                     minimalProfileSection.style.display = 'none';
                 }
             });
 
-            document.getElementById('color-picker').addEventListener('input', (e) => {
-                document.getElementById('cv-container').style.setProperty('--accent-color', e.target.value);
-            });
+            // Editable preview elementləri
+            setupEditableElements();
+        }
 
-            document.getElementById('font-size-slider').addEventListener('input', updateTypography);
-            document.getElementById('line-height-slider').addEventListener('input', updateTypography);
-            document.getElementById('spacing-slider').addEventListener('input', updateTypography);
-
-            updateTypography();
-
-            document.getElementById('font-family-select').addEventListener('change', (e) => {
-                document.getElementById('cv-container').style.fontFamily = e.target.value;
-                document.body.style.fontFamily = e.target.value; // Also update body font family for consistency
+        // Editable elementləri qur
+        function setupEditableElements() {
+            document.querySelectorAll('.editable').forEach(element => {
+                element.addEventListener('blur', function() {
+                    const id = this.id;
+                    const text = this.textContent;
+                    
+                    // Təhsil, bacarıq və dil elementləri üçün xüsusi emal
+                    if (id.includes('preview-education') || id.includes('preview-skills') || id.includes('preview-languages') ||
+                        id.includes('preview-experience') || id.includes('minimal-preview-education') || 
+                        id.includes('minimal-preview-skills') || id.includes('minimal-preview-languages') ||
+                        id.includes('minimal-preview-experience') || id.includes('clean-') || id.includes('executive-')) {
+                        // Bu elementlər avtomatik yenilənir, əlavə emal tələb etmir
+                        return;
+                    }
+                    
+                    if (id.includes('preview-name') || id.includes('clean-name') || id.includes('executive-name') || id.includes('minimal-preview-name')) {
+                        document.getElementById('name-input').value = text;
+                    } else if (id.includes('preview-title') || id.includes('clean-title') || id.includes('executive-title') || id.includes('minimal-preview-title')) {
+                        document.getElementById('title-input').value = text;
+                    } else if (id.includes('preview-email') || id.includes('clean-email') || id.includes('executive-email') || id.includes('minimal-preview-email')) {
+                        document.getElementById('email-input').value = text;
+                    } else if (id.includes('preview-phone') || id.includes('clean-phone') || id.includes('executive-phone') || id.includes('minimal-preview-phone')) {
+                        document.getElementById('phone-input').value = text;
+                    } else if (id.includes('preview-address') || id.includes('clean-address') || id.includes('executive-address') || id.includes('minimal-preview-address')) {
+                        document.getElementById('address-input').value = text;
+                    } else if (id.includes('preview-website') || id.includes('clean-website') || id.includes('executive-website') || id.includes('minimal-preview-website')) {
+                        document.getElementById('website-input').value = text;
+                    } else if (id.includes('preview-profile') || id.includes('preview-profile-clean') || id.includes('preview-profile-executive') || id.includes('minimal-preview-profile')) {
+                        document.getElementById('profile-input').value = text;
+                    }
+                });
             });
         }
 
+        // Şəkil yükləmə
         document.getElementById('upload-image-button').addEventListener('click', () => {
             document.getElementById('image-upload').click();
         });
@@ -1610,7 +1445,8 @@
                         autoCropArea: 0.8,
                         responsive: true,
                         zoomable: true,
-                        movable: true
+                        movable: true,
+                        cropBoxResizable: true
                     });
                 };
                 reader.readAsDataURL(file);
@@ -1618,40 +1454,16 @@
             e.target.value = '';
         });
 
-        // Function to trigger cropping for profile images
-        function triggerImageCrop(imgElementId, modalId) {
-            const imgElement = document.getElementById(imgElementId);
-            if (imgElement && imgElement.src && imgElement.src !== 'data:image/svg+xml;base64,' && !imgElement.src.includes('placeholder.svg')) { // Check if it's not the default placeholder
-                document.getElementById('cropper-image').src = imgElement.src;
-                document.getElementById(modalId).classList.add('active');
-
-                if (cropper) cropper.destroy();
-                cropper = new Cropper(document.getElementById('cropper-image'), {
-                    aspectRatio: 1 / 1,
-                    viewMode: 1,
-                    autoCropArea: 0.8,
-                    responsive: true,
-                    zoomable: true,
-                    movable: true
-                });
-            }
-        }
-
-        document.getElementById('profile-pic-container').addEventListener('click', () => triggerImageCrop('profile-pic', 'image-cropper-modal'));
-        document.getElementById('timeline-profile-pic-container').addEventListener('click', () => triggerImageCrop('timeline-profile-pic', 'image-cropper-modal'));
-        document.getElementById('infographic-profile-pic-container').addEventListener('click', () => triggerImageCrop('infographic-profile-pic', 'image-cropper-modal'));
-        document.getElementById('minimal-profile-pic-container').addEventListener('click', () => triggerImageCrop('minimal-profile-pic', 'image-cropper-modal'));
-
-
+        // Şəkil kəsmə
         document.getElementById('confirm-crop').addEventListener('click', () => {
             if (cropper) {
                 const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
                 const croppedImage = canvas.toDataURL('image/jpeg');
                 
-                // Update all profile images
+                // Bütün profil şəkillərini yenilə
                 document.getElementById('profile-pic').src = croppedImage;
-                document.getElementById('timeline-profile-pic').src = croppedImage;
-                document.getElementById('infographic-profile-pic').src = croppedImage;
+                document.getElementById('clean-profile-pic').src = croppedImage;
+                document.getElementById('executive-profile-pic').src = croppedImage;
                 document.getElementById('minimal-profile-pic').src = croppedImage;
 
                 document.getElementById('image-cropper-modal').classList.remove('active');
@@ -1666,119 +1478,24 @@
             cropper = null;
         });
 
-        let expCount = 0, eduCount = 0, skillCount = 0, langCount = 0;
-
+        // Element əlavə etmə funksiyaları
         function addExperience() {
             const id = expCount++;
             const item = document.createElement('div');
             item.className = 'list-item';
             item.innerHTML = `
                 <div class="list-item-content">
-                    <input type="text" placeholder="Vəzifə" class="exp-title-${id}">
-                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
+                    <input type="text" placeholder="Vəzifə" class="exp-title" data-id="${id}">
+                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">${translations[currentLang].remove}</button>
                 </div>
-                <input type="text" placeholder="Şirkət, Ölkə" class="exp-company-${id}" style="width: 100%; margin-top: 0.5rem;">
-                <input type="text" placeholder="Tarixlər (Yan 2020 - Fev 2022)" class="exp-dates-${id}" style="width: 100%; margin-top: 0.5rem;">
-                <textarea placeholder="Açıqlama (hər sətirdə bir məntəq)" class="exp-desc-${id}" style="width: 100%; margin-top: 0.5rem; min-height: 70px;"></textarea>
+                <input type="text" placeholder="Şirkət, Ölkə" class="exp-company" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
+                <input type="text" placeholder="Tarixlər (Yan 2020 - Fev 2022)" class="exp-dates" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
+                <textarea placeholder="Açıqlama (hər sətirdə bir məntəq)" class="exp-desc" data-id="${id}" style="width: 100%; margin-top: 0.5rem; min-height: 70px;"></textarea>
             `;
             document.getElementById('experience-list').appendChild(item);
             
             item.querySelectorAll('input, textarea').forEach(el => {
                 el.addEventListener('input', updateAllPreviews);
-            });
-        }
-
-        function updateAllPreviews() {
-            updateExperiencePreview();
-            updateEducationPreview();
-            updateSkillsPreview();
-            updateLanguagesPreview();
-
-            // Update website visibility based on checkbox after all other updates
-            document.getElementById('hide-website-checkbox').dispatchEvent(new Event('change'));
-        }
-
-        function updateExperiencePreview() {
-            const section = document.getElementById('experience-section');
-            const timelineSection = document.getElementById('experience-section-timeline');
-            const infographicSection = document.getElementById('experience-section-infographic');
-            const minimalSection = document.getElementById('minimal-experience-section');
-
-            const preview = document.getElementById('preview-experience');
-            const timelinePreview = document.getElementById('preview-experience-timeline');
-            const infographicPreview = document.getElementById('preview-experience-infographic');
-            const minimalPreview = document.getElementById('minimal-preview-experience');
-            
-            const items = document.querySelectorAll('#experience-list .list-item');
-            
-            const hasExperience = items.length > 0 && Array.from(items).some(item => 
-                item.querySelector('input[type="text"]')?.value || item.querySelector('textarea')?.value
-            );
-
-            section.style.display = hasExperience ? 'block' : 'none';
-            timelineSection.style.display = hasExperience ? 'block' : 'none';
-            infographicSection.style.display = hasExperience ? 'block' : 'none';
-            minimalSection.style.display = hasExperience ? 'block' : 'none';
-
-            preview.innerHTML = '';
-            timelinePreview.innerHTML = '';
-            infographicPreview.innerHTML = '';
-            minimalPreview.innerHTML = '';
-            
-            items.forEach((item, idx) => {
-                const title = item.querySelector(`.exp-title-${idx}`)?.value || '';
-                const company = item.querySelector(`.exp-company-${idx}`)?.value || '';
-                const dates = item.querySelector(`.exp-dates-${idx}`)?.value || '';
-                const desc = item.querySelector(`.exp-desc-${idx}`)?.value || '';
-                
-                if (title || company || dates || desc) {
-                    // Sidebar template
-                    const expDiv = document.createElement('div');
-                    expDiv.className = 'exp-item';
-                    expDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${title}</div>
-                        <div class="exp-company">${company}</div>
-                        ${desc ? `<ul class="exp-desc">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
-                    `;
-                    preview.appendChild(expDiv);
-
-                    // Timeline template
-                    const timelineDiv = document.createElement('div');
-                    timelineDiv.className = 'exp-item'; // Reusing exp-item class for styling
-                    timelineDiv.innerHTML = `
-                        <div class="timeline-dot"></div>
-                        <div style="padding-bottom: 1rem;">
-                            <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50; margin-bottom: 0.2rem;">${title}</div>
-                            <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 0.3rem;">${company}</div>
-                            ${dates ? `<div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">${dates}</div>` : ''}
-                            ${desc ? `<ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #555;">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li style="margin-bottom: 0.3rem;">• ${d}</li>`).join('')}</ul>` : ''}
-                        </div>
-                    `;
-                    timelinePreview.appendChild(timelineDiv);
-
-                    // Infographic template
-                    const infographicDiv = document.createElement('div');
-                    infographicDiv.className = 'exp-item';
-                    infographicDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${title}</div>
-                        <div class="exp-company">${company}</div>
-                        ${desc ? `<ul class="exp-desc">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
-                    `;
-                    infographicPreview.appendChild(infographicDiv);
-
-                    // Minimal template
-                    const minimalDiv = document.createElement('div');
-                    minimalDiv.className = 'exp-item';
-                    minimalDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${title}</div>
-                        <div class="exp-company">${company}</div>
-                        ${desc ? `<ul class="exp-desc">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
-                    `;
-                    minimalPreview.appendChild(minimalDiv);
-                }
             });
         }
 
@@ -1790,7 +1507,7 @@
             item.innerHTML = `
                 <div class="list-item-content">
                     <input type="text" placeholder="Dərəcə / İxtisas" class="edu-degree" data-id="${id}">
-                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
+                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">${translations[currentLang].remove}</button>
                 </div>
                 <input type="text" placeholder="Universitet, Ölkə" class="edu-uni" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
                 <input type="text" placeholder="Tarixlər (Sen 2018 - İyn 2022)" class="edu-dates" data-id="${id}" style="width: 100%; margin-top: 0.5rem;">
@@ -1802,138 +1519,18 @@
             });
         }
 
-        function updateEducationPreview() {
-            const section = document.getElementById('education-section');
-            const timelineSection = document.getElementById('education-section-timeline');
-            const infographicSection = document.getElementById('education-section-infographic');
-            const minimalSection = document.getElementById('minimal-education-section');
-
-            const preview = document.getElementById('preview-education');
-            const timelinePreview = document.getElementById('preview-education-timeline');
-            const infographicPreview = document.getElementById('preview-education-infographic');
-            const minimalPreview = document.getElementById('minimal-preview-education');
-            
-            const items = document.querySelectorAll('#education-list .list-item');
-            
-            const hasEducation = items.length > 0 && Array.from(items).some(item => 
-                item.querySelector('.edu-degree')?.value
-            );
-
-            section.style.display = hasEducation ? 'block' : 'none';
-            timelineSection.style.display = hasEducation ? 'block' : 'none';
-            infographicSection.style.display = hasEducation ? 'block' : 'none';
-            minimalSection.style.display = hasEducation ? 'block' : 'none';
-
-            preview.innerHTML = '';
-            timelinePreview.innerHTML = '';
-            infographicPreview.innerHTML = '';
-            minimalPreview.innerHTML = '';
-            
-            items.forEach((item) => {
-                const id = item.getAttribute('data-edu-id');
-                const degree = item.querySelector(`.edu-degree[data-id="${id}"]`)?.value || '';
-                const uni = item.querySelector(`.edu-uni[data-id="${id}"]`)?.value || '';
-                const dates = item.querySelector(`.edu-dates[data-id="${id}"]`)?.value || '';
-                
-                if (degree || uni || dates) {
-                    const eduDiv = document.createElement('div');
-                    eduDiv.className = 'exp-item';
-                    eduDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${degree}</div>
-                        <div class="exp-company">${uni}</div>
-                    `;
-                    preview.appendChild(eduDiv);
-
-                    const timelineDiv = document.createElement('div');
-                    timelineDiv.className = 'exp-item';
-                    timelineDiv.innerHTML = `
-                        <div class="timeline-dot"></div>
-                        <div style="padding-bottom: 1rem;">
-                            <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50; margin-bottom: 0.2rem;">${degree}</div>
-                            <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 0.3rem;">${uni}</div>
-                            ${dates ? `<div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">${dates}</div>` : ''}
-                        </div>
-                    `;
-                    timelinePreview.appendChild(timelineDiv);
-
-                    const infographicDiv = document.createElement('div');
-                    infographicDiv.className = 'exp-item';
-                    infographicDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${degree}</div>
-                        <div class="exp-company">${uni}</div>
-                    `;
-                    infographicPreview.appendChild(infographicDiv);
-
-                    const minimalDiv = document.createElement('div');
-                    minimalDiv.className = 'exp-item';
-                    minimalDiv.innerHTML = `
-                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
-                        <div class="exp-title">${degree}</div>
-                        <div class="exp-company">${uni}</div>
-                    `;
-                    minimalPreview.appendChild(minimalDiv);
-                }
-            });
-        }
-
         function addSkill() {
             const id = skillCount++;
             const item = document.createElement('div');
             item.className = 'list-item';
             item.innerHTML = `
                 <div class="list-item-content">
-                    <input type="text" placeholder="Bacarıq (məs: JavaScript)" class="skill-name-${id}">
-                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
+                    <input type="text" placeholder="Bacarıq (məs: JavaScript)" class="skill-name" data-id="${id}">
+                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">${translations[currentLang].remove}</button>
                 </div>
             `;
             document.getElementById('skills-list').appendChild(item);
             item.querySelector('input').addEventListener('input', updateAllPreviews);
-        }
-
-        function updateSkillsPreview() {
-            const preview = document.getElementById('preview-skills');
-            const timelinePreview = document.getElementById('preview-skills-timeline');
-            const infographicPreview = document.getElementById('preview-skills'); // Infographic uses the same list element
-            
-            const section = document.getElementById('skills-section');
-            const timelineSection = document.getElementById('skills-section-timeline');
-            const infographicSection = document.getElementById('skills-section'); // Infographic section is the same as template 1 skill section
-            const minimalSection = document.getElementById('skills-section'); // Assuming minimal uses the same
-
-            const items = document.querySelectorAll('#skills-list .list-item');
-            
-            const hasSkills = items.length > 0 && Array.from(items).some(item => item.querySelector('input[type="text"]')?.value);
-
-            section.style.display = hasSkills ? 'block' : 'none';
-            timelineSection.style.display = hasSkills ? 'block' : 'none';
-            infographicSection.style.display = hasSkills ? 'block' : 'none';
-            minimalSection.style.display = hasSkills ? 'block' : 'none';
-
-            preview.innerHTML = '';
-            timelinePreview.innerHTML = '';
-            infographicPreview.innerHTML = '';
-            
-            items.forEach((item, idx) => {
-                const skill = item.querySelector(`.skill-name-${idx}`)?.value || '';
-                if (skill) {
-                    const li = document.createElement('li');
-                    li.style.marginBottom = '0.5rem';
-                    li.textContent = '• ' + skill;
-                    preview.appendChild(li);
-
-                    const timelineLi = document.createElement('div');
-                    timelineLi.style.marginBottom = '0.5rem';
-                    timelineLi.textContent = '• ' + skill;
-                    timelinePreview.appendChild(timelineLi);
-                    
-                    // Infographic template uses list items directly with special styling
-                    const infographicLi = document.createElement('li');
-                    infographicLi.textContent = skill; // Text content only, styling applied via CSS
-                    infographicPreview.appendChild(infographicLi);
-                }
-            });
         }
 
         function addLanguage() {
@@ -1945,7 +1542,7 @@
                 <div class="list-item-content">
                     <input type="text" placeholder="Dil (məs: İngilis)" class="lang-name" data-id="${id}" style="flex: 2;">
                     <input type="text" placeholder="Səviyyə (məs: Əla)" class="lang-level" data-id="${id}" style="flex: 1; margin-left: 0.5rem;">
-                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">Sil</button>
+                    <button class="btn-remove" onclick="this.parentElement.parentElement.remove(); updateAllPreviews();">${translations[currentLang].remove}</button>
                 </div>
             `;
             document.getElementById('languages-list').appendChild(item);
@@ -1955,32 +1552,245 @@
             });
         }
 
-        function updateLanguagesPreview() {
-            const preview = document.getElementById('preview-languages');
-            const timelinePreview = document.getElementById('preview-languages-timeline');
-            const infographicPreview = document.getElementById('preview-languages-infographic');
-            const minimalPreview = document.getElementById('minimal-preview-languages');
-            
-            const section = document.getElementById('languages-section');
-            const timelineSection = document.getElementById('languages-section-timeline');
-            const infographicSection = document.getElementById('languages-section-infographic');
-            const minimalSection = document.getElementById('minimal-languages-section');
+        // Preview yeniləmə funksiyaları
+        function updateAllPreviews() {
+            updateExperiencePreview();
+            updateEducationPreview();
+            updateSkillsPreview();
+            updateLanguagesPreview();
 
-            const items = document.querySelectorAll('#languages-list .list-item');
+            // Vebsayt görünürlüyünü yenilə
+            document.getElementById('hide-website-checkbox').dispatchEvent(new Event('change'));
             
+            // Editable elementləri yenidən qur
+            setupEditableElements();
+        }
+
+        function updateExperiencePreview() {
+            const sections = [
+                { section: 'experience-section', preview: 'preview-experience' },
+                { section: 'minimal-experience-section', preview: 'minimal-preview-experience' },
+                { section: 'experience-section-clean', preview: 'preview-experience-clean' },
+                { section: 'experience-section-executive', preview: 'preview-experience-executive' }
+            ];
+            
+            const items = document.querySelectorAll('#experience-list .list-item');
+            const hasExperience = items.length > 0 && Array.from(items).some(item => 
+                item.querySelector('input[type="text"]')?.value || item.querySelector('textarea')?.value
+            );
+
+            sections.forEach(({section, preview}) => {
+                const sectionEl = document.getElementById(section);
+                const previewEl = document.getElementById(preview);
+                
+                if (sectionEl) sectionEl.style.display = hasExperience ? 'block' : 'none';
+                if (previewEl) previewEl.innerHTML = '';
+            });
+            
+            items.forEach((item) => {
+                const id = item.querySelector('.exp-title')?.getAttribute('data-id');
+                if (!id) return;
+                
+                const title = item.querySelector(`.exp-title[data-id="${id}"]`)?.value || '';
+                const company = item.querySelector(`.exp-company[data-id="${id}"]`)?.value || '';
+                const dates = item.querySelector(`.exp-dates[data-id="${id}"]`)?.value || '';
+                const desc = item.querySelector(`.exp-desc[data-id="${id}"]`)?.value || '';
+                
+                if (title || company || dates || desc) {
+                    // Modern template
+                    const expDiv = document.createElement('div');
+                    expDiv.className = 'exp-item';
+                    expDiv.innerHTML = `
+                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
+                        <div class="exp-title">${title}</div>
+                        <div class="exp-company">${company}</div>
+                        ${desc ? `<ul class="exp-desc">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+                    `;
+                    document.getElementById('preview-experience').appendChild(expDiv);
+
+                    // Minimal template
+                    const minimalDiv = document.createElement('div');
+                    minimalDiv.className = 'exp-item';
+                    minimalDiv.innerHTML = `
+                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
+                        <div class="exp-title">${title}</div>
+                        <div class="exp-company">${company}</div>
+                        ${desc ? `<ul class="exp-desc">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li>${d}</li>`).join('')}</ul>` : ''}
+                    `;
+                    document.getElementById('minimal-preview-experience').appendChild(minimalDiv);
+
+                    // Clean template
+                    const cleanDiv = document.createElement('div');
+                    cleanDiv.className = 'timeline-item';
+                    cleanDiv.innerHTML = `
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50; margin-bottom: 0.2rem;">${title}</div>
+                        <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 0.3rem;">${company}</div>
+                        ${dates ? `<div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">${dates}</div>` : ''}
+                        ${desc ? `<ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #555;">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li style="margin-bottom: 0.3rem;">• ${d}</li>`).join('')}</ul>` : ''}
+                    `;
+                    document.getElementById('preview-experience-clean').appendChild(cleanDiv);
+
+                    // Executive template
+                    const executiveDiv = document.createElement('div');
+                    executiveDiv.style.marginBottom = '1rem';
+                    executiveDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50;">${title}</div>
+                            ${dates ? `<div style="font-size: 0.8rem; color: var(--accent-color); font-weight: 600;">${dates}</div>` : ''}
+                        </div>
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">${company}</div>
+                        ${desc ? `<ul style="list-style: none; padding: 0; font-size: 0.85rem; color: #555;">${desc.split('\n').map(d => d.trim()).filter(d => d).map(d => `<li style="margin-bottom: 0.3rem;">• ${d}</li>`).join('')}</ul>` : ''}
+                    `;
+                    document.getElementById('preview-experience-executive').appendChild(executiveDiv);
+                }
+            });
+        }
+
+        function updateEducationPreview() {
+            const sections = [
+                { section: 'education-section', preview: 'preview-education' },
+                { section: 'minimal-education-section', preview: 'minimal-preview-education' },
+                { section: 'education-section-clean', preview: 'preview-education-clean' },
+                { section: 'education-section-executive', preview: 'preview-education-executive' }
+            ];
+            
+            const items = document.querySelectorAll('#education-list .list-item');
+            const hasEducation = items.length > 0 && Array.from(items).some(item => 
+                item.querySelector('.edu-degree')?.value
+            );
+
+            sections.forEach(({section, preview}) => {
+                const sectionEl = document.getElementById(section);
+                const previewEl = document.getElementById(preview);
+                
+                if (sectionEl) sectionEl.style.display = hasEducation ? 'block' : 'none';
+                if (previewEl) previewEl.innerHTML = '';
+            });
+            
+            items.forEach((item) => {
+                const id = item.getAttribute('data-edu-id');
+                const degree = item.querySelector(`.edu-degree[data-id="${id}"]`)?.value || '';
+                const uni = item.querySelector(`.edu-uni[data-id="${id}"]`)?.value || '';
+                const dates = item.querySelector(`.edu-dates[data-id="${id}"]`)?.value || '';
+                
+                if (degree || uni || dates) {
+                    // Modern template
+                    const eduDiv = document.createElement('div');
+                    eduDiv.className = 'exp-item';
+                    eduDiv.innerHTML = `
+                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
+                        <div class="exp-title">${degree}</div>
+                        <div class="exp-company">${uni}</div>
+                    `;
+                    document.getElementById('preview-education').appendChild(eduDiv);
+
+                    // Minimal template
+                    const minimalDiv = document.createElement('div');
+                    minimalDiv.className = 'exp-item';
+                    minimalDiv.innerHTML = `
+                        ${dates ? `<div class="exp-dates">${dates}</div>` : ''}
+                        <div class="exp-title">${degree}</div>
+                        <div class="exp-company">${uni}</div>
+                    `;
+                    document.getElementById('minimal-preview-education').appendChild(minimalDiv);
+
+                    // Clean template
+                    const cleanDiv = document.createElement('div');
+                    cleanDiv.className = 'timeline-item';
+                    cleanDiv.innerHTML = `
+                        <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50; margin-bottom: 0.2rem;">${degree}</div>
+                        <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 0.3rem;">${uni}</div>
+                        ${dates ? `<div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">${dates}</div>` : ''}
+                    `;
+                    document.getElementById('preview-education-clean').appendChild(cleanDiv);
+
+                    // Executive template
+                    const executiveDiv = document.createElement('div');
+                    executiveDiv.style.marginBottom = '1rem';
+                    executiveDiv.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                            <div style="font-weight: 700; font-size: 0.95rem; color: #2c3e50;">${degree}</div>
+                            ${dates ? `<div style="font-size: 0.8rem; color: var(--accent-color); font-weight: 600;">${dates}</div>` : ''}
+                        </div>
+                        <div style="font-size: 0.85rem; color: #666;">${uni}</div>
+                    `;
+                    document.getElementById('preview-education-executive').appendChild(executiveDiv);
+                }
+            });
+        }
+
+        function updateSkillsPreview() {
+            const sections = [
+                { section: 'skills-section', preview: 'preview-skills' },
+                { section: 'minimal-skills-section', preview: 'minimal-preview-skills' },
+                { section: 'skills-section-clean', preview: 'preview-skills-clean' },
+                { section: 'skills-section-executive', preview: 'preview-skills-executive' }
+            ];
+            
+            const items = document.querySelectorAll('#skills-list .list-item');
+            const hasSkills = items.length > 0 && Array.from(items).some(item => item.querySelector('input[type="text"]')?.value);
+
+            sections.forEach(({section, preview}) => {
+                const sectionEl = document.getElementById(section);
+                const previewEl = document.getElementById(preview);
+                
+                if (sectionEl) sectionEl.style.display = hasSkills ? 'block' : 'none';
+                if (previewEl) previewEl.innerHTML = '';
+            });
+            
+            items.forEach((item) => {
+                const id = item.querySelector('.skill-name')?.getAttribute('data-id');
+                if (!id) return;
+                
+                const skill = item.querySelector(`.skill-name[data-id="${id}"]`)?.value || '';
+                if (skill) {
+                    // Modern template
+                    const li = document.createElement('li');
+                    li.style.marginBottom = '0.5rem';
+                    li.textContent = '• ' + skill;
+                    document.getElementById('preview-skills').appendChild(li);
+
+                    // Minimal template
+                    const minimalLi = document.createElement('li');
+                    minimalLi.style.marginBottom = '0.5rem';
+                    minimalLi.textContent = '• ' + skill;
+                    document.getElementById('minimal-preview-skills').appendChild(minimalLi);
+
+                    // Clean template
+                    const cleanLi = document.createElement('div');
+                    cleanLi.style.marginBottom = '0.5rem';
+                    cleanLi.textContent = '• ' + skill;
+                    document.getElementById('preview-skills-clean').appendChild(cleanLi);
+
+                    // Executive template
+                    const executiveLi = document.createElement('div');
+                    executiveLi.style.marginBottom = '0.3rem';
+                    executiveLi.textContent = '• ' + skill;
+                    document.getElementById('preview-skills-executive').appendChild(executiveLi);
+                }
+            });
+        }
+
+        function updateLanguagesPreview() {
+            const sections = [
+                { section: 'languages-section', preview: 'preview-languages' },
+                { section: 'minimal-languages-section', preview: 'minimal-preview-languages' },
+                { section: 'languages-section-clean', preview: 'preview-languages-clean' },
+                { section: 'languages-section-executive', preview: 'preview-languages-executive' }
+            ];
+            
+            const items = document.querySelectorAll('#languages-list .list-item');
             const hasLanguages = items.length > 0 && Array.from(items).some(item => 
                 item.querySelector('.lang-name')?.value
             );
 
-            section.style.display = hasLanguages ? 'block' : 'none';
-            timelineSection.style.display = hasLanguages ? 'block' : 'none';
-            infographicSection.style.display = hasLanguages ? 'block' : 'none';
-            minimalSection.style.display = hasLanguages ? 'block' : 'none';
-
-            preview.innerHTML = '';
-            timelinePreview.innerHTML = '';
-            infographicPreview.innerHTML = '';
-            minimalPreview.innerHTML = '';
+            sections.forEach(({section, preview}) => {
+                const sectionEl = document.getElementById(section);
+                const previewEl = document.getElementById(preview);
+                
+                if (sectionEl) sectionEl.style.display = hasLanguages ? 'block' : 'none';
+                if (previewEl) previewEl.innerHTML = '';
+            });
             
             items.forEach((item) => {
                 const id = item.getAttribute('data-lang-id');
@@ -1988,29 +1798,34 @@
                 const level = item.querySelector(`.lang-level[data-id="${id}"]`)?.value || '';
                 
                 if (lang) {
+                    // Modern template
                     const li = document.createElement('li');
                     li.style.marginBottom = '0.5rem';
                     li.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
-                    preview.appendChild(li);
+                    document.getElementById('preview-languages').appendChild(li);
 
-                    const timelineLi = document.createElement('div');
-                    timelineLi.style.marginBottom = '0.5rem';
-                    timelineLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
-                    timelinePreview.appendChild(timelineLi);
-
-                    const infographicLi = document.createElement('li');
-                    infographicLi.style.marginBottom = '0.5rem';
-                    infographicLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
-                    infographicPreview.appendChild(infographicLi);
-
-                    const minimalLi = document.createElement('div');
+                    // Minimal template
+                    const minimalLi = document.createElement('li');
                     minimalLi.style.marginBottom = '0.5rem';
                     minimalLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
-                    minimalPreview.appendChild(minimalLi);
+                    document.getElementById('minimal-preview-languages').appendChild(minimalLi);
+
+                    // Clean template
+                    const cleanLi = document.createElement('div');
+                    cleanLi.style.marginBottom = '0.5rem';
+                    cleanLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
+                    document.getElementById('preview-languages-clean').appendChild(cleanLi);
+
+                    // Executive template
+                    const executiveLi = document.createElement('div');
+                    executiveLi.style.marginBottom = '0.3rem';
+                    executiveLi.innerHTML = `<strong>${lang}</strong>${level ? ` - ${level}` : ''}`;
+                    document.getElementById('preview-languages-executive').appendChild(executiveLi);
                 }
             });
         }
 
+        // PDF yükləmə
         document.getElementById('download-pdf').addEventListener('click', async () => {
             const loader = document.querySelector('.loader');
             const overlay = document.querySelector('.loader-overlay');
@@ -2049,20 +1864,44 @@
             }
         });
 
-        document.getElementById('language-select').addEventListener('change', (e) => changeLanguage(e.target.value));
-        changeLanguage('az'); // Initialize language
-        setupRealTimeUpdates();
-
-        document.getElementById('add-experience').addEventListener('click', addExperience);
-        document.getElementById('add-education').addEventListener('click', addEducation);
-        document.getElementById('add-skill').addEventListener('click', addSkill);
-        document.getElementById('add-language').addEventListener('click', addLanguage);
-        
-        // Initial template setup
-        switchTemplate(1);
-
-        // Initial preview update to clear empty sections if any
-        updateAllPreviews();
+        // Səhifə yükləndikdə işə sal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Dil dəyişdiricisi
+            document.getElementById('language-select').addEventListener('change', (e) => changeLanguage(e.target.value));
+            
+            // Şablon dəyişdiriciləri
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    switchTemplate(parseInt(e.target.getAttribute('data-template')));
+                });
+            });
+            
+            // Şrift seçimləri
+            document.querySelectorAll('.font-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    changeFont(e.target.getAttribute('data-font'));
+                });
+            });
+            
+            // Element əlavə etmə butonları
+            document.getElementById('add-experience').addEventListener('click', addExperience);
+            document.getElementById('add-education').addEventListener('click', addEducation);
+            document.getElementById('add-skill').addEventListener('click', addSkill);
+            document.getElementById('add-language').addEventListener('click', addLanguage);
+            
+            // Profil şəkli klik
+            document.querySelectorAll('.profile-image-container').forEach(container => {
+                container.addEventListener('click', () => {
+                    document.getElementById('image-upload').click();
+                });
+            });
+            
+            // İlkin dəyərləri təyin et
+            changeLanguage('az');
+            setupRealTimeUpdates();
+            switchTemplate(1);
+            updateAllPreviews();
+        });
     </script>
 </body>
 </html>
