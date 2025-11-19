@@ -64,12 +64,24 @@
             --font-heading: 'Manrope', sans-serif;
         }
 
+        /* Gündüz modu dəyişənləri */
+        .light-mode {
+            --background: #f0f4f8;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --border: rgba(56, 229, 183, 0.3);
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --primary: #38E5B7;
+            --primary-hover: #10B981;
+        }
+
         html { scroll-behavior: smooth; }
         body {
             font-family: var(--font-body);
             background-color: var(--background);
             color: var(--text-primary);
             overflow-x: hidden;
+            transition: background-color 0.8s ease, color 0.8s ease;
         }
 
         #matrix-canvas {
@@ -79,6 +91,12 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        .light-mode #matrix-canvas {
+            opacity: 0;
         }
 
         #globe-container {
@@ -91,9 +109,109 @@
             opacity: 0.5;
             mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
             -webkit-mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+            transition: opacity 0.8s ease;
+        }
+
+        .light-mode #globe-container {
+            opacity: 0.2;
         }
 
         .content-overlay { position: relative; z-index: 1; }
+
+        /* Header üçün şəffaf fon */
+        #header {
+            background: rgba(5, 8, 14, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        #header.scrolled {
+            background: rgba(5, 8, 14, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .light-mode #header {
+            background: rgba(240, 244, 248, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .light-mode #header.scrolled {
+            background: rgba(240, 244, 248, 0.8);
+        }
+
+        /* Gündüz/Gece Modu Düyməsi - Header içində */
+        .theme-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .theme-label {
+            color: var(--text-primary);
+        }
+
+        /* The switch - the box around the slider */
+        .switch {
+            font-size: 17px;
+            position: relative;
+            display: inline-block;
+            width: 3.5em;
+            height: 2em;
+        }
+
+        /* Hide default HTML checkbox */
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* The slider */
+        .slider {
+            --background: #28096b;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--background);
+            transition: .5s;
+            border-radius: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 1.4em;
+            width: 1.4em;
+            border-radius: 50%;
+            left: 10%;
+            bottom: 15%;
+            box-shadow: inset 8px -4px 0px 0px #fff000;
+            background: var(--background);
+            transition: .5s;
+        }
+
+        input:checked + .slider {
+            background-color: #522ba7;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(100%);
+            box-shadow: inset 15px -4px 0px 15px #fff000;
+        }
 
         /* YENİ KART DİZAYNI */
         .feature-card {
@@ -105,7 +223,7 @@
             border: 1px solid var(--border);
             border-radius: 1.5rem;
             overflow: hidden;
-            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.8s ease, border-color 0.8s ease;
             position: relative;
             margin-bottom: 2rem;
             cursor: pointer;
@@ -178,12 +296,14 @@
             font-family: var(--font-heading);
             margin-bottom: 1rem;
             line-height: 1.2;
+            transition: color 0.8s ease;
         }
         
         .card-description {
             color: var(--text-muted);
             line-height: 1.6;
             margin-bottom: 1.5rem;
+            transition: color 0.8s ease;
         }
         
         /* YENİ "DAVAM ET" BUTONU - ANİMASİYALI */
@@ -201,7 +321,7 @@
             background: transparent;
             text-transform: uppercase;
             font-weight: 900;
-            color: white;
+            color: var(--text-primary);
             cursor: pointer;
         }
 
@@ -253,7 +373,7 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            color: white;
+            color: var(--text-primary);
             text-decoration: none;
             cursor: pointer;
             outline: none;
@@ -712,73 +832,71 @@
             font-size: 0.95rem;
         }
         
-        /* YENİ HAQQIMIZDA KARTI */
-        .about-card {
-            width: 300px;
-            height: 200px;
-            perspective: 1000px;
+        /* YENİ HAQQIMIZDA BÖLMƏSİ */
+        .about-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 3rem;
             margin: 2rem auto;
+            max-width: 900px;
+            transition: all 0.4s ease;
         }
 
-        .about-card-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.999s;
-            cursor: pointer;
+        .about-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(56, 229, 183, 0.5);
         }
 
-        .about-card:hover .about-card-inner {
-            transform: rotateY(180deg);
-        }
-
-        .about-card-front,
-        .about-card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
+        .about-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
             text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
         }
 
-        .about-card-front {
-            background-color: var(--glass-bg);
+        .about-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
             color: var(--text-primary);
-            border: 2px solid var(--border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
         }
 
-        .about-card-back {
-            background-color: var(--glass-bg);
-            color: var(--text-primary);
-            border: 2px solid var(--primary);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transform: rotateY(180deg);
+        .about-highlight {
+            color: var(--primary);
+            font-weight: 600;
         }
 
-        .about-card-front p {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .about-list {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
         }
 
-        .about-card-front small {
-            font-size: 0.8rem;
-            color: var(--text-muted);
+        .about-list li {
+            margin-bottom: 0.8rem;
+            position: relative;
         }
 
-        .about-card-back p {
-            font-size: 0.9rem;
-            line-height: 1.4;
+        .about-list li:before {
+            content: "▸";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: -1.2rem;
+        }
+
+        .mission-statement {
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            font-style: italic;
         }
         
         /* YENİ TV EFEKTLİ VİDEO KONTEYNERİ */
@@ -906,9 +1024,9 @@
                 width: 270px;
             }
             
-            .about-card {
-                width: 280px;
-                height: 220px;
+            .about-section {
+                padding: 2rem;
+                margin: 1rem;
             }
             
             .tv-container {
@@ -917,12 +1035,26 @@
             }
         }
         
-        @media (max-width: 640px) {
-            .about-card {
-                width: 260px;
-                height: 240px;
+        @media (max-width: 768px) {
+            .theme-toggle-container {
+                margin-left: auto;
+                margin-right: 1rem;
             }
             
+            .theme-label {
+                display: none;
+            }
+
+            .about-title {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
             .tv-container {
                 border-width: 8px;
             }
@@ -937,6 +1069,14 @@
                 width: 60px;
                 height: 8px;
                 top: -8px;
+            }
+            
+            .theme-toggle-container {
+                margin-right: 0.5rem;
+            }
+
+            .about-section {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -953,11 +1093,22 @@
                 <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
             </a>
             
+            <!-- Gündüz/Gece Modu Düyməsi - Header içində -->
+            <div class="theme-toggle-container">
+                <span class="theme-label">Gece</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-label">Gündüz</span>
+            </div>
+            
             <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
                 <a href="#services" class="text-gray-300 hover:text-primary transition-colors">Niyə Biz?</a>
                 <a href="follower-service.html" class="text-gray-300 hover:text-primary transition-colors">Takipçi Xidməti</a>
                 <a href="https://ai.axtarget.xyz" target="_blank" class="text-gray-300 hover:text-primary transition-colors">AxtarGet AI</a>
                 <a href="digital-products.html" class="text-gray-300 hover:text-primary transition-colors">Rəqəmsal Məhsullar</a>
+                <a href="#about" class="text-gray-300 hover:text-primary transition-colors">Haqqımızda</a>
                 <a href="#contact" class="text-gray-300 hover:text-primary transition-colors">Əlaqə</a>
             </nav>
             <button id="hamburger-button" class="md:hidden text-2xl text-white">
@@ -975,6 +1126,7 @@
             <a href="#hero">Ana Səhifə</a>
             <a href="#products">Xidmətlər</a>
             <a href="#services">Niyə Biz?</a>
+            <a href="#about">Haqqımızda</a>
             <a href="share-business.html">Biznesini Paylaş</a>
             <a href="prmiumCV.html">CV Hazırla</a>
             <a href="follower-service.html">Takipçi Xidməti</a>
@@ -1060,10 +1212,10 @@
         <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
             <div id="globe-container"></div>
             <div class="content-overlay container mx-auto px-6 lg:px-8 max-w-7xl text-center">
-                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold font-heading text-white leading-tight mb-6 fade-in" style="text-shadow: 0 5px 30px rgba(0,0,0,0.5);">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold font-heading leading-tight mb-6 fade-in" style="text-shadow: 0 5px 30px rgba(0,0,0,0.5); color: var(--text-primary);">
                     Gələcəyi <span class="text-primary">Kodlaşdırırıq</span>
                 </h1>
-                <p class="text-lg md:text-xl text-text-muted max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s;">
+                <p class="text-lg md:text-xl max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s; color: var(--text-muted);">
                     Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
                 </p>
                 
@@ -1148,8 +1300,8 @@
         <section id="products" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Xidmət Ekosistemimiz</h2>
-                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Xidmət Ekosistemimiz</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
                         Rəqəmsal dünyada ehtiyacınız olan hər şey bir ünvanda.
                     </p>
                 </div>
@@ -1357,8 +1509,8 @@
         <section id="services" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Niyə Biz?</h2>
-                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Niyə Biz?</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
                         İdeyadan icraya, hər mərhələdə yanınızdayıq.
                     </p>
                 </div>
@@ -1382,12 +1534,68 @@
             </div>
         </section>
 
+        <!-- Haqqımızda Section -->
+        <section id="about" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="about-section fade-in">
+                    <h2 class="about-title">AxtarGet Haqqında</h2>
+                    
+                    <div class="about-content">
+                        <p><strong>AxtarGet</strong> - <span class="about-highlight">İbadulla Hasanov</span> tərəfindən yaradılmış innovativ rəqəmsal platformadır. Bizim əsas məqsədimiz istifadəçilərə pulsuz və keyfiyyətli xidmətlər təqdim etməkdir.</p>
+                        
+                        <div class="mission-statement">
+                            "Biz etibarlı, şəffaf və istifadəçi dostu xidmətlər təqdim edirik."
+                        </div>
+
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🎯 Bizim Məqsədimiz Nədir?</h3>
+                        <p>Biz sadəcə veb-sayt yaratmırıq. Biz rəqəmsal dünyada <span class="about-highlight">unudulmaz təcrübələr</span> yaradırıq. Hər bir layihə bizim üçün unikaldır və maksimum diqqətlə hazırlanır.</p>
+
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🆓 Pulsuz Xidmətlərimiz:</h3>
+                        <ul class="about-list">
+                            <li><strong>AxtarGet AI</strong> - Süni intellekt köməkçisi</li>
+                            <li><strong>HTML/CSS/JavaScript Redaktoru</strong> - Kod yazma və test etmə aləti</li>
+                            <li><strong>QR Kod Generatoru</strong> - Öz QR kodunuzu yaradın</li>
+                            <li><strong>Anonim Mesajlaşma</strong> - Təhlükəsiz və gizli chat</li>
+                            <li><strong>Premium CV Hazırlama</strong> - Peşəkar CV şablonları</li>
+                            <li><strong>Şəkil Redaktəsi</strong> - Əsas fotoşop xidmətləri</li>
+                            <li><strong>İş Elanları Platforması</strong> - Karyera fürsətləri</li>
+                            <li><strong>Biznes Paylaşım Platforması</strong> - Biznesinizi tanıdın</li>
+                        </ul>
+
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">💎 Premium Xidmətlərimiz:</h3>
+                        <ul class="about-list">
+                            <li><strong>Takipçi Xidməti</strong> - Sosial media böyümə</li>
+                            <li><strong>Rəqəmsal Məhsullar</strong> - Netflix, Spotify, ChatGPT hesabları</li>
+                            <li><strong>Veb Sayt Hazırlama</strong> - Peşəkar veb saytlar</li>
+                        </ul>
+
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🚀 Niyə Bizi Seçməlisiniz?</h3>
+                        <p>Çünki biz:</p>
+                        <ul class="about-list">
+                            <li><strong>Şəffafıq</strong> - Bütün qiymətlər açıq şəkildə göstərilir</li>
+                            <li><strong>Etibarlılıq</strong> - 100% təminat və dəstək</li>
+                            <li><strong>Yenilikçilik</strong> - Ən son texnologiyalardan istifadə</li>
+                            <li><strong>Sürət</strong> - Sifarişlər ən qısa müddətdə tamamlanır</li>
+                            <li><strong>Müştəri Məmnuniyyəti</strong> - Hər müştəri bizim üçün vacibdir</li>
+                        </ul>
+
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🌟 Bizim Fəlsəfəmiz:</h3>
+                        <p>"Ən yaxşı investisiya - <span class="about-highlight">özünüzə etdiyiniz investisiyadır</span>. Biz sizə bu investisiyanı daha səmərəli etməyə kömək edirik."</p>
+
+                        <p style="margin-top: 2rem; text-align: center; font-weight: 600;">
+                            <span class="about-highlight">AxtarGet</span> - Gələcəyin Texnologiyaları, Bu Gün!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Contact Section -->
         <section id="contact" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-5xl text-center">
                 <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="AxtarGet Logo" class="w-24 h-24 rounded-full border-4 border-primary shadow-lg shadow-primary/30 mx-auto mb-8 fade-in">
-                <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">Növbəti Böyük Addımı Birlikdə Atmağa Hazırsınız?</h2>
-                <p class="text-lg text-text-muted mt-4 mb-12 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Növbəti Böyük Addımı Birlikdə Atmağa Hazırsınız?</h2>
+                <p class="text-lg mt-4 mb-12 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
                     Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək və ideyanızı rəqəmsal reallığa çevirək.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 fade-in" style="transition-delay: 0.2s;">
@@ -1420,8 +1628,8 @@
         <section class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading text-white fade-in">AxtarGet Təqdimat Videosu</h2>
-                    <p class="text-lg text-text-muted mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s;">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">AxtarGet Təqdimat Videosu</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
                         Bizim xidmətlərimiz və vizyonumuz haqqında daha ətraflı məlumat əldə edin.
                     </p>
                 </div>
@@ -1439,19 +1647,6 @@
                     </div>
                     <div class="tv-stand"></div>
                 </div>
-                
-                <!-- Haqqımızda Kartı -->
-                <div class="about-card fade-in mt-16">
-                    <div class="about-card-inner">
-                        <div class="about-card-front">
-                            <p>Haqqımızda</p>
-                            <small>(Oxumaq üçün toxun)</small>
-                        </div>
-                        <div class="about-card-back">
-                            <p>AxtarGet.xyz - İbadulla Həsənovun yaratdığı öndə gələn rəqəmsal platformalardan biridir. Biz innovativ texnologiya həlləri ilə müştərilərimizə ən yaxşı xidməti təqdim edirik.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     </main>
@@ -1467,13 +1662,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Gündüz/Gece modu funksiyası
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            
+            // Sayt HƏMİŞƏ qaranlıq modda açılsın
+            body.classList.remove('light-mode');
+            themeToggle.checked = false;
+            localStorage.setItem('theme', 'dark');
+            
+            // Mod dəyişikliyi (istifadəçi əl ilə dəyişsə belə)
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
+                }
+            });
+
             // Header scroll effekti
             const header = document.getElementById('header');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 50) {
-                    header.classList.add('glass-card');
+                    header.classList.add('scrolled');
                 } else {
-                    header.classList.remove('glass-card');
+                    header.classList.remove('scrolled');
                 }
             });
 
