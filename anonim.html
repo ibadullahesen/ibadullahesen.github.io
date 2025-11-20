@@ -94,6 +94,35 @@
         </div>
     </div>
 
+    <!-- Animasiya ekranları -->
+    <div id="auth-animation" class="hidden fixed inset-0 bg-primary-dark bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-20 h-20 border-4 border-t-4 border-accent-green border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-xl font-semibold text-white">Anonim girişiniz yaradılır...</p>
+        </div>
+    </div>
+
+    <div id="cancel-animation" class="hidden fixed inset-0 bg-primary-dark bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-20 h-20 border-4 border-t-4 border-accent-red border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-xl font-semibold text-white">Axtarış dayandırılır...</p>
+        </div>
+    </div>
+
+    <div id="change-animation" class="hidden fixed inset-0 bg-primary-dark bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-20 h-20 border-4 border-t-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-xl font-semibold text-white">Söhbət dəyişdirilir...</p>
+        </div>
+    </div>
+
+    <div id="close-animation" class="hidden fixed inset-0 bg-primary-dark bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="w-20 h-20 border-4 border-t-4 border-accent-red border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-xl font-semibold text-white">Söhbət bağlanır...</p>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -124,6 +153,23 @@
         const MATCHING_SECONDS = 20;
         const CHAT_COLLECTION = `artifacts/axtarget-anonimchat/public/data/chats`;
         const MATCH_QUEUE_DOC_NAME = 'match_queue_doc';
+
+        // Animasiya göstər
+        function showAnimation(animationId) {
+            document.getElementById('auth-animation').classList.add('hidden');
+            document.getElementById('cancel-animation').classList.add('hidden');
+            document.getElementById('change-animation').classList.add('hidden');
+            document.getElementById('close-animation').classList.add('hidden');
+            document.getElementById(animationId).classList.remove('hidden');
+        }
+
+        // Bütün animasiyaları gizlət
+        function hideAllAnimations() {
+            document.getElementById('auth-animation').classList.add('hidden');
+            document.getElementById('cancel-animation').classList.add('hidden');
+            document.getElementById('change-animation').classList.add('hidden');
+            document.getElementById('close-animation').classList.add('hidden');
+        }
 
         // Firebase Başlat
         async function initializeFirebase() {
@@ -301,7 +347,11 @@
         // Söhbətə başla
         window.handleStart = async function() {
             if (!isAuthReady || !userId) {
-                alert("Autentifikasiya hazır deyil");
+                showAnimation('auth-animation');
+                setTimeout(() => {
+                    hideAllAnimations();
+                    alert("Autentifikasiya hazır deyil");
+                }, 2000);
                 return;
             }
             
@@ -577,74 +627,91 @@
         // Söhbəti bağla
         window.handleCloseChat = async function() {
             console.log("[v0] Closing chat...");
-            if (!chatId) {
-                await disconnect(true);
-                return;
-            }
+            showAnimation('close-animation');
             
-            const currentChatId = chatId;
-            
-            try {
-                await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {
-                    status: 'closed',
-                    closedBy: userId,
-                    closedReason: 'closed'
-                });
-            } catch (e) {
-                console.error("Bağlama xətası:", e);
-            }
-            
-            await disconnect(true);
-            
-            setTimeout(() => {
+            setTimeout(async () => {
+                hideAllAnimations();
+                
+                if (!chatId) {
+                    await disconnect(true);
+                    return;
+                }
+                
+                const currentChatId = chatId;
+                
                 try {
-                    deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
-                    deleteDoc(doc(db, CHAT_COLLECTION, userId));
-                    if (partnerId) {
-                        deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
-                    }
-                } catch (e) {}
-            }, 2000);
+                    await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {
+                        status: 'closed',
+                        closedBy: userId,
+                        closedReason: 'closed'
+                    });
+                } catch (e) {
+                    console.error("Bağlama xətası:", e);
+                }
+                
+                await disconnect(true);
+                
+                setTimeout(() => {
+                    try {
+                        deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
+                        deleteDoc(doc(db, CHAT_COLLECTION, userId));
+                        if (partnerId) {
+                            deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
+                        }
+                    } catch (e) {}
+                }, 2000);
+            }, 1500);
         };
 
         // Söhbəti dəyiş - RACE CONDITION DÜZƏLDİLDİ
         window.handleChangeChat = async function() {
             console.log("[v0] Changing chat...");
-            if (!chatId) return;
+            showAnimation('change-animation');
             
-            const currentChatId = chatId;
-            
-            try {
-                await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {
-                    status: 'closed',
-                    closedBy: userId,
-                    closedReason: 'changed'
-                });
-            } catch (e) {}
-            
-            await disconnect(false);
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            setTimeout(() => {
+            setTimeout(async () => {
+                hideAllAnimations();
+                
+                if (!chatId) return;
+                
+                const currentChatId = chatId;
+                
                 try {
-                    deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
-                    deleteDoc(doc(db, CHAT_COLLECTION, userId));
-                    if (partnerId) {
-                        deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
-                    }
+                    await updateDoc(doc(db, CHAT_COLLECTION, currentChatId), {
+                        status: 'closed',
+                        closedBy: userId,
+                        closedReason: 'changed'
+                    });
                 } catch (e) {}
-            }, 1000);
-            
-            showScreen('matching-screen');
-            document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";
-            document.getElementById('retry-container').classList.add('hidden');
-            startMatching();
+                
+                await disconnect(false);
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                setTimeout(() => {
+                    try {
+                        deleteDoc(doc(db, CHAT_COLLECTION, currentChatId));
+                        deleteDoc(doc(db, CHAT_COLLECTION, userId));
+                        if (partnerId) {
+                            deleteDoc(doc(db, CHAT_COLLECTION, partnerId));
+                        }
+                    } catch (e) {}
+                }, 1000);
+                
+                showScreen('matching-screen');
+                document.getElementById('matching-text').textContent = "Yeni Tərəfdaş Axtarılır...";
+                document.getElementById('retry-container').classList.add('hidden');
+                startMatching();
+            }, 1500);
         };
 
         // Axtarışı ləğv et
         window.handleCancelMatching = async function() {
-            await disconnect(false);
-            showScreen('start-screen');
+            showAnimation('cancel-animation');
+            
+            setTimeout(async () => {
+                hideAllAnimations();
+                await disconnect(false);
+                showScreen('start-screen');
+            }, 1500);
         };
 
         // Brauzerin bağlanmasını tut
