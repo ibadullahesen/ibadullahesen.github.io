@@ -10,7 +10,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         :root {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -21,7 +20,6 @@
             --accent: #3b82f6;
             --accent-hover: #2563eb;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
@@ -29,13 +27,11 @@
             overflow: hidden;
             height: 100vh;
         }
-
         .container {
             display: flex;
             flex-direction: column;
             height: 100vh;
         }
-
         /* Header */
         .header {
             display: flex;
@@ -46,7 +42,23 @@
             border-bottom: 1px solid var(--border-color);
             gap: 2rem;
         }
-
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         .header-title {
             font-size: 1.5rem;
             font-weight: 700;
@@ -55,13 +67,11 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .header-actions {
             display: flex;
             gap: 1rem;
             align-items: center;
         }
-
         /* Toolbar */
         .toolbar {
             display: flex;
@@ -72,31 +82,25 @@
             border-bottom: 1px solid var(--border-color);
             gap: 2rem;
         }
-
         .toolbar-left {
             display: flex;
             gap: 0.5rem;
         }
-
         .toolbar-center {
             display: flex;
-            gap: 0.5rem;
-            flex: 1;
+            gap: 1rem;
         }
-
         .toolbar-right {
             display: flex;
             gap: 0.5rem;
             align-items: center;
         }
-
         /* Main Content */
         .main {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-
         /* Editor Panel */
         .editor-container {
             display: flex;
@@ -106,7 +110,6 @@
             border-right: 1px solid var(--border-color);
             overflow: hidden;
         }
-
         .editor-header {
             display: flex;
             align-items: center;
@@ -117,33 +120,35 @@
             font-size: 0.875rem;
             font-weight: 600;
         }
-
         .editor-stats {
             font-size: 0.75rem;
             color: var(--text-secondary);
         }
-
         .editor-wrapper {
             display: flex;
             flex: 1;
             overflow: hidden;
             position: relative;
         }
-
-        .line-numbers {
+        .line-numbers-container {
             width: 3rem;
             background: rgba(15, 23, 42, 0.5);
             border-right: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+        .line-numbers {
             padding: 1rem 0;
             text-align: right;
             font-family: 'Courier New', monospace;
             font-size: 0.875rem;
             color: #64748b;
-            overflow: hidden;
             user-select: none;
             line-height: 1.5;
+            position: absolute;
+            width: 100%;
+            top: 0;
         }
-
         .editor {
             flex: 1;
             font-family: 'Courier New', monospace;
@@ -159,11 +164,9 @@
             tab-size: 2;
             -moz-tab-size: 2;
         }
-
         .editor::selection {
             background: rgba(59, 130, 246, 0.3);
         }
-
         .editor-footer {
             padding: 0.5rem 1rem;
             background: var(--bg-secondary);
@@ -173,7 +176,6 @@
             display: flex;
             gap: 2rem;
         }
-
         /* Preview Panel */
         .preview-container {
             display: flex;
@@ -182,7 +184,6 @@
             background: var(--bg-primary);
             overflow: hidden;
         }
-
         .preview-header {
             display: flex;
             align-items: center;
@@ -193,13 +194,11 @@
             font-size: 0.875rem;
             font-weight: 600;
         }
-
         .preview-controls {
             display: flex;
             gap: 0.5rem;
             align-items: center;
         }
-
         .preview-wrapper {
             flex: 1;
             display: flex;
@@ -209,7 +208,6 @@
             background: rgba(15, 23, 42, 0.5);
             overflow: auto;
         }
-
         .device-frame {
             background: white;
             border-radius: 0.5rem;
@@ -220,24 +218,20 @@
             max-height: 100%;
             max-width: 100%;
         }
-
         .device-frame.mobile {
             width: 375px;
             aspect-ratio: 9 / 16;
         }
-
         .device-frame.desktop {
             width: 100%;
             height: 100%;
         }
-
         .device-frame iframe {
             flex: 1;
             border: none;
             width: 100%;
             height: 100%;
         }
-
         .fullscreen-btn {
             padding: 0.5rem 1rem;
             background: var(--accent);
@@ -252,16 +246,13 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .fullscreen-btn:hover {
             background: var(--accent-hover);
             transform: translateY(-1px);
         }
-
         .fullscreen-btn:active {
             transform: translateY(0);
         }
-
         /* Buttons */
         button {
             padding: 0.5rem 1rem;
@@ -277,54 +268,51 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         button:hover {
             background: var(--accent-hover);
             transform: translateY(-1px);
         }
-
         button:active {
             transform: translateY(0);
         }
-
         button.secondary {
             background: var(--bg-tertiary);
             color: var(--text-primary);
         }
-
         button.secondary:hover {
             background: #475569;
         }
-
         button.icon {
             padding: 0.5rem;
             background: transparent;
             color: var(--text-secondary);
             border-radius: 0.375rem;
         }
-
         button.icon:hover {
             background: var(--bg-tertiary);
             color: var(--text-primary);
         }
-
         /* Device Mode Buttons */
         .device-btn {
-            padding: 0.375rem 0.75rem;
-            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
             background: var(--bg-tertiary);
             color: var(--text-secondary);
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
         }
-
         .device-btn.active {
             background: var(--accent);
             color: white;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
         }
-
         .device-btn:hover {
             background: #64748b;
+            transform: translateY(-1px);
         }
-
         /* Status Badge */
         .status-badge {
             padding: 0.25rem 0.75rem;
@@ -332,17 +320,14 @@
             font-size: 0.75rem;
             font-weight: 500;
         }
-
         .status-saved {
             background: #22c55e;
             color: white;
         }
-
         .status-unsaved {
             background: #eab308;
             color: #1e1b4b;
         }
-
         /* Divider */
         .divider {
             width: 1px;
@@ -350,7 +335,6 @@
             background: var(--border-color);
             margin: 0 0.5rem;
         }
-
         /* Modal */
         .modal {
             display: none;
@@ -364,11 +348,9 @@
             align-items: center;
             justify-content: center;
         }
-
         .modal.active {
             display: flex;
         }
-
         .modal-content {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -379,7 +361,6 @@
             flex-direction: column;
             overflow: hidden;
         }
-
         .modal-header {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
@@ -387,19 +368,16 @@
             justify-content: space-between;
             align-items: center;
         }
-
         .modal-body {
             flex: 1;
             overflow: auto;
             background: white;
         }
-
         .modal-body iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-
         .close-btn {
             background: var(--bg-tertiary);
             padding: 0.5rem 1rem;
@@ -412,22 +390,58 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="header-title">AxtarGet HTML Editor Pro</div>
+            <div class="header-content">
+                <div class="logo">
+                    <img src="https://i.postimg.cc/KjsJSqC7/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="AxtarGet Logo">
+                </div>
+                <div class="header-title">AxtarGet HTML Editor Pro</div>
+            </div>
         </div>
 
         <!-- Toolbar -->
         <div class="toolbar">
             <div class="toolbar-left">
-                <button id="copyBtn" class="icon" title="Kopyala">📋</button>
-                <button id="downloadBtn" class="icon" title="Endir">⬇️</button>
-                <button id="refreshBtn" class="icon" title="Yenilə">🔄</button>
+                <button id="copyBtn" class="icon" title="Kopyala">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    Kopyala
+                </button>
+                <button id="downloadBtn" class="icon" title="Endir">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7,10 12,15 17,10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Endir
+                </button>
+                <button id="refreshBtn" class="icon" title="Yenilə">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                    Yenilə
+                </button>
             </div>
-
             <div class="toolbar-center">
-                <span class="device-btn active" id="desktopBtn" title="Masaüstü (100%)">🖥️ Masaüstü</span>
-                <span class="device-btn" id="mobileBtn" title="Mobil (375px)">📱 Mobil</span>
+                <button class="device-btn active" id="desktopBtn" title="Masaüstü (100%)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    Masaüstü
+                </button>
+                <button class="device-btn" id="mobileBtn" title="Mobil (375px)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                        <line x1="12" y1="18" x2="12" y2="18"></line>
+                    </svg>
+                    Mobil
+                </button>
             </div>
-
             <div class="toolbar-right">
                 <span class="status-badge status-saved" id="statusBadge">✓ Saxlanılıb</span>
             </div>
@@ -440,16 +454,18 @@
                 <div class="editor-header">
                     <span>HTML / CSS / JavaScript</span>
                     <span class="editor-stats">
-                        <span id="charCount">0</span> karakter • 
+                        <span id="charCount">0</span> karakter •
                         <span id="lineCount">1</span> sətir
                     </span>
                 </div>
                 <div class="editor-wrapper">
-                    <div class="line-numbers" id="lineNumbers"></div>
-                    <textarea 
-                        id="editor" 
+                    <div class="line-numbers-container">
+                        <div class="line-numbers" id="lineNumbers"></div>
+                    </div>
+                    <textarea
+                        id="editor"
                         class="editor"
-                        placeholder="<!DOCTYPE html>&#10;<html>&#10;<head>&#10;  <meta charset=&quot;UTF-8&quot;>&#10;  <title>Səhifəm</title>&#10;  <style>&#10;    body { font-family: sans-serif; }&#10;  </style>&#10;</head>&#10;<body>&#10;  <h1>Salam Dünya!</h1>&#10;</body>&#10;</html>"
+                        placeholder="<!DOCTYPE html>&#10;<html>&#10;<head>&#10; <meta charset=&quot;UTF-8&quot;>&#10; <title>Səhifəm</title>&#10; <style>&#10; body { font-family: sans-serif; }&#10; </style>&#10;</head>&#10;<body>&#10; <h1>Salam Dünya!</h1>&#10;</body>&#10;</html>"
                     ></textarea>
                 </div>
                 <div class="editor-footer">
@@ -463,7 +479,12 @@
                 <div class="preview-header">
                     <span>Canlı Önizləmə</span>
                     <div class="preview-controls">
-                        <button id="fullscreenBtn" class="fullscreen-btn">⛶ Tam Ekran</button>
+                        <button id="fullscreenBtn" class="fullscreen-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                            </svg>
+                            Tam Ekran
+                        </button>
                     </div>
                 </div>
                 <div class="preview-wrapper">
@@ -558,7 +579,7 @@
 
         // Sync line numbers scroll
         function syncScroll() {
-            lineNumbers.parentElement.scrollTop = editor.scrollTop;
+            lineNumbers.style.top = -editor.scrollTop + 'px';
         }
 
         // Update status badge
@@ -571,7 +592,6 @@
         function renderPreview(targetId = 'preview') {
             const iframeEl = document.getElementById(targetId);
             if (!iframeEl) return;
-
             let html = editor.value;
             if (!html.trim().startsWith('<!DOCTYPE') && !html.trim().startsWith('<html')) {
                 html = `<!DOCTYPE html>
@@ -585,7 +605,6 @@ ${html}
 </body>
 </html>`;
             }
-
             const blob = new Blob([html], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             iframeEl.src = url;
@@ -612,14 +631,12 @@ ${html}
                 autoSave();
                 renderPreview();
             }
-
             // Ctrl/Cmd+A
             if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
                 e.preventDefault();
                 editor.select();
             }
-
-            // Ctrl/Cmd+S
+            // Ctrl/Cmd+S (prevent default save dialog)
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
             }
@@ -628,9 +645,15 @@ ${html}
         // Copy button
         copyBtn.addEventListener('click', () => {
             navigator.clipboard.writeText(editor.value);
-            copyBtn.textContent = '✓';
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                Kopyalandı!
+            `;
             setTimeout(() => {
-                copyBtn.textContent = '📋';
+                copyBtn.innerHTML = originalText;
             }, 2000);
         });
 
@@ -681,6 +704,9 @@ ${html}
         // Initial load
         loadCode();
         updateLineNumbers();
+        updateStats();
+        renderPreview();
+        syncScroll();
     </script>
 </body>
 </html>
