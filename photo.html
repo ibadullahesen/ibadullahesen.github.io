@@ -2,1393 +2,1406 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Axtarget.xyz - Şəkil Redaktə</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AxtarGet - Professional Image Editor. Powerful photo editing tools: filters, background removal, adjustments, and more. Free online image editor like Photoshop.">
+    <meta name="keywords" content="image editor, photo editor, background remover, filters, online editor, AxtarGet, professional editing">
+    <meta name="author" content="AxtarGet">
+    <meta property="og:title" content="AxtarGet - Professional Image Editor">
+    <meta property="og:description" content="Powerful image editing tools - Background removal, filters, tone adjustments, and professional effects">
+    <meta property="og:image" content="https://axtarget.xyz/og-image.jpg">
+    <meta name="theme-color" content="#0F172A">
+    <title>AxtarGet - Professional Image Editor | Free Online Photo Editing</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0F172A;
+            --bg-card: #1E293B;
+            --bg-panel: #334155;
+            --bg-hover: #475569;
+            --border-color: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #CBD5E1;
+            --accent-primary: #3B82F6;
+            --accent-hover: #2563EB;
+            --accent-active: #1D4ED8;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a202c;
-            color: #e2e8f0;
-            touch-action: manipulation;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        .card {
-            background-color: #2d3748;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-        }
-        .file-label {
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .file-label:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(66, 153, 225, 0.3);
-        }
-        .canvas-container {
-            position: relative;
-            margin-top: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-            width: 100%;
-            height: auto;
-            max-height: 70vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.5;
             overflow: hidden;
         }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .header-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .file-name {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* MAIN EDITOR AREA */
+        .editor-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 1px;
+            background-color: var(--border-color);
+        }
+
+        /* LEFT TOOLBAR */
+        .toolbar-left {
+            width: 70px;
+            background-color: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem 0;
+            gap: 0.5rem;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .tool-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.5rem;
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 2px solid transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tool-btn:hover {
+            background-color: var(--bg-panel);
+            color: var(--text-primary);
+        }
+
+        .tool-btn.active {
+            background-color: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        .tool-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* CENTER CANVAS */
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .canvas-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #1E293B 25%, transparent 25%, transparent 75%, #1E293B 75%, #1E293B),
+                        linear-gradient(45deg, #1E293B 25%, transparent 25%, transparent 75%, #1E293B 75%, #1E293B);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            background-color: var(--bg-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
         canvas {
-            display: block;
-            object-fit: contain;
             max-width: 100%;
             max-height: 100%;
+            object-fit: contain;
             cursor: crosshair;
-            touch-action: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        .zoom-controls {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .zoom-btn {
-            background-color: #4a5568;
-            color: #e2e8f0;
-            padding: 0.5rem;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .zoom-btn:hover {
-            background-color: #3b82f6;
-        }
-        .message-box {
-            position: fixed;
-            top: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4a5568;
-            color: #fff;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+
+        .empty-state {
             text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
         }
-        .tab-button {
-            background-color: #4a5568;
-            color: #e2e8f0;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
         }
-        .tab-button.active {
-            background-color: #3b82f6;
-            color: white;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+
+        .empty-state-text {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
         }
-        .tab-button:hover {
-            background-color: #6a717f;
-        }
-        .tab-button.active:hover {
-            background-color: #2563eb;
-        }
-        .tool-panel {
-            display: none;
-        }
-        .tool-panel.active {
-            display: flex;
-            flex-direction: column;
-        }
-        .custom-select {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-        }
-        .select-header {
-            background-color: #4a5568;
-            color: #e2e8f0;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .select-header:hover {
-            background-color: #6a717f;
-        }
-        .select-dropdown {
+
+        .upload-zone {
             position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: #2d3748;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 50;
-            display: none;
-        }
-        .select-dropdown.open {
-            display: block;
-        }
-        .dropdown-item {
+            inset: 0;
             display: flex;
             align-items: center;
-            padding: 0.75rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .dropdown-item:hover {
-            background-color: #4a5568;
-        }
-        .dropdown-item.active {
-            background-color: #3b82f6;
-            color: white;
-        }
-        .dropdown-item img {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border-radius: 0.25rem;
-            margin-right: 1rem;
-            position: relative;
-        }
-        .filter-arrows {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-        }
-        .filter-arrow {
-            background-color: rgba(74, 85, 104, 0.8);
-            color: #e2e8f0;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            pointer-events: auto;
-        }
-        .filter-arrow:hover {
-            background-color: #3b82f6;
-        }
-        .watermark {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            font-size: 8px;
-            color: #e2e8f0;
-            background-color: rgba(45, 55, 72, 0.7);
-            padding: 2px 4px;
-            border-radius: 2px;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-        .resolution-options {
-            display: flex;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .resolution-options input[type="radio"] {
-            display: none;
-        }
-        .resolution-options label {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 2px dashed var(--accent-primary);
+            border-radius: 0.5rem;
             cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            background-color: #4a5568;
-            color: #e2e8f0;
-            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 10;
         }
-        .resolution-options input[type="radio"]:checked + label {
-            background-color: #3b82f6;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+        .upload-zone.active {
+            opacity: 1;
+            pointer-events: all;
         }
-        .tool-option-btn {
-            background-color: #4a5568;
-            color: #e2e8f0;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .tool-option-btn.active {
-            background-color: #22c55e;
-            color: white;
-            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
-        }
-        .tool-option-btn:hover {
-            background-color: #6a717f;
-        }
-        .tool-option-btn.active:hover {
-            background-color: #16a34a;
-        }
-        .tone-sliders {
+
+        /* RIGHT PANEL */
+        .panel-right {
+            width: 320px;
+            background-color: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+        }
+
+        .panel-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.75rem;
+        }
+
+        /* SLIDERS */
+        .slider-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .slider-label-value {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        input[type="range"] {
             width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-panel);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s ease;
+        }
+
+        input[type="range"]::-moz-range-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-primary:active {
+            background-color: var(--accent-active);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-panel);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        .btn.active {
+            background-color: var(--accent-primary);
+            color: white;
+        }
+
+        /* FILTER SELECTOR */
+        .filter-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .filter-option {
+            background-color: var(--bg-panel);
+            border: 2px solid transparent;
+            color: var(--text-secondary);
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        .filter-option:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .filter-option.active {
+            background-color: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* HIDDEN ELEMENTS */
+        input[type="file"] {
+            display: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--success);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 200;
+            animation: slideIn 0.3s ease;
             max-width: 300px;
         }
-        .tone-sliders label {
-            display: block;
-            text-align: center;
-            color: #e2e8f0;
+
+        .toast.error {
+            border-left-color: var(--danger);
         }
-        .color-picker-container {
-            position: relative;
-            margin-top: 1rem;
+
+        .toast.warning {
+            border-left-color: var(--warning);
         }
-        .color-preview {
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* TEXT TOOL MODAL */
+        .text-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 40px;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            border: 2px solid #4a5568;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
-        .color-picker-input {
-            width: 100%;
-            padding: 0.5rem;
-            border-radius: 8px;
-            background-color: #4a5568;
-            color: white;
+
+        .text-modal-content {
+            background-color: var(--bg-card);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .text-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .text-modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .text-modal-close {
+            background: none;
             border: none;
-            margin-top: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.25rem;
         }
-        @media (max-width: 640px) {
-            .container {
-                padding: 0.5rem;
+
+        .text-modal-close:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .text-input-group {
+            margin-bottom: 1rem;
+        }
+
+        .text-input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-panel);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .text-preview {
+            background-color: var(--bg-panel);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .panel-right {
+                width: 280px;
             }
-            .card {
-                padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .panel-right {
+                display: none;
             }
-            .canvas-container {
-                flex-direction: column;
-                max-height: 50vh;
+
+            .toolbar-left {
+                width: 60px;
             }
-            .canvas-container #imageCanvas {
-                order: -1;
-            }
-            .resolution-options {
-                flex-wrap: wrap;
-            }
-            .tab-button {
-                padding: 0.5rem 1rem;
+
+            .tool-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
             }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 antialiased flex flex-col min-h-screen">
-    <div class="message-box" id="messageBox" role="alert"></div>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header>
+            <div class="header-brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    <circle cx="8" cy="8" r="1.5"/>
+                    <path d="M3 14L8 9L14 15L21 8V21"/>
+                </svg>
+                AxtarGet
+            </div>
+            <div class="file-name" id="fileName">Şəkil seçin</div>
+            <div class="header-actions">
+                <button class="btn btn-secondary btn-small" id="resetBtn" disabled>
+                    <span>↻</span> Sıfırla
+                </button>
+                <button class="btn btn-primary btn-small" id="downloadBtn" disabled>
+                    ⬇ Endir
+                </button>
+            </div>
+        </header>
 
-    <header class="w-full py-4 px-2">
-        <div class="container flex justify-between items-center">
-            <h1 class="text-2xl font-extrabold text-blue-400">Axtarget.xyz</h1>
-        </div>
-    </header>
-
-    <main class="flex-grow flex items-center justify-center p-2">
-        <div class="w-full card">
-            <h2 class="text-xl font-bold text-center mb-2">Şəkilə Film Filteri Tətbiq Et</h2>
-            <p class="text-center text-gray-400 text-sm mb-4">Şəkilinizi yükləyin və onu redaktə edin.</p>
-
-            <div class="flex flex-col items-center justify-center gap-4">
-                <label for="imageUpload" class="file-label px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300">
-                    Şəkil Yüklə
-                </label>
-                <input type="file" id="imageUpload" accept="image/png,image/jpeg,image/webp,image/gif" class="hidden">
-
-                <div class="canvas-container hidden">
-                    <canvas id="imageCanvas" aria-label="Şəkil redaktə sahəsi"></canvas>
-                    <button id="undoBtn" class="absolute top-2 left-2 z-10 p-2 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-colors hidden" aria-label="Geri al">
-                        <i class="fas fa-undo"></i> Geri al
-                    </button>
-                    <div class="zoom-controls">
-                        <button id="zoomInBtn" class="zoom-btn"><i class="fas fa-plus"></i></button>
-                        <button id="zoomOutBtn" class="zoom-btn"><i class="fas fa-minus"></i></button>
-                    </div>
-                    <div id="filterArrows" class="filter-arrows hidden">
-                        <button id="prevFilter" class="filter-arrow left"><i class="fas fa-arrow-left"></i></button>
-                        <button id="nextFilter" class="filter-arrow right"><i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-                
-                <div id="controls" class="hidden w-full flex flex-col items-center gap-4 mt-4">
-                    <div class="flex gap-4 justify-center w-full max-w-lg flex-wrap">
-                        <button id="filterTab" class="tab-button active" aria-label="Filtrlər paneli">
-                            <i class="fas fa-palette"></i> Filtrlər
-                        </button>
-                        <button id="bgRemoveTab" class="tab-button" aria-label="Fon silmə paneli">
-                            <i class="fas fa-eraser"></i> Fon Silmə
-                        </button>
-                        <button id="toneTab" class="tab-button" aria-label="Ton düzəlişləri paneli">
-                            <i class="fas fa-adjust"></i> Ton
-                        </button>
-                    </div>
-
-                    <!-- Filter Tool Panel -->
-                    <div id="filterPanel" class="tool-panel active w-full flex flex-col items-center gap-4">
-                        <div class="w-full flex flex-col items-center gap-2">
-                            <p class="text-center text-gray-400">Normal Filtrlər:</p>
-                            <div id="normal-select-container" class="custom-select">
-                                <div class="select-header" id="normalSelectHeader" role="button" aria-expanded="false" aria-controls="normalFilterDropdown">
-                                    <span id="normalSelectedFilterText">Orijinal</span>
-                                    <span>&#9660;</span>
-                                </div>
-                                <div class="select-dropdown" id="normalFilterDropdown"></div>
-                            </div>
-                        </div>
-
-                        <div class="w-full flex flex-col items-center gap-2 mt-4">
-                            <p class="text-center text-gray-400">Qara-Ağ Filtrlər:</p>
-                            <div id="bw-select-container" class="custom-select">
-                                <div class="select-header" id="bwSelectHeader" role="button" aria-expanded="false" aria-controls="bwFilterDropdown">
-                                    <span id="bwSelectedFilterText">Seçin</span>
-                                    <span>&#9660;</span>
-                                </div>
-                                <div class="select-dropdown" id="bwFilterDropdown"></div>
-                            </div>
-                        </div>
-
-                        <div class="w-full flex flex-col items-center gap-2 mt-4">
-                            <p class="text-center text-gray-400">Premium Filtrlər:</p>
-                            <div id="premium-select-container" class="custom-select">
-                                <div class="select-header" id="premiumSelectHeader" role="button" aria-expanded="false" aria-controls="premiumFilterDropdown">
-                                    <span id="premiumSelectedFilterText">Seçin</span>
-                                    <span>&#9660;</span>
-                                </div>
-                                <div class="select-dropdown" id="premiumFilterDropdown"></div>
-                            </div>
-                        </div>
-                        
-                        <div id="intensity-control" class="w-full max-w-md mt-4">
-                            <label for="intensitySlider" class="block text-center text-gray-400">Effektin gücü:</label>
-                            <input type="range" id="intensitySlider" min="0" max="100" value="100" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" aria-label="Effektin gücü">
-                        </div>
-                    </div>
-
-                    <!-- Background Remove Tool Panel -->
-                    <div id="bgRemovePanel" class="tool-panel w-full flex-col items-center gap-4 hidden">
-                        <div class="flex flex-wrap gap-4 justify-center">
-                            <button id="colorRemoveBtn" class="tool-option-btn" aria-label="Rəngə görə fon silmə">
-                                <i class="fas fa-fill-drip"></i> Rəngə Görə Sil
-                            </button>
-                            <button id="manualRemoveBtn" class="tool-option-btn" aria-label="Əl ilə fon silmə">
-                                <i class="fas fa-brush"></i> Əl ilə Sil
-                            </button>
-                        </div>
-                        <div id="manualControls" class="hidden w-full max-w-md mt-4 flex flex-col gap-4 items-center">
-                            <label for="brushSize" class="block text-gray-400">Fırça ölçüsü:</label>
-                            <input type="range" id="brushSize" min="5" max="100" value="20" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" aria-label="Fırça ölçüsü">
-                        </div>
-                        <div id="colorPickerContainer" class="color-picker-container hidden">
-                            <label for="colorToRemove" class="block text-gray-400">Silinəcək rəng:</label>
-                            <input type="color" id="colorToRemove" value="#00ff00" class="color-picker-input">
-                            <div id="colorPreview" class="color-preview" style="background-color: #00ff00;"></div>
-                            <label for="colorTolerance" class="block text-gray-400 mt-2">Rəng toleransı:</label>
-                            <input type="range" id="colorTolerance" min="0" max="100" value="30" class="w-full mt-2 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer" aria-label="Rəng toleransı">
-                        </div>
-                    </div>
-
-                    <!-- Tone Adjustment Tool Panel -->
-                    <div id="tonePanel" class="tool-panel w-full flex-col items-center gap-4 hidden">
-                        <div class="tone-sliders">
-                            <label for="brightnessSlider">İşıq:</label>
-                            <input type="range" id="brightnessSlider" min="-100" max="100" value="0" aria-label="İşıq düzəlişi">
-                            <label for="contrastSlider">Kontrast:</label>
-                            <input type="range" id="contrastSlider" min="-100" max="100" value="0" aria-label="Kontrast düzəlişi">
-                            <label for="saturationSlider">Doyğunluq:</label>
-                            <input type="range" id="saturationSlider" min="-100" max="100" value="0" aria-label="Doyğunluq düzəlişi">
-                            <label for="hueSlider">Ton:</label>
-                            <input type="range" id="hueSlider" min="-180" max="180" value="0" aria-label="Ton düzəlişi">
-                            <label for="exposureSlider">Pozlama:</label>
-                            <input type="range" id="exposureSlider" min="-100" max="100" value="0" aria-label="Pozlama düzəlişi">
-                            <label for="highlightsSlider">Yüksək İşıqlar:</label>
-                            <input type="range" id="highlightsSlider" min="-100" max="100" value="0" aria-label="Yüksək işıqlar düzəlişi">
-                            <label for="shadowsSlider">Kölgələr:</label>
-                            <input type="range" id="shadowsSlider" min="-100" max="100" value="0" aria-label="Kölgələr düzəlişi">
-                            <label for="whitesSlider">Ağlar:</label>
-                            <input type="range" id="whitesSlider" min="-100" max="100" value="0" aria-label="Ağlar düzəlişi">
-                            <label for="blacksSlider">Qaralar:</label>
-                            <input type="range" id="blacksSlider" min="-100" max="100" value="0" aria-label="Qaralar düzəlişi">
-                            <label for="claritySlider">Aydınlıq:</label>
-                            <input type="range" id="claritySlider" min="-100" max="100" value="0" aria-label="Aydınlıq düzəlişi">
-                            <label for="vibranceSlider">Canlılıq:</label>
-                            <input type="range" id="vibranceSlider" min="-100" max="100" value="0" aria-label="Canlılıq düzəlişi">
-                            <label for="temperatureSlider">Temperatur:</label>
-                            <input type="range" id="temperatureSlider" min="-100" max="100" value="0" aria-label="Temperatur düzəlişi">
-                            <label for="tintSlider">Rəng Tonu:</label>
-                            <input type="range" id="tintSlider" min="-100" max="100" value="0" aria-label="Rəng tonu düzəlişi">
-                        </div>
-                    </div>
-                    
-                    <p class="text-center text-gray-400 mt-4">Yükləmə keyfiyyətini seçin:</p>
-                    <div class="resolution-options flex-wrap justify-center">
-                        <input type="radio" id="resOriginal" name="resolution" value="original" checked>
-                        <label for="resOriginal">Orijinal</label>
-                        <input type="radio" id="res4k" name="resolution" value="4k">
-                        <label for="res4k">4K</label>
-                        <input type="radio" id="res8k" name="resolution" value="8k">
-                        <label for="res8k">8K</label>
-                    </div>
-                    <p id="resolution-info" class="text-center text-gray-500 text-sm mt-2 hidden">
-                        Keyfiyyəti artırdıqda fayl ölçüsünün də artacağını unutmayın.
-                    </p>
-                    
-                    <button id="downloadBtn" class="w-full md:w-auto px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full shadow-lg transition-colors duration-300" aria-label="Şəkili endir">
-                        Şəkili Endir
-                    </button>
-                </div>
-                <div id="loadingSpinner" class="hidden spinner mt-4">
-                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <!-- MAIN EDITOR -->
+        <div class="editor-container">
+            <!-- LEFT TOOLBAR -->
+            <div class="toolbar-left">
+                <button class="tool-btn active" id="toolSelect" title="Seçim">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 3v18h18V3H3zm2 2h14v14H5V5z"/>
                     </svg>
+                </button>
+                <button class="tool-btn" id="toolFilters" title="Filtrləri">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5 13H2v8h3v-8zm15 0h-3v8h3v-8zm-6-11H8v19h6V2z"/>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="toolAdjust" title="Düzəlişlər">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+                        <path d="M12 8v-3M12 11v-1M12 13v1M12 15v3" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="toolRemove" title="Fon Silmə">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 6h18M5 6L7 3h10l2 3M6 9v10c0 1-1 2-2 2H4c-1 0-2-1-2-2V9M18 9v10c0 1 1 2 2 2h2c1 0 2-1 2-2V9M10 12v6M14 12v6"/>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="toolBrush" title="Fırça">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.71 7.71L12 16.41 6.7 21.71c-.39.39-1.02.39-1.41 0l-5-5c-.39-.39-.39-1.02 0-1.41L10.59 3.29c.39-.39 1.02-.39 1.41 0l9-9c.39-.39 1.02-.39 1.41 0l5 5c.39.39.39 1.02 0 1.41z"/>
+                    </svg>
+                </button>
+                <button class="tool-btn" id="toolText" title="Mətn Əlavə Et">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 6h16M4 12h16M4 18h7" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- CANVAS AREA -->
+            <div class="canvas-wrapper">
+                <div class="canvas-area" id="canvasArea">
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📁</div>
+                            <div class="empty-state-text">Şəkili buraya sürüklə</div>
+                        </div>
+                    </div>
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-state-icon">🖼️</div>
+                        <div class="empty-state-text">Şəkil yükləmək üçün aşağı düyməni klikləyin</div>
+                        <label for="fileInput" class="btn btn-primary" style="cursor: pointer;">
+                            📤 Şəkil Yüklə
+                        </label>
+                    </div>
+                    <canvas id="canvas" class="hidden"></canvas>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL -->
+            <div class="panel-right" id="controlPanel">
+                <!-- FILTERS -->
+                <div id="filtersSection">
+                    <div class="panel-title">Filtrləri</div>
+                    <div class="filter-selector">
+                        <button class="filter-option active" data-filter="none">Orijinal</button>
+                        <button class="filter-option" data-filter="grayscale">Qara-Ağ</button>
+                        <button class="filter-option" data-filter="sepia">Sepia Tonu</button>
+                        <button class="filter-option" data-filter="vintage">Köhnə Film</button>
+                        <button class="filter-option" data-filter="warm">İsti Ton</button>
+                        <button class="filter-option" data-filter="cool">Soyuq Ton</button>
+                        <button class="filter-option" data-filter="vibrant">Canlı</button>
+                        <button class="filter-option" data-filter="dramatic">Dramatik</button>
+                    </div>
+                </div>
+
+                <!-- ADJUSTMENTS -->
+                <div id="adjustmentsSection" class="panel-section">
+                    <div class="panel-title">Düzəlişlər</div>
+                    
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Parlaqlıq</span>
+                            <span class="slider-label-value" id="brightnessValue">0</span>
+                        </div>
+                        <input type="range" id="brightness" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Kontrast</span>
+                            <span class="slider-label-value" id="contrastValue">0</span>
+                        </div>
+                        <input type="range" id="contrast" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Doyğunluq</span>
+                            <span class="slider-label-value" id="saturationValue">0</span>
+                        </div>
+                        <input type="range" id="saturation" min="-100" max="100" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Ton</span>
+                            <span class="slider-label-value" id="hueValue">0</span>
+                        </div>
+                        <input type="range" id="hue" min="-180" max="180" value="0">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-label">
+                            <span>Bulanıqlıq</span>
+                            <span class="slider-label-value" id="blurValue">0</span>
+                        </div>
+                        <input type="range" id="blur" min="0" max="20" value="0">
+                    </div>
+                </div>
+
+                <!-- BACKGROUND REMOVAL -->
+                <div id="bgRemovalSection" class="panel-section hidden">
+                    <div class="panel-title">Fon Silmə</div>
+                    
+                    <div class="btn-group">
+                        <button class="btn btn-secondary active" id="colorRemoveMode">Rəngə Görə</button>
+                        <button class="btn btn-secondary" id="brushRemoveMode">Fırça</button>
+                    </div>
+
+                    <div id="colorPickerSection" class="panel-section">
+                        <label style="color: var(--text-secondary); font-size: 0.875rem; display: block; margin-bottom: 0.5rem;">
+                            Silinəcək Rəng:
+                        </label>
+                        <input type="color" id="colorToRemove" value="#00ff00" style="width: 100%; height: 40px; border: 1px solid var(--border-color); border-radius: 0.375rem; cursor: pointer;">
+                        
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Tolerans</span>
+                                <span class="slider-label-value" id="toleranceValue">30</span>
+                            </div>
+                            <input type="range" id="tolerance" min="0" max="100" value="30">
+                        </div>
+
+                        <button class="btn btn-primary" id="applyColorRemove">Tətbiq Et</button>
+                    </div>
+
+                    <div id="brushSection" class="panel-section hidden">
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Fırça Ölçüsü</span>
+                                <span class="slider-label-value" id="brushSizeValue">20</span>
+                            </div>
+                            <input type="range" id="brushSize" min="5" max="100" value="20">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TEXT TOOL -->
+                <div id="textSection" class="panel-section hidden">
+                    <div class="panel-title">Mətn Əlavə Et</div>
+                    <button class="btn btn-primary" id="addTextBtn">Mətn Əlavə Et</button>
+                </div>
+
+                <!-- EXPORT OPTIONS -->
+                <div class="panel-section">
+                    <div class="panel-title">Keyfiyyət</div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary active" data-quality="1">Təmiz</button>
+                        <button class="btn btn-secondary" data-quality="0.8">80%</button>
+                        <button class="btn btn-secondary" data-quality="0.6">60%</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <footer class="w-full py-4 px-2">
-        <div class="container text-center text-gray-500 text-sm">
-            © 2025 Axtarget.xyz. Bütün hüquqlar qorunur.
+    <!-- TEXT MODAL -->
+    <div id="textModal" class="text-modal hidden">
+        <div class="text-modal-content">
+            <div class="text-modal-header">
+                <div class="text-modal-title">Mətn Əlavə Et</div>
+                <button class="text-modal-close" id="textModalClose">&times;</button>
+            </div>
+            <div class="text-input-group">
+                <label for="textInput">Mətn:</label>
+                <input type="text" id="textInput" class="text-input" placeholder="Mətninizi yazın...">
+            </div>
+            <div class="text-input-group">
+                <label for="textColor">Rəng:</label>
+                <input type="color" id="textColor" value="#ffffff" style="width: 100%; height: 40px; border: 1px solid var(--border-color); border-radius: 0.375rem; cursor: pointer;">
+            </div>
+            <div class="text-input-group">
+                <label for="textSize">Ölçü:</label>
+                <input type="range" id="textSize" min="12" max="72" value="24">
+                <div class="slider-label">
+                    <span></span>
+                    <span class="slider-label-value" id="textSizeValue">24px</span>
+                </div>
+            </div>
+            <div class="text-preview" id="textPreview">
+                <span id="previewText" style="font-size: 24px; color: white;">Mətn Önizləmə</span>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" id="cancelTextBtn">Ləğv Et</button>
+                <button class="btn btn-primary" id="applyTextBtn">Tətbiq Et</button>
+            </div>
         </div>
-    </footer>
+    </div>
+
+    <!-- HIDDEN ELEMENTS -->
+    <input type="file" id="fileInput" accept="image/*">
 
     <script>
-        (function() {
-            // DOM elements
-            const elements = {
-                fileInput: document.getElementById('imageUpload'),
-                canvas: document.getElementById('imageCanvas'),
-                canvasContainer: document.querySelector('.canvas-container'),
-                downloadBtn: document.getElementById('downloadBtn'),
-                controls: document.getElementById('controls'),
-                loadingSpinner: document.getElementById('loadingSpinner'),
-                messageBox: document.getElementById('messageBox'),
-                undoBtn: document.getElementById('undoBtn'),
-                tabButtons: {
-                    filter: document.getElementById('filterTab'),
-                    bgRemove: document.getElementById('bgRemoveTab'),
-                    tone: document.getElementById('toneTab')
-                },
-                toolPanels: {
-                    filter: document.getElementById('filterPanel'),
-                    bgRemove: document.getElementById('bgRemovePanel'),
-                    tone: document.getElementById('tonePanel')
-                },
-                selectHeaders: {
-                    normal: document.getElementById('normalSelectHeader'),
-                    bw: document.getElementById('bwSelectHeader'),
-                    premium: document.getElementById('premiumSelectHeader')
-                },
-                filterDropdowns: {
-                    normal: document.getElementById('normalFilterDropdown'),
-                    bw: document.getElementById('bwFilterDropdown'),
-                    premium: document.getElementById('premiumFilterDropdown')
-                },
-                selectedFilterTexts: {
-                    normal: document.getElementById('normalSelectedFilterText'),
-                    bw: document.getElementById('bwSelectedFilterText'),
-                    premium: document.getElementById('premiumSelectedFilterText')
-                },
-                intensitySlider: document.getElementById('intensitySlider'),
-                intensityControl: document.getElementById('intensity-control'),
-                resolutionOptions: document.getElementsByName('resolution'),
-                resolutionInfo: document.getElementById('resolution-info'),
-                colorRemoveBtn: document.getElementById('colorRemoveBtn'),
-                manualRemoveBtn: document.getElementById('manualRemoveBtn'),
-                manualControls: document.getElementById('manualControls'),
-                brushSizeSlider: document.getElementById('brushSize'),
-                colorPickerContainer: document.getElementById('colorPickerContainer'),
-                colorToRemove: document.getElementById('colorToRemove'),
-                colorPreview: document.getElementById('colorPreview'),
-                colorTolerance: document.getElementById('colorTolerance'),
-                brightnessSlider: document.getElementById('brightnessSlider'),
-                contrastSlider: document.getElementById('contrastSlider'),
-                saturationSlider: document.getElementById('saturationSlider'),
-                hueSlider: document.getElementById('hueSlider'),
-                exposureSlider: document.getElementById('exposureSlider'),
-                highlightsSlider: document.getElementById('highlightsSlider'),
-                shadowsSlider: document.getElementById('shadowsSlider'),
-                whitesSlider: document.getElementById('whitesSlider'),
-                blacksSlider: document.getElementById('blacksSlider'),
-                claritySlider: document.getElementById('claritySlider'),
-                vibranceSlider: document.getElementById('vibranceSlider'),
-                temperatureSlider: document.getElementById('temperatureSlider'),
-                tintSlider: document.getElementById('tintSlider'),
-                zoomInBtn: document.getElementById('zoomInBtn'),
-                zoomOutBtn: document.getElementById('zoomOutBtn'),
-                prevFilter: document.getElementById('prevFilter'),
-                nextFilter: document.getElementById('nextFilter'),
-                filterArrows: document.getElementById('filterArrows')
-            };
+        // IMAGE EDITOR STATE
+        const state = {
+            originalImage: null,
+            canvas: document.getElementById('canvas'),
+            ctx: null,
+            currentFilter: 'none',
+            adjustments: {
+                brightness: 0,
+                contrast: 0,
+                saturation: 0,
+                hue: 0,
+                blur: 0
+            },
+            quality: 1,
+            history: [],
+            isDrawing: false,
+            currentTool: 'select',
+            bgRemovalMode: 'color',
+            textElements: [],
+            activeTextElement: null,
+            isDraggingText: false,
+            dragOffset: { x: 0, y: 0 }
+        };
 
-            // State variables
-            let ctx = elements.canvas.getContext('2d', { willReadFrequently: true });
-            let originalImage = null;
-            let currentImage = null;
-            let currentFilter = 'Orijinal';
-            let currentCategory = 'normal';
-            let history = [];
-            let canvasScale = 1;
-            let zoomLevel = 1;
-            let offsetX = 0;
-            let offsetY = 0;
-            let isDragging = false;
-            let startDragX = 0;
-            let startDragY = 0;
-            let isDrawing = false;
-            let currentTool = 'none';
-            let toneAdjustments = { 
-                brightness: 0, contrast: 0, saturation: 0, hue: 0, 
-                exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0,
-                clarity: 0, vibrance: 0, temperature: 0, tint: 0 
-            };
-            let lastX, lastY;
-            let maskCanvas = null;
-            let maskCtx = null;
-            let flatFilters = [];
-            let currentFilterIndex = 0;
+        state.ctx = state.canvas.getContext('2d', { willReadFrequently: true });
 
-            // Expanded Filter presets (100+ premium-like filters)
-            const filterPresets = {
-                'Orijinal': 'none',
-                'Dramatik': 'contrast(1.2) saturate(0.9) brightness(1.1) sepia(0.15)',
-                'Canlı Rənglər': 'contrast(1.3) saturate(1.5) brightness(1.1)',
-                'İsti Ton': 'sepia(0.3) saturate(1.2) brightness(1.1) contrast(1.1)',
-                'Soyuq Ton': 'hue-rotate(180deg) contrast(1.1) saturate(1.2)',
-                'Retro Film': 'sepia(0.8) contrast(1.1) saturate(0.8)',
-                'Vintage': 'sepia(0.5) contrast(1.1) brightness(1.1) saturate(1.2)',
-                'Qara-Ağ': 'grayscale(100%) contrast(1.2)',
-                'Noir': 'grayscale(100%) contrast(1.5)',
-                'Sinematik Mavi': 'saturate(1.2) contrast(1.1) brightness(1.1) hue-rotate(-20deg)',
-                'Lomo': 'contrast(1.5) hue-rotate(-20deg) saturate(1.8)',
-                'Hollywood Glow': 'contrast(1.15) saturate(1.1) brightness(1.05) sepia(0.1)',
-                'Epic Drama': 'contrast(1.4) saturate(0.85) brightness(0.95) hue-rotate(5deg)',
-                'Summer Vibes': 'saturate(1.6) brightness(1.2) contrast(1.1)',
-                'Autumn Leaves': 'sepia(0.4) saturate(1.3) hue-rotate(20deg)',
-                'Winter Chill': 'saturate(0.7) brightness(1.1) contrast(1.2) hue-rotate(200deg)',
-                'Neon Nights': 'contrast(1.8) saturate(2.0) hue-rotate(-10deg)',
-                'Pastel Dream': 'saturate(0.8) brightness(1.3) contrast(0.9)',
-                'High Contrast': 'contrast(2.0) saturate(1.0)',
-                'Soft Focus': 'blur(1px) brightness(1.1)',
-                'Golden Hour': 'sepia(0.25) saturate(1.4) brightness(1.15)',
-                'Blue Hour': 'hue-rotate(210deg) saturate(1.3) contrast(1.1)',
-                'Cinematic Fade': 'contrast(1.25) saturate(0.95) sepia(0.2)',
-                'Vibrant Pop': 'saturate(2.5) contrast(1.3)',
-                'Muted Tones': 'saturate(0.6) contrast(1.1) brightness(0.9)',
-                'Film Grain': 'contrast(1.1) sepia(0.1) brightness(1.05)',
-                'Cross Process': 'hue-rotate(30deg) contrast(1.4) saturate(1.5)',
-                'Bleach Bypass': 'contrast(1.5) saturate(0.5)',
-                'Infrared': 'hue-rotate(180deg) invert(1) saturate(1.2)',
-                'Sepia Tone': 'sepia(1) contrast(1.2)',
-                'Duotone Blue': 'grayscale(1) hue-rotate(220deg) saturate(2)',
-                'Duotone Red': 'grayscale(1) hue-rotate(0deg) saturate(2)',
-                'Cyberpunk': 'contrast(1.6) saturate(2.2) hue-rotate(-40deg)',
-                'Fantasy Glow': 'brightness(1.2) saturate(1.4) blur(0.5px)',
-                'Horror Night': 'contrast(1.7) saturate(0.4) brightness(0.8)',
-                'Romantic Soft': 'brightness(1.1) saturate(1.05) blur(1px)',
-                'Action Hero': 'contrast(1.35) saturate(1.25) brightness(1.05)',
-                'Sci-Fi Blue': 'hue-rotate(190deg) contrast(1.3) saturate(1.4)',
-                'Western Dust': 'sepia(0.6) contrast(1.2) brightness(0.95)',
-                'Pop Art': 'contrast(2.5) saturate(3.0)',
-                'Cartoon Edge': 'contrast(1.8) brightness(1.2)',
-                'Oil Painting': 'blur(0.5px) saturate(1.1)',
-                'Watercolor': 'blur(1px) saturate(1.3) contrast(0.9)',
-                'Sketch': 'grayscale(1) contrast(2.0) invert(1)',
-                'Charcoal': 'grayscale(1) contrast(1.8) brightness(0.9)',
-                'Pixel Art': 'pixelate(5px) contrast(1.5)',
-                'Glitch': 'hue-rotate(10deg) saturate(2.0) brightness(1.1)',
-                'HDR': 'contrast(1.4) saturate(1.6) brightness(1.1)',
-                'Low Key': 'brightness(0.7) contrast(1.5)',
-                'High Key': 'brightness(1.4) contrast(0.8)',
-                'Matte Finish': 'contrast(1.1) saturate(0.85) brightness(0.95)',
-                'Glossy': 'contrast(1.2) brightness(1.15) saturate(1.1)',
-                'Faded Memory': 'sepia(0.4) contrast(0.9) brightness(1.05)',
-                'Bright Future': 'saturate(1.7) brightness(1.25)',
-                'Dark Past': 'brightness(0.85) contrast(1.3) saturate(0.9)',
-                'Sunny Day': 'brightness(1.3) saturate(1.4)',
-                'Rainy Day': 'brightness(0.9) saturate(0.8) contrast(1.1)',
-                'Foggy Morning': 'brightness(1.1) contrast(0.85) blur(0.5px)',
-                'Desert Heat': 'sepia(0.3) saturate(1.2) brightness(1.2)',
-                'Forest Green': 'hue-rotate(-30deg) saturate(1.5)',
-                'Ocean Blue': 'hue-rotate(180deg) saturate(1.6)',
-                'Mountain Peak': 'contrast(1.4) brightness(1.05)',
-                'City Lights': 'contrast(1.6) saturate(1.3) brightness(1.1)',
-                'Starlight': 'brightness(0.8) contrast(1.5) hue-rotate(240deg)',
-                'Eclipse': 'invert(1) contrast(1.2)',
-                'Aurora': 'hue-rotate(120deg) saturate(2.0) brightness(1.2)',
-                'Fire Glow': 'sepia(0.5) brightness(1.3) contrast(1.2)',
-                'Ice Freeze': 'hue-rotate(200deg) brightness(1.1) saturate(0.7)',
-                'Magic Spell': 'saturate(2.5) hue-rotate(45deg)',
-                'Enchanted Forest': 'saturate(1.8) hue-rotate(-20deg) blur(0.3px)',
-                'Mystic River': 'contrast(1.25) saturate(1.35) hue-rotate(160deg)',
-                'Ancient Ruins': 'sepia(0.7) contrast(1.15)',
-                'Futuristic Neon': 'saturate(3.0) contrast(1.8) hue-rotate(-50deg)',
-                'Steampunk': 'sepia(0.6) contrast(1.3) saturate(0.9)',
-                'Victorian Era': 'sepia(1.0) brightness(0.95)',
-                'Roaring Twenties': 'grayscale(1) contrast(1.4) sepia(0.2)',
-                'Sixties Psychedelic': 'saturate(2.8) hue-rotate(90deg) contrast(1.5)',
-                'Eighties Retro': 'saturate(2.2) contrast(1.6) hue-rotate(-30deg)',
-                'Nineties Grunge': 'contrast(1.7) saturate(0.75) brightness(0.9)',
-                'Millennium Y2K': 'brightness(1.2) contrast(1.1) saturate(1.4)',
-                'Digital Age': 'contrast(1.45) saturate(1.55)',
-                'Quantum Leap': 'hue-rotate(300deg) saturate(1.8)',
-                'Nano Tech': 'grayscale(0.5) contrast(1.6)',
-                'Bio Glow': 'saturate(2.0) brightness(1.15) hue-rotate(120deg)',
-                'Eco Green': 'hue-rotate(-60deg) saturate(1.7)',
-                'Solar Flare': 'brightness(1.4) contrast(1.3) sepia(0.15)',
-                'Lunar Eclipse': 'brightness(0.75) contrast(1.4) hue-rotate(240deg)',
-                'Cosmic Dust': 'saturate(0.9) contrast(1.25) blur(0.2px)',
-                'Galactic Core': 'contrast(1.55) saturate(1.65) hue-rotate(280deg)',
-                'Black Hole': 'invert(1) contrast(2.0) brightness(0.8)',
-                'Supernova': 'brightness(1.5) saturate(2.5) contrast(1.7)',
-                'Nebula': 'hue-rotate(150deg) saturate(2.2) blur(0.4px)',
-                'Comet Trail': 'brightness(1.25) contrast(1.35)',
-                'Asteroid Belt': 'grayscale(1) contrast(1.8) sepia(0.3)',
-                'Planet Surface': 'sepia(0.4) saturate(1.1) brightness(1.05)',
-                'Space Station': 'contrast(1.4) saturate(0.95)',
-                'Alien World': 'hue-rotate(100deg) saturate(1.9) contrast(1.3)',
-                'Robot Vision': 'invert(0.5) hue-rotate(180deg)',
-                'AI Dream': 'saturate(2.3) blur(0.6px) brightness(1.1)',
-                'Virtual Reality': 'contrast(1.65) saturate(1.75)',
-                'Augmented Reality': 'hue-rotate(45deg) contrast(1.2) saturate(1.4)',
-                'Metaverse': 'brightness(1.3) saturate(2.0) hue-rotate(-15deg)',
-                'Cyber Security': 'grayscale(1) contrast(1.9) hue-rotate(210deg)',
-                'Data Stream': 'saturate(0.8) brightness(1.05) contrast(1.5)',
-                'Code Matrix': 'hue-rotate(120deg) invert(1)',
-                'Hacker Mode': 'grayscale(1) brightness(0.85) contrast(2.2)'
-                // Add more if needed to reach exactly 100+, but this is over 100 now
-            };
+        // ELEMENTS
+        const elements = {
+            fileInput: document.getElementById('fileInput'),
+            canvas: state.canvas,
+            canvasArea: document.getElementById('canvasArea'),
+            emptyState: document.getElementById('emptyState'),
+            uploadZone: document.getElementById('uploadZone'),
+            fileName: document.getElementById('fileName'),
+            downloadBtn: document.getElementById('downloadBtn'),
+            resetBtn: document.getElementById('resetBtn'),
+            controlPanel: document.getElementById('controlPanel'),
+            
+            // Tools
+            toolSelect: document.getElementById('toolSelect'),
+            toolFilters: document.getElementById('toolFilters'),
+            toolAdjust: document.getElementById('toolAdjust'),
+            toolRemove: document.getElementById('toolRemove'),
+            toolBrush: document.getElementById('toolBrush'),
+            toolText: document.getElementById('toolText'),
 
-            const groupedFilters = {
-                normal: Object.keys(filterPresets).slice(0, 30),
-                bw: Object.keys(filterPresets).slice(30, 50),
-                premium: Object.keys(filterPresets).slice(50)
-            };
+            // Filter buttons
+            filterButtons: document.querySelectorAll('.filter-option'),
 
-            // Utility functions
-            const showMessage = (message, duration = 3000) => {
-                elements.messageBox.textContent = message;
-                elements.messageBox.style.display = 'block';
-                elements.messageBox.style.opacity = '1';
-                setTimeout(() => {
-                    elements.messageBox.style.opacity = '0';
-                    setTimeout(() => {
-                        elements.messageBox.style.display = 'none';
-                    }, 500);
-                }, duration);
-            };
+            // Adjustment sliders
+            brightness: document.getElementById('brightness'),
+            contrast: document.getElementById('contrast'),
+            saturation: document.getElementById('saturation'),
+            hue: document.getElementById('hue'),
+            blur: document.getElementById('blur'),
 
-            const saveState = () => {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = elements.canvas.width;
-                tempCanvas.height = elements.canvas.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                let filterStyle = getFilteredStyle(currentFilter, elements.intensitySlider.value);
-                filterStyle = filterStyle === 'none' ? getToneStyle() : `${filterStyle} ${getToneStyle()}`;
-                tempCtx.filter = filterStyle;
-                tempCtx.drawImage(currentImage, 0, 0, tempCanvas.width, tempCanvas.height);
-                tempCtx.filter = 'none';
+            // Slider value displays
+            brightnessValue: document.getElementById('brightnessValue'),
+            contrastValue: document.getElementById('contrastValue'),
+            saturationValue: document.getElementById('saturationValue'),
+            hueValue: document.getElementById('hueValue'),
+            blurValue: document.getElementById('blurValue'),
 
-                history.push({ 
-                    imageData: tempCanvas.toDataURL('image/png', 1.0), 
-                    filter: currentFilter, 
-                    category: currentCategory,
-                    intensity: elements.intensitySlider.value, 
-                    tone: { ...toneAdjustments },
-                    zoom: zoomLevel,
-                    offsetX: offsetX,
-                    offsetY: offsetY
-                });
-                if (history.length > 20) history.shift(); // Increased history depth
-                elements.undoBtn.classList.remove('hidden');
-            };
+            // Sections
+            filtersSection: document.getElementById('filtersSection'),
+            adjustmentsSection: document.getElementById('adjustmentsSection'),
+            bgRemovalSection: document.getElementById('bgRemovalSection'),
+            textSection: document.getElementById('textSection'),
 
-            const undoLastAction = () => {
-                if (history.length > 1) {
-                    history.pop();
-                    const lastState = history[history.length - 1];
-                    currentFilter = lastState.filter;
-                    currentCategory = lastState.category;
-                    elements.intensitySlider.value = lastState.intensity;
-                    toneAdjustments = lastState.tone;
-                    zoomLevel = lastState.zoom;
-                    offsetX = lastState.offsetX;
-                    offsetY = lastState.offsetY;
-                    updateToneSliders();
-                    const img = new Image();
-                    img.onload = () => {
-                        currentImage = img;
-                        elements.canvas.width = img.width;
-                        elements.canvas.height = img.height;
-                        redrawCanvas();
-                        updateFilterUI(currentFilter, currentCategory);
-                    };
-                    img.src = lastState.imageData;
-                } else if (history.length === 1) {
-                    history = [];
-                    resetCanvas();
-                }
-            };
+            // Background removal
+            colorRemoveMode: document.getElementById('colorRemoveMode'),
+            brushRemoveMode: document.getElementById('brushRemoveMode'),
+            colorToRemove: document.getElementById('colorToRemove'),
+            tolerance: document.getElementById('tolerance'),
+            applyColorRemove: document.getElementById('applyColorRemove'),
+            brushSize: document.getElementById('brushSize'),
+            toleranceValue: document.getElementById('toleranceValue'),
+            brushSizeValue: document.getElementById('brushSizeValue'),
+            colorPickerSection: document.getElementById('colorPickerSection'),
+            brushSection: document.getElementById('brushSection'),
 
-            const resetCanvas = () => {
-                if (originalImage) {
-                    currentImage = new Image();
-                    currentImage.src = originalImage.src;
-                    elements.canvas.width = originalImage.width * canvasScale;
-                    elements.canvas.height = originalImage.height * canvasScale;
-                    currentFilter = 'Orijinal';
-                    currentCategory = 'normal';
-                    history = [];
-                    toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, clarity: 0, vibrance: 0, temperature: 0, tint: 0 };
-                    zoomLevel = 1;
-                    offsetX = 0;
-                    offsetY = 0;
-                    updateToneSliders();
-                    redrawCanvas();
-                    updateFilterUI(currentFilter, currentCategory);
-                    elements.undoBtn.classList.add('hidden');
-                }
-            };
+            // Quality buttons
+            qualityButtons: document.querySelectorAll('[data-quality]'),
 
-            const getFilteredStyle = (filterName, intensity) => {
-                if (filterName === 'Orijinal' || intensity == 0) return 'none';
-                const filterValues = filterPresets[filterName];
-                if (!filterValues) return 'none';
-                const intensityFactor = intensity / 100;
-                const filters = parseFilterString(filterValues);
-                let newFilterString = '';
-                for (const key in filters) {
-                    let value = filters[key];
-                    let unit = value.toString().includes('%') ? '%' : value.toString().includes('deg') ? 'deg' : value.toString().includes('px') ? 'px' : '';
-                    value = parseFloat(value);
-                    let adjustedValue = (key === 'contrast' || key === 'brightness' || key === 'saturate') ? 1 + (value - 1) * intensityFactor : value * intensityFactor;
-                    newFilterString += `${key}(${adjustedValue}${unit}) `;
-                }
-                return newFilterString.trim();
-            };
+            // Text tool
+            textModal: document.getElementById('textModal'),
+            textModalClose: document.getElementById('textModalClose'),
+            textInput: document.getElementById('textInput'),
+            textColor: document.getElementById('textColor'),
+            textSize: document.getElementById('textSize'),
+            textSizeValue: document.getElementById('textSizeValue'),
+            previewText: document.getElementById('previewText'),
+            cancelTextBtn: document.getElementById('cancelTextBtn'),
+            applyTextBtn: document.getElementById('applyTextBtn'),
+            addTextBtn: document.getElementById('addTextBtn')
+        };
 
-            const parseFilterString = (filterString) => {
-                const filters = {};
-                if (filterString === 'none') return filters;
-                const filterParts = filterString.match(/(\w+)\(([^)]+)\)/g);
-                if (!filterParts) return filters;
-                filterParts.forEach(part => {
-                    const matches = part.match(/(\w+)\(([^)]+)\)/);
-                    if (matches) {
-                        filters[matches[1]] = matches[2];
-                    }
-                });
-                return filters;
-            };
+        // SHOW TOAST
+        function showToast(message, isError = false, isWarning = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${isError ? 'error' : isWarning ? 'warning' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-            const getToneStyle = () => {
-                // Expanded tone filters (approximations for advanced adjustments)
-                let style = `brightness(${1 + (toneAdjustments.brightness + toneAdjustments.exposure) / 100}) `;
-                style += `contrast(${1 + toneAdjustments.contrast / 100}) `;
-                style += `saturate(${1 + (toneAdjustments.saturation + toneAdjustments.vibrance) / 100}) `;
-                style += `hue-rotate(${toneAdjustments.hue + toneAdjustments.temperature / 2}deg) `;
-                // Simulate highlights, shadows, etc. with custom logic if needed, but for CSS filter, combine into existing
-                // For more advanced, we'd need pixel manipulation, but keeping CSS for simplicity
-                return style.trim();
-            };
+        // FILE UPLOAD
+        elements.fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
 
-            const redrawCanvas = () => {
-                ctx.save();
-                ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
-                if (currentImage) {
-                    ctx.translate(offsetX, offsetY);
-                    ctx.scale(zoomLevel, zoomLevel);
-                    let filterStyle = getFilteredStyle(currentFilter, elements.intensitySlider.value);
-                    filterStyle = filterStyle === 'none' ? getToneStyle() : `${filterStyle} ${getToneStyle()}`;
-                    ctx.filter = filterStyle;
-                    ctx.drawImage(currentImage, 0, 0);
-                    ctx.filter = 'none';
-                    addWatermark();
-                }
-                ctx.restore();
-            };
-
-            const addWatermark = () => {
-                ctx.font = 'bold 12px Inter';
-                ctx.fillStyle = 'rgba(226, 232, 240, 0.7)';
-                ctx.textAlign = 'right';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText('axtarget.xyz', elements.canvas.width / zoomLevel - 10, elements.canvas.height / zoomLevel - 10);
-            };
-
-            // Şəkil yükləmə funksiyası (quality preservation by using higher canvas scale if possible)
-            const handleImageUpload = (file) => {
-                if (!file) {
-                    showMessage("Şəkil seçilməyib. Zəhmət olmasa bir şəkil seçin.", 3000);
-                    return;
-                }
-
-                const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
-                if (!allowedTypes.includes(file.type)) {
-                    showMessage("Yalnız PNG, JPEG, WEBP və ya GIF faylları dəstəklənir.", 3000);
-                    return;
-                }
-
-                const maxSizeMB = 10;
-                if (file.size > maxSizeMB * 1024 * 1024) {
-                    showMessage(`Fayl ölçüsü ${maxSizeMB}MB-dan böyük ola bilməz.`, 3000);
-                    return;
-                }
-
-                elements.loadingSpinner.classList.remove('hidden');
-                elements.controls.classList.add('hidden');
-                elements.canvasContainer.classList.add('hidden');
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        originalImage = img;
-                        const maxCanvasWidth = window.innerWidth * 0.9;
-                        const maxCanvasHeight = window.innerHeight * 0.7;
-                        canvasScale = Math.min(maxCanvasWidth / img.width, maxCanvasHeight / img.height);
-                        elements.canvas.width = img.width * canvasScale * 2; // Double scale for better quality
-                        elements.canvas.height = img.height * canvasScale * 2;
-
-                        currentImage = new Image();
-                        currentImage.onload = () => {
-                            elements.canvasContainer.classList.remove('hidden');
-                            elements.controls.classList.remove('hidden');
-                            elements.loadingSpinner.classList.add('hidden');
-                            currentFilter = 'Orijinal';
-                            currentCategory = 'normal';
-                            history = [];
-                            toneAdjustments = { brightness: 0, contrast: 0, saturation: 0, hue: 0, exposure: 0, highlights: 0, shadows: 0, whites: 0, blacks: 0, clarity: 0, vibrance: 0, temperature: 0, tint: 0 };
-                            zoomLevel = 1;
-                            offsetX = 0;
-                            offsetY = 0;
-                            updateToneSliders();
-                            redrawCanvas();
-                            generateFilterPreviews();
-                            saveState();
-                            showMessage("Şəkil uğurla yükləndi!", 2000);
-                            flatFilters = Object.keys(filterPresets);
-                            currentFilterIndex = 0;
-                        };
-                        currentImage.onerror = () => {
-                            showMessage("Şəkil yüklənmədi. Zəhmət olmasa başqa bir fayl sınayın.", 3000);
-                            elements.loadingSpinner.classList.add('hidden');
-                        };
-                        currentImage.src = e.target.result;
-                    };
-                    img.onerror = () => {
-                        showMessage("Şəkil yüklənmədi. Faylın düzgün olduğundan əmin olun.", 3000);
-                        elements.loadingSpinner.classList.add('hidden');
-                    };
-                    img.src = e.target.result;
-                };
-                reader.onerror = () => {
-                    showMessage("Fayl oxunarkən xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.", 3000);
-                    elements.loadingSpinner.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
-            };
-
-            const generateFilterPreviews = () => {
-                if (!originalImage) return;
-
-                const previewSize = 40;
-                const previewCanvas = document.createElement('canvas');
-                previewCanvas.width = previewSize;
-                previewCanvas.height = previewSize;
-                const previewCtx = previewCanvas.getContext('2d');
-
-                for (const category in groupedFilters) {
-                    const dropdown = elements.filterDropdowns[category];
-                    dropdown.innerHTML = '';
-                    groupedFilters[category].forEach(filterName => {
-                        const item = document.createElement('div');
-                        item.classList.add('dropdown-item');
-                        item.dataset.filter = filterName;
-                        item.dataset.category = category;
-
-                        const img = new Image();
-                        img.style.width = `${previewSize}px`;
-                        img.style.height = `${previewSize}px`;
-                        previewCtx.clearRect(0, 0, previewSize, previewSize);
-                        previewCtx.filter = filterPresets[filterName];
-                        previewCtx.drawImage(originalImage, 0, 0, previewSize, previewSize);
-                        img.src = previewCanvas.toDataURL('image/png', 1.0);
-                        item.appendChild(img);
-
-                        const span = document.createElement('span');
-                        span.textContent = filterName;
-                        item.appendChild(span);
-
-                        item.addEventListener('click', () => {
-                            currentFilter = filterName;
-                            currentCategory = category;
-                            currentFilterIndex = flatFilters.indexOf(filterName);
-                            elements.intensitySlider.value = 100;
-                            redrawCanvas();
-                            updateFilterUI(filterName, category);
-                            saveState();
-                            for (const cat in elements.filterDropdowns) {
-                                elements.filterDropdowns[cat].classList.remove('open');
-                            }
-                        });
-
-                        dropdown.appendChild(item);
-                    });
-                }
-            };
-
-            const updateFilterUI = (filterName, category) => {
-                for (const cat in elements.selectedFilterTexts) {
-                    elements.selectedFilterTexts[cat].textContent = cat === category ? filterName : 'Seçin';
-                }
-                document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('active'));
-                const activeItem = elements.filterDropdowns[category].querySelector(`[data-filter="${filterName}"]`);
-                if (activeItem) activeItem.classList.add('active');
-            };
-
-            const updateToneSliders = () => {
-                elements.brightnessSlider.value = toneAdjustments.brightness;
-                elements.contrastSlider.value = toneAdjustments.contrast;
-                elements.saturationSlider.value = toneAdjustments.saturation;
-                elements.hueSlider.value = toneAdjustments.hue;
-                elements.exposureSlider.value = toneAdjustments.exposure;
-                elements.highlightsSlider.value = toneAdjustments.highlights;
-                elements.shadowsSlider.value = toneAdjustments.shadows;
-                elements.whitesSlider.value = toneAdjustments.whites;
-                elements.blacksSlider.value = toneAdjustments.blacks;
-                elements.claritySlider.value = toneAdjustments.clarity;
-                elements.vibranceSlider.value = toneAdjustments.vibrance;
-                elements.temperatureSlider.value = toneAdjustments.temperature;
-                elements.tintSlider.value = toneAdjustments.tint;
-            };
-
-            // Tone adjustments (expanded)
-            const toneSliders = [
-                'brightnessSlider', 'contrastSlider', 'saturationSlider', 'hueSlider',
-                'exposureSlider', 'highlightsSlider', 'shadowsSlider', 'whitesSlider', 'blacksSlider',
-                'claritySlider', 'vibranceSlider', 'temperatureSlider', 'tintSlider'
-            ];
-            toneSliders.forEach(sliderId => {
-                elements[sliderId].addEventListener('input', () => {
-                    toneAdjustments[sliderId.replace('Slider', '')] = parseInt(elements[sliderId].value);
-                    redrawCanvas();
-                });
-            });
-
-            // Tab switching (removed text tab)
-            for (const tab in elements.tabButtons) {
-                elements.tabButtons[tab].addEventListener('click', () => {
-                    for (const t in elements.tabButtons) {
-                        elements.tabButtons[t].classList.remove('active');
-                        elements.toolPanels[t].classList.remove('active');
-                        elements.toolPanels[t].classList.add('hidden');
-                    }
-                    elements.tabButtons[tab].classList.add('active');
-                    elements.toolPanels[tab].classList.add('active');
-                    elements.toolPanels[tab].classList.remove('hidden');
-                    currentTool = 'none';
-                    elements.manualControls.classList.add('hidden');
-                    elements.colorPickerContainer.classList.add('hidden');
-                    elements.canvas.style.cursor = 'crosshair';
-                    document.querySelectorAll('.tool-option-btn').forEach(btn => btn.classList.remove('active'));
-                    if (tab === 'tone') updateToneSliders();
-                    if (tab === 'filter') elements.filterArrows.classList.remove('hidden');
-                    else elements.filterArrows.classList.add('hidden');
-                });
-            }
-
-            // Image upload event
-            elements.fileInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                handleImageUpload(file);
-                e.target.value = ''; // Reset input
-            });
-
-            // Drag and drop
-            elements.canvasContainer.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                elements.canvasContainer.style.border = '2px dashed #3b82f6';
-            });
-
-            elements.canvasContainer.addEventListener('dragleave', () => {
-                elements.canvasContainer.style.border = 'none';
-            });
-
-            elements.canvasContainer.addEventListener('drop', (e) => {
-                e.preventDefault();
-                elements.canvasContainer.style.border = 'none';
-                const file = e.dataTransfer.files[0];
-                handleImageUpload(file);
-            });
-
-            // Filter dropdowns
-            for (const category in elements.selectHeaders) {
-                elements.selectHeaders[category].addEventListener('click', () => {
-                    const dropdown = elements.filterDropdowns[category];
-                    const isOpen = dropdown.classList.contains('open');
-                    for (const cat in elements.filterDropdowns) {
-                        elements.filterDropdowns[cat].classList.remove('open');
-                    }
-                    if (!isOpen) dropdown.classList.add('open');
-                });
-            }
-
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.custom-select')) {
-                    for (const cat in elements.filterDropdowns) {
-                        elements.filterDropdowns[cat].classList.remove('open');
-                    }
-                }
-            });
-
-            // Download (with quality preservation)
-            elements.downloadBtn.addEventListener('click', () => {
-                if (!currentImage) {
-                    showMessage("Əvvəlcə şəkil yükləyin.", 3000);
-                    return;
-                }
-                const resolution = document.querySelector('input[name="resolution"]:checked').value;
-                let width = originalImage.width;
-                let height = originalImage.height;
-                if (resolution === '4k') {
-                    width = 3840;
-                    height = width * (originalImage.height / originalImage.width);
-                } else if (resolution === '8k') {
-                    width = 7680;
-                    height = width * (originalImage.height / originalImage.width);
-                }
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = width;
-                tempCanvas.height = height;
-                const tempCtx = tempCanvas.getContext('2d');
-                let filterStyle = getFilteredStyle(currentFilter, elements.intensitySlider.value);
-                filterStyle = filterStyle === 'none' ? getToneStyle() : `${filterStyle} ${getToneStyle()}`;
-                tempCtx.filter = filterStyle;
-                tempCtx.drawImage(originalImage, 0, 0, width, height);
-                tempCtx.filter = 'none';
-                tempCtx.font = 'bold 12px Inter';
-                tempCtx.fillStyle = 'rgba(226, 232, 240, 0.7)';
-                tempCtx.textAlign = 'right';
-                tempCtx.textBaseline = 'bottom';
-                tempCtx.fillText('axtarget.xyz', width - 10, height - 10);
-                const link = document.createElement('a');
-                link.download = `axtarget-${Date.now()}.png`;
-                link.href = tempCanvas.toDataURL('image/png', 1.0);
-                link.click();
-            });
-
-            // Canvas interaction (no auto zoom in bg remove)
-            const getCanvasCoordinates = (e) => {
-                const rect = elements.canvas.getBoundingClientRect();
-                let x, y;
-                if (e.type.includes('touch')) {
-                    x = (e.touches[0].clientX - rect.left) / zoomLevel - offsetX / zoomLevel;
-                    y = (e.touches[0].clientY - rect.top) / zoomLevel - offsetY / zoomLevel;
-                } else {
-                    x = (e.clientX - rect.left) / zoomLevel - offsetX / zoomLevel;
-                    y = (e.clientY - rect.top) / zoomLevel - offsetY / zoomLevel;
-                }
-                return { x, y };
-            };
-
-            elements.canvas.addEventListener('mousedown', (e) => handleStart(e));
-            elements.canvas.addEventListener('mousemove', (e) => handleMove(e));
-            elements.canvas.addEventListener('mouseup', () => handleEnd());
-            elements.canvas.addEventListener('touchstart', (e) => handleStart(e));
-            elements.canvas.addEventListener('touchmove', (e) => handleMove(e));
-            elements.canvas.addEventListener('touchend', () => handleEnd());
-
-            let touchDistance = 0;
-            elements.canvas.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 2) {
-                    touchDistance = Math.hypot(
-                        e.touches[0].pageX - e.touches[1].pageX,
-                        e.touches[0].pageY - e.touches[1].pageY
-                    );
-                }
-            });
-
-            elements.canvas.addEventListener('touchmove', (e) => {
-                if (e.touches.length === 2) {
-                    e.preventDefault();
-                    const newDistance = Math.hypot(
-                        e.touches[0].pageX - e.touches[1].pageX,
-                        e.touches[0].pageY - e.touches[1].pageY
-                    );
-                    const zoomChange = newDistance / touchDistance;
-                    zoomLevel *= zoomChange;
-                    zoomLevel = Math.max(0.1, Math.min(zoomLevel, 10));
-                    touchDistance = newDistance;
-                    redrawCanvas();
-                }
-            });
-
-            elements.canvas.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const delta = e.deltaY < 0 ? 0.1 : -0.1;
-                zoomLevel += delta;
-                zoomLevel = Math.max(0.1, Math.min(zoomLevel, 10));
-                redrawCanvas();
-            });
-
-            const handleStart = (e) => {
-                e.preventDefault();
-                const { x, y } = getCanvasCoordinates(e);
-                
-                if (currentTool === 'manualRemove') {
-                    isDrawing = true;
-                    lastX = x;
-                    lastY = y;
-                    drawOnMask(x, y, true);
-                    return;
-                } else if (e.button === 1) { // Middle mouse for pan
-                    isDragging = true;
-                    startDragX = e.clientX - offsetX;
-                    startDragY = e.clientY - offsetY;
-                    elements.canvas.style.cursor = 'grab';
-                }
-            };
-
-            const handleMove = (e) => {
-                e.preventDefault();
-                const { x, y } = getCanvasCoordinates(e);
-                
-                if (isDrawing && currentTool === 'manualRemove') {
-                    drawOnMask(x, y, false);
-                    lastX = x;
-                    lastY = y;
-                    return;
-                } else if (isDragging) {
-                    offsetX = e.clientX - startDragX;
-                    offsetY = e.clientY - startDragY;
-                    redrawCanvas();
-                }
-            };
-
-            const handleEnd = () => {
-                if (isDrawing && currentTool === 'manualRemove') {
-                    applyMask();
-                    saveState();
-                } else if (isDragging) {
-                    saveState();
-                }
-                isDrawing = false;
-                isDragging = false;
-                elements.canvas.style.cursor = 'crosshair';
-            };
-
-            // Background removal functions
-            const initMaskCanvas = () => {
-                if (!maskCanvas) {
-                    maskCanvas = document.createElement('canvas');
-                    maskCanvas.width = currentImage.width;
-                    maskCanvas.height = currentImage.height;
-                    maskCtx = maskCanvas.getContext('2d');
-                    maskCtx.fillStyle = 'white';
-                    maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
-                }
-            };
-
-            const drawOnMask = (x, y, isStart) => {
-                if (!maskCanvas) initMaskCanvas();
-                
-                maskCtx.globalCompositeOperation = 'destination-out';
-                maskCtx.lineWidth = parseInt(elements.brushSizeSlider.value) / zoomLevel;
-                maskCtx.lineCap = 'round';
-                maskCtx.lineJoin = 'round';
-                
-                if (isStart) {
-                    maskCtx.beginPath();
-                    maskCtx.arc(x, y, maskCtx.lineWidth / 2, 0, Math.PI * 2);
-                    maskCtx.fill();
-                    maskCtx.beginPath();
-                    maskCtx.moveTo(x, y);
-                } else {
-                    maskCtx.lineTo(x, y);
-                    maskCtx.stroke();
-                }
-                
-                redrawCanvas(); // Real-time update without extra zoom
-            };
-
-            const applyMask = () => {
-                if (!maskCanvas) return;
-                
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = currentImage.width;
-                tempCanvas.height = currentImage.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCtx.drawImage(currentImage, 0, 0);
-                tempCtx.globalCompositeOperation = 'destination-in';
-                tempCtx.drawImage(maskCanvas, 0, 0);
-                tempCtx.globalCompositeOperation = 'source-over';
-                
-                currentImage = new Image();
-                currentImage.src = tempCanvas.toDataURL('image/png');
-                currentImage.onload = () => {
-                    redrawCanvas();
-                };
-            };
-
-            const removeBackgroundByColor = () => {
-                const colorHex = elements.colorToRemove.value;
-                const tolerance = parseInt(elements.colorTolerance.value);
-                
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = currentImage.width;
-                tempCanvas.height = currentImage.height;
-                const tempCtx = tempCanvas.getContext('2d');
-                tempCtx.drawImage(currentImage, 0, 0);
-                
-                const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-                const data = imageData.data;
-                
-                const r = parseInt(colorHex.substr(1, 2), 16);
-                const g = parseInt(colorHex.substr(3, 2), 16);
-                const b = parseInt(colorHex.substr(5, 2), 16);
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    const dr = Math.abs(data[i] - r);
-                    const dg = Math.abs(data[i + 1] - g);
-                    const db = Math.abs(data[i + 2] - b);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.originalImage = img;
+                    const maxWidth = window.innerWidth * 0.7;
+                    const maxHeight = window.innerHeight * 0.8;
                     
-                    if (dr <= tolerance && dg <= tolerance && db <= tolerance) {
-                        data[i + 3] = 0;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
                     }
-                }
-                
-                tempCtx.putImageData(imageData, 0, 0);
-                
-                currentImage = new Image();
-                currentImage.src = tempCanvas.toDataURL('image/png');
-                currentImage.onload = () => {
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+
+                    state.canvas.width = width;
+                    state.canvas.height = height;
+                    
+                    elements.fileName.textContent = file.name;
+                    elements.canvas.classList.remove('hidden');
+                    elements.emptyState.classList.add('hidden');
+                    elements.downloadBtn.disabled = false;
+                    elements.resetBtn.disabled = false;
+
+                    // Reset adjustments
+                    resetAdjustments();
+                    
                     redrawCanvas();
-                    saveState();
-                    showMessage("Fon rəngə görə silindi!", 2000);
+                    showToast('✓ Şəkil uğurla yükləndi');
                 };
+                img.src = event.target.result;
+            };
+            reader.onerror = () => {
+                showToast('✗ Şəkil yüklənərkən xəta baş verdi', true);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // DRAG AND DROP
+        elements.uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            elements.uploadZone.classList.add('active');
+        });
+
+        elements.uploadZone.addEventListener('dragleave', () => {
+            elements.uploadZone.classList.remove('active');
+        });
+
+        elements.uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            elements.uploadZone.classList.remove('active');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                elements.fileInput.files = e.dataTransfer.files;
+                elements.fileInput.dispatchEvent(new Event('change'));
+            } else {
+                showToast('✗ Yalnız şəkil faylları qəbul edilir', true);
+            }
+        });
+
+        // RESET ADJUSTMENTS
+        function resetAdjustments() {
+            state.adjustments = {
+                brightness: 0,
+                contrast: 0,
+                saturation: 0,
+                hue: 0,
+                blur: 0
+            };
+            
+            state.currentFilter = 'none';
+            
+            // Reset sliders
+            elements.brightness.value = 0;
+            elements.contrast.value = 0;
+            elements.saturation.value = 0;
+            elements.hue.value = 0;
+            elements.blur.value = 0;
+            
+            // Reset slider displays
+            elements.brightnessValue.textContent = '0';
+            elements.contrastValue.textContent = '0';
+            elements.saturationValue.textContent = '0';
+            elements.hueValue.textContent = '0';
+            elements.blurValue.textContent = '0';
+            
+            // Reset filter buttons
+            elements.filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === 'none') {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Reset text elements
+            state.textElements = [];
+            state.activeTextElement = null;
+            
+            redrawCanvas();
+        }
+
+        // REDRAW CANVAS
+        function redrawCanvas() {
+            if (!state.originalImage) return;
+
+            state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+
+            // Apply filter
+            applyFilter();
+
+            // Draw image
+            state.ctx.drawImage(state.originalImage, 0, 0, state.canvas.width, state.canvas.height);
+
+            // Draw text elements
+            drawTextElements();
+
+            // Add watermark
+            state.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            state.ctx.fillStyle = 'rgba(241, 245, 249, 0.4)';
+            state.ctx.textAlign = 'right';
+            state.ctx.fillText('AxtarGet', state.canvas.width - 10, state.canvas.height - 10);
+        }
+
+        // APPLY FILTER
+        function applyFilter() {
+            let filterString = '';
+
+            // Apply filter preset
+            const filters = {
+                none: '',
+                grayscale: 'grayscale(100%)',
+                sepia: 'sepia(60%)',
+                vintage: 'sepia(50%) saturate(80%) brightness(1.1)',
+                warm: 'sepia(30%) saturate(120%) brightness(1.1)',
+                cool: 'hue-rotate(180deg) saturate(120%)',
+                vibrant: 'saturate(150%) contrast(1.2)',
+                dramatic: 'contrast(130%) saturate(80%) brightness(0.95)'
             };
 
-            // Background removal event handlers (removed auto)
-            elements.colorRemoveBtn.addEventListener('click', () => {
-                currentTool = 'colorRemove';
-                elements.colorPickerContainer.classList.remove('hidden');
-                elements.manualControls.classList.add('hidden');
-                document.querySelectorAll('.tool-option-btn').forEach(btn => btn.classList.remove('active'));
-                elements.colorRemoveBtn.classList.add('active');
-            });
+            filterString += filters[state.currentFilter] || '';
 
-            elements.manualRemoveBtn.addEventListener('click', () => {
-                currentTool = 'manualRemove';
-                elements.manualControls.classList.remove('hidden');
-                elements.colorPickerContainer.classList.add('hidden');
-                elements.canvas.style.cursor = 'crosshair';
-                document.querySelectorAll('.tool-option-btn').forEach(btn => btn.classList.remove('active'));
-                elements.manualRemoveBtn.classList.add('active');
-                initMaskCanvas();
-            });
+            // Apply adjustments
+            const brightness = 1 + state.adjustments.brightness / 100;
+            const contrast = 1 + state.adjustments.contrast / 100;
+            const saturation = 1 + state.adjustments.saturation / 100;
+            const hue = state.adjustments.hue;
 
-            elements.colorToRemove.addEventListener('input', () => {
-                elements.colorPreview.style.backgroundColor = elements.colorToRemove.value;
-            });
+            filterString += ` brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hue}deg) blur(${state.adjustments.blur}px)`;
 
-            elements.colorToRemove.addEventListener('change', () => {
-                removeBackgroundByColor();
-            });
+            state.ctx.filter = filterString;
+        }
 
-            elements.colorTolerance.addEventListener('input', () => {
-                removeBackgroundByColor();
-            });
-
-            // Zoom controls
-            elements.zoomInBtn.addEventListener('click', () => {
-                zoomLevel += 0.1;
-                zoomLevel = Math.min(zoomLevel, 10);
-                redrawCanvas();
-                saveState();
-            });
-
-            elements.zoomOutBtn.addEventListener('click', () => {
-                zoomLevel -= 0.1;
-                zoomLevel = Math.max(zoomLevel, 0.1);
-                redrawCanvas();
-                saveState();
-            });
-
-            // Filter arrows
-            elements.prevFilter.addEventListener('click', () => {
-                currentFilterIndex = (currentFilterIndex - 1 + flatFilters.length) % flatFilters.length;
-                currentFilter = flatFilters[currentFilterIndex];
-                // Find category
-                for (const cat in groupedFilters) {
-                    if (groupedFilters[cat].includes(currentFilter)) {
-                        currentCategory = cat;
-                        break;
-                    }
+        // DRAW TEXT ELEMENTS
+        function drawTextElements() {
+            state.textElements.forEach(text => {
+                state.ctx.font = `${text.size}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+                state.ctx.fillStyle = text.color;
+                state.ctx.textAlign = 'left';
+                state.ctx.textBaseline = 'top';
+                
+                // Draw text
+                state.ctx.fillText(text.content, text.x, text.y);
+                
+                // Draw selection border if active
+                if (text === state.activeTextElement) {
+                    const textMetrics = state.ctx.measureText(text.content);
+                    const textWidth = textMetrics.width;
+                    const textHeight = parseInt(text.size);
+                    
+                    state.ctx.strokeStyle = '#3B82F6';
+                    state.ctx.lineWidth = 2;
+                    state.ctx.strokeRect(text.x - 5, text.y - 5, textWidth + 10, textHeight + 10);
+                    
+                    // Draw resize handle
+                    state.ctx.fillStyle = '#3B82F6';
+                    state.ctx.fillRect(text.x + textWidth - 5, text.y + textHeight - 5, 10, 10);
                 }
-                redrawCanvas();
-                updateFilterUI(currentFilter, currentCategory);
-                saveState();
             });
+        }
 
-            elements.nextFilter.addEventListener('click', () => {
-                currentFilterIndex = (currentFilterIndex + 1) % flatFilters.length;
-                currentFilter = flatFilters[currentFilterIndex];
-                for (const cat in groupedFilters) {
-                    if (groupedFilters[cat].includes(currentFilter)) {
-                        currentCategory = cat;
-                        break;
-                    }
+        // TOOL SELECTION
+        function setActiveTool(tool) {
+            // Remove active class from all tools
+            document.querySelectorAll('.tool-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Add active class to selected tool
+            document.getElementById(`tool${tool.charAt(0).toUpperCase() + tool.slice(1)}`).classList.add('active');
+            
+            state.currentTool = tool;
+            
+            // Update cursor
+            switch(tool) {
+                case 'select':
+                    state.canvas.style.cursor = 'default';
+                    break;
+                case 'brush':
+                    state.canvas.style.cursor = 'crosshair';
+                    break;
+                case 'text':
+                    state.canvas.style.cursor = 'text';
+                    break;
+                default:
+                    state.canvas.style.cursor = 'default';
+            }
+            
+            // Show/hide appropriate panels
+            elements.filtersSection.classList.add('hidden');
+            elements.adjustmentsSection.classList.add('hidden');
+            elements.bgRemovalSection.classList.add('hidden');
+            elements.textSection.classList.add('hidden');
+            
+            switch(tool) {
+                case 'filters':
+                    elements.filtersSection.classList.remove('hidden');
+                    break;
+                case 'adjust':
+                    elements.adjustmentsSection.classList.remove('hidden');
+                    break;
+                case 'remove':
+                    elements.bgRemovalSection.classList.remove('hidden');
+                    break;
+                case 'text':
+                    elements.textSection.classList.remove('hidden');
+                    break;
+            }
+        }
+
+        // FILTER BUTTONS
+        elements.filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all filter buttons
+                elements.filterButtons.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update filter
+                state.currentFilter = btn.dataset.filter;
+                redrawCanvas();
+            });
+        });
+
+        // ADJUSTMENT SLIDERS
+        function setupSlider(slider, valueDisplay, property) {
+            slider.addEventListener('input', () => {
+                state.adjustments[property] = parseInt(slider.value);
+                valueDisplay.textContent = slider.value;
+                redrawCanvas();
+            });
+        }
+
+        setupSlider(elements.brightness, elements.brightnessValue, 'brightness');
+        setupSlider(elements.contrast, elements.contrastValue, 'contrast');
+        setupSlider(elements.saturation, elements.saturationValue, 'saturation');
+        setupSlider(elements.hue, elements.hueValue, 'hue');
+        setupSlider(elements.blur, elements.blurValue, 'blur');
+
+        // BACKGROUND REMOVAL MODE
+        elements.colorRemoveMode.addEventListener('click', () => {
+            elements.colorRemoveMode.classList.add('active');
+            elements.brushRemoveMode.classList.remove('active');
+            elements.colorPickerSection.classList.remove('hidden');
+            elements.brushSection.classList.add('hidden');
+            state.bgRemovalMode = 'color';
+            state.canvas.style.cursor = 'default';
+        });
+
+        elements.brushRemoveMode.addEventListener('click', () => {
+            elements.brushRemoveMode.classList.add('active');
+            elements.colorRemoveMode.classList.remove('active');
+            elements.colorPickerSection.classList.add('hidden');
+            elements.brushSection.classList.remove('hidden');
+            state.bgRemovalMode = 'brush';
+            state.canvas.style.cursor = 'crosshair';
+        });
+
+        // BRUSH SIZE AND TOLERANCE SLIDERS
+        elements.tolerance.addEventListener('input', () => {
+            elements.toleranceValue.textContent = elements.tolerance.value;
+        });
+
+        elements.brushSize.addEventListener('input', () => {
+            elements.brushSizeValue.textContent = elements.brushSize.value;
+        });
+
+        // APPLY COLOR REMOVAL
+        elements.applyColorRemove.addEventListener('click', () => {
+            if (!state.originalImage) {
+                showToast('✗ Əvvəlcə şəkil yükləyin', true);
+                return;
+            }
+
+            const color = elements.colorToRemove.value;
+            const tolerance = parseInt(elements.tolerance.value);
+            
+            // Convert hex to RGB
+            const r = parseInt(color.substr(1, 2), 16);
+            const g = parseInt(color.substr(3, 2), 16);
+            const b = parseInt(color.substr(5, 2), 16);
+            
+            // Get image data
+            const imageData = state.ctx.getImageData(0, 0, state.canvas.width, state.canvas.height);
+            const data = imageData.data;
+            
+            // Remove background color
+            for (let i = 0; i < data.length; i += 4) {
+                const pixelR = data[i];
+                const pixelG = data[i + 1];
+                const pixelB = data[i + 2];
+                
+                // Calculate color distance
+                const distance = Math.sqrt(
+                    Math.pow(pixelR - r, 2) +
+                    Math.pow(pixelG - g, 2) +
+                    Math.pow(pixelB - b, 2)
+                );
+                
+                // If color is within tolerance, make it transparent
+                if (distance < tolerance) {
+                    data[i + 3] = 0; // Set alpha to 0
                 }
-                redrawCanvas();
-                updateFilterUI(currentFilter, currentCategory);
-                saveState();
+            }
+            
+            // Put image data back
+            state.ctx.putImageData(imageData, 0, 0);
+            showToast('✓ Fon uğurla silindi');
+        });
+
+        // TEXT TOOL
+        elements.toolText.addEventListener('click', () => {
+            setActiveTool('text');
+        });
+
+        elements.addTextBtn.addEventListener('click', () => {
+            elements.textModal.classList.remove('hidden');
+        });
+
+        elements.textModalClose.addEventListener('click', () => {
+            elements.textModal.classList.add('hidden');
+        });
+
+        elements.cancelTextBtn.addEventListener('click', () => {
+            elements.textModal.classList.add('hidden');
+        });
+
+        elements.textInput.addEventListener('input', () => {
+            elements.previewText.textContent = elements.textInput.value || 'Mətn Önizləmə';
+        });
+
+        elements.textColor.addEventListener('input', () => {
+            elements.previewText.style.color = elements.textColor.value;
+        });
+
+        elements.textSize.addEventListener('input', () => {
+            const size = elements.textSize.value;
+            elements.textSizeValue.textContent = `${size}px`;
+            elements.previewText.style.fontSize = `${size}px`;
+        });
+
+        elements.applyTextBtn.addEventListener('click', () => {
+            const text = elements.textInput.value.trim();
+            if (!text) {
+                showToast('✗ Mətn daxil edin', true);
+                return;
+            }
+
+            const textElement = {
+                content: text,
+                color: elements.textColor.value,
+                size: parseInt(elements.textSize.value),
+                x: state.canvas.width / 2 - 50,
+                y: state.canvas.height / 2 - 20
+            };
+
+            state.textElements.push(textElement);
+            state.activeTextElement = textElement;
+            
+            elements.textModal.classList.add('hidden');
+            redrawCanvas();
+            showToast('✓ Mətn uğurla əlavə edildi');
+        });
+
+        // CANVAS CLICK FOR TEXT SELECTION
+        state.canvas.addEventListener('mousedown', (e) => {
+            if (state.currentTool !== 'text' || !state.textElements.length) return;
+            
+            const rect = state.canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Check if clicked on a text element
+            for (let i = state.textElements.length - 1; i >= 0; i--) {
+                const text = state.textElements[i];
+                state.ctx.font = `${text.size}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+                const textMetrics = state.ctx.measureText(text.content);
+                const textWidth = textMetrics.width;
+                const textHeight = parseInt(text.size);
+                
+                if (x >= text.x - 5 && x <= text.x + textWidth + 5 && 
+                    y >= text.y - 5 && y <= text.y + textHeight + 5) {
+                    
+                    state.activeTextElement = text;
+                    state.isDraggingText = true;
+                    state.dragOffset.x = x - text.x;
+                    state.dragOffset.y = y - text.y;
+                    redrawCanvas();
+                    return;
+                }
+            }
+            
+            // If clicked outside any text, deselect
+            state.activeTextElement = null;
+            redrawCanvas();
+        });
+
+        state.canvas.addEventListener('mousemove', (e) => {
+            if (state.currentTool !== 'text' || !state.isDraggingText || !state.activeTextElement) return;
+            
+            const rect = state.canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            state.activeTextElement.x = x - state.dragOffset.x;
+            state.activeTextElement.y = y - state.dragOffset.y;
+            
+            redrawCanvas();
+        });
+
+        state.canvas.addEventListener('mouseup', () => {
+            state.isDraggingText = false;
+        });
+
+        // QUALITY SETTINGS
+        elements.qualityButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                elements.qualityButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.quality = parseFloat(btn.dataset.quality);
             });
+        });
 
-            // Undo button
-            elements.undoBtn.addEventListener('click', undoLastAction);
+        // RESET BUTTON
+        elements.resetBtn.addEventListener('click', () => {
+            if (!state.originalImage) return;
+            
+            resetAdjustments();
+            showToast('✓ Bütün dəyişikliklər sıfırlandı');
+        });
 
-            // Initialize
-            elements.resolutionInfo.classList.add('hidden');
-            showMessage("Səhifə hazırdır! Şəkil yükləyə bilərsiniz.", 2000);
-        })();
+        // DOWNLOAD BUTTON
+        elements.downloadBtn.addEventListener('click', () => {
+            if (!state.originalImage) {
+                showToast('✗ Endirmək üçün şəkil yoxdur', true);
+                return;
+            }
+
+            // Create temporary canvas for download
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = state.canvas.width;
+            tempCanvas.height = state.canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Apply current filters and adjustments
+            tempCtx.filter = state.ctx.filter;
+            tempCtx.drawImage(state.originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            // Draw text elements without watermark
+            state.textElements.forEach(text => {
+                tempCtx.font = `${text.size}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+                tempCtx.fillStyle = text.color;
+                tempCtx.textAlign = 'left';
+                tempCtx.textBaseline = 'top';
+                tempCtx.fillText(text.content, text.x, text.y);
+            });
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.download = `edited-${elements.fileName.textContent || 'image'}.jpg`;
+            link.href = tempCanvas.toDataURL('image/jpeg', state.quality);
+            link.click();
+            
+            showToast('✓ Şəkil uğurla endirildi');
+        });
+
+        // TOOL BUTTON CLICKS
+        elements.toolSelect.addEventListener('click', () => setActiveTool('select'));
+        elements.toolFilters.addEventListener('click', () => setActiveTool('filters'));
+        elements.toolAdjust.addEventListener('click', () => setActiveTool('adjust'));
+        elements.toolRemove.addEventListener('click', () => setActiveTool('remove'));
+        elements.toolBrush.addEventListener('click', () => setActiveTool('brush'));
+        elements.toolText.addEventListener('click', () => setActiveTool('text'));
+
+        // INITIALIZE
+        function init() {
+            // Set initial tool
+            setActiveTool('select');
+            
+            // Set initial slider values
+            elements.brightnessValue.textContent = elements.brightness.value;
+            elements.contrastValue.textContent = elements.contrast.value;
+            elements.saturationValue.textContent = elements.saturation.value;
+            elements.hueValue.textContent = elements.hue.value;
+            elements.blurValue.textContent = elements.blur.value;
+            elements.toleranceValue.textContent = elements.tolerance.value;
+            elements.brushSizeValue.textContent = elements.brushSize.value;
+            elements.textSizeValue.textContent = `${elements.textSize.value}px`;
+            
+            showToast('AxtarGet Şəkil Redaktoruna xoş gəlmisiniz!', false, true);
+        }
+
+        // Start the application
+        init();
     </script>
 </body>
 </html>
