@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AxtarGet - Professional Image Editor. Powerful photo editing tools: filters, background removal, adjustments, and more. Free online image editor like Photoshop.">
-    <meta name="keywords" content="image editor, photo editor, background remover, filters, online editor, AxtarGet, professional editing">
+    <meta name="keywords" content="image editor, photo editor, background remover, filters, online editor, AxtarGet, professional editing, şəkil redaktoru, foto redaktoru, online redaktor, pulsuz şəkil redaktoru">
     <meta name="author" content="AxtarGet">
     <meta property="og:title" content="AxtarGet - Professional Image Editor">
     <meta property="og:description" content="Powerful image editing tools - Background removal, filters, tone adjustments, and professional effects">
     <meta property="og:image" content="https://axtarget.xyz/og-image.jpg">
     <meta name="theme-color" content="#0F172A">
     <title>AxtarGet - Professional Image Editor | Free Online Photo Editing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -32,6 +33,9 @@
             --success: #10B981;
             --danger: #EF4444;
             --warning: #F59E0B;
+            --purple: #8B5CF6;
+            --pink: #EC4899;
+            --orange: #F97316;
         }
 
         body {
@@ -229,6 +233,13 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-title i {
+            font-size: 1rem;
         }
 
         /* SLIDERS */
@@ -349,9 +360,12 @@
 
         /* FILTER SELECTOR */
         .filter-selector {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
         }
 
         .filter-option {
@@ -364,6 +378,9 @@
             transition: all 0.2s ease;
             font-size: 0.875rem;
             text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .filter-option:hover {
@@ -375,6 +392,15 @@
             background-color: var(--accent-primary);
             color: white;
             border-color: var(--accent-primary);
+        }
+
+        .filter-name {
+            font-weight: 600;
+        }
+
+        .filter-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
         }
 
         /* HIDDEN ELEMENTS */
@@ -513,10 +539,54 @@
             border: 1px solid var(--border-color);
         }
 
+        /* BRUSH TOOLS */
+        .brush-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .brush-color-picker {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brush-color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            background-color: #000000;
+        }
+
+        .brush-presets {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .brush-preset {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .brush-preset.active {
+            border-color: var(--accent-primary);
+            transform: scale(1.1);
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1024px) {
             .panel-right {
                 width: 280px;
+            }
+            
+            .filter-selector {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -534,6 +604,17 @@
                 height: 45px;
                 font-size: 1rem;
             }
+            
+            .mobile-panel {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background-color: var(--bg-card);
+                padding: 1rem;
+                border-top: 1px solid var(--border-color);
+                z-index: 100;
+            }
         }
     </style>
 </head>
@@ -542,20 +623,16 @@
         <!-- HEADER -->
         <header>
             <div class="header-brand">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                    <circle cx="8" cy="8" r="1.5"/>
-                    <path d="M3 14L8 9L14 15L21 8V21"/>
-                </svg>
+                <i class="fas fa-camera-retro"></i>
                 AxtarGet
             </div>
             <div class="file-name" id="fileName">Şəkil seçin</div>
             <div class="header-actions">
                 <button class="btn btn-secondary btn-small" id="resetBtn" disabled>
-                    <span>↻</span> Sıfırla
+                    <i class="fas fa-redo"></i> Sıfırla
                 </button>
                 <button class="btn btn-primary btn-small" id="downloadBtn" disabled>
-                    ⬇ Endir
+                    <i class="fas fa-download"></i> Endir
                 </button>
             </div>
         </header>
@@ -565,35 +642,22 @@
             <!-- LEFT TOOLBAR -->
             <div class="toolbar-left">
                 <button class="tool-btn active" id="toolSelect" title="Seçim">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 3v18h18V3H3zm2 2h14v14H5V5z"/>
-                    </svg>
+                    <i class="fas fa-mouse-pointer"></i>
                 </button>
-                <button class="tool-btn" id="toolFilters" title="Filtrləri">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M5 13H2v8h3v-8zm15 0h-3v8h3v-8zm-6-11H8v19h6V2z"/>
-                    </svg>
+                <button class="tool-btn" id="toolFilters" title="Filtrlər">
+                    <i class="fas fa-sliders-h"></i>
                 </button>
                 <button class="tool-btn" id="toolAdjust" title="Düzəlişlər">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
-                        <path d="M12 8v-3M12 11v-1M12 13v1M12 15v3" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
-                </button>
-                <button class="tool-btn" id="toolRemove" title="Fon Silmə">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 6h18M5 6L7 3h10l2 3M6 9v10c0 1-1 2-2 2H4c-1 0-2-1-2-2V9M18 9v10c0 1 1 2 2 2h2c1 0 2-1 2-2V9M10 12v6M14 12v6"/>
-                    </svg>
+                    <i class="fas fa-adjust"></i>
                 </button>
                 <button class="tool-btn" id="toolBrush" title="Fırça">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.71 7.71L12 16.41 6.7 21.71c-.39.39-1.02.39-1.41 0l-5-5c-.39-.39-.39-1.02 0-1.41L10.59 3.29c.39-.39 1.02-.39 1.41 0l9-9c.39-.39 1.02-.39 1.41 0l5 5c.39.39.39 1.02 0 1.41z"/>
-                    </svg>
+                    <i class="fas fa-paint-brush"></i>
+                </button>
+                <button class="tool-btn" id="toolRemove" title="Fon Silmə">
+                    <i class="fas fa-eraser"></i>
                 </button>
                 <button class="tool-btn" id="toolText" title="Mətn Əlavə Et">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 6h16M4 12h16M4 18h7" stroke="currentColor" stroke-width="2" fill="none"/>
-                    </svg>
+                    <i class="fas fa-font"></i>
                 </button>
             </div>
 
@@ -602,15 +666,15 @@
                 <div class="canvas-area" id="canvasArea">
                     <div class="upload-zone" id="uploadZone">
                         <div class="empty-state">
-                            <div class="empty-state-icon">📁</div>
+                            <div class="empty-state-icon"><i class="fas fa-cloud-upload-alt"></i></div>
                             <div class="empty-state-text">Şəkili buraya sürüklə</div>
                         </div>
                     </div>
                     <div class="empty-state" id="emptyState">
-                        <div class="empty-state-icon">🖼️</div>
+                        <div class="empty-state-icon"><i class="fas fa-image"></i></div>
                         <div class="empty-state-text">Şəkil yükləmək üçün aşağı düyməni klikləyin</div>
                         <label for="fileInput" class="btn btn-primary" style="cursor: pointer;">
-                            📤 Şəkil Yüklə
+                            <i class="fas fa-upload"></i> Şəkil Yüklə
                         </label>
                     </div>
                     <canvas id="canvas" class="hidden"></canvas>
@@ -621,22 +685,19 @@
             <div class="panel-right" id="controlPanel">
                 <!-- FILTERS -->
                 <div id="filtersSection">
-                    <div class="panel-title">Filtrləri</div>
-                    <div class="filter-selector">
-                        <button class="filter-option active" data-filter="none">Orijinal</button>
-                        <button class="filter-option" data-filter="grayscale">Qara-Ağ</button>
-                        <button class="filter-option" data-filter="sepia">Sepia Tonu</button>
-                        <button class="filter-option" data-filter="vintage">Köhnə Film</button>
-                        <button class="filter-option" data-filter="warm">İsti Ton</button>
-                        <button class="filter-option" data-filter="cool">Soyuq Ton</button>
-                        <button class="filter-option" data-filter="vibrant">Canlı</button>
-                        <button class="filter-option" data-filter="dramatic">Dramatik</button>
+                    <div class="panel-title">
+                        <i class="fas fa-sliders-h"></i> Filtrlər
+                    </div>
+                    <div class="filter-selector" id="filterSelector">
+                        <!-- 30 müasir filtr buraya əlavə ediləcək -->
                     </div>
                 </div>
 
                 <!-- ADJUSTMENTS -->
-                <div id="adjustmentsSection" class="panel-section">
-                    <div class="panel-title">Düzəlişlər</div>
+                <div id="adjustmentsSection" class="panel-section hidden">
+                    <div class="panel-title">
+                        <i class="fas fa-adjust"></i> Düzəlişlər
+                    </div>
                     
                     <div class="slider-group">
                         <div class="slider-label">
@@ -679,9 +740,46 @@
                     </div>
                 </div>
 
+                <!-- BRUSH TOOLS -->
+                <div id="brushSection" class="panel-section hidden">
+                    <div class="panel-title">
+                        <i class="fas fa-paint-brush"></i> Fırça Alətləri
+                    </div>
+                    
+                    <div class="brush-tools">
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Fırça Ölçüsü</span>
+                                <span class="slider-label-value" id="brushSizeValue">20</span>
+                            </div>
+                            <input type="range" id="brushSize" min="5" max="100" value="20">
+                        </div>
+                        
+                        <div class="brush-color-picker">
+                            <div class="brush-color-preview" id="brushColorPreview"></div>
+                            <input type="color" id="brushColor" value="#000000" style="flex: 1; height: 40px; border: 1px solid var(--border-color); border-radius: 0.375rem; cursor: pointer;">
+                        </div>
+                        
+                        <div class="brush-presets">
+                            <div class="brush-preset active" style="background-color: #000000;" data-color="#000000"></div>
+                            <div class="brush-preset" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                            <div class="brush-preset" style="background-color: #ff0000;" data-color="#ff0000"></div>
+                            <div class="brush-preset" style="background-color: #00ff00;" data-color="#00ff00"></div>
+                            <div class="brush-preset" style="background-color: #0000ff;" data-color="#0000ff"></div>
+                            <div class="brush-preset" style="background-color: #ffff00;" data-color="#ffff00"></div>
+                        </div>
+                        
+                        <button class="btn btn-primary" id="clearBrushBtn">
+                            <i class="fas fa-trash"></i> Təmizlə
+                        </button>
+                    </div>
+                </div>
+
                 <!-- BACKGROUND REMOVAL -->
                 <div id="bgRemovalSection" class="panel-section hidden">
-                    <div class="panel-title">Fon Silmə</div>
+                    <div class="panel-title">
+                        <i class="fas fa-eraser"></i> Fon Silmə
+                    </div>
                     
                     <div class="btn-group">
                         <button class="btn btn-secondary active" id="colorRemoveMode">Rəngə Görə</button>
@@ -702,29 +800,41 @@
                             <input type="range" id="tolerance" min="0" max="100" value="30">
                         </div>
 
-                        <button class="btn btn-primary" id="applyColorRemove">Tətbiq Et</button>
+                        <button class="btn btn-primary" id="applyColorRemove">
+                            <i class="fas fa-check"></i> Tətbiq Et
+                        </button>
                     </div>
 
-                    <div id="brushSection" class="panel-section hidden">
+                    <div id="brushRemoveSection" class="panel-section hidden">
                         <div class="slider-group">
                             <div class="slider-label">
                                 <span>Fırça Ölçüsü</span>
-                                <span class="slider-label-value" id="brushSizeValue">20</span>
+                                <span class="slider-label-value" id="brushRemoveSizeValue">20</span>
                             </div>
-                            <input type="range" id="brushSize" min="5" max="100" value="20">
+                            <input type="range" id="brushRemoveSize" min="5" max="100" value="20">
                         </div>
+                        
+                        <button class="btn btn-primary" id="applyBrushRemove">
+                            <i class="fas fa-check"></i> Tətbiq Et
+                        </button>
                     </div>
                 </div>
 
                 <!-- TEXT TOOL -->
                 <div id="textSection" class="panel-section hidden">
-                    <div class="panel-title">Mətn Əlavə Et</div>
-                    <button class="btn btn-primary" id="addTextBtn">Mətn Əlavə Et</button>
+                    <div class="panel-title">
+                        <i class="fas fa-font"></i> Mətn Əlavə Et
+                    </div>
+                    <button class="btn btn-primary" id="addTextBtn">
+                        <i class="fas fa-plus"></i> Mətn Əlavə Et
+                    </button>
                 </div>
 
                 <!-- EXPORT OPTIONS -->
                 <div class="panel-section">
-                    <div class="panel-title">Keyfiyyət</div>
+                    <div class="panel-title">
+                        <i class="fas fa-download"></i> Keyfiyyət
+                    </div>
                     <div class="btn-group">
                         <button class="btn btn-secondary active" data-quality="1">Təmiz</button>
                         <button class="btn btn-secondary" data-quality="0.8">80%</button>
@@ -793,7 +903,11 @@
             textElements: [],
             activeTextElement: null,
             isDraggingText: false,
-            dragOffset: { x: 0, y: 0 }
+            dragOffset: { x: 0, y: 0 },
+            brushColor: '#000000',
+            brushSize: 20,
+            lastX: 0,
+            lastY: 0
         };
 
         state.ctx = state.canvas.getContext('2d', { willReadFrequently: true });
@@ -818,8 +932,8 @@
             toolBrush: document.getElementById('toolBrush'),
             toolText: document.getElementById('toolText'),
 
-            // Filter buttons
-            filterButtons: document.querySelectorAll('.filter-option'),
+            // Filter selector
+            filterSelector: document.getElementById('filterSelector'),
 
             // Adjustment sliders
             brightness: document.getElementById('brightness'),
@@ -840,6 +954,7 @@
             adjustmentsSection: document.getElementById('adjustmentsSection'),
             bgRemovalSection: document.getElementById('bgRemovalSection'),
             textSection: document.getElementById('textSection'),
+            brushSection: document.getElementById('brushSection'),
 
             // Background removal
             colorRemoveMode: document.getElementById('colorRemoveMode'),
@@ -847,11 +962,20 @@
             colorToRemove: document.getElementById('colorToRemove'),
             tolerance: document.getElementById('tolerance'),
             applyColorRemove: document.getElementById('applyColorRemove'),
-            brushSize: document.getElementById('brushSize'),
+            brushRemoveSize: document.getElementById('brushRemoveSize'),
             toleranceValue: document.getElementById('toleranceValue'),
-            brushSizeValue: document.getElementById('brushSizeValue'),
+            brushRemoveSizeValue: document.getElementById('brushRemoveSizeValue'),
             colorPickerSection: document.getElementById('colorPickerSection'),
-            brushSection: document.getElementById('brushSection'),
+            brushRemoveSection: document.getElementById('brushRemoveSection'),
+            applyBrushRemove: document.getElementById('applyBrushRemove'),
+
+            // Brush tools
+            brushSize: document.getElementById('brushSize'),
+            brushSizeValue: document.getElementById('brushSizeValue'),
+            brushColor: document.getElementById('brushColor'),
+            brushColorPreview: document.getElementById('brushColorPreview'),
+            brushPresets: document.querySelectorAll('.brush-preset'),
+            clearBrushBtn: document.getElementById('clearBrushBtn'),
 
             // Quality buttons
             qualityButtons: document.querySelectorAll('[data-quality]'),
@@ -868,6 +992,91 @@
             applyTextBtn: document.getElementById('applyTextBtn'),
             addTextBtn: document.getElementById('addTextBtn')
         };
+
+        // 30 MÜASİR FİLTR
+        const filters = [
+            { id: 'none', name: 'Orijinal', desc: 'Heç bir filtr tətbiq edilmədi' },
+            { id: 'clarendon', name: 'Clarendon', desc: 'Parlaqlıq və kontrast artırır' },
+            { id: 'gingham', name: 'Gingham', desc: 'Yumşaq, vintage effekti' },
+            { id: 'moon', name: 'Ay', desc: 'Qara-ağ, ağ rəngləri gücləndirir' },
+            { id: 'lark', name: 'Tərəvəz', desc: 'Yaşıl rəngləri gücləndirir' },
+            { id: 'reyes', name: 'Reyes', desc: 'Yumşaq, isti sepia tonları' },
+            { id: 'juno', name: 'Juno', desc: 'Qırmızı tonları gücləndirir' },
+            { id: 'slumber', name: 'Yuxu', desc: 'Doyğunluğu azaldır, mavi tonlar əlavə edir' },
+            { id: 'crema', name: 'Crema', desc: 'Zərif, pastel tonlar' },
+            { id: 'ludwig', name: 'Ludwig', desc: 'Yüngül kontrast və isti tonlar' },
+            { id: 'aden', name: 'Aden', desc: 'Yaşıl və mavi tonlar' },
+            { id: 'perpetua', name: 'Perpetua', desc: 'Müasir, təmiz görünüş' },
+            { id: 'amaro', name: 'Amaro', desc: 'Parlaqlıq və doyğunluq artırır' },
+            { id: 'mayfair', name: 'Mayfair', desc: 'Çiçək tonları, yumşaq fokus' },
+            { id: 'rise', name: 'Günəş', desc: 'İsti, qızılı tonlar' },
+            { id: 'hudson', name: 'Hudson', desc: 'Soyuq, dramatik tonlar' },
+            { id: 'valencia', name: 'Valencia', desc: 'Sepia tonları, parlaqlıq' },
+            { id: 'xpro2', name: 'X-Pro II', desc: 'Kontrastlı, canlı rənglər' },
+            { id: 'sierra', name: 'Sierra', desc: 'Yumşaq, təbii tonlar' },
+            { id: 'willow', name: 'Söyüd', desc: 'Monoxrom, yumşaq fokus' },
+            { id: 'lofi', name: 'Lo-Fi', desc: 'Doyğunluq və kontrast artırır' },
+            { id: 'earlybird', name: 'Earlybird', desc: 'Köhnə foto effekti' },
+            { id: 'brannan', name: 'Brannan', desc: 'Kontrastlı, soyuq tonlar' },
+            { id: 'inkwell', name: 'Mürəkkəb', desc: 'Qara-ağ effekti' },
+            { id: 'hefe', name: 'Hefe', desc: 'Yüksək kontrast, isti tonlar' },
+            { id: 'nashville', name: 'Nashville', desc: 'İsti, yumşaq tonlar' },
+            { id: 'sutro', name: 'Sutro', desc: 'Qaranlıq, dramatik tonlar' },
+            { id: 'toaster', name: 'Toaster', desc: 'Qızılı, qaranlıq tonlar' },
+            { id: 'walden', name: 'Walden', desc: 'Açıq mavi tonlar' },
+            { id: 'nineteen77', name: '1977', desc: 'Qırmızı tonlar, parlaqlıq' }
+        ];
+
+        // FILTR TƏTBİQ ETMƏ
+        function applyFilter() {
+            let filterString = '';
+
+            // Filtr təyinatları
+            const filterEffects = {
+                none: '',
+                clarendon: 'contrast(1.2) brightness(1.1) saturate(1.1)',
+                gingham: 'sepia(0.3) brightness(1.05)',
+                moon: 'grayscale(1) brightness(1.1) contrast(1.1)',
+                lark: 'hue-rotate(-10deg) saturate(1.2)',
+                reyes: 'sepia(0.4) brightness(1.1) contrast(0.9)',
+                juno: 'hue-rotate(-20deg) saturate(1.2) contrast(1.1)',
+                slumber: 'saturate(0.5) brightness(1.05) hue-rotate(180deg)',
+                crema: 'contrast(0.9) brightness(1.05) saturate(0.8)',
+                ludwig: 'contrast(1.05) brightness(1.05) sepia(0.1)',
+                aden: 'hue-rotate(20deg) saturate(1.2) brightness(0.95)',
+                perpetua: 'contrast(0.9) brightness(1.05)',
+                amaro: 'brightness(1.1) saturate(1.3)',
+                mayfair: 'contrast(1.1) saturate(1.1)',
+                rise: 'sepia(0.2) contrast(1.05) brightness(1.1) saturate(1.2)',
+                hudson: 'brightness(1.1) contrast(0.9) saturate(1.2) hue-rotate(180deg)',
+                valencia: 'sepia(0.3) brightness(1.05) contrast(1.05)',
+                xpro2: 'contrast(1.3) saturate(1.3)',
+                sierra: 'contrast(0.8) brightness(1.1) saturate(1.1)',
+                willow: 'grayscale(0.5) contrast(0.95) brightness(1.05)',
+                lofi: 'saturate(1.1) contrast(1.5)',
+                earlybird: 'sepia(0.4) contrast(1.1) brightness(1.05) saturate(1.2)',
+                brannan: 'sepia(0.5) contrast(1.4)',
+                inkwell: 'grayscale(1) contrast(1.1) brightness(1.05)',
+                hefe: 'contrast(1.5) saturate(1.4) brightness(1.05)',
+                nashville: 'sepia(0.2) hue-rotate(-15deg) saturate(1.2) contrast(0.9)',
+                sutro: 'brightness(0.9) contrast(1.2) saturate(0.8)',
+                toaster: 'sepia(0.3) contrast(1.5) brightness(0.9)',
+                walden: 'brightness(1.1) hue-rotate(10deg) saturate(1.6)',
+                nineteen77: 'sepia(0.3) hue-rotate(-10deg) saturate(1.4) contrast(1.1)'
+            };
+
+            filterString += filterEffects[state.currentFilter] || '';
+
+            // Düzəlişlər
+            const brightness = 1 + state.adjustments.brightness / 100;
+            const contrast = 1 + state.adjustments.contrast / 100;
+            const saturation = 1 + state.adjustments.saturation / 100;
+            const hue = state.adjustments.hue;
+
+            filterString += ` brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hue}deg) blur(${state.adjustments.blur}px)`;
+
+            state.ctx.filter = filterString;
+        }
 
         // SHOW TOAST
         function showToast(message, isError = false, isWarning = false) {
@@ -975,7 +1184,7 @@
             elements.blurValue.textContent = '0';
             
             // Reset filter buttons
-            elements.filterButtons.forEach(btn => {
+            document.querySelectorAll('.filter-option').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.filter === 'none') {
                     btn.classList.add('active');
@@ -1004,40 +1213,11 @@
             // Draw text elements
             drawTextElements();
 
-            // Add watermark
+            // Add watermark (HƏR ZAMAN QALSIN)
             state.ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
             state.ctx.fillStyle = 'rgba(241, 245, 249, 0.4)';
             state.ctx.textAlign = 'right';
             state.ctx.fillText('AxtarGet', state.canvas.width - 10, state.canvas.height - 10);
-        }
-
-        // APPLY FILTER
-        function applyFilter() {
-            let filterString = '';
-
-            // Apply filter preset
-            const filters = {
-                none: '',
-                grayscale: 'grayscale(100%)',
-                sepia: 'sepia(60%)',
-                vintage: 'sepia(50%) saturate(80%) brightness(1.1)',
-                warm: 'sepia(30%) saturate(120%) brightness(1.1)',
-                cool: 'hue-rotate(180deg) saturate(120%)',
-                vibrant: 'saturate(150%) contrast(1.2)',
-                dramatic: 'contrast(130%) saturate(80%) brightness(0.95)'
-            };
-
-            filterString += filters[state.currentFilter] || '';
-
-            // Apply adjustments
-            const brightness = 1 + state.adjustments.brightness / 100;
-            const contrast = 1 + state.adjustments.contrast / 100;
-            const saturation = 1 + state.adjustments.saturation / 100;
-            const hue = state.adjustments.hue;
-
-            filterString += ` brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hue}deg) blur(${state.adjustments.blur}px)`;
-
-            state.ctx.filter = filterString;
         }
 
         // DRAW TEXT ELEMENTS
@@ -1091,6 +1271,9 @@
                 case 'text':
                     state.canvas.style.cursor = 'text';
                     break;
+                case 'remove':
+                    state.canvas.style.cursor = state.bgRemovalMode === 'brush' ? 'crosshair' : 'default';
+                    break;
                 default:
                     state.canvas.style.cursor = 'default';
             }
@@ -1100,6 +1283,7 @@
             elements.adjustmentsSection.classList.add('hidden');
             elements.bgRemovalSection.classList.add('hidden');
             elements.textSection.classList.add('hidden');
+            elements.brushSection.classList.add('hidden');
             
             switch(tool) {
                 case 'filters':
@@ -1114,23 +1298,40 @@
                 case 'text':
                     elements.textSection.classList.remove('hidden');
                     break;
+                case 'brush':
+                    elements.brushSection.classList.remove('hidden');
+                    break;
             }
         }
 
         // FILTER BUTTONS
-        elements.filterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all filter buttons
-                elements.filterButtons.forEach(b => b.classList.remove('active'));
+        function createFilterButtons() {
+            elements.filterSelector.innerHTML = '';
+            
+            filters.forEach(filter => {
+                const button = document.createElement('button');
+                button.className = `filter-option ${filter.id === 'none' ? 'active' : ''}`;
+                button.dataset.filter = filter.id;
+                button.innerHTML = `
+                    <div class="filter-name">${filter.name}</div>
+                    <div class="filter-desc">${filter.desc}</div>
+                `;
                 
-                // Add active class to clicked button
-                btn.classList.add('active');
+                button.addEventListener('click', () => {
+                    // Remove active class from all filter buttons
+                    document.querySelectorAll('.filter-option').forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Update filter
+                    state.currentFilter = filter.id;
+                    redrawCanvas();
+                });
                 
-                // Update filter
-                state.currentFilter = btn.dataset.filter;
-                redrawCanvas();
+                elements.filterSelector.appendChild(button);
             });
-        });
+        }
 
         // ADJUSTMENT SLIDERS
         function setupSlider(slider, valueDisplay, property) {
@@ -1147,12 +1348,111 @@
         setupSlider(elements.hue, elements.hueValue, 'hue');
         setupSlider(elements.blur, elements.blurValue, 'blur');
 
+        // BRUSH TOOLS
+        elements.brushSize.addEventListener('input', () => {
+            state.brushSize = parseInt(elements.brushSize.value);
+            elements.brushSizeValue.textContent = state.brushSize;
+        });
+
+        elements.brushColor.addEventListener('input', () => {
+            state.brushColor = elements.brushColor.value;
+            elements.brushColorPreview.style.backgroundColor = state.brushColor;
+        });
+
+        elements.brushPresets.forEach(preset => {
+            preset.addEventListener('click', () => {
+                elements.brushPresets.forEach(p => p.classList.remove('active'));
+                preset.classList.add('active');
+                state.brushColor = preset.dataset.color;
+                elements.brushColor.value = state.brushColor;
+                elements.brushColorPreview.style.backgroundColor = state.brushColor;
+            });
+        });
+
+        // BRUSH DRAWING
+        function startDrawing(e) {
+            if (state.currentTool !== 'brush' || !state.originalImage) return;
+            
+            state.isDrawing = true;
+            const rect = state.canvas.getBoundingClientRect();
+            state.lastX = e.clientX - rect.left;
+            state.lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!state.isDrawing || state.currentTool !== 'brush' || !state.originalImage) return;
+            
+            const rect = state.canvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+            
+            state.ctx.beginPath();
+            state.ctx.moveTo(state.lastX, state.lastY);
+            state.ctx.lineTo(currentX, currentY);
+            state.ctx.strokeStyle = state.brushColor;
+            state.ctx.lineWidth = state.brushSize;
+            state.ctx.lineCap = 'round';
+            state.ctx.lineJoin = 'round';
+            state.ctx.stroke();
+            
+            state.lastX = currentX;
+            state.lastY = currentY;
+        }
+
+        function stopDrawing() {
+            state.isDrawing = false;
+        }
+
+        // BRUSH EVENT LISTENERS
+        state.canvas.addEventListener('mousedown', startDrawing);
+        state.canvas.addEventListener('mousemove', draw);
+        state.canvas.addEventListener('mouseup', stopDrawing);
+        state.canvas.addEventListener('mouseout', stopDrawing);
+
+        // TOUCH EVENTS FOR MOBILE
+        state.canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            state.canvas.dispatchEvent(mouseEvent);
+        });
+
+        state.canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            state.canvas.dispatchEvent(mouseEvent);
+        });
+
+        state.canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const mouseEvent = new MouseEvent('mouseup', {});
+            state.canvas.dispatchEvent(mouseEvent);
+        });
+
+        // CLEAR BRUSH
+        elements.clearBrushBtn.addEventListener('click', () => {
+            if (!state.originalImage) {
+                showToast('✗ Əvvəlcə şəkil yükləyin', true);
+                return;
+            }
+            
+            redrawCanvas();
+            showToast('✓ Fırça işləri təmizləndi');
+        });
+
         // BACKGROUND REMOVAL MODE
         elements.colorRemoveMode.addEventListener('click', () => {
             elements.colorRemoveMode.classList.add('active');
             elements.brushRemoveMode.classList.remove('active');
             elements.colorPickerSection.classList.remove('hidden');
-            elements.brushSection.classList.add('hidden');
+            elements.brushRemoveSection.classList.add('hidden');
             state.bgRemovalMode = 'color';
             state.canvas.style.cursor = 'default';
         });
@@ -1161,18 +1461,14 @@
             elements.brushRemoveMode.classList.add('active');
             elements.colorRemoveMode.classList.remove('active');
             elements.colorPickerSection.classList.add('hidden');
-            elements.brushSection.classList.remove('hidden');
+            elements.brushRemoveSection.classList.remove('hidden');
             state.bgRemovalMode = 'brush';
             state.canvas.style.cursor = 'crosshair';
         });
 
-        // BRUSH SIZE AND TOLERANCE SLIDERS
-        elements.tolerance.addEventListener('input', () => {
-            elements.toleranceValue.textContent = elements.tolerance.value;
-        });
-
-        elements.brushSize.addEventListener('input', () => {
-            elements.brushSizeValue.textContent = elements.brushSize.value;
+        // BRUSH SIZE FOR BACKGROUND REMOVAL
+        elements.brushRemoveSize.addEventListener('input', () => {
+            elements.brushRemoveSizeValue.textContent = elements.brushRemoveSize.value;
         });
 
         // APPLY COLOR REMOVAL
@@ -1356,7 +1652,7 @@
             tempCtx.filter = state.ctx.filter;
             tempCtx.drawImage(state.originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
             
-            // Draw text elements without watermark
+            // Draw text elements
             state.textElements.forEach(text => {
                 tempCtx.font = `${text.size}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
                 tempCtx.fillStyle = text.color;
@@ -1364,6 +1660,12 @@
                 tempCtx.textBaseline = 'top';
                 tempCtx.fillText(text.content, text.x, text.y);
             });
+            
+            // Add watermark (HƏR ZAMAN QALSIN)
+            tempCtx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+            tempCtx.fillStyle = 'rgba(241, 245, 249, 0.4)';
+            tempCtx.textAlign = 'right';
+            tempCtx.fillText('AxtarGet', tempCanvas.width - 10, tempCanvas.height - 10);
             
             // Create download link
             const link = document.createElement('a');
@@ -1378,12 +1680,15 @@
         elements.toolSelect.addEventListener('click', () => setActiveTool('select'));
         elements.toolFilters.addEventListener('click', () => setActiveTool('filters'));
         elements.toolAdjust.addEventListener('click', () => setActiveTool('adjust'));
-        elements.toolRemove.addEventListener('click', () => setActiveTool('remove'));
         elements.toolBrush.addEventListener('click', () => setActiveTool('brush'));
+        elements.toolRemove.addEventListener('click', () => setActiveTool('remove'));
         elements.toolText.addEventListener('click', () => setActiveTool('text'));
 
         // INITIALIZE
         function init() {
+            // Create filter buttons
+            createFilterButtons();
+            
             // Set initial tool
             setActiveTool('select');
             
@@ -1395,9 +1700,13 @@
             elements.blurValue.textContent = elements.blur.value;
             elements.toleranceValue.textContent = elements.tolerance.value;
             elements.brushSizeValue.textContent = elements.brushSize.value;
+            elements.brushRemoveSizeValue.textContent = elements.brushRemoveSize.value;
             elements.textSizeValue.textContent = `${elements.textSize.value}px`;
             
-            showToast('AxtarGet Şəkil Redaktoruna xoş gəlmisiniz!', false, true);
+            // Set initial brush color
+            elements.brushColorPreview.style.backgroundColor = state.brushColor;
+            
+            showToast('AxtarGet Professional Şəkil Redaktoruna xoş gəlmisiniz!', false, true);
         }
 
         // Start the application
