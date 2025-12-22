@@ -424,7 +424,7 @@
                     </p>
                     <p id="quantity-alert" class="text-xs text-red-500 mt-1 hidden"></p>
                 </div>
-                <div id="service-details-container" class="hidden grid-cols-2 gap-4" style="order: 5;">
+                <div id="service-details-container" class="hidden grid grid-cols-2 gap-4" style="order: 5;">
                      <div class="space-y-2">
                         <label class="label">Ortalama Vaxt</label>
                         <div class="flex items-center space-x-2 p-3 bg-gray-700 rounded-lg">
@@ -451,7 +451,7 @@
 
     <footer class="bottom-nav">
         <div class="container mx-auto flex justify-around items-center py-3">
-            <a href="index.html" class="flex flex-col items-center space-y-1 text-primary">
+            <a href="index.html" class="flex flex-col items-center space-y-1 text-primary active">
                 <i class="fas fa-home text-xl"></i>
                 <span class="text-xs">Ana Səhifə</span>
             </a>
@@ -463,33 +463,42 @@
                 <i class="fas fa-list-alt text-xl"></i>
                 <span class="text-xs">Sifarişlər</span>
             </a>
-            <button id="bottom-nav-topup" class="flex flex-col items-center space-y-1 text-muted border-0 bg-transparent cursor-pointer">
+            <button id="bottom-nav-topup" class="flex flex-col items-center space-y-1 text-muted">
                 <i class="fas fa-wallet text-xl"></i>
                 <span class="text-xs">Balans</span>
             </button>
         </div>
     </footer>
 
-    <a href="#" id="floating-whatsapp-bubble" title="Dəstək üçün WhatsApp">
+    <a href="#" id="floating-whatsapp-bubble">
         <i class="fab fa-whatsapp text-2xl text-white"></i>
     </a>
+
+    <div id="alert-container"></div>
 
     <div id="top-up-modal" class="dialog-overlay">
         <div class="dialog-content">
             <span id="close-top-up-modal" class="dialog-close">&times;</span>
-            <div class="dialog-header mb-4">
-                <h3 class="text-xl font-bold">Balans Artır</h3>
+            <div class="mb-4">
+                <h3 class="text-xl font-bold mb-2">Balans Artır</h3>
                 <p class="text-sm text-muted">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
             </div>
             <div class="space-y-4">
                 <div class="bg-gray-700 p-4 rounded-lg text-center">
                     <i class="fas fa-credit-card text-3xl mx-auto mb-2 text-muted"></i>
                     <p class="text-sm text-muted mb-2">Kapital Bank Kartı</p>
-                    <p id="bank-card-number" class="text-xl font-bold font-mono tracking-widest">4169 7388 7208 5778</p>
+                    <p class="text-xl font-bold font-mono tracking-widest">4169 7388 7208 5778</p>
                 </div>
                 <div style="background-color: rgba(251, 191, 36, 0.1); color: #facc15; padding: 0.75rem; border-radius: 0.5rem; display: flex; align-items: start;">
                     <i class="fas fa-info-circle mt-1"></i>
                     <p class="text-sm ml-2">Ödənişdən sonra çeki <strong>060-600-61-62</strong> nömrəsinə WhatsApp ilə göndərin. Balansınız 5-15 dəqiqə ərzində yüklənəcək.</p>
+                </div>
+                <div class="bg-primary/10 p-3 rounded-lg text-sm">
+                     <p class="font-medium text-primary">🎁 Bonus Kampaniyası:</p>
+                     <ul class="text-xs text-muted mt-1 space-y-1 list-disc list-inside">
+                        <li>11-100 AZN: <strong>+3% bonus</strong></li>
+                        <li>101+ AZN: <strong>+6% bonus</strong></li>
+                     </ul>
                 </div>
                 <a id="whatsapp-topup-link" href="#" target="_blank" class="btn w-full flex items-center justify-center space-x-2" style="background-color: #25D366; color: white;">
                     <i class="fab fa-whatsapp"></i>
@@ -498,8 +507,6 @@
             </div>
         </div>
     </div>
-
-    <div id="alert-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -510,7 +517,8 @@
             signInWithPopup, 
             GoogleAuthProvider, 
             signOut,
-            linkWithCredential
+            linkWithCredential,
+            EmailAuthProvider
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore, 
@@ -521,12 +529,7 @@
             collection, 
             addDoc, 
             serverTimestamp, 
-            runTransaction,
-            query,
-            where,
-            getDocs,
-            writeBatch,
-            increment
+            runTransaction
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -544,58 +547,183 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        const PAYMENT_WHATSAPP_NUMBER = '994606006162';
-
-        let currentUserId = null;
+        const allServices = [
+            { platform: 'Instagram', category: 'Instagram Keşfet Paketi 🚀', categoryIconClass: 'fab fa-instagram text-pink-500', isDiscoveryPackage: true, items: [ { id: 'discovery-package', name: 'Keşfet Paketi', pricePer100Percent: 309, min: 25, max: 100, avgTime: '100-300 Saat', description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' } ] },
+            { platform: 'Instagram', category: 'Instagram Takipçi Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_follower', name: 'Takipçi❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 }, { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿❌işləmir❌', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 }, { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷❌işləmir❌', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 }, { id: 'instagram_30day_guarantee', name: '30 Gün Garantili❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 }, { id: 'instagram_100day_guarantee', name: '100 Gün Garantili❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 }, { id: 'instagram_365day_guarantee', name: '365 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 }, { id: '3000', name: '365 Gün Garantili (⭐İşlək servis⭐)', iconClass: 'fab fa-instagram', avgTime: '71 dəqiqə', min: 10, max: 50000, pricePerK: 12.9 }, { id: 'instagram_lifetime_guarantee', name: 'Ömür Boyu Garantili çox yavaş', iconClass: 'fas fa-infinity', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6.00 } ] },
+            { platform: 'Instagram', category: 'Instagram Bəyəni Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_like', name: 'Bəyəni (az enməz)❌işləmir❌ (Min:10)', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 }, { id: '1001', name: 'Bəyəni İşlək servis (⭐İşlək servis⭐)', iconClass: 'fas fa-heart text-pink-500', avgTime: '160 dəqiqə', min: 20, max: 10000000, pricePerK: 1.89 }, { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur)❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 }, { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 } ] },
+            { platform: 'Instagram', category: 'Instagram İzlənmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_video_view', name: 'Video İzlənmə', iconClass: 'fas fa-eye', avgTime: '36 saat', min: 100, max: 50000000, pricePerK: 0.19 }, { id: '10000', name: 'Video İzlənmə ⭐Sürətli⭐', iconClass: 'fas fa-eye', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.39 }, { id: 'instagram_az_video_view', name: 'Azərbaycanlı Video İzlənmə 🇦🇿', iconClass: 'fas fa-eye', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },{ id: '50001', name: '🆕Video İzlənmə Min : 100.000', iconClass: 'fas fa-eye', avgTime: '59 dəqiqə', min: 100000, max: 50000000, pricePerK: 0.10 },{ id: '50002', name: 'Video İzlənmə Yavaş Min : 10.000', iconClass: 'fas fa-eye', avgTime: '2 saat', min: 10000, max: 50000000, pricePerK: 0.032 } ] },
+            { platform: 'Instagram', category: 'Instagram Yorum,Paylaşım,Kaydetmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_comment', name: 'Yorum', iconClass: 'fas fa-comment', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 }, { id: 'instagram_save', name: 'Kaydetmə', iconClass: 'fas fa-save', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 }, { id: 'instagram_share', name: 'Paylaşma', iconClass: 'fas fa-share', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 } ] },
+            { platform: 'TikTok', category: 'TikTok Takipçi Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_foreign_follower', name: 'Xarici Takipçi', iconClass: 'fab fa-tiktok', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 }, { id: '2000', name: 'Xarici Takipçi Yeni ucuz', iconClass: 'fab fa-tiktok', avgTime: '4 saat', min: 10, max: 10000000, pricePerK: 4.99 }, { id: 'tiktok_foreign_follower_no_guarantee', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 6.93 }, { id: 'tiktok_quality_follower_no_guarantee', name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 11.54 }, { id: 'tiktok_quality_follower_60_day_guarantee', name: 'Keyfiyyətli Takipçi (60 gün qaranti)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 16.99 } ] },
+            { platform: 'TikTok', category: 'TikTok Bəyəni Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_like', name: 'Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 }, { id: '00005', name: 'Bəyəni "Özəl" (Min:100)', iconClass: 'fas fa-heart', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 }, { id: '00006', name: 'Bəyəni "Özəl-2" (Min:50.000)', iconClass: 'fas fa-heart', avgTime: '28 dəqiqə', min: 50000, max: 10000000, pricePerK: 0.13 }, { id: '00001', name: 'NEW Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 }, { id: '00002', name: 'Bəyəni (Min:150)', iconClass: 'fas fa-heart', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 }, { id: '00003', name: 'Bəyəni -Orta sürət- (Min:1.000)', iconClass: 'fas fa-heart', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 }, { id: '00004', name: 'Bəyəni ⭐Sürətli⭐ (Min:200)', iconClass: 'fas fa-heart', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 } ] },
+            { platform: 'TikTok', category: 'TikTok İzlənmə Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_view', name: 'Video İzlənmə (Min:100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.006 }, { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min:100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, { id: '000012', name: 'İzlənmə (Min:10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } ] },
+            { platform: 'TikTok', category: 'TikTok Digər Servislər', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_share', name: 'Video Paylaşma', iconClass: 'fas fa-share', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 }, { id: 'tiktok_video_save', name: 'Video Kaydetmə', iconClass: 'fas fa-save', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 }, { id: 'tiktok_profile_view', name: 'Profil Görüntüləmə', iconClass: 'fas fa-user', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 } ] },
+            { platform: 'Youtube', category: 'Youtube Abonəçi Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } ] },
+            { platform: 'Youtube', category: 'Youtube Bəyəni Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } ] },
+            { platform: 'Youtube', category: 'Youtube İzlənmə Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } ] },
+            { platform: 'Pulsuz', category: 'Pulsuz Servislər 🎁', categoryIconClass: 'fas fa-gift text-green-500', isFree: true, items: [ { id: 'free_instagram_like', name: 'Instagram Pulsuz Bəyəni (50)', iconClass: 'fab fa-instagram text-pink-500', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeInstagramLike' }, { id: 'free_tiktok_like', name: 'TikTok Pulsuz Bəyəni (50)', iconClass: 'fab fa-tiktok', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeTikTokLike' } ] }
+        ];
+        
+        let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
         let isAnonymousUser = true;
         let anonUserData = null;
-        let selectedCategory = null;
-        let selectedService = null;
-
+        
         const DOMElements = {
             userBalance: document.getElementById('user-balance'),
+            userIdDisplay: document.getElementById('user-id-display'),
+            userIdValue: document.getElementById('user-id-value'),
+            anonIdDisplay: document.getElementById('anon-id-display'),
+            anonIdContainer: document.getElementById('anon-id-container'),
             topUpButton: document.getElementById('top-up-button'),
-            bottomNavTopUp: document.getElementById('bottom-nav-topup'),
-            topUpModal: document.getElementById('top-up-modal'),
-            closeTopUpModalButton: document.getElementById('close-top-up-modal'),
-            whatsappTopUpLink: document.getElementById('whatsapp-topup-link'),
-            floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'),
-            placeOrderButton: document.getElementById('place-order-button'),
+            categorySelect: document.getElementById('category-select'),
+            serviceSelect: document.getElementById('service-select'),
             linkInput: document.getElementById('link-input'),
             quantityInput: document.getElementById('quantity-input'),
             minQuantity: document.getElementById('min-quantity'),
             maxQuantity: document.getElementById('max-quantity'),
             quantityAlert: document.getElementById('quantity-alert'),
-            priceDisplay: document.getElementById('price-display'),
-            avgTimeDisplay: document.getElementById('avg-time-display'),
+            placeOrderButton: document.getElementById('place-order-button'),
+            alertContainer: document.getElementById('alert-container'),
+            topUpModal: document.getElementById('top-up-modal'),
+            closeTopUpModalButton: document.getElementById('close-top-up-modal'),
+            bottomNavTopUp: document.getElementById('bottom-nav-topup'),
+            floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'),
+            whatsappTopUpLink: document.getElementById('whatsapp-topup-link'),
             serviceDetailsContainer: document.getElementById('service-details-container'),
-            googleAuthButton: document.getElementById('google-auth-button'),
-            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn'),
-            logoutButton: document.getElementById('logout-button'),
-            userInfoSection: document.getElementById('user-info-section'),
+            avgTimeDisplay: document.getElementById('avg-time-display'),
+            priceDisplay: document.getElementById('price-display'),
             warningInfoBox: document.getElementById('warning-info-box'),
-            anonIdContainer: document.getElementById('anon-id-container'),
-            anonIdDisplay: document.getElementById('anon-id-display'),
+            userInfoSection: document.getElementById('user-info-section'),
+            userAvatar: document.getElementById('user-avatar'),
+            avatarInitials: document.getElementById('avatar-initials'),
             userDisplayName: document.getElementById('user-display-name'),
             userEmail: document.getElementById('user-email'),
-            userIdValue: document.getElementById('user-id-value'),
-            avatarInitials: document.getElementById('avatar-initials'),
+            logoutButton: document.getElementById('logout-button'),
+            googleAuthButton: document.getElementById('google-auth-button'),
+            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn')
+        };
+        
+        const PAYMENT_WHATSAPP_NUMBER = "994606006162";
+        const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        
+        const showAlert = (message, type = 'error', duration = 4000) => {
+            const alertBox = document.createElement('div');
+            alertBox.className = `alert-message ${type}`;
+            alertBox.textContent = message;
+            DOMElements.alertContainer.innerHTML = '';
+            DOMElements.alertContainer.appendChild(alertBox);
+            setTimeout(() => alertBox.classList.add('show'), 10);
+            setTimeout(() => {
+                alertBox.classList.remove('show');
+                setTimeout(() => alertBox.remove(), 300);
+            }, duration);
         };
 
-        function showAlert(message, type = 'error') {
-            const alertContainer = document.getElementById('alert-container');
-            const alert = document.createElement('div');
-            alert.className = `alert-message ${type}`;
-            alert.textContent = message;
-            alertContainer.appendChild(alert);
-            setTimeout(() => alert.classList.add('show'), 10);
-            setTimeout(() => {
-                alert.classList.remove('show');
-                setTimeout(() => alert.remove(), 300);
-            }, 3000);
-        }
+        const updateBalanceUI = async (uid, isAnon = false) => {
+            const userDocRef = doc(db, 'users', uid);
+            try {
+                const snap = await getDoc(userDocRef);
+                if (snap.exists()) {
+                    userDocData = snap.data();
+                    userBalance = (typeof userDocData.balance === 'number') ? userDocData.balance : 0;
+                    
+                    if (isAnon) {
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: uid,
+                            balance: userBalance,
+                            timestamp: Date.now(),
+                            isAnonymous: true
+                        }));
+                        anonUserData = { uid, balance: userBalance };
+                    }
+                } else {
+                    userDocData = { 
+                        balance: 0, 
+                        createdAt: serverTimestamp(),
+                        isAnonymous: isAnon
+                    };
+                    
+                    if (!isAnon && auth.currentUser && auth.currentUser.email) {
+                        userDocData.email = auth.currentUser.email;
+                        userDocData.displayName = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
+                    }
+                    
+                    await setDoc(userDocRef, userDocData);
+                    userBalance = 0;
+                    
+                    if (isAnon) {
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: uid,
+                            balance: 0,
+                            timestamp: Date.now(),
+                            isAnonymous: true
+                        }));
+                        anonUserData = { uid, balance: 0 };
+                    }
+                }
+                DOMElements.userBalance.textContent = `${userBalance.toFixed(4)} AZN`;
+            } catch (e) { 
+                console.error("Error updating balance:", e); 
+                userBalance = 0;
+                DOMElements.userBalance.textContent = `0.0000 AZN`;
+            }
+            updateUIDisplay();
+        };
 
-        function toggleModal(show) {
+        const updateUIDisplay = () => {
+            let price = 0;
+            let avgTime = 'N/A';
+            let isDetailsVisible = false;
+
+            if (selectedService) {
+                avgTime = selectedService.avgTime;
+                const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
+                price = (quantity / 1000) * selectedService.pricePerK;
+                isDetailsVisible = true;
+            }
+
+            DOMElements.avgTimeDisplay.textContent = avgTime;
+            DOMElements.priceDisplay.textContent = `${price.toFixed(4)} AZN`;
+            
+            if (isDetailsVisible) {
+                DOMElements.serviceDetailsContainer.classList.remove('hidden');
+            } else {
+                DOMElements.serviceDetailsContainer.classList.add('hidden');
+            }
+        };
+
+        const updateUserUI = (user) => {
+            if (user && !user.isAnonymous) {
+                isAnonymousUser = false;
+                DOMElements.warningInfoBox.classList.add('hidden');
+                DOMElements.userInfoSection.classList.remove('hidden');
+                DOMElements.anonIdContainer.classList.add('hidden');
+                
+                const displayName = user.displayName || user.email.split('@')[0];
+                const initials = displayName.substring(0, 2).toUpperCase();
+                
+                DOMElements.avatarInitials.textContent = initials;
+                DOMElements.userDisplayName.textContent = displayName;
+                DOMElements.userEmail.textContent = user.email;
+                DOMElements.userIdValue.textContent = user.uid;
+            } else {
+                isAnonymousUser = true;
+                DOMElements.warningInfoBox.classList.remove('hidden');
+                DOMElements.userInfoSection.classList.add('hidden');
+                DOMElements.anonIdContainer.classList.remove('hidden');
+                if (user) {
+                    DOMElements.anonIdDisplay.textContent = user.uid;
+                }
+            }
+        };
+
+        const updateWhatsAppLinks = () => {
+            const message = `Salam, ${currentUserId} ID-li hesabım üçün balans artırmaq istəyirəm.`;
+            const whatsappLink = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            DOMElements.whatsappTopUpLink.href = whatsappLink;
+            DOMElements.floatingWhatsappBubble.href = whatsappLink;
+        };
+
+        const toggleModal = (show) => {
             if (show) {
                 DOMElements.topUpModal.style.display = 'flex';
                 setTimeout(() => DOMElements.topUpModal.classList.add('show'), 10);
@@ -603,171 +731,160 @@
                 DOMElements.topUpModal.classList.remove('show');
                 setTimeout(() => DOMElements.topUpModal.style.display = 'none', 300);
             }
+        };
+
+        class CustomSelect {
+            constructor(wrapperElement, options = []) {
+                this.wrapper = wrapperElement;
+                this.trigger = wrapperElement.querySelector('.custom-select-trigger');
+                this.optionsList = wrapperElement.querySelector('.custom-select-options');
+                this.options = options;
+                this.selectedValue = null;
+                this.init();
+            }
+
+            init() {
+                this.trigger.addEventListener('click', () => this.toggle());
+                document.addEventListener('click', (e) => {
+                    if (!this.wrapper.contains(e.target)) {
+                        this.close();
+                    }
+                });
+            }
+
+            toggle() {
+                this.wrapper.classList.toggle('open');
+            }
+
+            close() {
+                this.wrapper.classList.remove('open');
+            }
+
+            setOptions(options, onSelect) {
+                this.options = options;
+                this.optionsList.innerHTML = '';
+                
+                options.forEach((option, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<i class="${option.iconClass} icon"></i><span>${option.text}</span>`;
+                    li.addEventListener('click', () => {
+                        this.select(option, index);
+                        onSelect(option, index);
+                    });
+                    this.optionsList.appendChild(li);
+                });
+            }
+
+            select(option, index) {
+                this.selectedValue = option.value;
+                this.trigger.innerHTML = `<span>${option.text}</span><i class="fas fa-chevron-down text-xs"></i>`;
+                this.close();
+            }
+
+            reset() {
+                this.selectedValue = null;
+                this.trigger.innerHTML = '<span class="placeholder">Əvvəlcə Kateqoriya Seçin</span><i class="fas fa-chevron-down text-xs"></i>';
+                this.optionsList.innerHTML = '';
+            }
         }
 
-        const updateUserUI = (user) => {
-            if (user && !user.isAnonymous) {
-                isAnonymousUser = false;
-                DOMElements.userInfoSection.classList.remove('hidden');
-                DOMElements.warningInfoBox.classList.add('hidden');
-                DOMElements.anonIdContainer.classList.add('hidden');
+        const categoryDropdown = new CustomSelect(DOMElements.categorySelect);
+        const serviceDropdown = new CustomSelect(DOMElements.serviceSelect);
+
+        categoryDropdown.setOptions(
+            allServices.map((cat, idx) => ({
+                text: cat.category,
+                iconClass: cat.categoryIconClass,
+                value: idx
+            })),
+            (option, index) => {
+                selectedCategory = allServices[index];
+                selectedService = null;
                 
-                const displayName = user.displayName || user.email.split('@')[0];
-                const email = user.email;
-                
-                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-                DOMElements.avatarInitials.textContent = initials;
-                
-                DOMElements.userDisplayName.textContent = displayName;
-                DOMElements.userEmail.textContent = email;
-                DOMElements.userIdValue.textContent = user.uid;
-                
-                DOMElements.googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
-                DOMElements.googleAuthButton.title = 'Google hesabı ilə giriş edilib';
-                
+                serviceDropdown.setOptions(
+                    selectedCategory.items.map((item, idx) => ({
+                        text: item.name,
+                        iconClass: item.iconClass || selectedCategory.categoryIconClass,
+                        value: idx
+                    })),
+                    (srvOption, srvIndex) => {
+                        selectedService = selectedCategory.items[srvIndex];
+                        DOMElements.minQuantity.textContent = formatNumber(selectedService.min);
+                        DOMElements.maxQuantity.textContent = formatNumber(selectedService.max);
+                        updateUIDisplay();
+                        validateInputs();
+                    }
+                );
+            }
+        );
+
+        const validateInputs = () => {
+            const link = DOMElements.linkInput.value.trim();
+            const quantityStr = DOMElements.quantityInput.value.replace(/\./g, '');
+            const quantity = parseInt(quantityStr) || 0;
+
+            let isValid = true;
+
+            if (!selectedCategory || !selectedService) {
+                isValid = false;
+            }
+
+            if (!link) {
+                isValid = false;
+            }
+
+            if (quantity < selectedService.min || quantity > selectedService.max) {
+                isValid = false;
+                DOMElements.quantityAlert.textContent = `Miqdar ${formatNumber(selectedService.min)} və ${formatNumber(selectedService.max)} arasında olmalıdır`;
+                DOMElements.quantityAlert.classList.remove('hidden');
             } else {
-                isAnonymousUser = true;
-                DOMElements.userInfoSection.classList.add('hidden');
-                DOMElements.warningInfoBox.classList.remove('hidden');
-                DOMElements.anonIdContainer.classList.remove('hidden');
-                
-                const userId = user ? user.uid : (anonUserData ? anonUserData.uid : 'N/A');
-                DOMElements.anonIdDisplay.textContent = userId;
-                DOMElements.userIdValue.textContent = userId;
-                
-                DOMElements.googleAuthButton.innerHTML = '<i class="fab fa-google"></i>';
-                DOMElements.googleAuthButton.title = 'Google hesabı ilə giriş et';
+                DOMElements.quantityAlert.classList.add('hidden');
             }
+
+            DOMElements.placeOrderButton.disabled = !isValid;
+            return isValid;
         };
 
-        const updateBalanceUI = async (userId, isAnon) => {
-            try {
-                if (isAnon) {
-                    const storedData = localStorage.getItem('anonUserData');
-                    if (storedData) {
-                        const data = JSON.parse(storedData);
-                        DOMElements.userBalance.textContent = (data.balance || 0).toFixed(4) + ' AZN';
-                    } else {
-                        DOMElements.userBalance.textContent = '0.0000 AZN';
-                    }
-                } else {
-                    const userDocRef = doc(db, 'users', userId);
-                    const userDoc = await getDoc(userDocRef);
-                    if (userDoc.exists()) {
-                        const balance = userDoc.data().balance || 0;
-                        DOMElements.userBalance.textContent = balance.toFixed(4) + ' AZN';
-                    } else {
-                        DOMElements.userBalance.textContent = '0.0000 AZN';
-                    }
-                }
-            } catch (error) {
-                console.error('Balance update error:', error);
-                DOMElements.userBalance.textContent = '0.0000 AZN';
+        DOMElements.linkInput.addEventListener('input', validateInputs);
+        DOMElements.quantityInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\./g, '');
+            if (value && !isNaN(value)) {
+                e.target.value = formatNumber(parseInt(value));
             }
-        };
-
-        const upgradeAnonymousToGoogle = async (anonymousUser, googleCredential) => {
-            try {
-                const result = await linkWithCredential(anonymousUser, googleCredential);
-                
-                const oldUserId = anonymousUser.uid;
-                const newUserId = result.user.uid;
-                
-                const oldUserDocRef = doc(db, 'users', oldUserId);
-                const oldUserDoc = await getDoc(oldUserDocRef);
-                
-                if (oldUserDoc.exists()) {
-                    const oldData = oldUserDoc.data();
-                    
-                    const ordersQuery = query(
-                        collection(db, `artifacts/${firebaseProjectId}/public/data/orders`),
-                        where("userId", "==", oldUserId)
-                    );
-                    
-                    const ordersSnapshot = await getDocs(ordersQuery);
-                    const batch = writeBatch(db);
-                    
-                    ordersSnapshot.forEach((orderDoc) => {
-                        const orderRef = orderDoc.ref;
-                        batch.update(orderRef, { 
-                            userId: newUserId,
-                            userEmail: result.user.email 
-                        });
-                    });
-                    
-                    const newUserDocRef = doc(db, 'users', newUserId);
-                    await setDoc(newUserDocRef, {
-                        ...oldData,
-                        email: result.user.email,
-                        displayName: result.user.displayName || result.user.email.split('@')[0],
-                        upgradedFromAnonymous: true,
-                        originalAnonymousId: oldUserId,
-                        lastLogin: serverTimestamp()
-                    });
-                    
-                    batch.delete(oldUserDocRef);
-                    await batch.commit();
-                    
-                    localStorage.removeItem('anonUserData');
-                }
-                
-                return result.user;
-            } catch (error) {
-                console.error("Anonymous upgrade error:", error);
-                throw error;
-            }
-        };
+            updateUIDisplay();
+            validateInputs();
+        });
 
         const signInWithGoogle = async () => {
             try {
-                const user = auth.currentUser;
+                const result = await signInWithPopup(auth, googleProvider);
+                const googleUser = result.user;
                 
-                if (user && user.isAnonymous) {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    const googleCredential = GoogleAuthProvider.credentialFromResult(result);
-                    
-                    const upgradedUser = await upgradeAnonymousToGoogle(user, googleCredential);
-                    
-                    showAlert('Uğurla qeydiyyatdan keçdiniz!', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                    
+                const userDocRef = doc(db, 'users', googleUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    await setDoc(userDocRef, {
+                        email: googleUser.email,
+                        displayName: googleUser.displayName || googleUser.email.split('@')[0],
+                        balance: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp()
+                    });
                 } else {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    const googleUser = result.user;
-                    
-                    const userDocRef = doc(db, 'users', googleUser.uid);
-                    const userDoc = await getDoc(userDocRef);
-                    
-                    if (!userDoc.exists()) {
-                        await setDoc(userDocRef, {
-                            email: googleUser.email,
-                            displayName: googleUser.displayName || googleUser.email.split('@')[0],
-                            balance: 0,
-                            createdAt: serverTimestamp(),
-                            lastLogin: serverTimestamp()
-                        });
-                    } else {
-                        await updateDoc(userDocRef, {
-                            lastLogin: serverTimestamp()
-                        });
-                    }
-                    
-                    showAlert('Uğurla giriş etdiniz!', 'success');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    await updateDoc(userDocRef, {
+                        lastLogin: serverTimestamp()
+                    });
                 }
+                
+                showAlert('Uğurla qeydiyyatdan keçdiniz!', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
                 
             } catch (error) {
                 console.error('Google giriş xətası:', error);
-                
-                if (error.code === 'auth/credential-already-in-use') {
-                    showAlert('Bu Google hesabı artıq istifadə olunur.', 'error');
-                } else {
-                    showAlert('Giriş zamanı xəta baş verdi.', 'error');
-                }
+                showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
             }
         };
 
@@ -781,26 +898,6 @@
             } catch (error) {
                 console.error('Çıxış xətası:', error);
                 showAlert('Çıxış zamanı xəta baş verdi', 'error');
-            }
-        };
-
-        const checkAnonBalanceReset = () => {
-            const storedData = localStorage.getItem('anonUserData');
-            if (storedData) {
-                try {
-                    const data = JSON.parse(storedData);
-                    const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
-                    
-                    if (hoursElapsed >= 24) {
-                        data.balance = 0;
-                        data.timestamp = Date.now();
-                        localStorage.setItem('anonUserData', JSON.stringify(data));
-                        DOMElements.userBalance.textContent = '0.0000 AZN';
-                        showAlert('24 saat keçdiyindən balansınız sıfırlandı.', 'warning');
-                    }
-                } catch (e) {
-                    console.error('Error checking balance reset:', e);
-                }
             }
         };
 
@@ -820,112 +917,56 @@
             
             if (authUser) {
                 currentUserId = authUser.uid;
-                
                 updateUserUI(authUser);
                 
                 const isAnon = authUser.isAnonymous;
-                
                 await updateBalanceUI(currentUserId, isAnon);
-                
-                if (isAnon) {
-                    anonUserData = {
-                        uid: authUser.uid,
-                        balance: 0,
-                        timestamp: Date.now()
-                    };
-                    
-                    const stored = localStorage.getItem('anonUserData');
-                    if (stored) {
-                        try {
-                            const data = JSON.parse(stored);
-                            if (data.uid === authUser.uid) {
-                                anonUserData = data;
-                            } else {
-                                localStorage.setItem('anonUserData', JSON.stringify(anonUserData));
-                            }
-                        } catch (e) {
-                            localStorage.setItem('anonUserData', JSON.stringify(anonUserData));
-                        }
-                    } else {
-                        localStorage.setItem('anonUserData', JSON.stringify(anonUserData));
-                    }
-                    
-                    checkAnonBalanceReset();
-                }
-                
                 updateWhatsAppLinks();
             }
         });
 
-        const updateWhatsAppLinks = () => {
-            if (!currentUserId) return;
-            
-            let whatsappText;
-            
-            if (isAnonymousUser) {
-                whatsappText = `Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`;
-            } else {
-                const userEmail = auth.currentUser?.email || '';
-                whatsappText = `Salam, mənim istifadəçi ID-m: ${currentUserId}. E-mail: ${userEmail}. Balans artırmaq istəyirəm.`;
-            }
-            
-            DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
-            DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
-        };
-
         DOMElements.placeOrderButton.addEventListener('click', async () => {
-            if (!selectedService || !DOMElements.linkInput.value.trim() || !DOMElements.quantityInput.value.trim()) {
-                showAlert('Zəhmət olmasa bütün sahələri doldurun', 'error');
+            if (!validateInputs()) return;
+
+            let quantity, totalPrice = 0, orderData;
+            
+            quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, ''));
+            totalPrice = parseFloat(((quantity / 1000) * selectedService.pricePerK).toFixed(4));
+
+            if (userBalance < totalPrice) {
+                showAlert("Balansınız yetərli deyil! Zəhmət olmasa artırın.", 'error', 5000);
+                toggleModal(true);
                 return;
             }
-
-            const quantity = parseInt(DOMElements.quantityInput.value);
-            const min = selectedService.min || 0;
-            const max = selectedService.max || Infinity;
-
-            if (quantity < min || quantity > max) {
-                showAlert(`Miqdar ${min} və ${max} arasında olmalıdır`, 'error');
-                return;
-            }
-
-            DOMElements.placeOrderButton.disabled = true;
-            DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Yüklənir...`;
 
             try {
-                const totalPrice = (selectedService.rate * quantity) / 1000;
+                DOMElements.placeOrderButton.disabled = true;
+                DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
                 
-                if (isAnonymousUser) {
-                    const storedData = localStorage.getItem('anonUserData');
-                    if (storedData) {
-                        const data = JSON.parse(storedData);
-                        if (data.balance < totalPrice) {
-                            throw new Error('Balansınız kifayət deyil');
-                        }
-                        data.balance -= totalPrice;
-                        localStorage.setItem('anonUserData', JSON.stringify(data));
-                        await updateBalanceUI(currentUserId, true);
+                const userDocRef = doc(db, 'users', currentUserId);
+                
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userDocRef);
+                    if (!userDoc.exists()) {
+                        throw new Error("İstifadəçi tapılmadı");
                     }
-                } else {
-                    const userDocRef = doc(db, 'users', currentUserId);
-                    await runTransaction(db, async (transaction) => {
-                        const userDoc = await transaction.get(userDocRef);
-                        if (!userDoc.exists()) {
-                            throw new Error('İstifadəçi tapılmadı');
-                        }
-                        const currentBalance = userDoc.data().balance || 0;
-                        if (currentBalance < totalPrice) {
-                            throw new Error('Balansınız kifayət deyil');
-                        }
-                        transaction.update(userDocRef, {
-                            balance: increment(-totalPrice)
-                        });
-                    });
-                    await updateBalanceUI(currentUserId, false);
-                }
-
-                const orderData = { 
+                    
+                    const currentBalance = userDoc.data().balance || 0;
+                    
+                    if (currentBalance < totalPrice) {
+                        throw new Error("Balans yetərli deyil");
+                    }
+                    const newBalance = parseFloat((currentBalance - totalPrice).toFixed(4));
+                    transaction.update(userDocRef, { balance: newBalance });
+                });
+                
+                await updateBalanceUI(currentUserId, isAnonymousUser);
+                
+                orderData = { 
                     userId: currentUserId, 
+                    serviceId: selectedService.id, 
                     serviceName: selectedService.name, 
+                    platform: selectedCategory.platform, 
                     link: DOMElements.linkInput.value.trim(), 
                     quantity, 
                     totalPrice, 
@@ -935,7 +976,7 @@
                     userEmail: isAnonymousUser ? null : auth.currentUser.email
                 };
 
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
+                await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
                 
                 showAlert(`Sifariş uğurla yaradıldı!`, 'success');
                 
@@ -951,27 +992,19 @@
             }
         });
 
-        [DOMElements.topUpButton, DOMElements.bottomNavTopUp].forEach(btn => btn.addEventListener('click', () => toggleModal(true)));
-        DOMElements.closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
-        DOMElements.topUpModal.addEventListener('click', (e) => { if (e.target === DOMElements.topUpModal) toggleModal(false); });
-        
         DOMElements.googleAuthButton.addEventListener('click', signInWithGoogle);
         DOMElements.googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
         DOMElements.logoutButton.addEventListener('click', handleLogout);
         
-        // Simple category/service selection (implement your own logic here)
-        const categorySelect = document.getElementById('category-select');
-        const serviceSelect = document.getElementById('service-select');
+        DOMElements.topUpButton.addEventListener('click', () => toggleModal(true));
+        DOMElements.bottomNavTopUp.addEventListener('click', () => toggleModal(true));
+        DOMElements.closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
         
-        // Example: Add basic interactivity
-        categorySelect.querySelector('.custom-select-trigger').addEventListener('click', () => {
-            categorySelect.classList.toggle('open');
+        DOMElements.topUpModal.addEventListener('click', (e) => {
+            if (e.target === DOMElements.topUpModal) {
+                toggleModal(false);
+            }
         });
-        
-        serviceSelect.querySelector('.custom-select-trigger').addEventListener('click', () => {
-            serviceSelect.classList.toggle('open');
-        });
-        
     </script>
 </body>
 </html>
