@@ -622,7 +622,10 @@
             query,
             where,
             getDocs,
-            writeBatch
+            writeBatch,
+            initializeFirestore,
+            persistentLocalCache,
+            persistentMultipleTabManager
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -633,11 +636,15 @@
             messagingSenderId: "808698399196",
             appId: "1:808698399196:web:61b6be0721b94f24c3a719"
         };
-        const firebaseProjectId = firebaseConfig.projectId;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        
+        // Firestore'u persistent cache ilə başlat
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
+        
         const googleProvider = new GoogleAuthProvider();
 
         // Email-based UID generator (SAME IN BOTH PAGES)
@@ -883,7 +890,45 @@
             }, duration);
         };
 
+        // YENİ: Collection avtomatik yaradılması üçün funksiya
+        const ensureCollectionsExist = async (userId) => {
+            try {
+                // Users collection üçün avtomatik yaradılma
+                const userDocRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    const userData = {
+                        balance: 0,
+                        createdAt: serverTimestamp(),
+                        isAnonymous: true,
+                        lastLogin: serverTimestamp()
+                    };
+                    
+                    // Əgər Google istifadəçisidirsə
+                    const user = auth.currentUser;
+                    if (user && !user.isAnonymous && user.email) {
+                        userData.email = user.email;
+                        userData.displayName = user.displayName || user.email.split('@')[0];
+                        userData.isAnonymous = false;
+                    }
+                    
+                    await setDoc(userDocRef, userData);
+                    console.log('User document avtomatik yaradıldı:', userId);
+                }
+                
+                // Orders collection üçün avtomatik yoxlama
+                // Firebase Firestore-da collection'lar avtomatik yaranır,
+                // ilk dəfə istifadə edildikdə
+                
+            } catch (error) {
+                console.error('Collections yoxlanılarkən xəta:', error);
+            }
+        };
+
         const updateBalanceUI = async (uid, isAnon = false) => {
+            await ensureCollectionsExist(uid);
+            
             const userDocRef = doc(db, 'users', uid);
             try {
                 const snap = await getDoc(userDocRef);
@@ -904,7 +949,8 @@
                     userDocData = { 
                         balance: 0, 
                         createdAt: serverTimestamp(),
-                        isAnonymous: isAnon
+                        isAnonymous: isAnon,
+                        lastLogin: serverTimestamp()
                     };
                     
                     if (!isAnon && auth.currentUser && auth.currentUser.email) {
@@ -1213,7 +1259,7 @@
                     const oldData = oldUserDoc.data();
                     
                     const ordersQuery = query(
-                        collection(db, `artifacts/${firebaseProjectId}/public/data/orders`),
+                        collection(db, 'orders'),
                         where("userId", "==", oldUserId)
                     );
                     
@@ -1254,6 +1300,35 @@
                 return { ...result.user, customUID: googleUID };
             } catch (error) {
                 console.error("Anonymous upgrade error:", error);
+                
+                // Əgər hesab artıq başqa cihaza bağlıdırsa, sadə mesaj göstər
+                if (error.code === 'auth/credential-already-in-use') {
+                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                    
+                    // Sadəcə yeni giriş et
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const googleUID = generateEmailBasedUID(result.user.email);
+                    
+                    const userDocRef = doc(db, 'users', googleUID);
+                    await setDoc(userDocRef, {
+                        email: result.user.email,
+                        displayName: result.user.displayName || result.user.email.split('@')[0],
+                        balance: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp(),
+                        googleUID: googleUID,
+                        firebaseUID: result.user.uid
+                    }, { merge: true });
+                    
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: result.user.uid,
+                        customUID: googleUID,
+                        email: result.user.email
+                    }));
+                    
+                    return { ...result.user, customUID: googleUID };
+                }
+                
                 throw error;
             }
         };
@@ -1319,7 +1394,38 @@
                 if (error.code === 'auth/popup-closed-by-user') {
                     showAlert('Google girişi ləğv edildi', 'error');
                 } else if (error.code === 'auth/credential-already-in-use') {
-                    showAlert('Bu Google hesabı artıq başqa bir hesaba bağlıdır', 'error');
+                    // Artıq başqa cihaza bağlı mesajını dəyişdik
+                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                    
+                    // Sadəcə yeni giriş et
+                    try {
+                        const result = await signInWithPopup(auth, googleProvider);
+                        const googleUID = generateEmailBasedUID(result.user.email);
+                        
+                        const userDocRef = doc(db, 'users', googleUID);
+                        await setDoc(userDocRef, {
+                            email: result.user.email,
+                            displayName: result.user.displayName || result.user.email.split('@')[0],
+                            balance: 0,
+                            createdAt: serverTimestamp(),
+                            lastLogin: serverTimestamp(),
+                            googleUID: googleUID,
+                            firebaseUID: result.user.uid
+                        }, { merge: true });
+                        
+                        localStorage.setItem('userMapping', JSON.stringify({
+                            firebaseUID: result.user.uid,
+                            customUID: googleUID,
+                            email: result.user.email
+                        }));
+                        
+                        currentUserId = googleUID;
+                        updateUserUI(result.user);
+                        await updateBalanceUI(currentUserId, false);
+                        updateWhatsAppLinks();
+                    } catch (e) {
+                        showAlert('Giriş zamanı xəta baş verdi', 'error');
+                    }
                 } else {
                     showAlert('Google girişi zamanı xəta baş verdi', 'error');
                 }
@@ -1604,12 +1710,31 @@
                     userEmail: isAnonymousUser ? null : auth.currentUser.email
                 };
 
-                const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
+                // Orders collection'a sifariş əlavə et
+                const newOrderRef = await addDoc(collection(db, 'orders'), orderData);
                 
                 showAlert(`Sifariş #${newOrderRef.id.substring(0,6)} uğurla yaradıldı!`, 'success');
                 
+                // YENİ DÜZƏLTMƏ: orders.html səhifəsinə yönləndirmək əvəzinə, formu təmizlə
                 setTimeout(() => {
-                    window.location.href = 'orders.html';
+                    // Formu təmizlə
+                    selectedCategory = null;
+                    selectedService = null;
+                    categoryDropdown.reset();
+                    serviceDropdown.reset();
+                    DOMElements.linkInput.value = '';
+                    DOMElements.quantityInput.value = '';
+                    DOMElements.kesfetNumber.value = '25';
+                    DOMElements.kesfetSlider.value = '25';
+                    updateUIDisplay();
+                    
+                    // Düyməni aktiv edək
+                    DOMElements.placeOrderButton.disabled = false;
+                    DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
+                    
+                    // Balansı yenilə
+                    updateBalanceUI(currentUserId, isAnonymousUser);
+                    
                 }, 1500);
 
             } catch (error) {
@@ -1626,10 +1751,25 @@
             if (e.target === DOMElements.topUpModal) toggleModal(false); 
         });
         
-        // Fix new order nav to scroll to top instead of redirecting
+        // YENİ DÜZƏLTMƏ: Yeni Sifariş düyməsi səhifənin başına atır - DÜZGÜN
         DOMElements.newOrderNav.addEventListener('click', (e) => { 
             e.preventDefault(); 
-            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+            // Sifariş formunun olduğu yerə scroll et
+            document.querySelector('.card-header').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Formu təmizlə
+            selectedCategory = null;
+            selectedService = null;
+            categoryDropdown.reset();
+            serviceDropdown.reset();
+            DOMElements.linkInput.value = '';
+            DOMElements.quantityInput.value = '';
+            DOMElements.kesfetNumber.value = '25';
+            DOMElements.kesfetSlider.value = '25';
+            updateUIDisplay();
         });
         
         DOMElements.headerCampaignsButton.addEventListener('click', e => { 
