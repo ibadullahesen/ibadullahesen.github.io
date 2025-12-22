@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AxtarGet Bot - Sifarişlərim</title>
+    <title>AxtarGet - Sifarişlərim</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -276,6 +276,46 @@
             position: absolute;
             left: -1rem;
         }
+        
+        /* Top-up modal styles */
+        .dialog-overlay {
+            position: fixed; 
+            inset: 0; 
+            background-color: rgba(0,0,0,0.8); 
+            z-index: 100;
+            display: none; 
+            align-items: center; 
+            justify-content: center;
+            padding: 1rem; 
+            opacity: 0; 
+            transition: opacity 0.3s ease;
+        }
+        .dialog-overlay.show { 
+            opacity: 1; 
+        }
+        .dialog-content {
+            background-color: var(--card-background); 
+            border-radius: 0.75rem; 
+            padding: 1.5rem;
+            width: 100%; 
+            max-width: 420px; 
+            position: relative;
+            transform: scale(0.95); 
+            opacity: 0; 
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .dialog-overlay.show .dialog-content { 
+            transform: scale(1); 
+            opacity: 1; 
+        }
+        .dialog-close { 
+            position: absolute; 
+            top: 1rem; 
+            right: 1rem; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            font-size: 1.5rem; 
+        }
     </style>
 </head>
 <body>
@@ -369,12 +409,12 @@
     </a>
     
     <!-- Top-up Modal -->
-    <div id="top-up-modal" class="dialog-overlay" style="display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.3s ease;">
-        <div class="dialog-content" style="background-color: #2d3748; border-radius: 0.75rem; padding: 1.5rem; width: 100%; max-width: 420px; position: relative; transform: scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease;">
-            <span id="close-top-up-modal" class="dialog-close" style="position: absolute; top: 1rem; right: 1rem; color: #a0aec0; cursor: pointer; font-size: 1.5rem;">&times;</span>
+    <div id="top-up-modal" class="dialog-overlay">
+        <div class="dialog-content">
+            <span id="close-top-up-modal" class="dialog-close">&times;</span>
             <div class="dialog-header">
-                <h3 class="dialog-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Balans Artır</h3>
-                <p class="dialog-description" style="color: #a0aec0; margin-bottom: 1rem;">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
+                <h3 class="dialog-title">Balans Artır</h3>
+                <p class="dialog-description">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
             </div>
             <div class="space-y-4">
                 <div class="bg-gray-700 p-4 rounded-lg text-center">
@@ -439,6 +479,17 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+
+        // Email-based UID generator (MUST BE THE SAME AS IN INDEX.HTML)
+        const generateEmailBasedUID = (email) => {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                const char = email.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return `google_${Math.abs(hash).toString(16)}`;
+        };
 
         let currentUserId = null;
         const ADMIN_WHATSAPP_NUMBER = "994606006162";
@@ -516,7 +567,10 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
                 
-                const userDocRef = doc(db, 'users', user.uid);
+                // Generate consistent UID from email
+                const googleUID = generateEmailBasedUID(user.email);
+                
+                const userDocRef = doc(db, 'users', googleUID);
                 const userDoc = await getDoc(userDocRef);
                 
                 if (!userDoc.exists()) {
@@ -525,20 +579,35 @@
                         displayName: user.displayName || user.email.split('@')[0],
                         balance: 0,
                         createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp()
+                        lastLogin: serverTimestamp(),
+                        googleUID: googleUID,
+                        firebaseUID: user.uid
                     });
                 } else {
                     await updateDoc(userDocRef, {
-                        lastLogin: serverTimestamp()
+                        lastLogin: serverTimestamp(),
+                        firebaseUID: user.uid
                     });
                 }
                 
+                // Store the mapping
+                localStorage.setItem('userMapping', JSON.stringify({
+                    firebaseUID: user.uid,
+                    customUID: googleUID,
+                    email: user.email
+                }));
+                
                 showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
                 updateUserUI(user);
-                currentUserId = user.uid;
+                currentUserId = googleUID;
                 
                 // Siparişleri yeniden yükle
                 loadOrders(currentUserId, currentFilter);
+                
+                // WhatsApp linkini güncelle
+                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
                 
             } catch (error) {
                 console.error('Google giriş xətası:', error);
@@ -551,11 +620,19 @@
                 await signOut(auth);
                 showAlert('Uğurla çıxış edildi', 'success');
                 
+                // Clear user mapping
+                localStorage.removeItem('userMapping');
+                
                 const cred = await signInAnonymously(auth);
                 currentUserId = cred.user.uid;
                 updateUserUI(cred.user);
                 
                 loadOrders(currentUserId, currentFilter);
+                
+                // WhatsApp linkini güncelle
+                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
                 
             } catch (error) {
                 console.error('Çıxış xətası:', error);
@@ -646,7 +723,38 @@
         
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                currentUserId = user.uid;
+                let customUID = user.uid;
+                let isAnon = user.isAnonymous;
+                
+                if (!user.isAnonymous && user.email) {
+                    // Google user - check for mapping or create one
+                    const mapping = localStorage.getItem('userMapping');
+                    if (mapping) {
+                        const mapData = JSON.parse(mapping);
+                        if (mapData.firebaseUID === user.uid) {
+                            customUID = mapData.customUID;
+                        } else {
+                            // Create new mapping for this Google user
+                            customUID = generateEmailBasedUID(user.email);
+                            localStorage.setItem('userMapping', JSON.stringify({
+                                firebaseUID: user.uid,
+                                customUID: customUID,
+                                email: user.email
+                            }));
+                        }
+                    } else {
+                        // Create new mapping
+                        customUID = generateEmailBasedUID(user.email);
+                        localStorage.setItem('userMapping', JSON.stringify({
+                            firebaseUID: user.uid,
+                            customUID: customUID,
+                            email: user.email
+                        }));
+                    }
+                    isAnon = false;
+                }
+                
+                currentUserId = customUID;
                 updateUserUI(user);
                 loadOrders(currentUserId, currentFilter);
                 
