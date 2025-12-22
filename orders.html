@@ -92,6 +92,9 @@
             font-size: 0.8rem;
             text-decoration: none;
             transition: color 0.2s ease;
+            background: none;
+            border: none;
+            cursor: pointer;
         }
         .nav-item i {
             font-size: 1.5rem;
@@ -188,7 +191,6 @@
             transform: scale(1.1);
         }
         
-        /* User info header */
         .user-header {
             display: flex;
             align-items: center;
@@ -241,7 +243,6 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        /* Warning info box */
         .warning-info-box {
             background-color: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
@@ -277,7 +278,6 @@
             left: -1rem;
         }
         
-        /* Top-up modal styles */
         .dialog-overlay {
             position: fixed; 
             inset: 0; 
@@ -291,6 +291,7 @@
             transition: opacity 0.3s ease;
         }
         .dialog-overlay.show { 
+            display: flex;
             opacity: 1; 
         }
         .dialog-content {
@@ -317,7 +318,6 @@
             font-size: 1.5rem; 
         }
         
-        /* User ID badge */
         .user-id-badge {
             background: rgba(52, 211, 153, 0.1);
             border: 1px solid rgba(52, 211, 153, 0.3);
@@ -329,7 +329,6 @@
             margin-top: 0.5rem;
         }
         
-        /* Balans göstəricisi */
         .balance-display {
             background-color: rgba(52, 211, 153, 0.1);
             border: 1px solid rgba(52, 211, 153, 0.3);
@@ -365,7 +364,6 @@
 
     <div class="main-content pt-24">
         <div class="container">
-            <!-- User info header -->
             <div id="user-info-header" class="user-header hidden">
                 <div class="user-info">
                     <div class="avatar" id="user-avatar">
@@ -384,13 +382,11 @@
                 </button>
             </div>
             
-            <!-- Balans göstəricisi -->
             <div class="balance-display">
                 <div class="label">Cari Balans</div>
                 <div class="amount" id="current-balance">0.0000 AZN</div>
             </div>
             
-            <!-- Warning info box -->
             <div id="warning-info-box" class="warning-info-box hidden">
                 <div class="title">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -407,22 +403,18 @@
                 </div>
             </div>
             
-            <!-- Anonim ID display -->
             <div id="anon-id-container" class="card mb-4 hidden">
-                <div class="card-content">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-muted">Anonim İstifadəçi ID</p>
-                            <p id="anon-id-display" class="font-mono text-lg font-semibold">Yüklənir...</p>
-                        </div>
-                        <button id="copy-anon-id" class="btn btn-secondary p-2" title="ID-ni kopyala">
-                            <i class="fas fa-copy"></i>
-                        </button>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-muted">Anonim İstifadəçi ID</p>
+                        <p id="anon-id-display" class="font-mono text-lg font-semibold">Yüklənir...</p>
                     </div>
+                    <button id="copy-anon-id" class="btn btn-secondary p-2" title="ID-ni kopyala">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
             </div>
             
-            <!-- Tab Navigasyon -->
             <div class="tab-nav">
                 <div class="tab-item active" id="new-orders-tab" data-filter="new">Yeni Sifarişlər</div>
                 <div class="tab-item" id="all-orders-tab" data-filter="all">Bütün Sifarişlər</div>
@@ -458,18 +450,16 @@
 
     <div id="alert-container"></div>
 
-    <!-- Floating WhatsApp Bubble -->
     <a href="#" id="floating-whatsapp-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Dəstək üçün WhatsApp">
         <i class="fab fa-whatsapp text-3xl"></i>
     </a>
     
-    <!-- Top-up Modal -->
     <div id="top-up-modal" class="dialog-overlay">
         <div class="dialog-content">
             <span id="close-top-up-modal" class="dialog-close">&times;</span>
-            <div class="dialog-header">
-                <h3 class="dialog-title">Balans Artır</h3>
-                <p class="dialog-description">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
+            <div class="dialog-header mb-4">
+                <h3 class="text-xl font-bold">Balans Artır</h3>
+                <p class="text-sm text-muted">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
             </div>
             <div class="space-y-4">
                 <div class="bg-gray-700 p-4 rounded-lg text-center">
@@ -477,18 +467,11 @@
                     <p class="text-sm text-muted mb-2">Kapital Bank Kartı</p>
                     <p id="bank-card-number" class="text-xl font-bold font-mono tracking-widest">4169 7388 7208 5778</p>
                 </div>
-                <div class="alert" style="background-color: rgba(251, 191, 36, 0.1); color: #facc15; padding: 0.75rem; border-radius: 0.5rem; display: flex; align-items: start;">
+                <div style="background-color: rgba(251, 191, 36, 0.1); color: #facc15; padding: 0.75rem; border-radius: 0.5rem; display: flex; align-items: start;">
                     <i class="fas fa-info-circle mt-1"></i>
                     <p class="text-sm ml-2">Ödənişdən sonra çeki <strong>060-600-61-62</strong> nömrəsinə WhatsApp ilə göndərin. Balansınız 5-15 dəqiqə ərzində yüklənəcək.</p>
                 </div>
-                <div class="bg-primary/10 p-3 rounded-lg text-sm">
-                     <p class="font-medium text-primary">🎁 Bonus Kampaniyası:</p>
-                     <ul class="text-xs text-muted mt-1 space-y-1 list-disc list-inside">
-                        <li>11-100 AZN: <strong>+3% bonus</strong></li>
-                        <li>101+ AZN: <strong>+6% bonus</strong></li>
-                     </ul>
-                </div>
-                <a id="whatsapp-topup-link" href="#" target="_blank" class="btn w-full flex items-center space-x-2" style="background-color: #25D366; color: white; padding: 0.75rem; border-radius: 0.5rem; text-align: center; display: block;">
+                <a id="whatsapp-topup-link" href="#" target="_blank" class="btn w-full flex items-center justify-center space-x-2" style="background-color: #25D366; color: white; padding: 0.75rem; border-radius: 0.5rem; text-align: center; display: block;">
                     <i class="fab fa-whatsapp"></i>
                     <span>WhatsApp-a Göndər</span>
                 </a>
@@ -520,10 +503,7 @@
             updateDoc,
             serverTimestamp,
             getDocs,
-            writeBatch,
-            initializeFirestore,
-            persistentLocalCache,
-            persistentMultipleTabManager
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -534,33 +514,18 @@
             messagingSenderId: "808698399196",
             appId: "1:808698399196:web:61b6be0721b94f24c3a719"
         };
+        const firebaseProjectId = firebaseConfig.projectId;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        
-        // Firestore'u persistent cache ilə başlat
-        const db = initializeFirestore(app, {
-            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-        });
-        
+        const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // Email-based UID generator (MUST BE THE SAME AS IN INDEX.HTML)
-        const generateEmailBasedUID = (email) => {
-            let hash = 0;
-            for (let i = 0; i < email.length; i++) {
-                const char = email.charCodeAt(i);
-                hash = ((hash << 5) - hash) + char;
-                hash = hash & hash;
-            }
-            return `google_${Math.abs(hash).toString(16)}`;
-        };
+        const PAYMENT_WHATSAPP_NUMBER = '994606006162';
 
         let currentUserId = null;
-        const ADMIN_WHATSAPP_NUMBER = "994606006162";
-        let currentFilter = 'new';
         let isAnonymousUser = true;
-        let userDocData = null;
+        let currentFilter = 'new';
 
         const ordersList = document.getElementById('orders-list');
         const noOrdersMessage = document.getElementById('no-orders-message');
@@ -574,92 +539,33 @@
         const whatsappTopUpLink = document.getElementById('whatsapp-topup-link');
         const userInfoHeader = document.getElementById('user-info-header');
         const warningInfoBox = document.getElementById('warning-info-box');
-        const userAvatar = document.getElementById('user-avatar');
-        const avatarInitials = document.getElementById('avatar-initials');
-        const userDisplayName = document.getElementById('user-display-name');
-        const userEmail = document.getElementById('user-email');
-        const userIdValue = document.getElementById('user-id-value');
-        const logoutButton = document.getElementById('logout-button');
+        const anonIdContainer = document.getElementById('anon-id-container');
         const googleAuthButton = document.getElementById('google-auth-button');
         const googleAuthWarningBtn = document.getElementById('google-auth-warning-btn');
-        const anonIdContainer = document.getElementById('anon-id-container');
-        const anonIdDisplay = document.getElementById('anon-id-display');
-        const copyAnonIdBtn = document.getElementById('copy-anon-id');
-        const currentBalanceDisplay = document.getElementById('current-balance');
+        const logoutButton = document.getElementById('logout-button');
+        const currentBalance = document.getElementById('current-balance');
 
-        function showAlert(message, type = 'error', duration = 3000) {
-            const alertBox = document.createElement('div');
-            alertBox.className = `alert-message ${type}`;
-            alertBox.innerHTML = message; 
-            
-            const existingAlerts = document.querySelectorAll('.alert-message');
-            existingAlerts.forEach(alert => alert.remove());
-
-            alertContainer.appendChild(alertBox);
+        function showAlert(message, type = 'error') {
+            const alert = document.createElement('div');
+            alert.className = `alert-message ${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            setTimeout(() => alert.classList.add('show'), 10);
             setTimeout(() => {
-                alertBox.classList.add('show');
-            }, 10);
-            setTimeout(() => {
-                alertBox.classList.remove('show');
-                alertBox.addEventListener('transitionend', () => alertBox.remove(), { once: true });
-            }, duration);
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            }, 3000);
         }
 
-        // YENİ: Collection avtomatik yaradılması üçün funksiya
-        const ensureCollectionsExist = async (userId) => {
-            try {
-                // Users collection üçün avtomatik yaradılma
-                const userDocRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (!userDoc.exists()) {
-                    const userData = {
-                        balance: 0,
-                        createdAt: serverTimestamp(),
-                        isAnonymous: true,
-                        lastLogin: serverTimestamp()
-                    };
-                    
-                    // Əgər Google istifadəçisidirsə
-                    const user = auth.currentUser;
-                    if (user && !user.isAnonymous && user.email) {
-                        userData.email = user.email;
-                        userData.displayName = user.displayName || user.email.split('@')[0];
-                        userData.isAnonymous = false;
-                    }
-                    
-                    await setDoc(userDocRef, userData);
-                    console.log('User document avtomatik yaradıldı:', userId);
-                }
-                
-                // Orders collection üçün avtomatik yoxlama
-                // Firebase Firestore-da collection'lar avtomatik yaranır,
-                // ilk dəfə istifadə edildikdə
-                
-            } catch (error) {
-                console.error('Collections yoxlanılarkən xəta:', error);
+        function toggleModal(show) {
+            if (show) {
+                topUpModal.style.display = 'flex';
+                setTimeout(() => topUpModal.classList.add('show'), 10);
+            } else {
+                topUpModal.classList.remove('show');
+                setTimeout(() => topUpModal.style.display = 'none', 300);
             }
-        };
-
-        // YENİ: Balansı yenilə
-        const updateBalanceDisplay = async (userId) => {
-            try {
-                await ensureCollectionsExist(userId);
-                const userDocRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const balance = userData.balance || 0;
-                    currentBalanceDisplay.textContent = `${balance.toFixed(4)} AZN`;
-                } else {
-                    currentBalanceDisplay.textContent = '0.0000 AZN';
-                }
-            } catch (error) {
-                console.error('Balans yenilənərkən xəta:', error);
-                currentBalanceDisplay.textContent = '0.0000 AZN';
-            }
-        };
+        }
 
         function updateUserUI(user) {
             if (user && !user.isAnonymous) {
@@ -672,247 +578,59 @@
                 const email = user.email;
                 
                 const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
-                avatarInitials.textContent = initials;
+                document.getElementById('avatar-initials').textContent = initials;
                 
-                userDisplayName.textContent = displayName;
-                userEmail.textContent = email;
-                userIdValue.textContent = currentUserId;
+                document.getElementById('user-display-name').textContent = displayName;
+                document.getElementById('user-email').textContent = email;
+                document.getElementById('user-id-value').textContent = user.uid;
                 
                 googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
                 googleAuthButton.title = 'Google hesabı ilə giriş edilib';
-                
             } else {
                 isAnonymousUser = true;
                 userInfoHeader.classList.add('hidden');
                 warningInfoBox.classList.remove('hidden');
                 anonIdContainer.classList.remove('hidden');
                 
-                anonIdDisplay.textContent = currentUserId || 'Yüklənir...';
+                const userId = user ? user.uid : 'N/A';
+                document.getElementById('anon-id-display').textContent = userId;
                 
                 googleAuthButton.innerHTML = '<i class="fab fa-google"></i>';
                 googleAuthButton.title = 'Google hesabı ilə giriş et';
             }
-            
-            // Balansı yenilə
-            if (currentUserId) {
-                updateBalanceDisplay(currentUserId);
-            }
         }
 
-        async function upgradeAnonymousToGoogle(anonymousUser, googleCredential) {
+        async function updateBalanceUI(userId, isAnon) {
             try {
-                const result = await linkWithCredential(anonymousUser, googleCredential);
-                
-                const oldUserId = anonymousUser.uid;
-                const googleUID = generateEmailBasedUID(result.user.email);
-                
-                const oldUserDocRef = doc(db, 'users', oldUserId);
-                const oldUserDoc = await getDoc(oldUserDocRef);
-                
-                if (oldUserDoc.exists()) {
-                    const oldData = oldUserDoc.data();
-                    
-                    const ordersQuery = query(
-                        collection(db, 'orders'),
-                        where("userId", "==", oldUserId)
-                    );
-                    
-                    const ordersSnapshot = await getDocs(ordersQuery);
-                    const batch = writeBatch(db);
-                    
-                    ordersSnapshot.forEach((orderDoc) => {
-                        const orderRef = orderDoc.ref;
-                        batch.update(orderRef, { 
-                            userId: googleUID,
-                            userEmail: result.user.email 
-                        });
-                    });
-                    
-                    const newUserDocRef = doc(db, 'users', googleUID);
-                    await setDoc(newUserDocRef, {
-                        ...oldData,
-                        email: result.user.email,
-                        displayName: result.user.displayName || result.user.email.split('@')[0],
-                        upgradedFromAnonymous: true,
-                        originalAnonymousId: oldUserId,
-                        lastLogin: serverTimestamp(),
-                        googleUID: googleUID,
-                        firebaseUID: result.user.uid
-                    });
-                    
-                    batch.delete(oldUserDocRef);
-                    await batch.commit();
-                    
-                    localStorage.removeItem('anonUserData');
-                    localStorage.setItem('userMapping', JSON.stringify({
-                        firebaseUID: result.user.uid,
-                        customUID: googleUID,
-                        email: result.user.email
-                    }));
-                }
-                
-                return { ...result.user, customUID: googleUID };
-            } catch (error) {
-                console.error("Anonymous upgrade error:", error);
-                
-                // Əgər hesab artıq başqa cihaza bağlıdırsa, sadə mesaj göstər
-                if (error.code === 'auth/credential-already-in-use') {
-                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                    
-                    // Sadəcə yeni giriş et
-                    const result = await signInWithPopup(auth, googleProvider);
-                    const googleUID = generateEmailBasedUID(result.user.email);
-                    
-                    const userDocRef = doc(db, 'users', googleUID);
-                    await setDoc(userDocRef, {
-                        email: result.user.email,
-                        displayName: result.user.displayName || result.user.email.split('@')[0],
-                        balance: 0,
-                        createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp(),
-                        googleUID: googleUID,
-                        firebaseUID: result.user.uid
-                    }, { merge: true });
-                    
-                    localStorage.setItem('userMapping', JSON.stringify({
-                        firebaseUID: result.user.uid,
-                        customUID: googleUID,
-                        email: result.user.email
-                    }));
-                    
-                    return { ...result.user, customUID: googleUID };
-                }
-                
-                throw error;
-            }
-        }
-
-        async function signInWithGoogle() {
-            try {
-                const user = auth.currentUser;
-                
-                if (user && user.isAnonymous) {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    const googleCredential = GoogleAuthProvider.credentialFromResult(result);
-                    
-                    const upgradedUser = await upgradeAnonymousToGoogle(user, googleCredential);
-                    
-                    showAlert('Google hesabı ilə uğurla qeydiyyatdan keçdiniz! Anonim hesabınız Google hesabınıza bağlandı.', 'success');
-                    
-                    currentUserId = upgradedUser.customUID;
-                    updateUserUI(upgradedUser);
-                    loadOrders(currentUserId, currentFilter);
-                    
-                } else {
-                    const result = await signInWithPopup(auth, googleProvider);
-                    const googleUser = result.user;
-                    const googleUID = generateEmailBasedUID(googleUser.email);
-                    
-                    const userDocRef = doc(db, 'users', googleUID);
-                    const userDoc = await getDoc(userDocRef);
-                    
-                    if (!userDoc.exists()) {
-                        await setDoc(userDocRef, {
-                            email: googleUser.email,
-                            displayName: googleUser.displayName || googleUser.email.split('@')[0],
-                            balance: 0,
-                            createdAt: serverTimestamp(),
-                            lastLogin: serverTimestamp(),
-                            googleUID: googleUID,
-                            firebaseUID: googleUser.uid
-                        });
+                if (isAnon) {
+                    const storedData = localStorage.getItem('anonUserData');
+                    if (storedData) {
+                        const data = JSON.parse(storedData);
+                        currentBalance.textContent = (data.balance || 0).toFixed(4) + ' AZN';
                     } else {
-                        await updateDoc(userDocRef, {
-                            lastLogin: serverTimestamp(),
-                            firebaseUID: googleUser.uid
-                        });
-                    }
-                    
-                    localStorage.setItem('userMapping', JSON.stringify({
-                        firebaseUID: googleUser.uid,
-                        customUID: googleUID,
-                        email: googleUser.email
-                    }));
-                    
-                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                    currentUserId = googleUID;
-                    updateUserUI(googleUser);
-                    loadOrders(currentUserId, currentFilter);
-                }
-                
-                updateWhatsAppLinks();
-                
-            } catch (error) {
-                console.error('Google giriş xətası:', error);
-                
-                if (error.code === 'auth/credential-already-in-use') {
-                    // Artıq başqa cihaza bağlı mesajını dəyişdik
-                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                    
-                    // Sadəcə yeni giriş et
-                    try {
-                        const result = await signInWithPopup(auth, googleProvider);
-                        const googleUID = generateEmailBasedUID(result.user.email);
-                        
-                        const userDocRef = doc(db, 'users', googleUID);
-                        await setDoc(userDocRef, {
-                            email: result.user.email,
-                            displayName: result.user.displayName || result.user.email.split('@')[0],
-                            balance: 0,
-                            createdAt: serverTimestamp(),
-                            lastLogin: serverTimestamp(),
-                            googleUID: googleUID,
-                            firebaseUID: result.user.uid
-                        }, { merge: true });
-                        
-                        localStorage.setItem('userMapping', JSON.stringify({
-                            firebaseUID: result.user.uid,
-                            customUID: googleUID,
-                            email: result.user.email
-                        }));
-                        
-                        currentUserId = googleUID;
-                        updateUserUI(result.user);
-                        loadOrders(currentUserId, currentFilter);
-                        updateWhatsAppLinks();
-                    } catch (e) {
-                        showAlert('Giriş zamanı xəta baş verdi', 'error');
+                        currentBalance.textContent = '0.0000 AZN';
                     }
                 } else {
-                    showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+                    const userDocRef = doc(db, 'users', userId);
+                    const userDoc = await getDoc(userDocRef);
+                    if (userDoc.exists()) {
+                        const balance = userDoc.data().balance || 0;
+                        currentBalance.textContent = balance.toFixed(4) + ' AZN';
+                    } else {
+                        currentBalance.textContent = '0.0000 AZN';
+                    }
                 }
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-                showAlert('Uğurla çıxış edildi', 'success');
-                
-                localStorage.removeItem('userMapping');
-                
-                const cred = await signInAnonymously(auth);
-                currentUserId = cred.user.uid;
-                updateUserUI(cred.user);
-                
-                loadOrders(currentUserId, currentFilter);
-                updateWhatsAppLinks();
-                
             } catch (error) {
-                console.error('Çıxış xətası:', error);
-                showAlert('Çıxış zamanı xəta baş verdi', 'error');
+                console.error('Balance update error:', error);
+                currentBalance.textContent = '0.0000 AZN';
             }
         }
 
         async function loadOrders(userId, filter) {
-            ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
-            
-            await ensureCollectionsExist(userId);
-            
-            let ordersColRef = collection(db, 'orders');
-            let q;
-
             try {
+                let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
+                let q;
+
                 if (filter === 'new') {
                     q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
                 } else {
@@ -928,7 +646,7 @@
                         snapshot.forEach(docSnapshot => { 
                             const order = docSnapshot.data(); 
                             const orderId = docSnapshot.id; 
-                            const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
+                            const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString('az-AZ') : 'N/A';
                             
                             let statusClass = '';
                             switch(order.status) {
@@ -959,7 +677,7 @@
                                 <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
                                 <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
                                 <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
-                                <p class="text-gray-300 text-sm">Sifariş Tarihi: ${timestamp}</p>
+                                <p class="text-gray-300 text-sm">Sifariş Tarixi: ${timestamp}</p>
                                 <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
                                 <button class="report-problem-button mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors duration-300" data-order-id="${orderId}">
                                     Problem Bildir
@@ -978,112 +696,134 @@
                                     whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Anonim İstifadəçi ID: ${userId}.`;
                                 } else {
                                     const userEmail = auth.currentUser?.email || '';
-                                    whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. İstifadəçi ID: ${userId}. E-mail: ${userEmail}`;
+                                    whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. E-mail: ${userEmail}.`;
                                 }
                                 
-                                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
-                                window.open(whatsappUrl, '_blank');
+                                window.open(`https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
                             });
                         });
                     }
-                }, (error) => {
-                    console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
-                    ordersList.innerHTML = '<p class="text-center text-red-400">Sifarişləri yükləmək mümkün olmadı. Zəhmət olmasa yenidən cəhd edin.</p>';
                 });
             } catch (error) {
-                console.error("Sifariş query xətası:", error);
-                ordersList.innerHTML = '<p class="text-center text-red-400">Sifarişləri yükləmək mümkün olmadı.</p>';
+                console.error('Orders load error:', error);
+                showAlert('Sifarişlər yüklənərkən xəta baş verdi.', 'error');
             }
         }
-        
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                let customUID = user.uid;
-                
-                if (!user.isAnonymous && user.email) {
-                    // Google user - use email-based UID
-                    const mapping = localStorage.getItem('userMapping');
-                    if (mapping) {
-                        const mapData = JSON.parse(mapping);
-                        if (mapData.firebaseUID === user.uid) {
-                            customUID = mapData.customUID;
-                        } else {
-                            customUID = generateEmailBasedUID(user.email);
-                            localStorage.setItem('userMapping', JSON.stringify({
-                                firebaseUID: user.uid,
-                                customUID: customUID,
-                                email: user.email
-                            }));
-                        }
-                    } else {
-                        customUID = generateEmailBasedUID(user.email);
-                        localStorage.setItem('userMapping', JSON.stringify({
-                            firebaseUID: user.uid,
-                            customUID: customUID,
-                            email: user.email
-                        }));
-                    }
-                    isAnonymousUser = false;
-                } else {
-                    // Anonymous user
-                    isAnonymousUser = true;
-                    
-                    // Check for existing anon data in localStorage
-                    const storedAnonData = localStorage.getItem('anonUserData');
-                    if (storedAnonData) {
-                        try {
-                            const data = JSON.parse(storedAnonData);
-                            const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
-                            
-                            if (hoursElapsed < 24) {
-                                // Keep same anon ID if less than 24 hours
-                                customUID = data.uid;
-                            } else {
-                                // More than 24 hours, create new anon data
-                                localStorage.removeItem('anonUserData');
-                                localStorage.setItem('anonUserData', JSON.stringify({
-                                    uid: user.uid,
-                                    timestamp: Date.now(),
-                                    isAnonymous: true
-                                }));
-                            }
-                        } catch (e) {
-                            console.error('Error parsing stored anon data:', e);
-                            localStorage.setItem('anonUserData', JSON.stringify({
-                                uid: user.uid,
-                                timestamp: Date.now(),
-                                isAnonymous: true
-                            }));
-                        }
-                    } else {
-                        localStorage.setItem('anonUserData', JSON.stringify({
-                            uid: user.uid,
-                            timestamp: Date.now(),
-                            isAnonymous: true
-                        }));
-                    }
-                }
-                
-                currentUserId = customUID;
-                updateUserUI(user);
-                loadOrders(currentUserId, currentFilter);
-                updateWhatsAppLinks();
-                
-            } else {
-                try {
-                    const cred = await signInAnonymously(auth);
-                    currentUserId = cred.user.uid;
-                    updateUserUI(cred.user);
-                    loadOrders(currentUserId, currentFilter);
-                    updateWhatsAppLinks();
-                } catch (error) {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
-                }
-            }
-        });
 
-        const updateWhatsAppLinks = () => {
+        const upgradeAnonymousToGoogle = async (anonymousUser, googleCredential) => {
+            try {
+                const result = await linkWithCredential(anonymousUser, googleCredential);
+                
+                const oldUserId = anonymousUser.uid;
+                const newUserId = result.user.uid;
+                
+                const oldUserDocRef = doc(db, 'users', oldUserId);
+                const oldUserDoc = await getDoc(oldUserDocRef);
+                
+                if (oldUserDoc.exists()) {
+                    const oldData = oldUserDoc.data();
+                    
+                    const ordersQuery = query(
+                        collection(db, `artifacts/${firebaseProjectId}/public/data/orders`),
+                        where("userId", "==", oldUserId)
+                    );
+                    
+                    const ordersSnapshot = await getDocs(ordersQuery);
+                    const batch = writeBatch(db);
+                    
+                    ordersSnapshot.forEach((orderDoc) => {
+                        const orderRef = orderDoc.ref;
+                        batch.update(orderRef, { 
+                            userId: newUserId,
+                            userEmail: result.user.email 
+                        });
+                    });
+                    
+                    const newUserDocRef = doc(db, 'users', newUserId);
+                    await setDoc(newUserDocRef, {
+                        ...oldData,
+                        email: result.user.email,
+                        displayName: result.user.displayName || result.user.email.split('@')[0],
+                        upgradedFromAnonymous: true,
+                        originalAnonymousId: oldUserId,
+                        lastLogin: serverTimestamp()
+                    });
+                    
+                    batch.delete(oldUserDocRef);
+                    await batch.commit();
+                    
+                    localStorage.removeItem('anonUserData');
+                }
+                
+                return result.user;
+            } catch (error) {
+                console.error("Anonymous upgrade error:", error);
+                throw error;
+            }
+        };
+
+        const signInWithGoogle = async () => {
+            try {
+                const user = auth.currentUser;
+                
+                if (user && user.isAnonymous) {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const googleCredential = GoogleAuthProvider.credentialFromResult(result);
+                    
+                    const upgradedUser = await upgradeAnonymousToGoogle(user, googleCredential);
+                    
+                    showAlert('Uğurla qeydiyyatdan keçdiniz!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                    
+                } else {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const googleUser = result.user;
+                    
+                    const userDocRef = doc(db, 'users', googleUser.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (!userDoc.exists()) {
+                        await setDoc(userDocRef, {
+                            email: googleUser.email,
+                            displayName: googleUser.displayName || googleUser.email.split('@')[0],
+                            balance: 0,
+                            createdAt: serverTimestamp(),
+                            lastLogin: serverTimestamp()
+                        });
+                    } else {
+                        await updateDoc(userDocRef, {
+                            lastLogin: serverTimestamp()
+                        });
+                    }
+                    
+                    showAlert('Uğurla giriş etdiniz!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+                
+            } catch (error) {
+                console.error('Google giriş xətası:', error);
+                showAlert('Giriş zamanı xəta baş verdi.', 'error');
+            }
+        };
+
+        const handleLogout = async () => {
+            try {
+                await signOut(auth);
+                showAlert('Uğurla çıxış edildi', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (error) {
+                console.error('Çıxış xətası:', error);
+                showAlert('Çıxış zamanı xəta baş verdi', 'error');
+            }
+        };
+
+        function updateWhatsAppLinks() {
             if (!currentUserId) return;
             
             let whatsappText;
@@ -1095,85 +835,72 @@
                 whatsappText = `Salam, mənim istifadəçi ID-m: ${currentUserId}. E-mail: ${userEmail}. Balans artırmaq istəyirəm.`;
             }
             
-            whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
-            floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
-        };
+            whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
+            floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            let authUser = user;
+            
+            if (!authUser) {
+                try {
+                    const cred = await signInAnonymously(auth);
+                    authUser = cred.user;
+                } catch (e) { 
+                    console.error("Anonim girişdə xəta:", e); 
+                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
+                    return;
+                }
+            }
+            
+            if (authUser) {
+                currentUserId = authUser.uid;
+                
+                updateUserUI(authUser);
+                
+                const isAnon = authUser.isAnonymous;
+                
+                await updateBalanceUI(currentUserId, isAnon);
+                
+                if (isAnon) {
+                    const storedData = localStorage.getItem('anonUserData');
+                    if (!storedData) {
+                        const anonData = {
+                            uid: authUser.uid,
+                            balance: 0,
+                            timestamp: Date.now()
+                        };
+                        localStorage.setItem('anonUserData', JSON.stringify(anonData));
+                    }
+                }
+                
+                updateWhatsAppLinks();
+                loadOrders(currentUserId, currentFilter);
+            }
+        });
 
         newOrdersTab.addEventListener('click', () => {
-            if (newOrdersTab.classList.contains('active')) return;
+            currentFilter = 'new';
             newOrdersTab.classList.add('active');
             allOrdersTab.classList.remove('active');
-            currentFilter = 'new';
-            loadOrders(currentUserId, currentFilter);
+            if (currentUserId) loadOrders(currentUserId, currentFilter);
         });
 
         allOrdersTab.addEventListener('click', () => {
-            if (allOrdersTab.classList.contains('active')) return;
+            currentFilter = 'all';
             allOrdersTab.classList.add('active');
             newOrdersTab.classList.remove('active');
-            currentFilter = 'all';
-            loadOrders(currentUserId, currentFilter);
+            if (currentUserId) loadOrders(currentUserId, currentFilter);
         });
-
-        function toggleModal(show) {
-            if (show) {
-                topUpModal.style.display = 'flex';
-                setTimeout(() => topUpModal.classList.add('show'), 10);
-            } else {
-                topUpModal.classList.remove('show');
-                topUpModal.addEventListener('transitionend', () => {
-                    if (!topUpModal.classList.contains('show')) topUpModal.style.display = 'none';
-                }, { once: true });
-            }
-        }
-
-        if (floatingWhatsappBubble) {
-            floatingWhatsappBubble.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (currentUserId) {
-                    let whatsappMessage;
-                    if (isAnonymousUser) {
-                        whatsappMessage = `Salam, dəstəyə ehtiyacım var. Anonim İstifadəçi ID-m: ${currentUserId}.`;
-                    } else {
-                        whatsappMessage = `Salam, dəstəyə ehtiyacım var. İstifadəçi ID-m: ${currentUserId}.`;
-                    }
-                    const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
-                    window.open(whatsappUrl, '_blank');
-                } else {
-                    showAlert("İstifadəçi ID-si hələ yüklənməyib. Zəhmət olmasa səhifəni yeniləyin.", 'error');
-                }
-            });
-        }
 
         bottomNavTopUp.addEventListener('click', () => toggleModal(true));
         closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
-        topUpModal.addEventListener('click', (e) => { 
-            if (e.target === topUpModal) toggleModal(false); 
-        });
+        topUpModal.addEventListener('click', (e) => { if (e.target === topUpModal) toggleModal(false); });
         
         googleAuthButton.addEventListener('click', signInWithGoogle);
         googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
         logoutButton.addEventListener('click', handleLogout);
-
-        copyAnonIdBtn.addEventListener('click', () => {
-            const idToCopy = currentUserId;
-            if (idToCopy && idToCopy !== 'Yüklənir...') {
-                navigator.clipboard.writeText(idToCopy).then(() => {
-                    showAlert('ID kopyalandı!', 'success', 2000);
-                }).catch(err => {
-                    console.error('Kopyalama xətası:', err);
-                    showAlert('Kopyalama uğursuz oldu', 'error');
-                });
-            }
-        });
-
-        // Hər dəqiqə balansı yenilə
-        setInterval(() => {
-            if (currentUserId) {
-                updateBalanceDisplay(currentUserId);
-            }
-        }, 60000); // Hər dəqiqə
-
+        
     </script>
 </body>
 </html>
