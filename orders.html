@@ -316,6 +316,18 @@
             cursor: pointer; 
             font-size: 1.5rem; 
         }
+        
+        /* User ID badge */
+        .user-id-badge {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -343,6 +355,9 @@
                     <div class="details">
                         <div class="name" id="user-display-name">Google İstifadəçisi</div>
                         <div class="email" id="user-email">email@example.com</div>
+                        <div class="user-id-badge" id="user-id-display">
+                            ID: <span id="user-id-value">Yüklənir...</span>
+                        </div>
                     </div>
                 </div>
                 <button id="logout-button" class="auth-btn" title="Çıxış et">
@@ -364,6 +379,21 @@
                         <li>Balansınız 24 saatdan sonra sıfırlana bilər</li>
                     </ul>
                     <p class="mt-2">Bu problemlərdən qurtulmaq üçün <button id="google-auth-warning-btn" class="text-primary font-semibold hover:underline">Google hesabı ilə qeydiyyatdan keçin</button>.</p>
+                </div>
+            </div>
+            
+            <!-- Anonim ID display -->
+            <div id="anon-id-container" class="card mb-4 hidden">
+                <div class="card-content">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-muted">Anonim İstifadəçi ID</p>
+                            <p id="anon-id-display" class="font-mono text-lg font-semibold">Yüklənir...</p>
+                        </div>
+                        <button id="copy-anon-id" class="btn btn-secondary p-2" title="ID-ni kopyala">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             
@@ -449,7 +479,8 @@
             onAuthStateChanged, 
             signInWithPopup, 
             GoogleAuthProvider, 
-            signOut 
+            signOut,
+            linkWithCredential
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore, 
@@ -462,7 +493,9 @@
             getDoc,
             setDoc,
             updateDoc,
-            serverTimestamp
+            serverTimestamp,
+            getDocs,
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -495,6 +528,7 @@
         const ADMIN_WHATSAPP_NUMBER = "994606006162";
         let currentFilter = 'new';
         let isAnonymousUser = true;
+        let userDocData = null;
 
         const ordersList = document.getElementById('orders-list');
         const noOrdersMessage = document.getElementById('no-orders-message');
@@ -512,9 +546,13 @@
         const avatarInitials = document.getElementById('avatar-initials');
         const userDisplayName = document.getElementById('user-display-name');
         const userEmail = document.getElementById('user-email');
+        const userIdValue = document.getElementById('user-id-value');
         const logoutButton = document.getElementById('logout-button');
         const googleAuthButton = document.getElementById('google-auth-button');
         const googleAuthWarningBtn = document.getElementById('google-auth-warning-btn');
+        const anonIdContainer = document.getElementById('anon-id-container');
+        const anonIdDisplay = document.getElementById('anon-id-display');
+        const copyAnonIdBtn = document.getElementById('copy-anon-id');
 
         function showAlert(message, type = 'error', duration = 3000) {
             const alertBox = document.createElement('div');
@@ -539,6 +577,7 @@
                 isAnonymousUser = false;
                 userInfoHeader.classList.remove('hidden');
                 warningInfoBox.classList.add('hidden');
+                anonIdContainer.classList.add('hidden');
                 
                 const displayName = user.displayName || user.email.split('@')[0];
                 const email = user.email;
@@ -548,6 +587,7 @@
                 
                 userDisplayName.textContent = displayName;
                 userEmail.textContent = email;
+                userIdValue.textContent = currentUserId;
                 
                 googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
                 googleAuthButton.title = 'Google hesabı ilə giriş edilib';
@@ -556,62 +596,137 @@
                 isAnonymousUser = true;
                 userInfoHeader.classList.add('hidden');
                 warningInfoBox.classList.remove('hidden');
+                anonIdContainer.classList.remove('hidden');
+                
+                anonIdDisplay.textContent = currentUserId || 'Yüklənir...';
                 
                 googleAuthButton.innerHTML = '<i class="fab fa-google"></i>';
                 googleAuthButton.title = 'Google hesabı ilə giriş et';
             }
         }
 
-        async function signInWithGoogle() {
+        async function upgradeAnonymousToGoogle(anonymousUser, googleCredential) {
             try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
+                const result = await linkWithCredential(anonymousUser, googleCredential);
                 
-                // Generate consistent UID from email
-                const googleUID = generateEmailBasedUID(user.email);
+                const oldUserId = anonymousUser.uid;
+                const googleUID = generateEmailBasedUID(result.user.email);
                 
-                const userDocRef = doc(db, 'users', googleUID);
-                const userDoc = await getDoc(userDocRef);
+                const oldUserDocRef = doc(db, 'users', oldUserId);
+                const oldUserDoc = await getDoc(oldUserDocRef);
                 
-                if (!userDoc.exists()) {
-                    await setDoc(userDocRef, {
-                        email: user.email,
-                        displayName: user.displayName || user.email.split('@')[0],
-                        balance: 0,
-                        createdAt: serverTimestamp(),
+                if (oldUserDoc.exists()) {
+                    const oldData = oldUserDoc.data();
+                    
+                    const ordersQuery = query(
+                        collection(db, `artifacts/${firebaseProjectId}/public/data/orders`),
+                        where("userId", "==", oldUserId)
+                    );
+                    
+                    const ordersSnapshot = await getDocs(ordersQuery);
+                    const batch = writeBatch(db);
+                    
+                    ordersSnapshot.forEach((orderDoc) => {
+                        const orderRef = orderDoc.ref;
+                        batch.update(orderRef, { 
+                            userId: googleUID,
+                            userEmail: result.user.email 
+                        });
+                    });
+                    
+                    const newUserDocRef = doc(db, 'users', googleUID);
+                    await setDoc(newUserDocRef, {
+                        ...oldData,
+                        email: result.user.email,
+                        displayName: result.user.displayName || result.user.email.split('@')[0],
+                        upgradedFromAnonymous: true,
+                        originalAnonymousId: oldUserId,
                         lastLogin: serverTimestamp(),
                         googleUID: googleUID,
-                        firebaseUID: user.uid
+                        firebaseUID: result.user.uid
                     });
-                } else {
-                    await updateDoc(userDocRef, {
-                        lastLogin: serverTimestamp(),
-                        firebaseUID: user.uid
-                    });
+                    
+                    batch.delete(oldUserDocRef);
+                    await batch.commit();
+                    
+                    localStorage.removeItem('anonUserData');
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: result.user.uid,
+                        customUID: googleUID,
+                        email: result.user.email
+                    }));
                 }
                 
-                // Store the mapping
-                localStorage.setItem('userMapping', JSON.stringify({
-                    firebaseUID: user.uid,
-                    customUID: googleUID,
-                    email: user.email
-                }));
+                return { ...result.user, customUID: googleUID };
+            } catch (error) {
+                console.error("Anonymous upgrade error:", error);
+                throw error;
+            }
+        }
+
+        async function signInWithGoogle() {
+            try {
+                const user = auth.currentUser;
                 
-                showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                updateUserUI(user);
-                currentUserId = googleUID;
+                if (user && user.isAnonymous) {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const googleCredential = GoogleAuthProvider.credentialFromResult(result);
+                    
+                    const upgradedUser = await upgradeAnonymousToGoogle(user, googleCredential);
+                    
+                    showAlert('Google hesabı ilə uğurla qeydiyyatdan keçdiniz! Anonim hesabınız Google hesabınıza bağlandı.', 'success');
+                    
+                    currentUserId = upgradedUser.customUID;
+                    updateUserUI(upgradedUser);
+                    loadOrders(currentUserId, currentFilter);
+                    
+                } else {
+                    const result = await signInWithPopup(auth, googleProvider);
+                    const googleUser = result.user;
+                    const googleUID = generateEmailBasedUID(googleUser.email);
+                    
+                    const userDocRef = doc(db, 'users', googleUID);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (!userDoc.exists()) {
+                        await setDoc(userDocRef, {
+                            email: googleUser.email,
+                            displayName: googleUser.displayName || googleUser.email.split('@')[0],
+                            balance: 0,
+                            createdAt: serverTimestamp(),
+                            lastLogin: serverTimestamp(),
+                            googleUID: googleUID,
+                            firebaseUID: googleUser.uid
+                        });
+                    } else {
+                        await updateDoc(userDocRef, {
+                            lastLogin: serverTimestamp(),
+                            firebaseUID: googleUser.uid
+                        });
+                    }
+                    
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: googleUser.uid,
+                        customUID: googleUID,
+                        email: googleUser.email
+                    }));
+                    
+                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                    currentUserId = googleUID;
+                    updateUserUI(googleUser);
+                    loadOrders(currentUserId, currentFilter);
+                }
                 
-                // Siparişleri yeniden yükle
-                loadOrders(currentUserId, currentFilter);
-                
-                // WhatsApp linkini güncelle
-                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
-                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
-                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                updateWhatsAppLinks();
                 
             } catch (error) {
                 console.error('Google giriş xətası:', error);
-                showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+                
+                if (error.code === 'auth/credential-already-in-use') {
+                    showAlert('Bu Google hesabı artıq başqa bir hesaba bağlıdır. Əvvəlcə həmin hesabdan çıxış edin.', 'error');
+                } else {
+                    showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+                }
             }
         }
 
@@ -620,7 +735,6 @@
                 await signOut(auth);
                 showAlert('Uğurla çıxış edildi', 'success');
                 
-                // Clear user mapping
                 localStorage.removeItem('userMapping');
                 
                 const cred = await signInAnonymously(auth);
@@ -628,11 +742,7 @@
                 updateUserUI(cred.user);
                 
                 loadOrders(currentUserId, currentFilter);
-                
-                // WhatsApp linkini güncelle
-                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
-                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
-                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                updateWhatsAppLinks();
                 
             } catch (error) {
                 console.error('Çıxış xətası:', error);
@@ -646,95 +756,102 @@
             let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
             let q;
 
-            if (filter === 'new') {
-                q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
-            } else {
-                q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
-            }
-
-            onSnapshot(q, (snapshot) => {
-                ordersList.innerHTML = '';
-                if (snapshot.empty) {
-                    noOrdersMessage.classList.remove('hidden');
+            try {
+                if (filter === 'new') {
+                    q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
                 } else {
-                    noOrdersMessage.classList.add('hidden');
-                    snapshot.forEach(docSnapshot => { 
-                        const order = docSnapshot.data(); 
-                        const orderId = docSnapshot.id; 
-                        const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
-                        
-                        let statusClass = '';
-                        switch(order.status) {
-                            case 'pending': statusClass = 'status-pending'; break;
-                            case 'approved': statusClass = 'status-approved'; break;
-                            case 'completed': statusClass = 'status-completed'; break;
-                            case 'cancelled': statusClass = 'status-cancelled'; break;
-                            case 'problem': statusClass = 'status-problem'; break;
-                            default: statusClass = '';
-                        }
+                    q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
+                }
 
-                        const orderItem = document.createElement('div');
-                        orderItem.className = `order-item card`;
-                        orderItem.dataset.orderId = orderId;
-                        orderItem.dataset.isNew = order.isNew;
+                onSnapshot(q, (snapshot) => {
+                    ordersList.innerHTML = '';
+                    if (snapshot.empty) {
+                        noOrdersMessage.classList.remove('hidden');
+                    } else {
+                        noOrdersMessage.classList.add('hidden');
+                        snapshot.forEach(docSnapshot => { 
+                            const order = docSnapshot.data(); 
+                            const orderId = docSnapshot.id; 
+                            const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString() : 'N/A';
+                            
+                            let statusClass = '';
+                            switch(order.status) {
+                                case 'pending': statusClass = 'status-pending'; break;
+                                case 'approved': statusClass = 'status-approved'; break;
+                                case 'completed': statusClass = 'status-completed'; break;
+                                case 'cancelled': statusClass = 'status-cancelled'; break;
+                                case 'problem': statusClass = 'status-problem'; break;
+                                default: statusClass = '';
+                            }
 
-                        let newIndicatorHtml = '';
-                        if (order.isNew) {
-                            newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
-                        }
+                            const orderItem = document.createElement('div');
+                            orderItem.className = `order-item card`;
+                            orderItem.dataset.orderId = orderId;
+                            orderItem.dataset.isNew = order.isNew;
 
-                        orderItem.innerHTML = `
-                            ${newIndicatorHtml}
-                            <div class="order-item-header">
-                                <span class="text-white text-lg">${order.serviceName}</span>
-                                <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
-                            </div>
-                            <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
-                            <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
-                            <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
-                            <p class="text-gray-300 text-sm">Sifariş Tarihi: ${timestamp}</p>
-                            <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
-                            <button class="report-problem-button mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors duration-300" data-order-id="${orderId}">
-                                Problem Bildir
-                            </button>
-                        `;
-                        ordersList.appendChild(orderItem);
-                    });
+                            let newIndicatorHtml = '';
+                            if (order.isNew) {
+                                newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
+                            }
 
-                    ordersList.querySelectorAll('.report-problem-button').forEach(button => {
-                        button.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            const orderIdToReport = e.target.dataset.orderId;
-                            const whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Xahiş edirəm kömək edin. Mənim İstifadəçi ID-m: ${userId}`;
-                            const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
-                            window.open(whatsappUrl, '_blank');
+                            orderItem.innerHTML = `
+                                ${newIndicatorHtml}
+                                <div class="order-item-header">
+                                    <span class="text-white text-lg">${order.serviceName}</span>
+                                    <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
+                                </div>
+                                <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
+                                <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
+                                <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
+                                <p class="text-gray-300 text-sm">Sifariş Tarihi: ${timestamp}</p>
+                                <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
+                                <button class="report-problem-button mt-4 px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors duration-300" data-order-id="${orderId}">
+                                    Problem Bildir
+                                </button>
+                            `;
+                            ordersList.appendChild(orderItem);
                         });
-                    });
-                }
-            }, (error) => {
-                console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
-                let errorMessage = "Sifarişləri yükləmək mümkün olmadı.";
-                if (error.code) {
-                    errorMessage += ` Xəta kodu: ${error.code}.`;
-                }
-                showAlert(errorMessage, 'error', 5000);
-            });
+
+                        ordersList.querySelectorAll('.report-problem-button').forEach(button => {
+                            button.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                const orderIdToReport = e.target.dataset.orderId;
+                                let whatsappMessage;
+                                
+                                if (isAnonymousUser) {
+                                    whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Anonim İstifadəçi ID: ${userId}.`;
+                                } else {
+                                    const userEmail = auth.currentUser?.email || '';
+                                    whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. İstifadəçi ID: ${userId}. E-mail: ${userEmail}`;
+                                }
+                                
+                                const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
+                                window.open(whatsappUrl, '_blank');
+                            });
+                        });
+                    }
+                }, (error) => {
+                    console.error("Sifarişləri yükləyərkən xəta (onSnapshot):", error);
+                    ordersList.innerHTML = '<p class="text-center text-red-400">Sifarişləri yükləmək mümkün olmadı. Zəhmət olmasa yenidən cəhd edin.</p>';
+                });
+            } catch (error) {
+                console.error("Sifariş query xətası:", error);
+                ordersList.innerHTML = '<p class="text-center text-red-400">Sifarişləri yükləmək mümkün olmadı.</p>';
+            }
         }
         
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 let customUID = user.uid;
-                let isAnon = user.isAnonymous;
                 
                 if (!user.isAnonymous && user.email) {
-                    // Google user - check for mapping or create one
+                    // Google user - use email-based UID
                     const mapping = localStorage.getItem('userMapping');
                     if (mapping) {
                         const mapData = JSON.parse(mapping);
                         if (mapData.firebaseUID === user.uid) {
                             customUID = mapData.customUID;
                         } else {
-                            // Create new mapping for this Google user
                             customUID = generateEmailBasedUID(user.email);
                             localStorage.setItem('userMapping', JSON.stringify({
                                 firebaseUID: user.uid,
@@ -743,7 +860,6 @@
                             }));
                         }
                     } else {
-                        // Create new mapping
                         customUID = generateEmailBasedUID(user.email);
                         localStorage.setItem('userMapping', JSON.stringify({
                             firebaseUID: user.uid,
@@ -751,17 +867,51 @@
                             email: user.email
                         }));
                     }
-                    isAnon = false;
+                    isAnonymousUser = false;
+                } else {
+                    // Anonymous user
+                    isAnonymousUser = true;
+                    
+                    // Check for existing anon data in localStorage
+                    const storedAnonData = localStorage.getItem('anonUserData');
+                    if (storedAnonData) {
+                        try {
+                            const data = JSON.parse(storedAnonData);
+                            const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
+                            
+                            if (hoursElapsed < 24) {
+                                // Keep same anon ID if less than 24 hours
+                                customUID = data.uid;
+                            } else {
+                                // More than 24 hours, create new anon data
+                                localStorage.removeItem('anonUserData');
+                                localStorage.setItem('anonUserData', JSON.stringify({
+                                    uid: user.uid,
+                                    timestamp: Date.now(),
+                                    isAnonymous: true
+                                }));
+                            }
+                        } catch (e) {
+                            console.error('Error parsing stored anon data:', e);
+                            localStorage.setItem('anonUserData', JSON.stringify({
+                                uid: user.uid,
+                                timestamp: Date.now(),
+                                isAnonymous: true
+                            }));
+                        }
+                    } else {
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: user.uid,
+                            timestamp: Date.now(),
+                            isAnonymous: true
+                        }));
+                    }
                 }
                 
                 currentUserId = customUID;
                 updateUserUI(user);
                 loadOrders(currentUserId, currentFilter);
-                
-                // WhatsApp linkini güncelle
-                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
-                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
-                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                updateWhatsAppLinks();
                 
             } else {
                 try {
@@ -769,12 +919,29 @@
                     currentUserId = cred.user.uid;
                     updateUserUI(cred.user);
                     loadOrders(currentUserId, currentFilter);
+                    updateWhatsAppLinks();
                 } catch (error) {
                     console.error("Anonim girişdə xəta:", error);
                     showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
                 }
             }
         });
+
+        const updateWhatsAppLinks = () => {
+            if (!currentUserId) return;
+            
+            let whatsappText;
+            
+            if (isAnonymousUser) {
+                whatsappText = `Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`;
+            } else {
+                const userEmail = auth.currentUser?.email || '';
+                whatsappText = `Salam, mənim istifadəçi ID-m: ${currentUserId}. E-mail: ${userEmail}. Balans artırmaq istəyirəm.`;
+            }
+            
+            whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappText)}`;
+            floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+        };
 
         newOrdersTab.addEventListener('click', () => {
             if (newOrdersTab.classList.contains('active')) return;
@@ -808,7 +975,12 @@
             floatingWhatsappBubble.addEventListener('click', (e) => {
                 e.preventDefault();
                 if (currentUserId) {
-                    const whatsappMessage = `Salam, dəstəyə ehtiyacım var. İstifadəçi ID-m: ${currentUserId}.`;
+                    let whatsappMessage;
+                    if (isAnonymousUser) {
+                        whatsappMessage = `Salam, dəstəyə ehtiyacım var. Anonim İstifadəçi ID-m: ${currentUserId}.`;
+                    } else {
+                        whatsappMessage = `Salam, dəstəyə ehtiyacım var. İstifadəçi ID-m: ${currentUserId}.`;
+                    }
                     const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
                     window.open(whatsappUrl, '_blank');
                 } else {
@@ -826,6 +998,18 @@
         googleAuthButton.addEventListener('click', signInWithGoogle);
         googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
         logoutButton.addEventListener('click', handleLogout);
+
+        copyAnonIdBtn.addEventListener('click', () => {
+            const idToCopy = currentUserId;
+            if (idToCopy && idToCopy !== 'Yüklənir...') {
+                navigator.clipboard.writeText(idToCopy).then(() => {
+                    showAlert('ID kopyalandı!', 'success', 2000);
+                }).catch(err => {
+                    console.error('Kopyalama xətası:', err);
+                    showAlert('Kopyalama uğursuz oldu', 'error');
+                });
+            }
+        });
 
     </script>
 </body>
