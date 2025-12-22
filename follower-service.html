@@ -447,8 +447,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="separator" style="order: 6;"></div>
-                <button id="place-order-button" class="btn btn-primary btn-lg w-full" style="order: 7;" disabled>
+                <!-- Added service notes section -->
+                <div id="service-notes-container" class="hidden space-y-3 bg-gray-800/50 p-4 rounded-lg border border-gray-700" style="order: 6;">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        <h3 class="text-sm font-semibold text-foreground">Xidmət Haqqında Qeydlər</h3>
+                    </div>
+                    <div id="service-notes-content" class="space-y-2 text-xs text-muted leading-relaxed"></div>
+                </div>
+
+                <div class="separator" style="order: 7;"></div>
+                <button id="place-order-button" class="btn btn-primary btn-lg w-full" style="order: 8;" disabled>
                     <i class="fas fa-check-circle mr-2"></i>
                     Sifariş Yarat
                 </button>
@@ -553,19 +562,840 @@
         const googleProvider = new GoogleAuthProvider();
 
         const allServices = [
-            { platform: 'Instagram', category: 'Instagram Keşfet Paketi 🚀', categoryIconClass: 'fab fa-instagram text-pink-500', isDiscoveryPackage: true, items: [ { id: 'discovery-package', name: 'Keşfet Paketi', pricePer100Percent: 309, min: 25, max: 100, avgTime: '100-300 Saat', description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' } ] },
-            { platform: 'Instagram', category: 'Instagram Takipçi Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_follower', name: 'Takipçi ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 }, { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿 ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 }, { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷 ❌işləmir❌', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 }, { id: 'instagram_30day_guarantee', name: '30 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 }, { id: 'instagram_100day_guarantee', name: '100 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 }, { id: 'instagram_365day_guarantee', name: '365 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 }, { id: '3000', name: '365 Gün Garantili (⭐İşlək servis⭐)', iconClass: 'fab fa-instagram', avgTime: '71 dəqiqə', min: 10, max: 50000, pricePerK: 12.9 }, { id: 'instagram_lifetime_guarantee', name: 'Ömür Boyu Garantili (Çox yavaş)', iconClass: 'fas fa-infinity', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6.00 } ] },
-            { platform: 'Instagram', category: 'Instagram Bəyəni Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_like', name: 'Bəyəni (az enməz) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 }, { id: '1001', name: 'Bəyəni İşlək servis (⭐İşlək servis⭐)', iconClass: 'fas fa-heart text-pink-500', avgTime: '160 dəqiqə', min: 20, max: 10000000, pricePerK: 1.89 }, { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 }, { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿 ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 } ] },
-            { platform: 'Instagram', category: 'Instagram İzlənmə Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_video_view', name: 'Video İzlənmə', iconClass: 'fas fa-eye', avgTime: '36 saat', min: 100, max: 50000000, pricePerK: 0.19 }, { id: '10000', name: 'Video İzlənmə ⭐Sürətli⭐', iconClass: 'fas fa-eye', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.39 }, { id: 'instagram_az_video_view', name: 'Azərbaycanlı Video İzlənmə 🇦🇿', iconClass: 'fas fa-eye', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },{ id: '50001', name: '🆕 Video İzlənmə (Min: 100.000)', iconClass: 'fas fa-eye', avgTime: '59 dəqiqə', min: 100000, max: 50000000, pricePerK: 0.10 },{ id: '50002', name: 'Video İzlənmə Yavaş (Min: 10.000)', iconClass: 'fas fa-eye', avgTime: '2 saat', min: 10000, max: 50000000, pricePerK: 0.032 } ] },
-            { platform: 'Instagram', category: 'Instagram Yorum, Paylaşım, Kaydetme', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_comment', name: 'Yorum', iconClass: 'fas fa-comment', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 }, { id: 'instagram_save', name: 'Kaydetme', iconClass: 'fas fa-save', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 }, { id: 'instagram_share', name: 'Paylaşma', iconClass: 'fas fa-share', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 } ] },
-            { platform: 'TikTok', category: 'TikTok Takipçi Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_foreign_follower', name: 'Xarici Takipçi', iconClass: 'fab fa-tiktok', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 }, { id: '2000', name: 'Xarici Takipçi Yeni ucuz', iconClass: 'fab fa-tiktok', avgTime: '4 saat', min: 10, max: 10000000, pricePerK: 4.99 }, { id: 'tiktok_foreign_follower_no_guarantee', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 6.93 }, { id: 'tiktok_quality_follower_no_guarantee', name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 11.54 }, { id: 'tiktok_quality_follower_60_day_guarantee', name: 'Keyfiyyətli Takipçi (60 gün qaranti)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 16.99 } ] },
-            { platform: 'TikTok', category: 'TikTok Bəyəni Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_like', name: 'Bəyəni (Min: 30)', iconClass: 'fas fa-heart', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 }, { id: '00005', name: 'Bəyəni "Özəl" (Min: 100)', iconClass: 'fas fa-heart', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 }, { id: '00006', name: 'Bəyəni "Özəl-2" (Min: 50.000)', iconClass: 'fas fa-heart', avgTime: '28 dəqiqə', min: 50000, max: 10000000, pricePerK: 0.13 }, { id: '00001', name: 'NEW Bəyəni (Min: 30)', iconClass: 'fas fa-heart', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 }, { id: '00002', name: 'Bəyəni (Min: 150)', iconClass: 'fas fa-heart', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 }, { id: '00003', name: 'Bəyəni -Orta sürət- (Min: 1.000)', iconClass: 'fas fa-heart', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 }, { id: '00004', name: 'Bəyəni ⭐Sürətli⭐ (Min: 200)', iconClass: 'fas fa-heart', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 } ] },
-            { platform: 'TikTok', category: 'TikTok İzlənmə Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_view', name: 'Video İzlənmə (Min: 100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.006 }, { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min: 100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, { id: '000012', name: 'İzlənmə (Min: 10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } ] },
-            { platform: 'TikTok', category: 'TikTok Digər Servislər', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_share', name: 'Video Paylaşma', iconClass: 'fas fa-share', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 }, { id: 'tiktok_video_save', name: 'Video Kaydetme', iconClass: 'fas fa-save', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 }, { id: 'tiktok_profile_view', name: 'Profil Görüntüləmə', iconClass: 'fas fa-user', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 } ] },
-            { platform: 'Youtube', category: 'Youtube Abonəçi Servisleri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } ] },
-            { platform: 'Youtube', category: 'Youtube Bəyəni Servisleri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } ] },
-            { platform: 'Youtube', category: 'Youtube İzlənmə Servisleri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } ] },
-            { platform: 'Pulsuz', category: 'Pulsuz Servislər 🎁', categoryIconClass: 'fas fa-gift text-green-500', isFree: true, items: [ { id: 'free_instagram_like', name: 'Instagram Pulsuz Bəyəni (50)', iconClass: 'fab fa-instagram text-pink-500', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeInstagramLike' }, { id: 'free_tiktok_like', name: 'TikTok Pulsuz Bəyəni (50)', iconClass: 'fab fa-tiktok', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeTikTokLike' } ] }
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Keşfet Paketi 🚀', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                isDiscoveryPackage: true, 
+                items: [ 
+                    { 
+                        id: 'discovery-package', 
+                        name: 'Keşfet Paketi', 
+                        pricePer100Percent: 309, 
+                        min: 25, 
+                        max: 100, 
+                        avgTime: '100-300 Saat', 
+                        description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq.',
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 25 | <strong>Maks:</strong> 100</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> 100-300 saat</p>
+                                <p class="text-yellow-400">⚠️ Real istifadəçilər tərəfindən təbii qarşılıqlı əlaqə yaradılır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 24 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Takipçi Servisleri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_follower', name: 'Takipçi ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿 ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷 ❌işləmir❌', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { id: 'instagram_30day_guarantee', name: '30 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { id: 'instagram_100day_guarantee', name: '100 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { 
+                        id: 'instagram_365day_guarantee', 
+                        name: '365 Gün Garantili', 
+                        iconClass: 'fas fa-shield-alt', 
+                        avgTime: '25 dəqiqə', 
+                        min: 10, 
+                        max: 50000, 
+                        pricePerK: 5.79,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 50.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> Ortalama 25 dəqiqə</p>
+                                <p><strong>Garantiya:</strong> 365 gün</p>
+                                <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda 365 gün ərzində avtomatik bərpa edilir.</p>
+                                <p class="text-yellow-400">⚠️ Eyni hesaba sifariş tamamlanmadan yeni sifariş verməyin.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '3000', 
+                        name: '365 Gün Garantili (⭐İşlək servis⭐)', 
+                        iconClass: 'fab fa-instagram', 
+                        avgTime: '71 dəqiqə', 
+                        min: 10, 
+                        max: 50000, 
+                        pricePerK: 12.9,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 50.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> Ortalama 71 dəqiqə</p>
+                                <p><strong>Garantiya:</strong> 365 gün</p>
+                                <p class="text-green-400">✅ Keyfiyyətli və stabil servis. Tövsiyə edilir.</p>
+                                <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda 365 gün ərzində avtomatik bərpa edilir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 3 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'instagram_lifetime_guarantee', 
+                        name: 'Ömür Boyu Garantili (Çox yavaş)', 
+                        iconClass: 'fas fa-infinity', 
+                        avgTime: '1 saat 40 dəqiqə', 
+                        min: 10, 
+                        max: 20000, 
+                        pricePerK: 6.00,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 20.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> Ortalama 1 saat 40 dəqiqə</p>
+                                <p><strong>Garantiya:</strong> Ömür boyu</p>
+                                <p class="text-yellow-400">⚠️ Çox yavaş başlayan servisdir. Tələsmirsinizsə seçin.</p>
+                                <p class="text-yellow-400">⚠️ Takipçilər ömür boyu bərpa edilir.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Bəyəni Servisleri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_like', name: 'Bəyəni (az enməz) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { 
+                        id: '1001', 
+                        name: 'Bəyəni İşlək servis (⭐İşlək servis⭐)', 
+                        iconClass: 'fas fa-heart text-pink-500', 
+                        avgTime: '160 dəqiqə', 
+                        min: 20, 
+                        max: 10000000, 
+                        pricePerK: 1.89,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 20 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 160 dəqiqə (2.5 saat)</p>
+                                <p class="text-green-400">✅ Stabil və keyfiyyətli servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 6 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                                <p class="text-yellow-400">⚠️ Eyni postda aktiv sifariş varsa yeni sifariş verməyin.</p>
+                            </div>
+                        `
+                    }, 
+                    { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' }, 
+                    { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿 ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08, notes: '<p class="text-red-400">⛔ Bu servis hazırda işləmir. Başqa servis seçin.</p>' } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram İzlənmə Servisleri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { 
+                        id: 'instagram_video_view', 
+                        name: 'Video İzlənmə', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '36 saat', 
+                        min: 100, 
+                        max: 50000000, 
+                        pricePerK: 0.19,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 50.000.000</p>
+                                <p><strong>Link:</strong> Video/Reel linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 36 saat</p>
+                                <p class="text-yellow-400">⚠️ Yavaş başlayan servistir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 48 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '10000', 
+                        name: 'Video İzlənmə ⭐Sürətli⭐', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '38 dəqiqə', 
+                        min: 100, 
+                        max: 50000000, 
+                        pricePerK: 0.39,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 50.000.000</p>
+                                <p><strong>Link:</strong> Video/Reel linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 38 dəqiqə</p>
+                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis. Tövsiyə edilir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 3 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'instagram_az_video_view', 
+                        name: 'Azərbaycanlı Video İzlənmə 🇦🇿', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '10-30 dəqiqə', 
+                        min: 100, 
+                        max: 5000000, 
+                        pricePerK: 0.99,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 5.000.000</p>
+                                <p><strong>Link:</strong> Video/Reel linki</p>
+                                <p><strong>Başlama:</strong> 10-30 dəqiqə</p>
+                                <p><strong>Xüsusiyyət:</strong> Azərbaycandan izləyicilər</p>
+                                <p class="text-green-400">✅ Yerli kütlə üçün ən uyğun servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    },
+                    { 
+                        id: '50001', 
+                        name: '🆕 Video İzlənmə (Min: 100.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '59 dəqiqə', 
+                        min: 100000, 
+                        max: 50000000, 
+                        pricePerK: 0.10,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100.000 | <strong>Maks:</strong> 50.000.000</p>
+                                <p><strong>Link:</strong> Video/Reel linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 59 dəqiqə</p>
+                                <p class="text-green-400">✅ Böyük miqdarlı sifarişlər üçün ən ucuz seçim.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 100.000 izlənmə sifarişi verməlisiniz.</p>
+                            </div>
+                        `
+                    },
+                    { 
+                        id: '50002', 
+                        name: 'Video İzlənmə Yavaş (Min: 10.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '2 saat', 
+                        min: 10000, 
+                        max: 50000000, 
+                        pricePerK: 0.032,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 50.000.000</p>
+                                <p><strong>Link:</strong> Video/Reel linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 2 saat</p>
+                                <p class="text-green-400">✅Ən ucuz izlənmə servisi.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 10.000 izlənmə sifarişi verməlisiniz.</p>
+                                <p class="text-yellow-400">⚠️ Yavaş başlayır, tələsmirsinizsə ideal seçimdir.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Yorum, Paylaşım, Kaydetme', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { 
+                        id: 'instagram_comment', 
+                        name: 'Yorum', 
+                        iconClass: 'fas fa-comment', 
+                        avgTime: '24-48 saat', 
+                        min: 1, 
+                        max: 500, 
+                        pricePerK: 9.00,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 1 | <strong>Maks:</strong> 500</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> 24-48 saat</p>
+                                <p class="text-yellow-400">⚠️ Yorumları sifariş qeydində qeyd etməyi unutmayın.</p>
+                                <p class="text-yellow-400">⚠️ Real insanlar tərəfindən yazılır, təbii görünür.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'instagram_save', 
+                        name: 'Kaydetme', 
+                        iconClass: 'fas fa-save', 
+                        avgTime: '5-15 dəqiqə', 
+                        min: 10, 
+                        max: 1000000, 
+                        pricePerK: 3.26,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 1.000.000</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> 5-15 dəqiqə</p>
+                                <p class="text-green-400">✅ Postunuzun keşfet bölməsinə çıxma şansını artırır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'instagram_share', 
+                        name: 'Paylaşma', 
+                        iconClass: 'fas fa-share', 
+                        avgTime: '5-15 dəqiqə', 
+                        min: 10, 
+                        max: 1000000, 
+                        pricePerK: 5.09,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 1.000.000</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> 5-15 dəqiqə</p>
+                                <p class="text-green-400">✅ Postunuzun virallaşma şansını artırır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Takipçi Servisleri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { 
+                        id: 'tiktok_foreign_follower', 
+                        name: 'Xarici Takipçi', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '60-90 dəqiqə', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 5.33,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> 60-90 dəqiqə</p>
+                                <p class="text-yellow-400">⚠️ Qaranti yoxdur, lakin keyfiyyətlidir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 4 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '2000', 
+                        name: 'Xarici Takipçi Yeni ucuz', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '4 saat', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 4.99,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> Ortalama 4 saat</p>
+                                <p class="text-green-400">✅ Ucuz və effektiv servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 12 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'tiktok_foreign_follower_no_guarantee', 
+                        name: 'Xarici Takipçi (Qaranti yoxdur)', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '300 saat', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 6.93,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> Ortalama 300 saat (12.5 gün)</p>
+                                <p class="text-red-400">⚠️ Çox yavaş servis. Tələsmirsinizsə seçin.</p>
+                                <p class="text-red-400">⚠️ Qaranti verilmir.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'tiktok_quality_follower_no_guarantee', 
+                        name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '65-120 dəqiqə', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 11.54,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> 65-120 dəqiqə</p>
+                                <p class="text-green-400">✅ Keyfiyyətli və real görünüşlü takipçilər.</p>
+                                <p class="text-yellow-400">⚠️ Qaranti yoxdur, lakin keyfiyyət yüksəkdir.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'tiktok_quality_follower_60_day_guarantee', 
+                        name: 'Keyfiyyətli Takipçi (60 gün qaranti)', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '100-150 dəqiqə', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 16.99,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> İstifadəçi adı</p>
+                                <p><strong>Başlama:</strong> 100-150 dəqiqə</p>
+                                <p><strong>Garantiya:</strong> 60 gün</p>
+                                <p class="text-green-400">✅Ən keyfiyyətli servis. Tövsiyə edilir.</p>
+                                <p class="text-green-400">✅ 60 gün ərzində takipçilər bərpa edilir.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Bəyəni Servisleri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { 
+                        id: 'tiktok_video_like', 
+                        name: 'Bəyəni (Min: 30)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '9 dəqiqə', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 1.51,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 9 dəqiqə</p>
+                                <p class="text-green-400">✅ Sürətli və effektiv servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 1 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00005', 
+                        name: 'Bəyəni "Özəl" (Min: 100)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '20 dəqiqə', 
+                        min: 100, 
+                        max: 10000000, 
+                        pricePerK: 0.71,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 20 dəqiqə</p>
+                                <p class="text-green-400">✅ Ucuz və effektiv servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00006', 
+                        name: 'Bəyəni "Özəl-2" (Min: 50.000)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '28 dəqiqə', 
+                        min: 50000, 
+                        max: 10000000, 
+                        pricePerK: 0.13,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 50.000 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 28 dəqiqə</p>
+                                <p class="text-green-400">✅ Böyük sifarişlər üçün ən ucuz seçim.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 50.000 bəyəni sifarişi verməlisiniz.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00001', 
+                        name: 'NEW Bəyəni (Min: 30)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '25 dəqiqə', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 2.38,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 25 dəqiqə</p>
+                                <p class="text-green-400">✅ Yeni və keyfiyyətli servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00002', 
+                        name: 'Bəyəni (Min: 150)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '55 dəqiqə', 
+                        min: 150, 
+                        max: 10000000, 
+                        pricePerK: 0.96,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 150 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 55 dəqiqə</p>
+                                <p class="text-green-400">✅ Ucuz və stabil servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 3 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00003', 
+                        name: 'Bəyəni -Orta sürət- (Min: 1.000)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '59 dəqiqə', 
+                        min: 1000, 
+                        max: 10000000, 
+                        pricePerK: 0.88,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 1.000 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 59 dəqiqə</p>
+                                <p class="text-green-400">✅ Orta sürətli və ucuz servis.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 1.000 bəyəni sifarişi verməlisiniz.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '00004', 
+                        name: 'Bəyəni ⭐Sürətli⭐ (Min: 200)', 
+                        iconClass: 'fas fa-heart', 
+                        avgTime: '27 dəqiqə', 
+                        min: 200, 
+                        max: 10000000, 
+                        pricePerK: 1.09,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 200 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 27 dəqiqə</p>
+                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis. Tövsiyə edilir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok İzlənmə Servisleri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { 
+                        id: 'tiktok_video_view', 
+                        name: 'Video İzlənmə (Min: 100)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '1 saat', 
+                        min: 100, 
+                        max: 100000000, 
+                        pricePerK: 0.14,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 100.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 1 saat</p>
+                                <p class="text-green-400">✅ Ucuz və effektiv servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 4 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '000013', 
+                        name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '18 dəqiqə', 
+                        min: 1000000, 
+                        max: 100000000, 
+                        pricePerK: 0.006,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 1.000.000 | <strong>Maks:</strong> 100.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 18 dəqiqə</p>
+                                <p class="text-green-400">✅ Çox böyük sifarişlər üçün ən ucuz və sürətli seçim.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 1.000.000 izlənmə sifarişi verməlisiniz.</p>
+                                <p class="text-yellow-400">⚠️ Viral videolar üçün ideal seçimdir.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '000010', 
+                        name: 'İzlənmə ⭐ultra sürətli⭐ (Min: 100.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '12 dəqiqə', 
+                        min: 100000, 
+                        max: 100000000, 
+                        pricePerK: 0.03,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100.000 | <strong>Maks:</strong> 100.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 12 dəqiqə</p>
+                                <p class="text-green-400">✅ Ultra sürətli və ucuz servis.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 100.000 izlənmə sifarişi verməlisiniz.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '000011', 
+                        name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '6 dəqiqə', 
+                        min: 1000, 
+                        max: 100000000, 
+                        pricePerK: 0.19,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 1.000 | <strong>Maks:</strong> 100.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 6 dəqiqə</p>
+                                <p class="text-green-400">✅ Çox sürətli və effektiv servis. Tövsiyə edilir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 1 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '000012', 
+                        name: 'İzlənmə (Min: 10.000)', 
+                        iconClass: 'fas fa-eye', 
+                        avgTime: '28 dəqiqə', 
+                        min: 10000, 
+                        max: 100000000, 
+                        pricePerK: 0.09,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 100.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 28 dəqiqə</p>
+                                <p class="text-green-400">✅ Ucuz və stabil servis.</p>
+                                <p class="text-yellow-400">⚠️ Minimum 10.000 izlənmə sifarişi verməlisiniz.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Digər Servislər', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { 
+                        id: 'tiktok_video_share', 
+                        name: 'Video Paylaşma', 
+                        iconClass: 'fas fa-share', 
+                        avgTime: '10-60 dəqiqə', 
+                        min: 10, 
+                        max: 1000000, 
+                        pricePerK: 4.02,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 1.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> 10-60 dəqiqə</p>
+                                <p class="text-green-400">✅ Videonun virallaşma şansını artırır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 3 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'tiktok_video_save', 
+                        name: 'Video Kaydetme', 
+                        iconClass: 'fas fa-save', 
+                        avgTime: '10-70 dəqiqə', 
+                        min: 10, 
+                        max: 1000000, 
+                        pricePerK: 4.62,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 1.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> 10-70 dəqiqə</p>
+                                <p class="text-green-400">✅ Alqoritm üçün yaxşı siqnaldır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 3 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'tiktok_profile_view', 
+                        name: 'Profil Görüntüləmə', 
+                        iconClass: 'fas fa-user', 
+                        avgTime: '5-15 dəqiqə', 
+                        min: 100, 
+                        max: 50000000, 
+                        pricePerK: 0.16,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 100 | <strong>Maks:</strong> 50.000.000</p>
+                                <p><strong>Link:</strong> Profil linki və ya istifadəçi adı</p>
+                                <p><strong>Başlama:</strong> 5-15 dəqiqə</p>
+                                <p class="text-green-400">✅ Profil populyarlığını artırır.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube Abonəçi Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { 
+                        id: '00011', 
+                        name: 'Xarici Takipçi (Qaranti yoxdur)', 
+                        iconClass: 'fab fa-youtube text-red-500', 
+                        avgTime: '80-120 dəqiqə', 
+                        min: 10, 
+                        max: 10000000, 
+                        pricePerK: 3.12,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 10 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Kanal linki</p>
+                                <p><strong>Başlama:</strong> 80-120 dəqiqə</p>
+                                <p class="text-yellow-400">⚠️ Qaranti yoxdur.</p>
+                                <p class="text-yellow-400">⚠️ Servis 6 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube Bəyəni Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { 
+                        id: '0005', 
+                        name: 'Bəyəni ❤️ |10M | BEST', 
+                        iconClass: 'fab fa-youtube text-red-500', 
+                        avgTime: '15-25 dəqiqə', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 0.39,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> 15-25 dəqiqə</p>
+                                <p class="text-green-400">✅Ən keyfiyyətli və sürətli servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '0006', 
+                        name: 'Bəyəni(Qarantili) ❤️', 
+                        iconClass: 'fab fa-youtube text-red-500', 
+                        avgTime: '15-25 dəqiqə', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 0.97,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> 15-25 dəqiqə</p>
+                                <p><strong>Garantiya:</strong> Var</p>
+                                <p class="text-green-400">✅ Garantili və keyfiyyətli servis.</p>
+                                <p class="text-yellow-400">⚠️ Servis 2 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube İzlənmə Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { 
+                        id: '0007', 
+                        name: 'İzlənmə(Qaranti yoxdur)', 
+                        iconClass: 'fab fa-youtube text-red-500', 
+                        avgTime: '16 saat', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 1.97,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 16 saat</p>
+                                <p class="text-yellow-400">⚠️ Qaranti yoxdur.</p>
+                                <p class="text-yellow-400">⚠️ Servis 24 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: '0008', 
+                        name: 'İzlənmə(Qaranti✅)', 
+                        iconClass: 'fab fa-youtube text-red-500', 
+                        avgTime: '16 saat', 
+                        min: 30, 
+                        max: 10000000, 
+                        pricePerK: 6.63,
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Min:</strong> 30 | <strong>Maks:</strong> 10.000.000</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> Ortalama 16 saat</p>
+                                <p><strong>Garantiya:</strong> Var</p>
+                                <p class="text-green-400">✅ Garantili və keyfiyyətli servis. Tövsiyə edilir.</p>
+                                <p class="text-yellow-400">⚠️ Servis 24 saat ərzində başlamadığı təqdirdə bizimlə əlaqə saxlayın.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Pulsuz', 
+                category: 'Pulsuz Servislər 🎁', 
+                categoryIconClass: 'fas fa-gift text-green-500', 
+                isFree: true, 
+                items: [ 
+                    { 
+                        id: 'free_instagram_like', 
+                        name: 'Instagram Pulsuz Bəyəni (50)', 
+                        iconClass: 'fab fa-instagram text-pink-500', 
+                        avgTime: '0-5 dəqiqə', 
+                        min: 50, 
+                        max: 50, 
+                        pricePerK: 0, 
+                        cooldownField: 'lastFreeInstagramLike',
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Miqdar:</strong> 50 (dəyişməz)</p>
+                                <p><strong>Link:</strong> Post linki</p>
+                                <p><strong>Başlama:</strong> 0-5 dəqiqə</p>
+                                <p class="text-green-400">✅ Tamamilə pulsuz!</p>
+                                <p class="text-yellow-400">⚠️ 24 saatda 1 dəfə istifadə edə bilərsiniz.</p>
+                            </div>
+                        `
+                    }, 
+                    { 
+                        id: 'free_tiktok_like', 
+                        name: 'TikTok Pulsuz Bəyəni (50)', 
+                        iconClass: 'fab fa-tiktok', 
+                        avgTime: '0-5 dəqiqə', 
+                        min: 50, 
+                        max: 50, 
+                        pricePerK: 0, 
+                        cooldownField: 'lastFreeTikTokLike',
+                        notes: `
+                            <div class="space-y-2">
+                                <p><strong>Miqdar:</strong> 50 (dəyişməz)</p>
+                                <p><strong>Link:</strong> Video linki</p>
+                                <p><strong>Başlama:</strong> 0-5 dəqiqə</p>
+                                <p class="text-green-400">✅ Tamamilə pulsuz!</p>
+                                <p class="text-yellow-400">⚠️ 24 saatda 1 dəfə istifadə edə bilərsiniz.</p>
+                            </div>
+                        `
+                    } 
+                ] 
+            }
         ];
         
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
@@ -604,7 +1434,9 @@
             userEmail: document.getElementById('user-email'),
             logoutButton: document.getElementById('logout-button'),
             googleAuthButton: document.getElementById('google-auth-button'),
-            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn')
+            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn'),
+            serviceNotesContainer: document.getElementById('service-notes-container'), // New element
+            serviceNotesContent: document.getElementById('service-notes-content') // New element
         };
         
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
@@ -773,6 +1605,10 @@
             
             DOMElements.linkInput.value = '';
             DOMElements.quantityInput.value = '';
+            // Hide service notes when category changes
+            DOMElements.serviceNotesContainer.classList.add('hidden');
+            DOMElements.serviceNotesContent.innerHTML = '';
+
             updateUIDisplay();
             validateForm();
         };
@@ -788,9 +1624,15 @@
             DOMElements.minQuantity.textContent = formatNumber(service.min);
             DOMElements.maxQuantity.textContent = formatNumber(service.max);
             
+            if (service.notes) {
+                DOMElements.serviceNotesContent.innerHTML = service.notes;
+                DOMElements.serviceNotesContainer.classList.remove('hidden');
+            } else {
+                DOMElements.serviceNotesContainer.classList.add('hidden');
+            }
+            
             DOMElements.linkInput.value = '';
             DOMElements.quantityInput.value = '';
-            
             updateUIDisplay();
             validateForm();
         };
