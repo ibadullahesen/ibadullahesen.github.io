@@ -112,7 +112,7 @@
             color: white;
             padding: 10px 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
@@ -642,19 +642,21 @@
                     q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
                 }
 
-                onSnapshot(q, (snapshot) => {
+                const unsubscribe = onSnapshot(q, (snapshot) => {
                     console.log('[v0] Orders snapshot size:', snapshot.size);
                     
-                    ordersList.innerHTML = '';
                     if (snapshot.empty) {
+                        console.log('[v0] No orders found for this user');
                         noOrdersMessage.classList.remove('hidden');
+                        ordersList.innerHTML = '';
                     } else {
                         noOrdersMessage.classList.add('hidden');
-                        snapshot.forEach(docSnapshot => { 
-                            const order = docSnapshot.data(); 
-                            const orderId = docSnapshot.id;
+                        ordersList.innerHTML = '';
+                        snapshot.forEach((doc) => { 
+                            console.log('[v0] Order:', doc.id, doc.data());
                             
-                            console.log('[v0] Order loaded:', orderId, order);
+                            const order = doc.data(); 
+                            const orderId = doc.id;
                             
                             const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString('az-AZ') : 'N/A';
                             
