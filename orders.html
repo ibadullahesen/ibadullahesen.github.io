@@ -81,7 +81,7 @@
             display: flex;
             justify-content: space-around;
             padding: 0.75rem 0;
-            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
             z-index: 100;
         }
         .nav-item {
@@ -687,7 +687,7 @@
                                     <span class="order-item-status ${statusClass}">${order.status.toUpperCase()}</span>
                                 </div>
                                 <p class="text-gray-300 text-sm">Miqdar: ${order.quantity}</p>
-                                <p class="text-gray-300 text-sm">Ümumi Qiymət: ${order.totalPrice.toFixed(2)} AZN</p>
+                                <p class="text-gray-300 text-sm">Ümumi Qiymət: ${(order.totalPrice || order.price || 0).toFixed(4)} AZN</p>
                                 <p class="text-gray-300 text-sm">Link: <a href="${order.link}" target="_blank" class="text-blue-400 hover:underline break-all">${order.link}</a></p>
                                 <p class="text-gray-300 text-sm">Sifariş Tarixi: ${timestamp}</p>
                                 <p class="text-gray-300 text-xs mt-2">Sifariş ID: ${orderId}</p>
