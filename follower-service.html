@@ -291,6 +291,52 @@
         .user-info-section .logout-btn:hover {
             background-color: rgba(255, 255, 255, 0.1);
         }
+        
+        /* Migration dialog */
+        .migration-dialog {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .migration-content {
+            background-color: var(--card-background);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .migration-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        .migration-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .migration-buttons button {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+        .migration-buttons .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        .migration-buttons .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body class="pb-20">
@@ -330,7 +376,6 @@
                     <li>Balansınız 24 saatdan sonra avtomatik olaraq sıfırlanacaq</li>
                     <li>Sifariş tarixçəniz anonim girişlə eyni cihazda saxlanılacaq</li>
                     <li>Fərqli cihazdan giriş etdikdə balans və sifarişlər görünməyəcək</li>
-                    <li>Anonim olaraq isdifadə etməyiniz yenədə mümkündür</li>
                 </ul>
                 <p class="mt-2">Bu problemlərdən qurtulmaq üçün <button id="google-auth-warning-btn" class="text-primary font-semibold hover:underline">Google hesabı ilə qeydiyyatdan keçin</button>.</p>
             </div>
@@ -555,6 +600,23 @@
     <a href="#" id="floating-whatsapp-bubble"> <i class="fab fa-whatsapp text-3xl"></i> </a>
     <div id="alert-container"></div>
     
+    <!-- Migration Dialog -->
+    <div id="migration-dialog" class="migration-dialog hidden">
+        <div class="migration-content">
+            <div class="migration-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-4">Hesabınızı Birləşdirin</h2>
+            <p class="text-muted mb-2">Anonim hesabınızda <span id="anon-balance-amount" class="font-bold text-primary">0.00 AZN</span> balansınız var.</p>
+            <p class="text-muted mb-4">Bu balansı Google hesabınıza köçürmək istəyirsinizmi?</p>
+            <div class="migration-buttons">
+                <button id="migrate-yes" class="btn-primary">Bəli, Köçür</button>
+                <button id="migrate-no" class="btn-secondary">Xeyr, Yeni Başla</button>
+            </div>
+            <p class="text-xs text-muted mt-4">Qeyd: Köçürmə etməsəniz, anonim balansınız itəcək.</p>
+        </div>
+    </div>
+    
     <!-- Top-up Modal -->
     <div id="top-up-modal" class="dialog-overlay">
         <div class="dialog-content">
@@ -600,7 +662,21 @@
             linkWithCredential,
             EmailAuthProvider
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            collection, 
+            addDoc, 
+            serverTimestamp, 
+            runTransaction,
+            query,
+            where,
+            getDocs,
+            writeBatch
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
@@ -636,6 +712,8 @@
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
         let isAnonymousUser = true;
         let anonUserData = null;
+        let anonUserIdBeforeMigration = null;
+        let anonBalanceBeforeMigration = 0;
         
         const DOMElements = {
             userBalance: document.getElementById('user-balance'),
@@ -686,13 +764,29 @@
             userEmail: document.getElementById('user-email'),
             logoutButton: document.getElementById('logout-button'),
             googleAuthButton: document.getElementById('google-auth-button'),
-            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn')
+            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn'),
+            migrationDialog: document.getElementById('migration-dialog'),
+            anonBalanceAmount: document.getElementById('anon-balance-amount'),
+            migrateYesBtn: document.getElementById('migrate-yes'),
+            migrateNoBtn: document.getElementById('migrate-no')
         };
         
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         const formatPriceForDisplay = (num) => parseFloat(num.toFixed(6));
         const COOLDOWN_HOURS = 24;
+        
+        // Email-based UID generator
+        const generateEmailBasedUID = (email) => {
+            // Simple hash function to generate consistent UID from email
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                const char = email.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return `google_${Math.abs(hash).toString(16)}`;
+        };
         
         const showAlert = (message, type = 'error', duration = 4000) => {
             const alertBox = document.createElement('div');
@@ -730,6 +824,7 @@
                     if (!isAnon && auth.currentUser && auth.currentUser.email) {
                         userDocData.email = auth.currentUser.email;
                         userDocData.displayName = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
+                        userDocData.googleUID = generateEmailBasedUID(auth.currentUser.email);
                     }
                     await setDoc(userDocRef, userDocData);
                     userBalance = 0;
@@ -1001,43 +1096,166 @@
             }
         };
 
-        const signInWithGoogle = async () => {
+        const transferOrdersToNewAccount = async (oldUserId, newUserId) => {
             try {
-                const result = await signInWithPopup(auth, googleProvider);
-                const user = result.user;
+                // Get all orders from old account
+                const ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
+                const q = query(ordersColRef, where("userId", "==", oldUserId));
+                const querySnapshot = await getDocs(q);
                 
-                // Firestore'da kullanıcı dokümanını oluştur veya güncelle
-                const userDocRef = doc(db, 'users', user.uid);
-                const userDoc = await getDoc(userDocRef);
-                
-                if (!userDoc.exists()) {
-                    // Yeni kullanıcı, doküman oluştur
-                    await setDoc(userDocRef, {
-                        email: user.email,
-                        displayName: user.displayName || user.email.split('@')[0],
-                        balance: 0,
-                        createdAt: serverTimestamp(),
-                        lastLogin: serverTimestamp()
-                    });
-                } else {
-                    // Mevcut kullanıcı, lastLogin güncelle
-                    await updateDoc(userDocRef, {
-                        lastLogin: serverTimestamp()
-                    });
+                if (querySnapshot.empty) {
+                    console.log("No orders to transfer");
+                    return;
                 }
                 
-                showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                updateUserUI(user);
+                // Batch transfer orders
+                const batch = writeBatch(db);
+                const newOrders = [];
                 
-                // Kullanıcı ID'sini güncelle
-                currentUserId = user.uid;
-                DOMElements.userIdDisplay.textContent = currentUserId;
-                await updateBalanceUI(currentUserId, false);
+                querySnapshot.forEach((orderDoc) => {
+                    const orderData = orderDoc.data();
+                    
+                    // Create new order reference with same data but new userId
+                    const newOrderRef = doc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`));
+                    newOrders.push({
+                        ...orderData,
+                        userId: newUserId,
+                        migratedFrom: oldUserId,
+                        migrationDate: serverTimestamp()
+                    });
+                    
+                    // Delete old order
+                    batch.delete(orderDoc.ref);
+                });
                 
-                // WhatsApp linklerini güncelle
-                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
-                DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${whatsappText}`;
-                DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                // Create new orders in batch
+                newOrders.forEach(orderData => {
+                    const newOrderRef = doc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`));
+                    batch.set(newOrderRef, orderData);
+                });
+                
+                await batch.commit();
+                console.log(`Transferred ${newOrders.length} orders from ${oldUserId} to ${newUserId}`);
+                
+            } catch (error) {
+                console.error("Error transferring orders:", error);
+                throw error;
+            }
+        };
+
+        const migrateUserAccount = async (anonUserId, googleEmail, googleDisplayName) => {
+            try {
+                // Generate consistent UID from email
+                const newUserId = generateEmailBasedUID(googleEmail);
+                
+                // Check if user already exists with this UID
+                const userDocRef = doc(db, 'users', newUserId);
+                const existingUserDoc = await getDoc(userDocRef);
+                
+                // Get anon user data
+                const anonUserDocRef = doc(db, 'users', anonUserId);
+                const anonUserDoc = await getDoc(anonUserDocRef);
+                
+                let anonBalance = 0;
+                if (anonUserDoc.exists()) {
+                    anonBalance = anonUserDoc.data().balance || 0;
+                }
+                
+                if (existingUserDoc.exists()) {
+                    // User already exists, merge balances
+                    const existingUserData = existingUserDoc.data();
+                    const existingBalance = existingUserData.balance || 0;
+                    const newBalance = existingBalance + anonBalance;
+                    
+                    await updateDoc(userDocRef, {
+                        balance: newBalance,
+                        lastLogin: serverTimestamp(),
+                        mergedFromAnon: anonUserId,
+                        mergeDate: serverTimestamp()
+                    });
+                    
+                    // Transfer orders
+                    await transferOrdersToNewAccount(anonUserId, newUserId);
+                    
+                    // Delete anon user document
+                    await setDoc(anonUserDocRef, { 
+                        migratedTo: newUserId,
+                        migrationDate: serverTimestamp(),
+                        originalBalance: anonBalance
+                    }, { merge: true });
+                    
+                    showAlert(`Hesabınız birləşdirildi! ${anonBalance.toFixed(2)} AZN balans əlavə edildi.`, 'success');
+                    
+                } else {
+                    // Create new user with anon balance
+                    await setDoc(userDocRef, {
+                        email: googleEmail,
+                        displayName: googleDisplayName,
+                        balance: anonBalance,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp(),
+                        migratedFromAnon: anonUserId,
+                        googleUID: newUserId
+                    });
+                    
+                    // Transfer orders
+                    await transferOrdersToNewAccount(anonUserId, newUserId);
+                    
+                    // Delete anon user document
+                    await setDoc(anonUserDocRef, { 
+                        migratedTo: newUserId,
+                        migrationDate: serverTimestamp(),
+                        originalBalance: anonBalance
+                    }, { merge: true });
+                    
+                    showAlert(`Yeni hesab yaradıldı! ${anonBalance.toFixed(2)} AZN balansınız köçürüldü.`, 'success');
+                }
+                
+                return newUserId;
+                
+            } catch (error) {
+                console.error("Migration error:", error);
+                throw error;
+            }
+        };
+
+        const showMigrationDialog = (anonBalance) => {
+            DOMElements.anonBalanceAmount.textContent = `${anonBalance.toFixed(2)} AZN`;
+            DOMElements.migrationDialog.classList.remove('hidden');
+        };
+
+        const hideMigrationDialog = () => {
+            DOMElements.migrationDialog.classList.add('hidden');
+        };
+
+        const signInWithGoogle = async () => {
+            try {
+                // First get anon user data before migration
+                const currentAnonUser = auth.currentUser;
+                const anonUserId = currentAnonUser?.uid;
+                
+                // Get anon balance
+                let anonBalance = 0;
+                if (anonUserId) {
+                    const anonUserDocRef = doc(db, 'users', anonUserId);
+                    const anonUserDoc = await getDoc(anonUserDocRef);
+                    if (anonUserDoc.exists()) {
+                        anonBalance = anonUserDoc.data().balance || 0;
+                    }
+                }
+                
+                // Store anon data for migration
+                anonUserIdBeforeMigration = anonUserId;
+                anonBalanceBeforeMigration = anonBalance;
+                
+                if (anonBalance > 0) {
+                    // Show migration dialog if there's balance
+                    showMigrationDialog(anonBalance);
+                    return;
+                }
+                
+                // If no balance, proceed with normal Google sign in
+                await continueGoogleSignIn(false);
                 
             } catch (error) {
                 console.error('Google giriş xətası:', error);
@@ -1045,10 +1263,107 @@
             }
         };
 
+        const continueGoogleSignIn = async (shouldMigrate) => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                if (shouldMigrate && anonUserIdBeforeMigration) {
+                    // Migrate account
+                    const newUserId = await migrateUserAccount(
+                        anonUserIdBeforeMigration,
+                        user.email,
+                        user.displayName || user.email.split('@')[0]
+                    );
+                    
+                    // Sign out and sign in with migrated account
+                    await signOut(auth);
+                    
+                    // We need to manually set up the user since we can't sign in with custom UID
+                    // Instead, we'll use the Firebase UID but ensure data is linked
+                    await signInWithPopup(auth, googleProvider);
+                    
+                    showAlert('Hesabınız uğurla birləşdirildi!', 'success');
+                    
+                } else {
+                    // Normal Google sign in with consistent UID
+                    const googleUID = generateEmailBasedUID(user.email);
+                    
+                    const userDocRef = doc(db, 'users', googleUID);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (!userDoc.exists()) {
+                        // Yeni kullanıcı
+                        await setDoc(userDocRef, {
+                            email: user.email,
+                            displayName: user.displayName || user.email.split('@')[0],
+                            balance: 0,
+                            createdAt: serverTimestamp(),
+                            lastLogin: serverTimestamp(),
+                            googleUID: googleUID,
+                            firebaseUID: user.uid // Store Firebase UID as reference
+                        });
+                    } else {
+                        // Mevcut kullanıcı
+                        await updateDoc(userDocRef, {
+                            lastLogin: serverTimestamp(),
+                            firebaseUID: user.uid // Update Firebase UID reference
+                        });
+                    }
+                    
+                    // Store the mapping between Firebase UID and our custom UID
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: user.uid,
+                        customUID: googleUID,
+                        email: user.email
+                    }));
+                }
+                
+                // Update UI with current user (now should be Google user)
+                const currentUser = auth.currentUser;
+                if (currentUser) {
+                    updateUserUI(currentUser);
+                    
+                    // Get the custom UID for this user
+                    let customUID;
+                    const mapping = localStorage.getItem('userMapping');
+                    if (mapping) {
+                        const mapData = JSON.parse(mapping);
+                        if (mapData.firebaseUID === currentUser.uid) {
+                            customUID = mapData.customUID;
+                        }
+                    }
+                    
+                    // If we have custom UID, use it, otherwise use Firebase UID
+                    currentUserId = customUID || currentUser.uid;
+                    DOMElements.userIdDisplay.textContent = currentUserId;
+                    
+                    await updateBalanceUI(currentUserId, false);
+                    
+                    // WhatsApp linklerini güncelle
+                    const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                    DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                    DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                    
+                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                }
+                
+                hideMigrationDialog();
+                
+            } catch (error) {
+                console.error('Google giriş xətası:', error);
+                showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+                hideMigrationDialog();
+            }
+        };
+
         const handleLogout = async () => {
             try {
                 await signOut(auth);
                 showAlert('Uğurla çıxış edildi', 'success');
+                
+                // Clear user mapping
+                localStorage.removeItem('userMapping');
                 
                 // Anonim girişe dön
                 const cred = await signInAnonymously(auth);
@@ -1070,26 +1385,18 @@
 
         onAuthStateChanged(auth, async (user) => {
             let authUser = user;
+            
             if (!authUser) {
                 try {
-                    // Önce localStorage'dan anonim kullanıcıyı kontrol et
-                    const storedAnonData = localStorage.getItem('anonUserData');
-                    if (storedAnonData) {
-                        try {
-                            const data = JSON.parse(storedAnonData);
-                            const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
-                            
-                            // 24 saatten fazla geçmişse yeni anonim kullanıcı oluştur
-                            if (hoursElapsed < 24) {
-                                // Eski anonim kullanıcıyı kullan
-                                anonUserData = data;
-                            }
-                        } catch (e) {
-                            console.error('Error parsing stored anon data:', e);
-                        }
+                    // Check for existing user mapping
+                    const mapping = localStorage.getItem('userMapping');
+                    if (mapping) {
+                        const mapData = JSON.parse(mapping);
+                        // Try to restore user session based on email
+                        // For now, create new anon session
                     }
                     
-                    // Yeni anonim giriş
+                    // Create new anonymous session
                     const cred = await signInAnonymously(auth);
                     authUser = cred.user;
                     currentUserId = authUser.uid;
@@ -1102,14 +1409,43 @@
             }
             
             if (authUser) {
-                currentUserId = authUser.uid;
+                // Check if this is a Google user with mapping
+                let customUID = authUser.uid;
+                let isAnon = authUser.isAnonymous;
+                
+                if (!authUser.isAnonymous && authUser.email) {
+                    // Google user - check for mapping or create one
+                    const mapping = localStorage.getItem('userMapping');
+                    if (mapping) {
+                        const mapData = JSON.parse(mapping);
+                        if (mapData.firebaseUID === authUser.uid) {
+                            customUID = mapData.customUID;
+                        } else {
+                            // Create new mapping for this Google user
+                            customUID = generateEmailBasedUID(authUser.email);
+                            localStorage.setItem('userMapping', JSON.stringify({
+                                firebaseUID: authUser.uid,
+                                customUID: customUID,
+                                email: authUser.email
+                            }));
+                        }
+                    } else {
+                        // Create new mapping
+                        customUID = generateEmailBasedUID(authUser.email);
+                        localStorage.setItem('userMapping', JSON.stringify({
+                            firebaseUID: authUser.uid,
+                            customUID: customUID,
+                            email: authUser.email
+                        }));
+                    }
+                    isAnon = false;
+                }
+                
+                currentUserId = customUID;
                 DOMElements.userIdDisplay.textContent = currentUserId;
                 
                 // Kullanıcı arayüzünü güncelle
                 updateUserUI(authUser);
-                
-                // Anonim mi değil mi kontrol et
-                const isAnon = authUser.isAnonymous;
                 
                 // Balance'ı güncelle
                 await updateBalanceUI(currentUserId, isAnon);
@@ -1268,7 +1604,7 @@
                     timestamp: serverTimestamp(), 
                     status: 'pending', 
                     isNew: true,
-                    userEmail: isAnonymousUser ? null : auth.currentUser.email
+                    userEmail: isAnonymousUser ? null : auth.currentUser?.email
                 };
 
                 const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
@@ -1297,6 +1633,10 @@
         DOMElements.googleAuthButton.addEventListener('click', signInWithGoogle);
         DOMElements.googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
         DOMElements.logoutButton.addEventListener('click', handleLogout);
+        
+        // Migration dialog buttons
+        DOMElements.migrateYesBtn.addEventListener('click', () => continueGoogleSignIn(true));
+        DOMElements.migrateNoBtn.addEventListener('click', () => continueGoogleSignIn(false));
         
     </script>
 </body>
