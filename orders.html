@@ -628,7 +628,12 @@
 
         async function loadOrders(userId, filter) {
             try {
+                console.log('[v0] Loading orders for userId:', userId);
+                console.log('[v0] Filter:', filter);
+                
                 let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
+                console.log('[v0] Orders collection path:', `artifacts/${firebaseProjectId}/public/data/orders`);
+                
                 let q;
 
                 if (filter === 'new') {
@@ -638,6 +643,8 @@
                 }
 
                 onSnapshot(q, (snapshot) => {
+                    console.log('[v0] Orders snapshot size:', snapshot.size);
+                    
                     ordersList.innerHTML = '';
                     if (snapshot.empty) {
                         noOrdersMessage.classList.remove('hidden');
@@ -645,7 +652,10 @@
                         noOrdersMessage.classList.add('hidden');
                         snapshot.forEach(docSnapshot => { 
                             const order = docSnapshot.data(); 
-                            const orderId = docSnapshot.id; 
+                            const orderId = docSnapshot.id;
+                            
+                            console.log('[v0] Order loaded:', orderId, order);
+                            
                             const timestamp = order.timestamp ? new Date(order.timestamp.toDate()).toLocaleString('az-AZ') : 'N/A';
                             
                             let statusClass = '';
@@ -703,9 +713,12 @@
                             });
                         });
                     }
+                }, (error) => {
+                    console.error('[v0] Orders snapshot error:', error);
+                    showAlert('Sifarişlər yüklənərkən xəta baş verdi.', 'error');
                 });
             } catch (error) {
-                console.error('Orders load error:', error);
+                console.error('[v0] Orders load error:', error);
                 showAlert('Sifarişlər yüklənərkən xəta baş verdi.', 'error');
             }
         }
