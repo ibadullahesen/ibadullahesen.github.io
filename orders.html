@@ -8,42 +8,49 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --background: #1a202c;
+            --card-background: #2d3748;
+            --border: #4a5568;
+            --text-primary: #e2e8f0;
+            --text-muted: #a0aec0;
+            --primary: #34d399;
+            --secondary: #4a5568;
+            --warning: #f59e0b;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Koyu arka plan */
-            color: #e2e8f0; /* Açık gri metin */
+            background-color: var(--background);
+            color: var(--text-primary);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
         .main-content {
             flex-grow: 1;
-            padding-bottom: 80px; /* Footer yüksekliği kadar boşluk */
+            padding-bottom: 80px;
         }
         .container {
-            max-width: 700px; /* Geniş konteyner */
+            max-width: 700px;
             margin: 0 auto;
             padding: 1.5rem;
         }
         .card {
-            background-color: #2d3748; /* Kart arka planı */
+            background-color: var(--card-background);
             border-radius: 0.75rem;
             padding: 1.5rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #4a5568;
+            border: 1px solid var(--border);
         }
         .order-item {
             background-color: #1a202c;
             border-radius: 0.5rem;
             padding: 1rem;
             margin-bottom: 0.75rem;
-            border: 1px solid #4a5568;
-            position: relative; /* Yeni etiketi için */
-            cursor: default; /* Sifariş kartı tıklanabilir değil */
+            border: 1px solid var(--border);
+            position: relative;
+            cursor: default;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .order-item:hover {
-            /* Hover effekti ləğv edildi */
         }
         .order-item-header {
             display: flex;
@@ -58,19 +65,19 @@
             font-size: 0.8rem;
             font-weight: bold;
         }
-        .status-pending { background-color: #f97316; color: white; } /* Turuncu */
-        .status-approved { background-color: #34d399; color: white; } /* Yeşil */
-        .status-completed { background-color: #10b981; color: white; } /* Koyu yeşil */
-        .status-cancelled { background-color: #dc2626; color: white; } /* Kırmızı */
-        .status-problem { background-color: #eab308; color: white; } /* Sarı */
+        .status-pending { background-color: #f97316; color: white; }
+        .status-approved { background-color: #34d399; color: white; }
+        .status-completed { background-color: #10b981; color: white; }
+        .status-cancelled { background-color: #dc2626; color: white; }
+        .status-problem { background-color: #eab308; color: white; }
 
         .bottom-nav {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: #2d3748;
-            border-top: 1px solid #4a5568;
+            background-color: var(--card-background);
+            border-top: 1px solid var(--border);
             display: flex;
             justify-content: space-around;
             padding: 0.75rem 0;
@@ -81,7 +88,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: #a0aec0;
+            color: var(--text-muted);
             font-size: 0.8rem;
             text-decoration: none;
             transition: color 0.2s ease;
@@ -91,7 +98,7 @@
             margin-bottom: 0.25rem;
         }
         .nav-item:hover, .nav-item.active {
-            color: #34d399;
+            color: var(--primary);
         }
         .alert-message {
             position: fixed;
@@ -110,31 +117,35 @@
         .alert-message.show {
             opacity: 1;
         }
-        /* Yeni etiketi üçün stil */
+        .alert-message.success {
+            background-color: #10b981;
+        }
+        .alert-message.warning {
+            background-color: var(--warning);
+        }
         .new-indicator {
             position: absolute;
             top: 0;
             right: 0;
-            background-color: #34d399; /* Yeşil renk */
+            background-color: var(--primary);
             color: white;
             padding: 0.25rem 0.5rem;
             border-top-right-radius: 0.5rem;
             border-bottom-left-radius: 0.5rem;
             font-size: 0.7rem;
             font-weight: bold;
-            transform: translate(10%, -10%); /* Köşeye taşır */
+            transform: translate(10%, -10%);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Tab Navigasyon Stilleri */
         .tab-nav {
             display: flex;
             justify-content: center;
             margin-bottom: 1.5rem;
-            background-color: #2d3748;
+            background-color: var(--card-background);
             border-radius: 0.75rem;
             overflow: hidden;
-            border: 1px solid #4a5568;
+            border: 1px solid var(--border);
         }
         .tab-item {
             flex: 1;
@@ -143,25 +154,25 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s ease, color 0.2s ease;
-            border-right: 1px solid #4a5568;
+            border-right: 1px solid var(--border);
         }
         .tab-item:last-child {
             border-right: none;
         }
-        .tab-item:hover:not(.active) { /* Sadece aktif olmayanlara hover efekti */
-            background-color: #4a5568;
+        .tab-item:hover:not(.active) {
+            background-color: var(--secondary);
         }
         .tab-item.active {
             background-color: #10b981;
             color: white;
-            cursor: default; /* Aktifken tıklanamaz kursor */
+            cursor: default;
         }
-        /* Floating WhatsApp Bubble */
+        
         #floating-whatsapp-bubble {
             position: fixed;
-            bottom: 100px; /* Footer'dan daha yukarı */
+            bottom: 100px;
             right: 20px;
-            background-color: #25D366; /* WhatsApp yeşili */
+            background-color: #25D366;
             color: white;
             padding: 15px;
             border-radius: 50%;
@@ -176,19 +187,146 @@
         #floating-whatsapp-bubble:hover {
             transform: scale(1.1);
         }
+        
+        /* User info header */
+        .user-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background-color: rgba(52, 211, 153, 0.1);
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+        .user-header .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .user-header .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .user-header .details {
+            flex: 1;
+        }
+        .user-header .details .name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .user-header .details .email {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+        .user-header .auth-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+        .user-header .auth-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Warning info box */
+        .warning-info-box {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .warning-info-box .title {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning-info-box .content {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .warning-info-box .content ul {
+            list-style: none;
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+        }
+        .warning-info-box .content li {
+            margin-bottom: 0.25rem;
+            position: relative;
+        }
+        .warning-info-box .content li:before {
+            content: "•";
+            color: var(--warning);
+            position: absolute;
+            left: -1rem;
+        }
     </style>
 </head>
 <body>
 
     <header class="bg-gray-900 shadow-lg py-4 fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
-            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet">AxtarGet</a>
-            <span class="text-xl font-semibold"><i class="fas fa-list-alt mr-2 text-blue-400"></i>Sifarişlərim</span>
+            <a href="index.html" class="text-white text-2xl font-bold tracking-wide">AxtarGet</a>
+            <div class="flex items-center gap-4">
+                <span class="text-xl font-semibold"><i class="fas fa-list-alt mr-2 text-blue-400"></i>Sifarişlərim</span>
+                <button id="google-auth-button" class="bg-white text-gray-800 p-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    <i class="fab fa-google"></i>
+                </button>
+            </div>
         </div>
     </header>
 
-    <div class="main-content pt-20">
+    <div class="main-content pt-24">
         <div class="container">
+            <!-- User info header -->
+            <div id="user-info-header" class="user-header hidden">
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">
+                        <span id="avatar-initials">?</span>
+                    </div>
+                    <div class="details">
+                        <div class="name" id="user-display-name">Google İstifadəçisi</div>
+                        <div class="email" id="user-email">email@example.com</div>
+                    </div>
+                </div>
+                <button id="logout-button" class="auth-btn" title="Çıxış et">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <!-- Warning info box -->
+            <div id="warning-info-box" class="warning-info-box hidden">
+                <div class="title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Anonim Giriş Məhdudiyyətləri
+                </div>
+                <div class="content">
+                    <p>Hal-hazırda anonim giriş istifadə edirsiniz. Bu aşağıdakı məhdudiyyətlərə səbəb ola bilər:</p>
+                    <ul>
+                        <li>Sifariş tarixçəniz yalnız bu cihazda görünəcək</li>
+                        <li>Fərqli cihazdan giriş etdikdə sifarişləriniz görünməyəcək</li>
+                        <li>Balansınız 24 saatdan sonra sıfırlana bilər</li>
+                    </ul>
+                    <p class="mt-2">Bu problemlərdən qurtulmaq üçün <button id="google-auth-warning-btn" class="text-primary font-semibold hover:underline">Google hesabı ilə qeydiyyatdan keçin</button>.</p>
+                </div>
+            </div>
+            
             <!-- Tab Navigasyon -->
             <div class="tab-nav">
                 <div class="tab-item active" id="new-orders-tab" data-filter="new">Yeni Sifarişlər</div>
@@ -197,7 +335,6 @@
 
             <div id="orders-list" class="space-y-4">
                 <p class="text-center text-gray-400">Sifarişlər yüklənir...</p>
-                <!-- Sifarişlər buraya yüklənəcək -->
             </div>
             <p id="no-orders-message" class="text-center text-gray-400 text-xl mt-8 hidden">
                 Hələ heç bir sifarişiniz yoxdur.
@@ -210,7 +347,7 @@
             <i class="fas fa-home"></i>
             <span>Ana Səhifə</span>
         </a>
-        <a href="follower-service.html" class="nav-item">
+        <a href="index.html" class="nav-item">
             <i class="fas fa-shopping-cart"></i>
             <span>Yeni Sifariş</span>
         </a>
@@ -218,11 +355,10 @@
             <i class="fas fa-list-alt"></i>
             <span>Sifarişlər</span>
         </a>
-        <a href="follower-service.html" class="nav-item">
-            <i class="fas fa-money-bill-wave"></i>
-            <span>Balans əlavə et</span>
-        </a>
-        <!-- Dəstək linki ləğv edildi -->
+        <button id="bottom-nav-topup" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Balans</span>
+        </button>
     </footer>
 
     <div id="alert-container"></div>
@@ -231,54 +367,112 @@
     <a href="#" id="floating-whatsapp-bubble" class="fixed bottom-8 right-8 bg-green-600 text-white p-4 rounded-full shadow-lg cursor-pointer hover:bg-green-700 transition-colors duration-300 z-50" title="Dəstək üçün WhatsApp">
         <i class="fab fa-whatsapp text-3xl"></i>
     </a>
+    
+    <!-- Top-up Modal -->
+    <div id="top-up-modal" class="dialog-overlay" style="display: none; position: fixed; inset: 0; background-color: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.3s ease;">
+        <div class="dialog-content" style="background-color: #2d3748; border-radius: 0.75rem; padding: 1.5rem; width: 100%; max-width: 420px; position: relative; transform: scale(0.95); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease;">
+            <span id="close-top-up-modal" class="dialog-close" style="position: absolute; top: 1rem; right: 1rem; color: #a0aec0; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <div class="dialog-header">
+                <h3 class="dialog-title" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Balans Artır</h3>
+                <p class="dialog-description" style="color: #a0aec0; margin-bottom: 1rem;">Ödəniş etmək üçün aşağıdakı məlumatlardan istifadə edin.</p>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-gray-700 p-4 rounded-lg text-center">
+                    <i class="fas fa-credit-card text-3xl mx-auto mb-2 text-muted"></i>
+                    <p class="text-sm text-muted mb-2">Kapital Bank Kartı</p>
+                    <p id="bank-card-number" class="text-xl font-bold font-mono tracking-widest">4169 7388 7208 5778</p>
+                </div>
+                <div class="alert" style="background-color: rgba(251, 191, 36, 0.1); color: #facc15; padding: 0.75rem; border-radius: 0.5rem; display: flex; align-items: start;">
+                    <i class="fas fa-info-circle mt-1"></i>
+                    <p class="text-sm ml-2">Ödənişdən sonra çeki <strong>060-600-61-62</strong> nömrəsinə WhatsApp ilə göndərin. Balansınız 5-15 dəqiqə ərzində yüklənəcək.</p>
+                </div>
+                <div class="bg-primary/10 p-3 rounded-lg text-sm">
+                     <p class="font-medium text-primary">🎁 Bonus Kampaniyası:</p>
+                     <ul class="text-xs text-muted mt-1 space-y-1 list-disc list-inside">
+                        <li>11-100 AZN: <strong>+3% bonus</strong></li>
+                        <li>101+ AZN: <strong>+6% bonus</strong></li>
+                     </ul>
+                </div>
+                <a id="whatsapp-topup-link" href="#" target="_blank" class="btn w-full flex items-center space-x-2" style="background-color: #25D366; color: white; padding: 0.75rem; border-radius: 0.5rem; text-align: center; display: block;">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>WhatsApp-a Göndər</span>
+                </a>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, collection, query, where, onSnapshot, orderBy, doc, updateDoc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            onAuthStateChanged, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            query, 
+            where, 
+            onSnapshot, 
+            orderBy,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
-        // Firebase konfiqurasiyası
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
             authDomain: "axtargetbotwebsite.firebaseapp.com",
             projectId: "axtargetbotwebsite",
-            storageBucket: "axtargetbotwebsite.firebasestorage.app", 
+            storageBucket: "axtargetbotwebsite.appspot.com",
             messagingSenderId: "808698399196",
-            appId: "1:808698399196:web:61b6be0721b94f24c3a719",
-            measurementId: "G-VLWZG4Q5TD"
+            appId: "1:808698399196:web:61b6be0721b94f24c3a719"
         };
         const firebaseProjectId = firebaseConfig.projectId;
 
-        // Firebase'i Başlat
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         let currentUserId = null;
-        const ADMIN_WHATSAPP_NUMBER = "994606006162"; // Adminin WhatsApp nömrəsi
-        let currentFilter = 'new'; // 'new' veya 'all'
+        const ADMIN_WHATSAPP_NUMBER = "994606006162";
+        let currentFilter = 'new';
+        let isAnonymousUser = true;
 
-        // DOM Elementləri
         const ordersList = document.getElementById('orders-list');
         const noOrdersMessage = document.getElementById('no-orders-message');
         const alertContainer = document.getElementById('alert-container');
         const newOrdersTab = document.getElementById('new-orders-tab');
         const allOrdersTab = document.getElementById('all-orders-tab');
-        const floatingWhatsappBubble = document.getElementById('floating-whatsapp-bubble'); // WhatsApp balonu
+        const floatingWhatsappBubble = document.getElementById('floating-whatsapp-bubble');
+        const topUpModal = document.getElementById('top-up-modal');
+        const closeTopUpModalButton = document.getElementById('close-top-up-modal');
+        const bottomNavTopUp = document.getElementById('bottom-nav-topup');
+        const whatsappTopUpLink = document.getElementById('whatsapp-topup-link');
+        const userInfoHeader = document.getElementById('user-info-header');
+        const warningInfoBox = document.getElementById('warning-info-box');
+        const userAvatar = document.getElementById('user-avatar');
+        const avatarInitials = document.getElementById('avatar-initials');
+        const userDisplayName = document.getElementById('user-display-name');
+        const userEmail = document.getElementById('user-email');
+        const logoutButton = document.getElementById('logout-button');
+        const googleAuthButton = document.getElementById('google-auth-button');
+        const googleAuthWarningBtn = document.getElementById('google-auth-warning-btn');
 
-        // Custom Alert Funksiyası
         function showAlert(message, type = 'error', duration = 3000) {
             const alertBox = document.createElement('div');
-            alertBox.className = `alert-message ${type} fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white p-3 rounded-lg shadow-md z-50`;
+            alertBox.className = `alert-message ${type}`;
             alertBox.innerHTML = message; 
             
             const existingAlerts = document.querySelectorAll('.alert-message');
             existingAlerts.forEach(alert => alert.remove());
 
-            if (type === 'success') {
-                alertBox.classList.remove('bg-red-600');
-                alertBox.classList.add('bg-green-600');
-            }
             alertContainer.appendChild(alertBox);
             setTimeout(() => {
                 alertBox.classList.add('show');
@@ -289,39 +483,100 @@
             }, duration);
         }
 
-        // Firebase Autentifikasiya və Sifarişlərin Yüklənməsi
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
+        function updateUserUI(user) {
+            if (user && !user.isAnonymous) {
+                isAnonymousUser = false;
+                userInfoHeader.classList.remove('hidden');
+                warningInfoBox.classList.add('hidden');
+                
+                const displayName = user.displayName || user.email.split('@')[0];
+                const email = user.email;
+                
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                avatarInitials.textContent = initials;
+                
+                userDisplayName.textContent = displayName;
+                userEmail.textContent = email;
+                
+                googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
+                googleAuthButton.title = 'Google hesabı ilə giriş edilib';
+                
             } else {
-                signInAnonymously(auth).then(async (anonUserCredential) => {
-                    currentUserId = anonUserCredential.user.uid;
-                    loadOrders(currentUserId, currentFilter); // Başlangıçta mevcut filtreye göre yükle
-                }).catch(error => {
-                    console.error("Anonim girişdə xəta:", error);
-                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
-                });
+                isAnonymousUser = true;
+                userInfoHeader.classList.add('hidden');
+                warningInfoBox.classList.remove('hidden');
+                
+                googleAuthButton.innerHTML = '<i class="fab fa-google"></i>';
+                googleAuthButton.title = 'Google hesabı ilə giriş et';
             }
-        });
+        }
 
-        // Sifarişləri yüklə və göstər
+        async function signInWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        balance: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp()
+                    });
+                } else {
+                    await updateDoc(userDocRef, {
+                        lastLogin: serverTimestamp()
+                    });
+                }
+                
+                showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                updateUserUI(user);
+                currentUserId = user.uid;
+                
+                // Siparişleri yeniden yükle
+                loadOrders(currentUserId, currentFilter);
+                
+            } catch (error) {
+                console.error('Google giriş xətası:', error);
+                showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showAlert('Uğurla çıxış edildi', 'success');
+                
+                const cred = await signInAnonymously(auth);
+                currentUserId = cred.user.uid;
+                updateUserUI(cred.user);
+                
+                loadOrders(currentUserId, currentFilter);
+                
+            } catch (error) {
+                console.error('Çıxış xətası:', error);
+                showAlert('Çıxış zamanı xəta baş verdi', 'error');
+            }
+        }
+
         async function loadOrders(userId, filter) {
             ordersList.innerHTML = '<p class="text-center text-gray-400">Sifarişlər yüklənir...</p>';
             
-            let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`); // Tek collection
+            let ordersColRef = collection(db, `artifacts/${firebaseProjectId}/public/data/orders`);
             let q;
 
             if (filter === 'new') {
-                // Yalnız isNew: true olan yeni sifarişləri göstər
                 q = query(ordersColRef, where("userId", "==", userId), where("isNew", "==", true), orderBy("timestamp", "desc"));
-            } else { // filter === 'all'
-                // Bütün sifarişləri göstər (isNew true veya false fark etmez)
+            } else {
                 q = query(ordersColRef, where("userId", "==", userId), orderBy("timestamp", "desc"));
             }
 
             onSnapshot(q, (snapshot) => {
-                ordersList.innerHTML = ''; // Mövcud məzmunu təmizlə
+                ordersList.innerHTML = '';
                 if (snapshot.empty) {
                     noOrdersMessage.classList.remove('hidden');
                 } else {
@@ -342,20 +597,14 @@
                         }
 
                         const orderItem = document.createElement('div');
-                        orderItem.className = `order-item card`; // Tailwind card sınıfını kullan
-                        orderItem.dataset.orderId = orderId; // Sifariş ID'sini data attribute olaraq kaydet
-                        orderItem.dataset.isNew = order.isNew; // isNew durumunu da kaydet
+                        orderItem.className = `order-item card`;
+                        orderItem.dataset.orderId = orderId;
+                        orderItem.dataset.isNew = order.isNew;
 
                         let newIndicatorHtml = '';
-                        // Yalnız isNew true olduqda "YENİ" işarəsini göstər
-                        if (order.isNew) { // isNew true ise her zaman "YENİ" göster
+                        if (order.isNew) {
                             newIndicatorHtml = `<span class="new-indicator">YENİ</span>`;
                         }
-
-                        // Sifariş elementinin tıklanabilirliğini isNew durumuna göre ayarla
-                        // Artıq sifariş kartları ümumiyyətlə kliklənə bilməyəcək.
-                        // new-clickable sinfi əlavə edilmir.
-
 
                         orderItem.innerHTML = `
                             ${newIndicatorHtml}
@@ -375,13 +624,9 @@
                         ordersList.appendChild(orderItem);
                     });
 
-                    // Sifariş elementlərinə tıklama dinləyicisi tamamilə silindi
-                    // ordersList.querySelectorAll('.order-item.new-clickable').forEach(item => { /* ... */ });
-
-                    // Problem Bildir düyməsinə click listener əlavə et
                     ordersList.querySelectorAll('.report-problem-button').forEach(button => {
                         button.addEventListener('click', (e) => {
-                            e.stopPropagation(); // Üst elementin (order-item) tıklamasını engelle
+                            e.stopPropagation();
                             const orderIdToReport = e.target.dataset.orderId;
                             const whatsappMessage = `Salam, mənim sifarişimdə problem var. Sifariş ID: ${orderIdToReport}. Xahiş edirəm kömək edin. Mənim İstifadəçi ID-m: ${userId}`;
                             const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -399,12 +644,32 @@
             });
         }
         
-        // Tab Navigasyon İşlevselliği
-        newOrdersTab.addEventListener('click', () => {
-            // Eğer zaten aktifse bir şey yapma
-            if (newOrdersTab.classList.contains('active')) {
-                return;
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                updateUserUI(user);
+                loadOrders(currentUserId, currentFilter);
+                
+                // WhatsApp linkini güncelle
+                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                whatsappTopUpLink.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                floatingWhatsappBubble.href = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                
+            } else {
+                try {
+                    const cred = await signInAnonymously(auth);
+                    currentUserId = cred.user.uid;
+                    updateUserUI(cred.user);
+                    loadOrders(currentUserId, currentFilter);
+                } catch (error) {
+                    console.error("Anonim girişdə xəta:", error);
+                    showAlert("Sistemə daxil olarkən xəta baş verdi. Zəhmət olmasa səhifəni yeniləyin.", 'error');
+                }
             }
+        });
+
+        newOrdersTab.addEventListener('click', () => {
+            if (newOrdersTab.classList.contains('active')) return;
             newOrdersTab.classList.add('active');
             allOrdersTab.classList.remove('active');
             currentFilter = 'new';
@@ -412,35 +677,28 @@
         });
 
         allOrdersTab.addEventListener('click', () => {
-            // Eğer zaten aktifse bir şey yapma
-            if (allOrdersTab.classList.contains('active')) {
-                return;
-            }
+            if (allOrdersTab.classList.contains('active')) return;
             allOrdersTab.classList.add('active');
             newOrdersTab.classList.remove('active');
             currentFilter = 'all';
             loadOrders(currentUserId, currentFilter);
         });
 
+        function toggleModal(show) {
+            if (show) {
+                topUpModal.style.display = 'flex';
+                setTimeout(() => topUpModal.classList.add('show'), 10);
+            } else {
+                topUpModal.classList.remove('show');
+                topUpModal.addEventListener('transitionend', () => {
+                    if (!topUpModal.classList.contains('show')) topUpModal.style.display = 'none';
+                }, { once: true });
+            }
+        }
 
-        // Səhifə yükləndikdə (alt naviqasiyanın aktiv olması üçün)
-        document.addEventListener('DOMContentLoaded', () => {
-             document.querySelectorAll('.bottom-nav .nav-item').forEach(item => {
-                const linkHref = item.getAttribute('href');
-                // Mevcut sayfa orders.html ise bu nav-item'ı aktif yap
-                if (window.location.pathname.includes('orders.html') && linkHref.includes('orders.html')) {
-                    item.classList.add('active');
-                } else if (window.location.pathname.includes('follower-service.html') && linkHref.includes('follower-service.html')) {
-                     item.classList.add('active'); // follower-service de açıldığında active olsun
-                }
-            });
-        });
-
-        // Floating WhatsApp Bubble'ı başlat
         if (floatingWhatsappBubble) {
             floatingWhatsappBubble.addEventListener('click', (e) => {
                 e.preventDefault();
-                // currentUserId'nin yüklendiğinden emin olmak için kontrol
                 if (currentUserId) {
                     const whatsappMessage = `Salam, dəstəyə ehtiyacım var. İstifadəçi ID-m: ${currentUserId}.`;
                     const whatsappUrl = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -450,6 +708,16 @@
                 }
             });
         }
+
+        bottomNavTopUp.addEventListener('click', () => toggleModal(true));
+        closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
+        topUpModal.addEventListener('click', (e) => { 
+            if (e.target === topUpModal) toggleModal(false); 
+        });
+        
+        googleAuthButton.addEventListener('click', signInWithGoogle);
+        googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
+        logoutButton.addEventListener('click', handleLogout);
 
     </script>
 </body>
