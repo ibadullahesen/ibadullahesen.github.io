@@ -130,10 +130,10 @@
             box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.5);
         }
         .custom-select-options {
-            position: absolute; top: 105%; left: 0; right: 0;
+            position: absolute; top: 100%; left: 0; right: 0;
             background-color: var(--card-background); border: 1px solid var(--border);
             border-radius: 0.5rem; z-index: 10;
-            max-height: 200px; overflow-y: auto;
+            max-height: 300px; overflow-y: auto;
             display: none; list-style: none; padding: 0.25rem; margin: 0;
         }
         .custom-select-wrapper.open .custom-select-options { display: block; }
@@ -296,6 +296,15 @@
             font-family: monospace;
             font-size: 0.8rem;
             word-break: break-all;
+            margin-top: 0.5rem;
+        }
+        
+        .category-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     </style>
 </head>
@@ -358,7 +367,7 @@
                     <div class="details">
                         <div class="name" id="user-display-name">Google İstifadəçisi</div>
                         <div class="email" id="user-email">email@example.com</div>
-                        <div class="user-id-badge mt-2" id="user-id-display">
+                        <div class="user-id-badge" id="user-id-display">
                             ID: <span id="user-id-value">Yüklənir...</span>
                         </div>
                     </div>
@@ -598,8 +607,7 @@
             signInWithPopup, 
             GoogleAuthProvider, 
             signOut,
-            linkWithCredential,
-            EmailAuthProvider
+            linkWithCredential
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore, 
@@ -614,8 +622,7 @@
             query,
             where,
             getDocs,
-            writeBatch,
-            increment
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -633,29 +640,179 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // Email-based UID generator (SAME IN BOTH PAGES)
+        const generateEmailBasedUID = (email) => {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                const char = email.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return `google_${Math.abs(hash).toString(16)}`;
+        };
+
         const allServices = [
-            { platform: 'Instagram', category: 'Instagram Keşfet Paketi 🚀', categoryIconClass: 'fab fa-instagram text-pink-500', isDiscoveryPackage: true, items: [ { id: 'discovery-package', name: 'Keşfet Paketi', pricePer100Percent: 309, min: 25, max: 100, avgTime: '100-300 Saat', description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' } ] },
-            { platform: 'Instagram', category: 'Instagram Takipçi Servisleri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_follower', name: 'Takipçi❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 }, { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿❌işləmir❌', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 }, { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷❌işləmir❌', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 }, { id: 'instagram_30day_guarantee', name: '30 Gün Garantili❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 }, { id: 'instagram_100day_guarantee', name: '100 Gün Garantili❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 }, { id: 'instagram_365day_guarantee', name: '365 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 }, { id: '3000', name: '365 Gün Garantili (⭐İşlək servis⭐)', iconClass: 'fab fa-instagram', avgTime: '71 dəqiqə', min: 10, max: 50000, pricePerK: 12.9 }, { id: 'instagram_lifetime_guarantee', name: 'Ömür Boyu Garantili çox yavaş', iconClass: 'fas fa-infinity', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6.00 } ] },
-            { platform: 'Instagram', category: 'Instagram Bəyəni Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_like', name: 'Bəyəni (az enməz)❌işləmir❌ (Min:10)', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 }, { id: '1001', name: 'Bəyəni İşlək servis (⭐İşlək servis⭐)', iconClass: 'fas fa-heart text-pink-500', avgTime: '160 dəqiqə', min: 20, max: 10000000, pricePerK: 1.89 }, { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur)❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 }, { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 } ] },
-            { platform: 'Instagram', category: 'Instagram İzlənmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_video_view', name: 'Video İzlənmə', iconClass: 'fas fa-eye', avgTime: '36 saat', min: 100, max: 50000000, pricePerK: 0.19 }, { id: '10000', name: 'Video İzlənmə ⭐Sürətli⭐', iconClass: 'fas fa-eye', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.39 }, { id: 'instagram_az_video_view', name: 'Azərbaycanlı Video İzlənmə 🇦🇿', iconClass: 'fas fa-eye', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },{ id: '50001', name: '🆕Video İzlənmə Min : 100.000', iconClass: 'fas fa-eye', avgTime: '59 dəqiqə', min: 100000, max: 50000000, pricePerK: 0.10 },{ id: '50002', name: 'Video İzlənmə Yavaş Min : 10.000', iconClass: 'fas fa-eye', avgTime: '2 saat', min: 10000, max: 50000000, pricePerK: 0.032 } ] },
-            { platform: 'Instagram', category: 'Instagram Yorum,Paylaşım,Kaydetmə Servisləri', categoryIconClass: 'fab fa-instagram text-pink-500', items: [ { id: 'instagram_comment', name: 'Yorum', iconClass: 'fas fa-comment', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 }, { id: 'instagram_save', name: 'Kaydetmə', iconClass: 'fas fa-save', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 }, { id: 'instagram_share', name: 'Paylaşma', iconClass: 'fas fa-share', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 } ] },
-            { platform: 'TikTok', category: 'TikTok Takipçi Servisleri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_foreign_follower', name: 'Xarici Takipçi', iconClass: 'fab fa-tiktok', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 }, { id: '2000', name: 'Xarici Takipçi Yeni ucuz', iconClass: 'fab fa-tiktok', avgTime: '4 saat', min: 10, max: 10000000, pricePerK: 4.99 }, { id: 'tiktok_foreign_follower_no_guarantee', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 6.93 }, { id: 'tiktok_quality_follower_no_guarantee', name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 11.54 }, { id: 'tiktok_quality_follower_60_day_guarantee', name: 'Keyfiyyətli Takipçi (60 gün qaranti)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 16.99 } ] },
-            { platform: 'TikTok', category: 'TikTok Bəyəni Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_like', name: 'Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 }, { id: '00005', name: 'Bəyəni "Özəl" (Min:100)', iconClass: 'fas fa-heart', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 }, { id: '00006', name: 'Bəyəni "Özəl-2" (Min:50.000)', iconClass: 'fas fa-heart', avgTime: '28 dəqiqə', min: 50000, max: 10000000, pricePerK: 0.13 }, { id: '00001', name: 'NEW Bəyəni (Min:30)', iconClass: 'fas fa-heart', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 }, { id: '00002', name: 'Bəyəni (Min:150)', iconClass: 'fas fa-heart', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 }, { id: '00003', name: 'Bəyəni -Orta sürət- (Min:1.000)', iconClass: 'fas fa-heart', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 }, { id: '00004', name: 'Bəyəni ⭐Sürətli⭐ (Min:200)', iconClass: 'fas fa-heart', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 } ] },
-            { platform: 'TikTok', category: 'TikTok İzlənmə Servisləri', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_view', name: 'Video İzlənmə (Min:100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.006 }, { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min:100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min:1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, { id: '000012', name: 'İzlənmə (Min:10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } ] },
-            { platform: 'TikTok', category: 'TikTok Digər Servislər', categoryIconClass: 'fab fa-tiktok', items: [ { id: 'tiktok_video_share', name: 'Video Paylaşma', iconClass: 'fas fa-share', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 }, { id: 'tiktok_video_save', name: 'Video Kaydetmə', iconClass: 'fas fa-save', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 }, { id: 'tiktok_profile_view', name: 'Profil Görüntüləmə', iconClass: 'fas fa-user', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 } ] },
-            { platform: 'Youtube', category: 'Youtube Abonəçi Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } ] },
-            { platform: 'Youtube', category: 'Youtube Bəyəni Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } ] },
-            { platform: 'Youtube', category: 'Youtube İzlənmə Servisləri', categoryIconClass: 'fab fa-youtube text-red-500', items: [ { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } ] },
-            { platform: 'Pulsuz', category: 'Pulsuz Servislər 🎁', categoryIconClass: 'fas fa-gift text-green-500', isFree: true, items: [ { id: 'free_instagram_like', name: 'Instagram Pulsuz Bəyəni (50)', iconClass: 'fab fa-instagram text-pink-500', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeInstagramLike' }, { id: 'free_tiktok_like', name: 'TikTok Pulsuz Bəyəni (50)', iconClass: 'fab fa-tiktok', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeTikTokLike' } ] }
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Keşfet Paketi 🚀', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                isDiscoveryPackage: true, 
+                items: [ 
+                    { 
+                        id: 'discovery-package', 
+                        name: 'Keşfet Paketi', 
+                        pricePer100Percent: 309, 
+                        min: 25, 
+                        max: 100, 
+                        avgTime: '100-300 Saat', 
+                        description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' 
+                    } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Takipçi Servisleri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_follower', name: 'Takipçi ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-400', avgTime: '20-40 dəqiqə', min: 10, max: 1000000, pricePerK: 2.85 }, 
+                    { id: 'instagram_az_follower', name: 'Azərbaycanlı Takipçi 🇦🇿 ❌işləmir❌', iconClass: 'fab fa-instagram text-pink-500', avgTime: '2 saat 30 dəqiqə', min: 10, max: 100000, pricePerK: 9.93 }, 
+                    { id: 'instagram_tr_follower', name: 'Türk Takipçi 🇹🇷 ❌işləmir❌', iconClass: 'fab fa-instagram', avgTime: '50 dəqiqə', min: 10, max: 500000, pricePerK: 9.30 }, 
+                    { id: 'instagram_30day_guarantee', name: '30 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat', min: 10, max: 50000, pricePerK: 4.49 }, 
+                    { id: 'instagram_100day_guarantee', name: '100 Gün Garantili ❌işləmir❌', iconClass: 'fas fa-shield-alt', avgTime: '1 saat 10 dəqiqə', min: 10, max: 50000, pricePerK: 4.48 }, 
+                    { id: 'instagram_365day_guarantee', name: '365 Gün Garantili', iconClass: 'fas fa-shield-alt', avgTime: '25 dəqiqə', min: 10, max: 50000, pricePerK: 5.79 }, 
+                    { id: '3000', name: '365 Gün Garantili (⭐İşlək servis⭐)', iconClass: 'fab fa-instagram', avgTime: '71 dəqiqə', min: 10, max: 50000, pricePerK: 12.9 }, 
+                    { id: 'instagram_lifetime_guarantee', name: 'Ömür Boyu Garantili (Çox yavaş)', iconClass: 'fas fa-infinity', avgTime: '1 saat 40 dəqiqə', min: 10, max: 20000, pricePerK: 6.00 } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Bəyəni Servisləri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_like', name: 'Bəyəni (az enməz) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.79 }, 
+                    { id: '1001', name: 'Bəyəni İşlək servis (⭐İşlək servis⭐)', iconClass: 'fas fa-heart text-pink-500', avgTime: '160 dəqiqə', min: 20, max: 10000000, pricePerK: 1.89 }, 
+                    { id: 'instagram_like_no_guarantee', name: 'Bəyəni (Qaranti yoxdur) ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '0-5 dəqiqə', min: 10, max: 10000000, pricePerK: 0.69 }, 
+                    { id: 'instagram_az_like', name: 'Azərbaycanlı Bəyəni 🇦🇿 ❌işləmir❌', iconClass: 'fas fa-heart text-pink-500', avgTime: '5-15 dəqiqə', min: 10, max: 100000, pricePerK: 2.08 } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram İzlənmə Servisləri', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_video_view', name: 'Video İzlənmə', iconClass: 'fas fa-eye', avgTime: '36 saat', min: 100, max: 50000000, pricePerK: 0.19 }, 
+                    { id: '10000', name: 'Video İzlənmə ⭐Sürətli⭐', iconClass: 'fas fa-eye', avgTime: '38 dəqiqə', min: 100, max: 50000000, pricePerK: 0.39 }, 
+                    { id: 'instagram_az_video_view', name: 'Azərbaycanlı Video İzlənmə 🇦🇿', iconClass: 'fas fa-eye', avgTime: '10-30 dəqiqə', min: 100, max: 5000000, pricePerK: 0.99 },
+                    { id: '50001', name: '🆕 Video İzlənmə (Min: 100.000)', iconClass: 'fas fa-eye', avgTime: '59 dəqiqə', min: 100000, max: 50000000, pricePerK: 0.10 },
+                    { id: '50002', name: 'Video İzlənmə Yavaş (Min: 10.000)', iconClass: 'fas fa-eye', avgTime: '2 saat', min: 10000, max: 50000000, pricePerK: 0.032 } 
+                ] 
+            },
+            { 
+                platform: 'Instagram', 
+                category: 'Instagram Yorum, Paylaşım, Kaydetmə', 
+                categoryIconClass: 'fab fa-instagram text-pink-500', 
+                items: [ 
+                    { id: 'instagram_comment', name: 'Yorum', iconClass: 'fas fa-comment', avgTime: '24-48 saat', min: 1, max: 500, pricePerK: 9.00 }, 
+                    { id: 'instagram_save', name: 'Kaydetmə', iconClass: 'fas fa-save', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 3.26 }, 
+                    { id: 'instagram_share', name: 'Paylaşma', iconClass: 'fas fa-share', avgTime: '5-15 dəqiqə', min: 10, max: 1000000, pricePerK: 5.09 } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Takipçi Servisleri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { id: 'tiktok_foreign_follower', name: 'Xarici Takipçi', iconClass: 'fab fa-tiktok', avgTime: '60-90 dəqiqə', min: 10, max: 10000000, pricePerK: 5.33 }, 
+                    { id: '2000', name: 'Xarici Takipçi Yeni ucuz', iconClass: 'fab fa-tiktok', avgTime: '4 saat', min: 10, max: 10000000, pricePerK: 4.99 }, 
+                    { id: 'tiktok_foreign_follower_no_guarantee', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '300 saat', min: 10, max: 10000000, pricePerK: 6.93 }, 
+                    { id: 'tiktok_quality_follower_no_guarantee', name: 'Keyfiyyətli Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-tiktok', avgTime: '65-120 dəqiqə', min: 10, max: 10000000, pricePerK: 11.54 }, 
+                    { id: 'tiktok_quality_follower_60_day_guarantee', name: 'Keyfiyyətli Takipçi (60 gün qaranti)', iconClass: 'fab fa-tiktok', avgTime: '100-150 dəqiqə', min: 10, max: 10000000, pricePerK: 16.99 } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Bəyəni Servisləri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { id: 'tiktok_video_like', name: 'Bəyəni (Min: 30)', iconClass: 'fas fa-heart', avgTime: '9 dəqiqə', min: 30, max: 10000000, pricePerK: 1.51 }, 
+                    { id: '00005', name: 'Bəyəni "Özəl" (Min: 100)', iconClass: 'fas fa-heart', avgTime: '20 dəqiqə', min: 100, max: 10000000, pricePerK: 0.71 }, 
+                    { id: '00006', name: 'Bəyəni "Özəl-2" (Min: 50.000)', iconClass: 'fas fa-heart', avgTime: '28 dəqiqə', min: 50000, max: 10000000, pricePerK: 0.13 }, 
+                    { id: '00001', name: 'NEW Bəyəni (Min: 30)', iconClass: 'fas fa-heart', avgTime: '25 dəqiqə', min: 30, max: 10000000, pricePerK: 2.38 }, 
+                    { id: '00002', name: 'Bəyəni (Min: 150)', iconClass: 'fas fa-heart', avgTime: '55 dəqiqə', min: 150, max: 10000000, pricePerK: 0.96 }, 
+                    { id: '00003', name: 'Bəyəni -Orta sürət- (Min: 1.000)', iconClass: 'fas fa-heart', avgTime: '59 dəqiqə', min: 1000, max: 10000000, pricePerK: 0.88 }, 
+                    { id: '00004', name: 'Bəyəni ⭐Sürətli⭐ (Min: 200)', iconClass: 'fas fa-heart', avgTime: '27 dəqiqə', min: 200, max: 10000000, pricePerK: 1.09 } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok İzlənmə Servisləri', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { id: 'tiktok_video_view', name: 'Video İzlənmə (Min: 100)', iconClass: 'fas fa-eye', avgTime: '1 saat', min: 100, max: 100000000, pricePerK: 0.14 }, 
+                    { id: '000013', name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000.000)', iconClass: 'fas fa-eye', avgTime: '18 dəqiqə', min: 1000000, max: 100000000, pricePerK: 0.006 }, 
+                    { id: '000010', name: 'İzlənmə ⭐ultra sürətli⭐ (Min: 100.000)', iconClass: 'fas fa-eye', avgTime: '12 dəqiqə', min: 100000, max: 100000000, pricePerK: 0.03 }, 
+                    { id: '000011', name: 'İzlənmə ⭐sürətli⭐ (Min: 1.000)', iconClass: 'fas fa-eye', avgTime: '6 dəqiqə', min: 1000, max: 100000000, pricePerK: 0.19 }, 
+                    { id: '000012', name: 'İzlənmə (Min: 10.000)', iconClass: 'fas fa-eye', avgTime: '28 dəqiqə', min: 10000, max: 100000000, pricePerK: 0.09 } 
+                ] 
+            },
+            { 
+                platform: 'TikTok', 
+                category: 'TikTok Digər Servislər', 
+                categoryIconClass: 'fab fa-tiktok', 
+                items: [ 
+                    { id: 'tiktok_video_share', name: 'Video Paylaşma', iconClass: 'fas fa-share', avgTime: '10-60 dəqiqə', min: 10, max: 1000000, pricePerK: 4.02 }, 
+                    { id: 'tiktok_video_save', name: 'Video Kaydetmə', iconClass: 'fas fa-save', avgTime: '10-70 dəqiqə', min: 10, max: 1000000, pricePerK: 4.62 }, 
+                    { id: 'tiktok_profile_view', name: 'Profil Görüntüləmə', iconClass: 'fas fa-user', avgTime: '5-15 dəqiqə', min: 100, max: 50000000, pricePerK: 0.16 } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube Abonəçi Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { id: '00011', name: 'Xarici Takipçi (Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '80-120 dəqiqə', min: 10, max: 10000000, pricePerK: 3.12 } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube Bəyəni Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { id: '0005', name: 'Bəyəni ❤️ |10M | BEST', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.39 }, 
+                    { id: '0006', name: 'Bəyəni(Qarantili) ❤️', iconClass: 'fab fa-youtube text-red-500', avgTime: '15-25 dəqiqə', min: 30, max: 10000000, pricePerK: 0.97 } 
+                ] 
+            },
+            { 
+                platform: 'Youtube', 
+                category: 'Youtube İzlənmə Servisləri', 
+                categoryIconClass: 'fab fa-youtube text-red-500', 
+                items: [ 
+                    { id: '0007', name: 'İzlənmə(Qaranti yoxdur)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 1.97 }, 
+                    { id: '0008', name: 'İzlənmə(Qaranti✅)', iconClass: 'fab fa-youtube text-red-500', avgTime: '16 saat', min: 30, max: 10000000, pricePerK: 6.63 } 
+                ] 
+            },
+            { 
+                platform: 'Pulsuz', 
+                category: 'Pulsuz Servislər 🎁', 
+                categoryIconClass: 'fas fa-gift text-green-500', 
+                isFree: true, 
+                items: [ 
+                    { id: 'free_instagram_like', name: 'Instagram Pulsuz Bəyəni (50)', iconClass: 'fab fa-instagram text-pink-500', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeInstagramLike' }, 
+                    { id: 'free_tiktok_like', name: 'TikTok Pulsuz Bəyəni (50)', iconClass: 'fab fa-tiktok', avgTime: '0-5 dəqiqə', min: 50, max: 50, pricePerK: 0, cooldownField: 'lastFreeTikTokLike' } 
+                ] 
+            }
         ];
         
-        let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
+        let currentUserId = null;
+        let userBalance = 0;
+        let selectedCategory = null;
+        let selectedService = null;
+        let userDocData = null;
         let isAnonymousUser = true;
         let anonUserData = null;
         
         const DOMElements = {
             userBalance: document.getElementById('user-balance'),
-            userIdDisplay: document.getElementById('user-id-display'),
             userIdValue: document.getElementById('user-id-value'),
             anonIdDisplay: document.getElementById('anon-id-display'),
             anonIdContainer: document.getElementById('anon-id-container'),
@@ -859,7 +1016,7 @@
                 DOMElements.serviceDetailsWrapper.classList.add('hidden');
                 DOMElements.serviceDetailsWrapper.classList.remove('grid');
                 DOMElements.descriptionBox.classList.add('hidden');
-                 DOMElements.quantityAlert.classList.add('hidden');
+                DOMElements.quantityAlert.classList.add('hidden');
             }
         };
 
@@ -869,12 +1026,17 @@
             const optionsList = wrapper.querySelector('.custom-select-options');
             const triggerText = trigger.querySelector('span');
             
+            // Fix dropdown click issue
             trigger.addEventListener('click', (e) => {
                 e.stopPropagation();
+                const isOpen = wrapper.classList.contains('open');
                 document.querySelectorAll('.custom-select-wrapper.open').forEach(openWrapper => {
-                    if (openWrapper !== wrapper) openWrapper.classList.remove('open');
+                    openWrapper.classList.remove('open');
                 });
-                wrapper.classList.toggle('open');
+                
+                if (!isOpen) {
+                    wrapper.classList.add('open');
+                }
             });
 
             const populate = (items) => {
@@ -883,12 +1045,16 @@
                     const li = document.createElement('li');
                     li.dataset.value = item.value;
                     li.innerHTML = `<i class="icon ${item.iconClass}"></i><span>${item.label}</span>`;
-                    li.addEventListener('click', () => {
+                    li.addEventListener('click', (e) => {
+                        e.stopPropagation();
                         triggerText.innerHTML = li.innerHTML;
                         triggerText.classList.remove('placeholder');
                         wrapper.dataset.value = item.value;
-                        wrapper.dispatchEvent(new CustomEvent('change', { detail: { value: item.value } }));
                         wrapper.classList.remove('open');
+                        
+                        // Trigger custom event
+                        const event = new CustomEvent('change', { detail: { value: item.value } });
+                        wrapper.dispatchEvent(event);
                     });
                     optionsList.appendChild(li);
                 });
@@ -899,7 +1065,7 @@
                 triggerText.classList.add('placeholder');
                 delete wrapper.dataset.value;
                 optionsList.innerHTML = '';
-            }
+            };
 
             return { populate, wrapper, reset };
         };
@@ -907,6 +1073,16 @@
         const categoryDropdown = createCustomDropdown('category-select', 'Kateqoriya Seçin');
         const serviceDropdown = createCustomDropdown('service-select', 'Servis Seçin');
 
+        // Fix document click to close dropdowns
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.custom-select-wrapper')) {
+                document.querySelectorAll('.custom-select-wrapper.open').forEach(wrapper => {
+                    wrapper.classList.remove('open');
+                });
+            }
+        });
+
+        // Initialize dropdowns
         categoryDropdown.populate(
             allServices.map(catData => ({
                 value: catData.category,
@@ -968,10 +1144,6 @@
             selectedService = selectedCategory ? { ...selectedCategory.items.find(item => item.id === serviceId), platform: selectedCategory.platform } : null;
             updateUIDisplay();
         });
-        
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.custom-select-wrapper.open').forEach(wrapper => wrapper.classList.remove('open'));
-        });
 
         const updateUserUI = (user) => {
             if (user && !user.isAnonymous) {
@@ -988,7 +1160,7 @@
                 
                 DOMElements.userDisplayName.textContent = displayName;
                 DOMElements.userEmail.textContent = email;
-                DOMElements.userIdValue.textContent = user.uid;
+                DOMElements.userIdValue.textContent = currentUserId;
                 
                 DOMElements.googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
                 DOMElements.googleAuthButton.title = 'Google hesabı ilə giriş edilib';
@@ -1032,7 +1204,7 @@
                 const result = await linkWithCredential(anonymousUser, googleCredential);
                 
                 const oldUserId = anonymousUser.uid;
-                const newUserId = result.user.uid;
+                const googleUID = generateEmailBasedUID(result.user.email);
                 
                 const oldUserDocRef = doc(db, 'users', oldUserId);
                 const oldUserDoc = await getDoc(oldUserDocRef);
@@ -1051,28 +1223,35 @@
                     ordersSnapshot.forEach((orderDoc) => {
                         const orderRef = orderDoc.ref;
                         batch.update(orderRef, { 
-                            userId: newUserId,
+                            userId: googleUID,
                             userEmail: result.user.email 
                         });
                     });
                     
-                    const newUserDocRef = doc(db, 'users', newUserId);
+                    const newUserDocRef = doc(db, 'users', googleUID);
                     await setDoc(newUserDocRef, {
                         ...oldData,
                         email: result.user.email,
                         displayName: result.user.displayName || result.user.email.split('@')[0],
                         upgradedFromAnonymous: true,
                         originalAnonymousId: oldUserId,
-                        lastLogin: serverTimestamp()
+                        lastLogin: serverTimestamp(),
+                        googleUID: googleUID,
+                        firebaseUID: result.user.uid
                     });
                     
                     batch.delete(oldUserDocRef);
                     await batch.commit();
                     
                     localStorage.removeItem('anonUserData');
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: result.user.uid,
+                        customUID: googleUID,
+                        email: result.user.email
+                    }));
                 }
                 
-                return result.user;
+                return { ...result.user, customUID: googleUID };
             } catch (error) {
                 console.error("Anonymous upgrade error:", error);
                 throw error;
@@ -1089,17 +1268,18 @@
                     
                     const upgradedUser = await upgradeAnonymousToGoogle(user, googleCredential);
                     
-                    showAlert('Google hesabı ilə uğurla qeydiyyatdan keçdiniz! Anonim hesabınız Google hesabınıza bağlandı.', 'success');
-                    updateUserUI(upgradedUser);
+                    showAlert('Google hesabı ilə uğurla qeydiyyatdan keçdiniz!', 'success');
                     
-                    currentUserId = upgradedUser.uid;
+                    currentUserId = upgradedUser.customUID;
+                    updateUserUI(upgradedUser);
                     await updateBalanceUI(currentUserId, false);
                     
                 } else {
                     const result = await signInWithPopup(auth, googleProvider);
                     const googleUser = result.user;
+                    const googleUID = generateEmailBasedUID(googleUser.email);
                     
-                    const userDocRef = doc(db, 'users', googleUser.uid);
+                    const userDocRef = doc(db, 'users', googleUID);
                     const userDoc = await getDoc(userDocRef);
                     
                     if (!userDoc.exists()) {
@@ -1108,18 +1288,26 @@
                             displayName: googleUser.displayName || googleUser.email.split('@')[0],
                             balance: 0,
                             createdAt: serverTimestamp(),
-                            lastLogin: serverTimestamp()
+                            lastLogin: serverTimestamp(),
+                            googleUID: googleUID,
+                            firebaseUID: googleUser.uid
                         });
                     } else {
                         await updateDoc(userDocRef, {
-                            lastLogin: serverTimestamp()
+                            lastLogin: serverTimestamp(),
+                            firebaseUID: googleUser.uid
                         });
                     }
                     
-                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
-                    updateUserUI(googleUser);
+                    localStorage.setItem('userMapping', JSON.stringify({
+                        firebaseUID: googleUser.uid,
+                        customUID: googleUID,
+                        email: googleUser.email
+                    }));
                     
-                    currentUserId = googleUser.uid;
+                    showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                    currentUserId = googleUID;
+                    updateUserUI(googleUser);
                     await updateBalanceUI(currentUserId, false);
                 }
                 
@@ -1128,10 +1316,12 @@
             } catch (error) {
                 console.error('Google giriş xətası:', error);
                 
-                if (error.code === 'auth/credential-already-in-use') {
-                    showAlert('Bu Google hesabı artıq başqa bir hesaba bağlıdır. Əvvəlcə həmin hesabdan çıxış edin.', 'error');
+                if (error.code === 'auth/popup-closed-by-user') {
+                    showAlert('Google girişi ləğv edildi', 'error');
+                } else if (error.code === 'auth/credential-already-in-use') {
+                    showAlert('Bu Google hesabı artıq başqa bir hesaba bağlıdır', 'error');
                 } else {
-                    showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+                    showAlert('Google girişi zamanı xəta baş verdi', 'error');
                 }
             }
         };
@@ -1141,11 +1331,13 @@
                 await signOut(auth);
                 showAlert('Uğurla çıxış edildi', 'success');
                 
+                localStorage.removeItem('userMapping');
+                
                 const cred = await signInAnonymously(auth);
                 currentUserId = cred.user.uid;
+                updateUserUI(cred.user);
                 
                 await updateBalanceUI(currentUserId, true);
-                updateUserUI(cred.user);
                 updateWhatsAppLinks();
                 
                 selectedCategory = null;
@@ -1179,10 +1371,38 @@
         };
 
         onAuthStateChanged(auth, async (user) => {
-            let authUser = user;
-            
-            if (!authUser) {
-                try {
+            if (user) {
+                let customUID = user.uid;
+                
+                if (!user.isAnonymous && user.email) {
+                    // Google user - use email-based UID
+                    const mapping = localStorage.getItem('userMapping');
+                    if (mapping) {
+                        const mapData = JSON.parse(mapping);
+                        if (mapData.firebaseUID === user.uid) {
+                            customUID = mapData.customUID;
+                        } else {
+                            customUID = generateEmailBasedUID(user.email);
+                            localStorage.setItem('userMapping', JSON.stringify({
+                                firebaseUID: user.uid,
+                                customUID: customUID,
+                                email: user.email
+                            }));
+                        }
+                    } else {
+                        customUID = generateEmailBasedUID(user.email);
+                        localStorage.setItem('userMapping', JSON.stringify({
+                            firebaseUID: user.uid,
+                            customUID: customUID,
+                            email: user.email
+                        }));
+                    }
+                    isAnonymousUser = false;
+                } else {
+                    // Anonymous user
+                    isAnonymousUser = true;
+                    
+                    // Check for existing anon data in localStorage
                     const storedAnonData = localStorage.getItem('anonUserData');
                     if (storedAnonData) {
                         try {
@@ -1190,44 +1410,54 @@
                             const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
                             
                             if (hoursElapsed < 24) {
-                                anonUserData = data;
-                                const cred = await signInAnonymously(auth);
-                                authUser = cred.user;
+                                // Keep same anon ID if less than 24 hours
+                                customUID = data.uid;
                             } else {
+                                // More than 24 hours, create new anon data
                                 localStorage.removeItem('anonUserData');
-                                const cred = await signInAnonymously(auth);
-                                authUser = cred.user;
+                                localStorage.setItem('anonUserData', JSON.stringify({
+                                    uid: user.uid,
+                                    timestamp: Date.now(),
+                                    isAnonymous: true
+                                }));
                             }
                         } catch (e) {
                             console.error('Error parsing stored anon data:', e);
-                            const cred = await signInAnonymously(auth);
-                            authUser = cred.user;
+                            localStorage.setItem('anonUserData', JSON.stringify({
+                                uid: user.uid,
+                                timestamp: Date.now(),
+                                isAnonymous: true
+                            }));
                         }
                     } else {
-                        const cred = await signInAnonymously(auth);
-                        authUser = cred.user;
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: user.uid,
+                            timestamp: Date.now(),
+                            isAnonymous: true
+                        }));
                     }
-                } catch (e) { 
-                    console.error("Anonim girişdə xəta:", e); 
-                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
-                    return;
                 }
-            }
-            
-            if (authUser) {
-                currentUserId = authUser.uid;
                 
-                updateUserUI(authUser);
+                currentUserId = customUID;
+                updateUserUI(user);
+                await updateBalanceUI(currentUserId, isAnonymousUser);
+                updateWhatsAppLinks();
                 
-                const isAnon = authUser.isAnonymous;
-                
-                await updateBalanceUI(currentUserId, isAnon);
-                
-                if (isAnon) {
+                if (isAnonymousUser) {
                     checkAnonBalanceReset();
                 }
                 
-                updateWhatsAppLinks();
+            } else {
+                try {
+                    const cred = await signInAnonymously(auth);
+                    currentUserId = cred.user.uid;
+                    updateUserUI(cred.user);
+                    await updateBalanceUI(currentUserId, true);
+                    updateWhatsAppLinks();
+                } catch (error) {
+                    console.error("Anonim girişdə xəta:", error);
+                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
+                }
             }
         });
 
@@ -1309,9 +1539,9 @@
             if (!validateInputs()) return;
 
             let quantity, totalPrice = 0, orderData;
-            const isFree = selectedCategory.isFree;
+            const isFree = selectedCategory && selectedCategory.isFree;
             
-            if (selectedCategory.isDiscoveryPackage) {
+            if (selectedCategory && selectedCategory.isDiscoveryPackage) {
                 quantity = parseInt(DOMElements.kesfetNumber.value);
                 totalPrice = parseFloat(((quantity / 100) * selectedService.pricePer100Percent).toFixed(4));
             } else if (isFree) {
@@ -1392,9 +1622,20 @@
 
         [DOMElements.topUpButton, DOMElements.bottomNavTopUp].forEach(btn => btn.addEventListener('click', () => toggleModal(true)));
         DOMElements.closeTopUpModalButton.addEventListener('click', () => toggleModal(false));
-        DOMElements.topUpModal.addEventListener('click', (e) => { if (e.target === DOMElements.topUpModal) toggleModal(false); });
-        DOMElements.newOrderNav.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
-        DOMElements.headerCampaignsButton.addEventListener('click', e => { e.preventDefault(); DOMElements.campaignsSection.scrollIntoView({ behavior: 'smooth' }); });
+        DOMElements.topUpModal.addEventListener('click', (e) => { 
+            if (e.target === DOMElements.topUpModal) toggleModal(false); 
+        });
+        
+        // Fix new order nav to scroll to top instead of redirecting
+        DOMElements.newOrderNav.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        });
+        
+        DOMElements.headerCampaignsButton.addEventListener('click', e => { 
+            e.preventDefault(); 
+            DOMElements.campaignsSection.scrollIntoView({ behavior: 'smooth' }); 
+        });
         
         DOMElements.googleAuthButton.addEventListener('click', signInWithGoogle);
         DOMElements.googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
