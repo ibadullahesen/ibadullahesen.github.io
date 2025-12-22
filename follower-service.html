@@ -21,6 +21,7 @@
             --input-bg: #4a5568;
             --font-body: 'Inter', sans-serif;
             --font-heading: 'Montserrat', sans-serif;
+            --warning: #f59e0b;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -80,6 +81,8 @@
         .btn-primary { background-color: var(--primary); color: #ffffff; }
         .btn-primary:hover:not(:disabled) { background-color: #10b981; }
         .btn-secondary { background-color: var(--secondary); color: var(--text-primary); }
+        .btn-google { background-color: #ffffff; color: #333; border: 1px solid #ddd; }
+        .btn-google:hover { background-color: #f8f9fa; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .separator { height: 1px; background-color: var(--border); margin: 1.5rem 0; }
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--card-background); border-top: 1px solid var(--border); z-index: 50; }
@@ -114,6 +117,7 @@
         .alert-message.show { opacity: 1; bottom: 100px; }
         .alert-message.success { background-color: #10b981; }
         .alert-message.error { background-color: var(--destructive); }
+        .alert-message.warning { background-color: var(--warning); }
         .custom-select-wrapper { position: relative; }
         .custom-select-trigger {
             width: 100%; padding: 0.75rem; border-radius: 0.5rem;
@@ -205,6 +209,88 @@
             -webkit-appearance: none;
             margin-top: -7px;
         }
+        
+        /* Warning info box */
+        .warning-info-box {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .warning-info-box .title {
+            color: var(--warning);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning-info-box .content {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+        .warning-info-box .content ul {
+            list-style: none;
+            padding-left: 1rem;
+            margin-top: 0.5rem;
+        }
+        .warning-info-box .content li {
+            margin-bottom: 0.25rem;
+            position: relative;
+        }
+        .warning-info-box .content li:before {
+            content: "•";
+            color: var(--warning);
+            position: absolute;
+            left: -1rem;
+        }
+        
+        /* User info section */
+        .user-info-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background-color: rgba(52, 211, 153, 0.1);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+        .user-info-section .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .user-info-section .details {
+            flex: 1;
+        }
+        .user-info-section .details .name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .user-info-section .details .email {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            word-break: break-all;
+        }
+        .user-info-section .logout-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+        .user-info-section .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body class="pb-20">
@@ -218,13 +304,38 @@
                     </div>
                     <h1 class="text-2xl font-bold text-primary font-montserrat">AxtarGet</h1>
                 </div>
-                <a href="#campaigns-section" id="header-campaigns-button" class="btn btn-secondary hidden sm:flex items-center space-x-2">
-                    <i class="fas fa-star"></i>
-                    <span>Kampaniyalar</span>
-                </a>
+                <div class="flex items-center space-x-2">
+                    <a href="#campaigns-section" id="header-campaigns-button" class="btn btn-secondary hidden sm:flex items-center space-x-2">
+                        <i class="fas fa-star"></i>
+                        <span>Kampaniyalar</span>
+                    </a>
+                    <button id="google-auth-button" class="btn btn-google p-2">
+                        <i class="fab fa-google"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
+
+    <!-- Warning info box -->
+    <div id="warning-info-box" class="container mx-auto px-4 pt-4 hidden">
+        <div class="warning-info-box">
+            <div class="title">
+                <i class="fas fa-exclamation-triangle"></i>
+                Anonim Giriş Məhdudiyyətləri
+            </div>
+            <div class="content">
+                <p>Hal-hazırda anonim giriş istifadə edirsiniz. Bu aşağıdakı məhdudiyyətlərə səbəb ola bilər:</p>
+                <ul>
+                    <li>Balansınız 24 saatdan sonra avtomatik olaraq sıfırlanacaq</li>
+                    <li>Sifariş tarixçəniz anonim girişlə eyni cihazda saxlanılacaq</li>
+                    <li>Fərqli cihazdan giriş etdikdə balans və sifarişlər görünməyəcək</li>
+                    <li>Anonim olaraq isdifadə etməyiniz yenədə mümkündür</li>
+                </ul>
+                <p class="mt-2">Bu problemlərdən qurtulmaq üçün <button id="google-auth-warning-btn" class="text-primary font-semibold hover:underline">Google hesabı ilə qeydiyyatdan keçin</button>.</p>
+            </div>
+        </div>
+    </div>
 
     <div class="marquee-container">
         <div class="marquee-content">
@@ -233,6 +344,24 @@
     </div>
 
     <main class="container mx-auto px-4 py-8">
+        
+        <!-- User info section (shown when logged in with Google) -->
+        <div id="user-info-section" class="card mb-4 hidden">
+            <div class="card-content">
+                <div class="user-info-section">
+                    <div class="avatar" id="user-avatar">
+                        <span id="avatar-initials">?</span>
+                    </div>
+                    <div class="details">
+                        <div class="name" id="user-display-name">Google İstifadəçisi</div>
+                        <div class="email" id="user-email">email@example.com</div>
+                    </div>
+                    <button id="logout-button" class="logout-btn" title="Çıxış et">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
         
         <div class="card mb-8 border-primary/20">
             <div class="card-content">
@@ -425,6 +554,8 @@
     
     <a href="#" id="floating-whatsapp-bubble"> <i class="fab fa-whatsapp text-3xl"></i> </a>
     <div id="alert-container"></div>
+    
+    <!-- Top-up Modal -->
     <div id="top-up-modal" class="dialog-overlay">
         <div class="dialog-content">
             <span id="close-top-up-modal" class="dialog-close">&times;</span>
@@ -457,11 +588,19 @@
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            onAuthStateChanged, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signOut,
+            linkWithCredential,
+            EmailAuthProvider
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp, runTransaction } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
             apiKey: "AIzaSyBEFLX4Uy4jTzoSyEdzYzOSEd2lqn8ifbE",
@@ -476,6 +615,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         const allServices = [
             { platform: 'Instagram', category: 'Instagram Keşfet Paketi 🚀', categoryIconClass: 'fab fa-instagram text-pink-500', isDiscoveryPackage: true, items: [ { id: 'discovery-package', name: 'Keşfet Paketi', pricePer100Percent: 309, min: 25, max: 100, avgTime: '100-300 Saat', description: '100% real insanlar tərəfindən postunuz bəyəniləcək, şərh yazılacaq, paylaşılacaq və yadda saxlanılacaq. Bu qarşılıqlı təsir postunuzun kəşf et bölməsində daha çox insana çatmasına kömək edəcək.' } ] },
@@ -494,7 +634,61 @@
         ];
         
         let currentUserId = null, userBalance = 0, selectedCategory = null, selectedService = null, userDocData = null;
-        const DOMElements = { userBalance: document.getElementById('user-balance'), userIdDisplay: document.getElementById('user-id-display'), topUpButton: document.getElementById('top-up-button'), categorySelect: document.getElementById('category-select'), serviceSelect: document.getElementById('service-select'), linkInput: document.getElementById('link-input'), quantityInput: document.getElementById('quantity-input'), minQuantity: document.getElementById('min-quantity'), maxQuantity: document.getElementById('max-quantity'), quantityAlert: document.getElementById('quantity-alert'), placeOrderButton: document.getElementById('place-order-button'), alertContainer: document.getElementById('alert-container'), topUpModal: document.getElementById('top-up-modal'), closeTopUpModalButton: document.getElementById('close-top-up-modal'), bottomNavTopUp: document.getElementById('bottom-nav-topup'), floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'), whatsappTopUpLink: document.getElementById('whatsapp-topup-link'), descriptionBox: document.getElementById('description-box'), defaultDesc: document.getElementById('default-desc'), kesfetDesc: document.getElementById('kesfet-desc'), freeDesc: document.getElementById('free-desc'), kesfetDescText: document.getElementById('kesfet-desc-text'), descMinQuantity: document.getElementById('desc-min-quantity'), descMaxQuantity: document.getElementById('desc-max-quantity'), descAvgTime: document.getElementById('desc-avg-time'), freeCooldownTimer: document.getElementById('free-cooldown-timer'), serviceDetailsContainer: document.getElementById('service-details-container'), avgTimeDisplay: document.getElementById('avg-time-display'), priceDisplay: document.getElementById('price-display'), newOrderNav: document.getElementById('new-order-nav'), headerCampaignsButton: document.getElementById('header-campaigns-button'), campaignsSection: document.getElementById('campaigns-section'), categoryWrapper: document.getElementById('category-wrapper'), serviceWrapper: document.getElementById('service-wrapper'), linkWrapper: document.getElementById('link-wrapper'), quantityWrapper: document.getElementById('quantity-wrapper'), kesfetWrapper: document.getElementById('kesfet-wrapper'), kesfetSlider: document.getElementById('kesfet-slider'), kesfetNumber: document.getElementById('kesfet-number'), serviceDetailsWrapper: document.getElementById('service-details-container') };
+        let isAnonymousUser = true;
+        let anonUserData = null;
+        
+        const DOMElements = {
+            userBalance: document.getElementById('user-balance'),
+            userIdDisplay: document.getElementById('user-id-display'),
+            topUpButton: document.getElementById('top-up-button'),
+            categorySelect: document.getElementById('category-select'),
+            serviceSelect: document.getElementById('service-select'),
+            linkInput: document.getElementById('link-input'),
+            quantityInput: document.getElementById('quantity-input'),
+            minQuantity: document.getElementById('min-quantity'),
+            maxQuantity: document.getElementById('max-quantity'),
+            quantityAlert: document.getElementById('quantity-alert'),
+            placeOrderButton: document.getElementById('place-order-button'),
+            alertContainer: document.getElementById('alert-container'),
+            topUpModal: document.getElementById('top-up-modal'),
+            closeTopUpModalButton: document.getElementById('close-top-up-modal'),
+            bottomNavTopUp: document.getElementById('bottom-nav-topup'),
+            floatingWhatsappBubble: document.getElementById('floating-whatsapp-bubble'),
+            whatsappTopUpLink: document.getElementById('whatsapp-topup-link'),
+            descriptionBox: document.getElementById('description-box'),
+            defaultDesc: document.getElementById('default-desc'),
+            kesfetDesc: document.getElementById('kesfet-desc'),
+            freeDesc: document.getElementById('free-desc'),
+            kesfetDescText: document.getElementById('kesfet-desc-text'),
+            descMinQuantity: document.getElementById('desc-min-quantity'),
+            descMaxQuantity: document.getElementById('desc-max-quantity'),
+            descAvgTime: document.getElementById('desc-avg-time'),
+            freeCooldownTimer: document.getElementById('free-cooldown-timer'),
+            serviceDetailsContainer: document.getElementById('service-details-container'),
+            avgTimeDisplay: document.getElementById('avg-time-display'),
+            priceDisplay: document.getElementById('price-display'),
+            newOrderNav: document.getElementById('new-order-nav'),
+            headerCampaignsButton: document.getElementById('header-campaigns-button'),
+            campaignsSection: document.getElementById('campaigns-section'),
+            categoryWrapper: document.getElementById('category-wrapper'),
+            serviceWrapper: document.getElementById('service-wrapper'),
+            linkWrapper: document.getElementById('link-wrapper'),
+            quantityWrapper: document.getElementById('quantity-wrapper'),
+            kesfetWrapper: document.getElementById('kesfet-wrapper'),
+            kesfetSlider: document.getElementById('kesfet-slider'),
+            kesfetNumber: document.getElementById('kesfet-number'),
+            serviceDetailsWrapper: document.getElementById('service-details-container'),
+            warningInfoBox: document.getElementById('warning-info-box'),
+            userInfoSection: document.getElementById('user-info-section'),
+            userAvatar: document.getElementById('user-avatar'),
+            avatarInitials: document.getElementById('avatar-initials'),
+            userDisplayName: document.getElementById('user-display-name'),
+            userEmail: document.getElementById('user-email'),
+            logoutButton: document.getElementById('logout-button'),
+            googleAuthButton: document.getElementById('google-auth-button'),
+            googleAuthWarningBtn: document.getElementById('google-auth-warning-btn')
+        };
+        
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
         const formatNumber = (num) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         const formatPriceForDisplay = (num) => parseFloat(num.toFixed(6));
@@ -513,12 +707,42 @@
             }, duration);
         };
 
-        const updateBalanceUI = async (uid) => {
+        const updateBalanceUI = async (uid, isAnon = false) => {
             const userDocRef = doc(db, 'users', uid);
             try {
                 const snap = await getDoc(userDocRef);
-                userDocData = snap.exists() ? snap.data() : {};
-                userBalance = (typeof userDocData.balance === 'number') ? userDocData.balance : 0;
+                if (snap.exists()) {
+                    userDocData = snap.data();
+                    userBalance = (typeof userDocData.balance === 'number') ? userDocData.balance : 0;
+                    
+                    // Anonim kullanıcı için localStorage'a kaydet
+                    if (isAnon) {
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: uid,
+                            balance: userBalance,
+                            timestamp: Date.now()
+                        }));
+                        anonUserData = { uid, balance: userBalance };
+                    }
+                } else {
+                    // Yeni kullanıcı için doküman oluştur
+                    userDocData = { balance: 0, createdAt: serverTimestamp() };
+                    if (!isAnon && auth.currentUser && auth.currentUser.email) {
+                        userDocData.email = auth.currentUser.email;
+                        userDocData.displayName = auth.currentUser.displayName || auth.currentUser.email.split('@')[0];
+                    }
+                    await setDoc(userDocRef, userDocData);
+                    userBalance = 0;
+                    
+                    if (isAnon) {
+                        localStorage.setItem('anonUserData', JSON.stringify({
+                            uid: uid,
+                            balance: 0,
+                            timestamp: Date.now()
+                        }));
+                        anonUserData = { uid, balance: 0 };
+                    }
+                }
                 DOMElements.userBalance.textContent = `${userBalance.toFixed(4)} AZN`;
             } catch (e) { 
                 console.error("Error updating balance:", e); 
@@ -724,18 +948,178 @@
             document.querySelectorAll('.custom-select-wrapper.open').forEach(wrapper => wrapper.classList.remove('open'));
         });
 
+        const updateUserUI = (user) => {
+            if (user && !user.isAnonymous) {
+                // Google hesabı ile giriş yapılmış
+                isAnonymousUser = false;
+                DOMElements.userInfoSection.classList.remove('hidden');
+                DOMElements.warningInfoBox.classList.add('hidden');
+                
+                const displayName = user.displayName || user.email.split('@')[0];
+                const email = user.email;
+                
+                // Avatar initials
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+                DOMElements.avatarInitials.textContent = initials;
+                
+                DOMElements.userDisplayName.textContent = displayName;
+                DOMElements.userEmail.textContent = email;
+                
+                // Google butonunu gizle
+                DOMElements.googleAuthButton.innerHTML = '<i class="fas fa-user-check"></i>';
+                DOMElements.googleAuthButton.title = 'Google hesabı ilə giriş edilib';
+                
+            } else {
+                // Anonim giriş
+                isAnonymousUser = true;
+                DOMElements.userInfoSection.classList.add('hidden');
+                DOMElements.warningInfoBox.classList.remove('hidden');
+                
+                // Google butonunu göster
+                DOMElements.googleAuthButton.innerHTML = '<i class="fab fa-google"></i>';
+                DOMElements.googleAuthButton.title = 'Google hesabı ilə giriş et';
+            }
+        };
+
+        const checkAnonBalanceReset = () => {
+            if (!isAnonymousUser) return;
+            
+            const storedAnonData = localStorage.getItem('anonUserData');
+            if (storedAnonData) {
+                try {
+                    const data = JSON.parse(storedAnonData);
+                    const now = Date.now();
+                    const hoursElapsed = (now - data.timestamp) / (1000 * 60 * 60);
+                    
+                    // 24 saat geçmişse uyarı göster
+                    if (hoursElapsed > 24) {
+                        showAlert('Diqqət! Anonim balansınız 24 saatdan sonra sıfırlanacaq. Balansınızı qorumaq üçün Google hesabı ilə qeydiyyatdan keçin.', 'warning', 8000);
+                    }
+                } catch (e) {
+                    console.error('Error checking anon balance:', e);
+                }
+            }
+        };
+
+        const signInWithGoogle = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                const user = result.user;
+                
+                // Firestore'da kullanıcı dokümanını oluştur veya güncelle
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (!userDoc.exists()) {
+                    // Yeni kullanıcı, doküman oluştur
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        displayName: user.displayName || user.email.split('@')[0],
+                        balance: 0,
+                        createdAt: serverTimestamp(),
+                        lastLogin: serverTimestamp()
+                    });
+                } else {
+                    // Mevcut kullanıcı, lastLogin güncelle
+                    await updateDoc(userDocRef, {
+                        lastLogin: serverTimestamp()
+                    });
+                }
+                
+                showAlert('Google hesabı ilə uğurla giriş edildi!', 'success');
+                updateUserUI(user);
+                
+                // Kullanıcı ID'sini güncelle
+                currentUserId = user.uid;
+                DOMElements.userIdDisplay.textContent = currentUserId;
+                await updateBalanceUI(currentUserId, false);
+                
+                // WhatsApp linklerini güncelle
+                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                
+            } catch (error) {
+                console.error('Google giriş xətası:', error);
+                showAlert('Google girişi zamanı xəta baş verdi: ' + error.message, 'error');
+            }
+        };
+
+        const handleLogout = async () => {
+            try {
+                await signOut(auth);
+                showAlert('Uğurla çıxış edildi', 'success');
+                
+                // Anonim girişe dön
+                const cred = await signInAnonymously(auth);
+                currentUserId = cred.user.uid;
+                DOMElements.userIdDisplay.textContent = currentUserId;
+                await updateBalanceUI(currentUserId, true);
+                updateUserUI(cred.user);
+                
+                // WhatsApp linklerini güncelle
+                const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
+                DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${whatsappText}`;
+                DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
+                
+            } catch (error) {
+                console.error('Çıxış xətası:', error);
+                showAlert('Çıxış zamanı xəta baş verdi', 'error');
+            }
+        };
+
         onAuthStateChanged(auth, async (user) => {
             let authUser = user;
             if (!authUser) {
                 try {
+                    // Önce localStorage'dan anonim kullanıcıyı kontrol et
+                    const storedAnonData = localStorage.getItem('anonUserData');
+                    if (storedAnonData) {
+                        try {
+                            const data = JSON.parse(storedAnonData);
+                            const hoursElapsed = (Date.now() - data.timestamp) / (1000 * 60 * 60);
+                            
+                            // 24 saatten fazla geçmişse yeni anonim kullanıcı oluştur
+                            if (hoursElapsed < 24) {
+                                // Eski anonim kullanıcıyı kullan
+                                anonUserData = data;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing stored anon data:', e);
+                        }
+                    }
+                    
+                    // Yeni anonim giriş
                     const cred = await signInAnonymously(auth);
                     authUser = cred.user;
-                } catch (e) { console.error("Anonim girişdə xəta:", e); showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error'); }
+                    currentUserId = authUser.uid;
+                    
+                } catch (e) { 
+                    console.error("Anonim girişdə xəta:", e); 
+                    showAlert("Sistemə daxil olarkən xəta baş verdi.", 'error');
+                    return;
+                }
             }
+            
             if (authUser) {
                 currentUserId = authUser.uid;
                 DOMElements.userIdDisplay.textContent = currentUserId;
-                await updateBalanceUI(currentUserId);
+                
+                // Kullanıcı arayüzünü güncelle
+                updateUserUI(authUser);
+                
+                // Anonim mi değil mi kontrol et
+                const isAnon = authUser.isAnonymous;
+                
+                // Balance'ı güncelle
+                await updateBalanceUI(currentUserId, isAnon);
+                
+                // Anonim kullanıcı için balance reset kontrolü
+                if (isAnon) {
+                    checkAnonBalanceReset();
+                }
+                
+                // WhatsApp linklerini güncelle
                 const whatsappText = encodeURIComponent(`Salam, mənim istifadəçi ID-m: ${currentUserId}. Balans artırmaq istəyirəm.`);
                 DOMElements.whatsappTopUpLink.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${whatsappText}`;
                 DOMElements.floatingWhatsappBubble.href = `https://wa.me/${PAYMENT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Salam, dəstəyə ehtiyacım var. ID: ${currentUserId}`)}`;
@@ -763,7 +1147,6 @@
             DOMElements.kesfetSlider.value = value;
             updateUIDisplay();
         });
-
 
         const validateInputs = () => {
             let isValid = true;
@@ -794,7 +1177,7 @@
             }
             if(!isValid) showAlert(errorMsg, 'error');
             return isValid;
-        }
+        };
 
         const checkCooldown = async (cooldownField) => {
             if (!userDocData || !userDocData[cooldownField]) return true;
@@ -848,14 +1231,31 @@
             try {
                 DOMElements.placeOrderButton.disabled = true;
                 DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Gözləyin...`;
+                
                 const userDocRef = doc(db, 'users', currentUserId);
-                if (!isFree) {
-                    const newBalance = parseFloat((userBalance - totalPrice).toFixed(4));
-                    await updateDoc(userDocRef, { balance: newBalance });
-                } else {
-                    await updateDoc(userDocRef, { [selectedService.cooldownField]: serverTimestamp() });
-                    await updateBalanceUI(currentUserId); // Refresh user data
-                }
+                
+                // Transaction kullanarak güvenli balance güncelleme
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userDocRef);
+                    if (!userDoc.exists()) {
+                        throw new Error("Kullanıcı dokümanı bulunamadı");
+                    }
+                    
+                    const currentBalance = userDoc.data().balance || 0;
+                    
+                    if (!isFree) {
+                        if (currentBalance < totalPrice) {
+                            throw new Error("Yetersiz bakiye");
+                        }
+                        const newBalance = parseFloat((currentBalance - totalPrice).toFixed(4));
+                        transaction.update(userDocRef, { balance: newBalance });
+                    } else {
+                        transaction.update(userDocRef, { [selectedService.cooldownField]: serverTimestamp() });
+                    }
+                });
+                
+                // Balance'ı yenile
+                await updateBalanceUI(currentUserId, isAnonymousUser);
                 
                 orderData = { 
                     userId: currentUserId, 
@@ -867,7 +1267,8 @@
                     totalPrice, 
                     timestamp: serverTimestamp(), 
                     status: 'pending', 
-                    isNew: true 
+                    isNew: true,
+                    userEmail: isAnonymousUser ? null : auth.currentUser.email
                 };
 
                 const newOrderRef = await addDoc(collection(db, `artifacts/${firebaseProjectId}/public/data/orders`), orderData);
@@ -880,7 +1281,7 @@
 
             } catch (error) {
                 console.error("Sifariş xətası:", error);
-                showAlert("Sifariş zamanı xəta baş verdi.", 'error');
+                showAlert("Sifariş zamanı xəta baş verdi: " + error.message, 'error');
                 DOMElements.placeOrderButton.disabled = false;
                 DOMElements.placeOrderButton.innerHTML = `<i class="fas fa-check-circle mr-2"></i> Sifariş Yarat`;
             }
@@ -891,6 +1292,11 @@
         DOMElements.topUpModal.addEventListener('click', (e) => { if (e.target === DOMElements.topUpModal) toggleModal(false); });
         DOMElements.newOrderNav.addEventListener('click', (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
         DOMElements.headerCampaignsButton.addEventListener('click', e => { e.preventDefault(); DOMElements.campaignsSection.scrollIntoView({ behavior: 'smooth' }); });
+        
+        // Google auth event listeners
+        DOMElements.googleAuthButton.addEventListener('click', signInWithGoogle);
+        DOMElements.googleAuthWarningBtn.addEventListener('click', signInWithGoogle);
+        DOMElements.logoutButton.addEventListener('click', handleLogout);
         
     </script>
 </body>
