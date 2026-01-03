@@ -364,6 +364,36 @@
             font-size: 0.75rem;
             margin-left: 8px;
         }
+        
+        /* Cooldown stili */
+        .cooldown-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .cooldown-timer {
+            color: var(--primary);
+            font-weight: bold;
+            margin-left: 0.25rem;
+        }
+        
+        .free-service-disabled {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        .cooldown-badge {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body class="pb-20">
@@ -517,9 +547,12 @@
                     </div>
                     <div id="service-notes-content" class="space-y-2 text-xs text-muted leading-relaxed"></div>
                 </div>
+                
+                <!-- Cooldown mesajı üçün container -->
+                <div id="cooldown-message-container" class="hidden" style="order: 7;"></div>
 
-                <div class="separator" style="order: 7;"></div>
-                <button id="place-order-button" class="btn btn-primary btn-lg w-full" style="order: 8;" disabled>
+                <div class="separator" style="order: 8;"></div>
+                <button id="place-order-button" class="btn btn-primary btn-lg w-full" style="order: 9;" disabled>
                     <i class="fas fa-check-circle mr-2"></i>
                     Sifariş Yarat
                 </button>
@@ -605,7 +638,8 @@
             collection, 
             addDoc, 
             serverTimestamp, 
-            runTransaction
+            runTransaction,
+            Timestamp
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -1625,7 +1659,8 @@
             googleAuthButton: document.getElementById('google-auth-button'),
             googleAuthWarningBtn: document.getElementById('google-auth-warning-btn'),
             serviceNotesContainer: document.getElementById('service-notes-container'),
-            serviceNotesContent: document.getElementById('service-notes-content')
+            serviceNotesContent: document.getElementById('service-notes-content'),
+            cooldownMessageContainer: document.getElementById('cooldown-message-container')
         };
         
         const PAYMENT_WHATSAPP_NUMBER = "994606006162";
@@ -1823,12 +1858,14 @@
             DOMElements.quantityInput.value = '';
             DOMElements.serviceNotesContainer.classList.add('hidden');
             DOMElements.serviceNotesContent.innerHTML = '';
+            DOMElements.cooldownMessageContainer.classList.add('hidden');
+            DOMElements.cooldownMessageContainer.innerHTML = '';
 
             updateUIDisplay();
             validateForm();
         };
 
-        const selectService = (service) => {
+        const selectService = async (service) => {
             selectedService = service;
             
             const trigger = DOMElements.serviceSelect.querySelector('.custom-select-trigger span');
@@ -1839,6 +1876,93 @@
             DOMElements.minQuantity.textContent = formatNumber(service.min);
             DOMElements.maxQuantity.textContent = formatNumber(service.max);
             
+            // Pulsuz servis üçün cooldown yoxlama
+            if (service.pricePerK === 0 && service.cooldownField && currentUserId) {
+                try {
+                    const userDocRef = doc(db, 'users', currentUserId);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const lastUsed = userData[service.cooldownField];
+                        
+                        if (lastUsed) {
+                            const lastUsedTime = lastUsed.toDate ? lastUsed.toDate().getTime() : lastUsed;
+                            const now = Date.now();
+                            const hoursDiff = (now - lastUsedTime) / (1000 * 60 * 60);
+                            
+                            if (hoursDiff < 24) {
+                                const hoursLeft = Math.ceil(24 - hoursDiff);
+                                
+                                // Cooldown mesajı göstər
+                                const cooldownMessage = `
+                                    <div class="cooldown-message">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-red-400 font-semibold">
+                                                <i class="fas fa-clock mr-2"></i>
+                                                Pulsuz Servis Cooldown
+                                            </span>
+                                            <span class="cooldown-timer">${hoursLeft} saat qalıb</span>
+                                        </div>
+                                        <p class="text-sm text-muted mt-2">
+                                            Bu pulsuz servisi hələ istifadə edə bilməzsiniz. 
+                                            24 saatda yalnız 1 dəfə pulsuz servisdən istifadə edə bilərsiniz.
+                                        </p>
+                                    </div>
+                                `;
+                                
+                                DOMElements.cooldownMessageContainer.innerHTML = cooldownMessage;
+                                DOMElements.cooldownMessageContainer.classList.remove('hidden');
+                                
+                                // Inputları disable et
+                                DOMElements.linkInput.disabled = true;
+                                DOMElements.quantityInput.disabled = true;
+                                DOMElements.linkInput.placeholder = `Pulsuz servis ${hoursLeft} saat sonra aktiv olacaq`;
+                                DOMElements.quantityInput.value = '50';
+                                DOMElements.quantityInput.placeholder = 'Cooldown aktiv';
+                                
+                                // Notları güncəllə
+                                if (service.notes) {
+                                    const notesWithCooldown = `
+                                        <div class="space-y-2">
+                                            <p><strong>Miqdar:</strong> 50 (dəyişməz)</p>
+                                            <p><strong>Link:</strong> ${service.name.includes('Instagram') ? 'Post linki' : 'Video linki'}</p>
+                                            <p><strong>Başlama:</strong> 0-5 dəqiqə</p>
+                                            <p class="text-red-400">⛔ Bu pulsuz servisi hələ istifadə edə bilməzsiniz!</p>
+                                            <p class="text-yellow-400">⏳ ${hoursLeft} saat sonra yenidən istifadə edə biləcəksiniz.</p>
+                                            <p class="text-yellow-400">⚠️ 24 saatda yalnız 1 dəfə pulsuz servisdən istifadə edə bilərsiniz.</p>
+                                        </div>
+                                    `;
+                                    DOMElements.serviceNotesContent.innerHTML = notesWithCooldown;
+                                    DOMElements.serviceNotesContainer.classList.remove('hidden');
+                                }
+                                
+                                updateUIDisplay();
+                                validateForm();
+                                return;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Cooldown yoxlanışı xətası:', error);
+                }
+            }
+            
+            // Normal servis üçün inputları aktiv et
+            DOMElements.linkInput.disabled = false;
+            DOMElements.quantityInput.disabled = false;
+            DOMElements.linkInput.placeholder = 'Profil və ya paylaşım linkini daxil edin';
+            DOMElements.quantityInput.placeholder = 'Sifariş miqdarını yazın';
+            DOMElements.cooldownMessageContainer.classList.add('hidden');
+            DOMElements.cooldownMessageContainer.innerHTML = '';
+            
+            // Pulsuz servis üçün miqdarı avtomatik doldur
+            if (service.pricePerK === 0) {
+                DOMElements.quantityInput.value = '50';
+            } else {
+                DOMElements.quantityInput.value = '';
+            }
+            
             if (service.notes) {
                 DOMElements.serviceNotesContent.innerHTML = service.notes;
                 DOMElements.serviceNotesContainer.classList.remove('hidden');
@@ -1847,7 +1971,6 @@
             }
             
             DOMElements.linkInput.value = '';
-            DOMElements.quantityInput.value = '';
             updateUIDisplay();
             validateForm();
         };
@@ -1922,6 +2045,33 @@
         DOMElements.placeOrderButton.addEventListener('click', async () => {
             if (!selectedService || !currentUserId) return;
 
+            // Pulsuz servis üçün cooldown yoxlama
+            if (selectedService.pricePerK === 0 && selectedService.cooldownField) {
+                try {
+                    const userDocRef = doc(db, 'users', currentUserId);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const lastUsed = userData[selectedService.cooldownField];
+                        
+                        if (lastUsed) {
+                            const lastUsedTime = lastUsed.toDate ? lastUsed.toDate().getTime() : lastUsed;
+                            const now = Date.now();
+                            const hoursDiff = (now - lastUsedTime) / (1000 * 60 * 60);
+                            
+                            if (hoursDiff < 24) {
+                                const hoursLeft = Math.ceil(24 - hoursDiff);
+                                showAlert(`Bu pulsuz servisi ${hoursLeft} saat sonra yenidən istifadə edə bilərsiniz`, 'warning');
+                                return;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Cooldown yoxlanışı xətası:', error);
+                }
+            }
+
             const link = DOMElements.linkInput.value.trim();
             const quantity = parseInt(DOMElements.quantityInput.value.replace(/\./g, '')) || 0;
 
@@ -1958,7 +2108,14 @@
                     }
 
                     const newBalance = currentBalance - totalPrice;
-                    transaction.update(userDocRef, { balance: newBalance });
+                    
+                    // Cooldown tarixini yenilə (pulsuz servis üçün)
+                    const updateData = { balance: newBalance };
+                    if (selectedService.pricePerK === 0 && selectedService.cooldownField) {
+                        updateData[selectedService.cooldownField] = new Date();
+                    }
+                    
+                    transaction.update(userDocRef, updateData);
 
                     const orderData = {
                         userId: currentUserId,
@@ -1973,7 +2130,8 @@
                         isNew: true,
                         timestamp: serverTimestamp(),
                         createdAt: serverTimestamp(),
-                        avgTime: selectedService.avgTime
+                        avgTime: selectedService.avgTime,
+                        isFreeService: selectedService.pricePerK === 0
                     };
 
                     console.log('[v0] Order data:', orderData);
