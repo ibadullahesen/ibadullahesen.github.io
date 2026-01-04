@@ -659,131 +659,131 @@
 
         const allServices = [
             { 
-                platform: 'Yeni il', 
-                category: '🎁 Yeni il Endirimləri 🎁', 
-                categoryIconClass: 'fas fa-gift text-yellow-400 new-year-category', 
-                items: [ 
-                    { 
-                        id: 'ny_instagram_follower', 
-                        name: 'Instagram 1K Takipçi(Min:150)', 
-                        iconClass: 'fab fa-instagram text-pink-500', 
-                        avgTime: '30-60 dəqiqə', 
-                        min: 150, 
-                        max: 100000, 
-                        pricePerK: 1.81,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 150 | <strong>Maks:</strong> 100.000</p>
-                                <p><strong>Link:</strong> İstifadəçi adı</p>
-                                <p><strong>Başlama:</strong> 30-60 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>
-                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
-                                <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda telafi edilmir.</p>
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    }, 
-                    { 
-                        id: 'ny_instagram_like', 
-                        name: 'Instagram 1K Bəyəni(Min: 1.000)', 
-                        iconClass: 'fab fa-instagram text-pink-500', 
-                        avgTime: '20-40 dəqiqə', 
-                        min: 5000, 
-                        max: 10000000, 
-                        pricePerK: 0.29,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 5.000 | <strong>Maks:</strong> 10.000.000</p>
-                                <p><strong>Link:</strong> Post linki</p>
-                                <p><strong>Başlama:</strong> 20-40 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>
-                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
-                                <p class="text-yellow-400">⚠️ Bəyənilər düşdüyü halda telafi edilmir.</p>
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    }, 
-                    { 
-                        id: 'ny_instagram_view', 
-                        name: 'Instagram 1K İzlənmə(Min: 10.000)', 
-                        iconClass: 'fab fa-instagram text-pink-500', 
-                        avgTime: '15-30 dəqiqə', 
-                        min: 10000, 
-                        max: 50000000, 
-                        pricePerK: 0.01,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 50.000.000</p>
-                                <p><strong>Link:</strong> Video/Reel linki</p>
-                                <p><strong>Başlama:</strong> 15-30 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>
-                                <p class="text-yellow-400">⚠️ İzlənmələr düşdüyü telafi edilmir.</p>
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    }, 
-                    { 
-                        id: 'ny_tiktok_follower', 
-                        name: 'TikTok 1K Takipçi(Min: 350)', 
-                        iconClass: 'fab fa-tiktok', 
-                        avgTime: '45-90 dəqiqə', 
-                        min: 350, 
-                        max: 100000, 
-                        pricePerK: 1.49,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 350 | <strong>Maks:</strong> 100.000</p>
-                                <p><strong>Link:</strong> İstifadəçi adı</p>
-                                <p><strong>Başlama:</strong> 45-90 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>
-                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
-                                <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda telafi edilmir.</p>
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    }, 
-                    { 
-                        id: 'ny_tiktok_like', 
-                        name: 'TikTok 1K Bəyəni(Min: 5.000)', 
-                        iconClass: 'fab fa-tiktok', 
-                        avgTime: '10-25 dəqiqə', 
-                        min: 5000, 
-                        max: 10000000, 
-                        pricePerK: 0.29,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 5.000 | <strong>Maks:</strong> 10.000.000</p>
-                                <p><strong>Link:</strong> Video linki</p>
-                                <p><strong>Başlama:</strong> 10-25 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>
-                                <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
-                                <p class="text-yellow-400">⚠️ Bəyənilər düşdüyü halda telafi edilmir</p>
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    }, 
-                    { 
-                        id: 'ny_tiktok_view', 
-                        name: 'TikTok 1K Video İzlənmə(Min: 10.000)', 
-                        iconClass: 'fab fa-tiktok', 
-                        avgTime: '5-20 dəqiqə', 
-                        min: 10000, 
-                        max: 100000000, 
-                        pricePerK: 0.01,
-                        notes: `
-                            <div class="space-y-2">
-                                <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 100.000.000</p>
-                                <p><strong>Link:</strong> Video linki</p>
-                                <p><strong>Başlama:</strong> 5-20 dəqiqə</p>
-                                <p><strong>Garantiya:</strong> yox</p>                                <p><strong>Garantiya:</strong> yo</p və keyfiyyətli servis!</p>
-          <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
-                                
-                                <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
-                            </div>
-                        `
-                    } 
-                ] 
-            },
+    platform: 'Yeni il', 
+    category: '🎁 Yeni il Endirimləri 🎁', 
+    categoryIconClass: 'fas fa-gift text-yellow-400 new-year-category', 
+    items: [ 
+        { 
+            id: 'ny_instagram_follower', 
+            name: 'Instagram 1K Takipçi(Min:150)', 
+            iconClass: 'fab fa-instagram text-pink-500', 
+            avgTime: '30-60 dəqiqə', 
+            min: 150, 
+            max: 100000, 
+            pricePerK: 1.81,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 150 | <strong>Maks:</strong> 100.000</p>
+                    <p><strong>Link:</strong> İstifadəçi adı</p>
+                    <p><strong>Başlama:</strong> 30-60 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
+                    <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda telafi edilmir.</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        }, 
+        { 
+            id: 'ny_instagram_like', 
+            name: 'Instagram 1K Bəyəni(Min: 1.000)', 
+            iconClass: 'fab fa-instagram text-pink-500', 
+            avgTime: '20-40 dəqiqə', 
+            min: 5000, 
+            max: 10000000, 
+            pricePerK: 0.29,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 5.000 | <strong>Maks:</strong> 10.000.000</p>
+                    <p><strong>Link:</strong> Post linki</p>
+                    <p><strong>Başlama:</strong> 20-40 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
+                    <p class="text-yellow-400">⚠️ Bəyənilər düşdüyü halda telafi edilmir.</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        }, 
+        { 
+            id: 'ny_instagram_view', 
+            name: 'Instagram 1K İzlənmə(Min: 10.000)', 
+            iconClass: 'fab fa-instagram text-pink-500', 
+            avgTime: '15-30 dəqiqə', 
+            min: 10000, 
+            max: 50000000, 
+            pricePerK: 0.01,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 50.000.000</p>
+                    <p><strong>Link:</strong> Video/Reel linki</p>
+                    <p><strong>Başlama:</strong> 15-30 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-yellow-400">⚠️ İzlənmələr düşdüyü halda telafi edilmir.</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        }, 
+        { 
+            id: 'ny_tiktok_follower', 
+            name: 'TikTok 1K Takipçi(Min: 350)', 
+            iconClass: 'fab fa-tiktok', 
+            avgTime: '45-90 dəqiqə', 
+            min: 350, 
+            max: 100000, 
+            pricePerK: 1.49,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 350 | <strong>Maks:</strong> 100.000</p>
+                    <p><strong>Link:</strong> İstifadəçi adı</p>
+                    <p><strong>Başlama:</strong> 45-90 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
+                    <p class="text-yellow-400">⚠️ Takipçilər düşdüyü halda telafi edilmir.</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        }, 
+        { 
+            id: 'ny_tiktok_like', 
+            name: 'TikTok 1K Bəyəni(Min: 5.000)', 
+            iconClass: 'fab fa-tiktok', 
+            avgTime: '10-25 dəqiqə', 
+            min: 5000, 
+            max: 10000000, 
+            pricePerK: 0.29,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 5.000 | <strong>Maks:</strong> 10.000.000</p>
+                    <p><strong>Link:</strong> Video linki</p>
+                    <p><strong>Başlama:</strong> 10-25 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
+                    <p class="text-yellow-400">⚠️ Bəyənilər düşdüyü halda telafi edilmir</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        }, 
+        { 
+            id: 'ny_tiktok_view', 
+            name: 'TikTok 1K Video İzlənmə(Min: 10.000)', 
+            iconClass: 'fab fa-tiktok', 
+            avgTime: '5-20 dəqiqə', 
+            min: 10000, 
+            max: 100000000, 
+            pricePerK: 0.01,
+            notes: `
+                <div class="space-y-2">
+                    <p><strong>Min:</strong> 10.000 | <strong>Maks:</strong> 100.000.000</p>
+                    <p><strong>Link:</strong> Video linki</p>
+                    <p><strong>Başlama:</strong> 5-20 dəqiqə</p>
+                    <p><strong>Garantiya:</strong> yox</p>
+                    <p class="text-green-400">✅ Sürətli və keyfiyyətli servis!</p>
+                    <p class="text-yellow-400">⚠️ Yeni il endirim kampaniyası: Yanvar ayının 10-na kimi keçərlidir!</p>
+                </div>
+            `
+        } 
+    ] 
+},
+                    
             { 
                 platform: 'Instagram', 
                 category: 'Instagram Keşfet Paketi 🚀', 
