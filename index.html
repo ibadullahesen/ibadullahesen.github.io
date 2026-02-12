@@ -10,11 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
     
-    <!-- === LOQO DÜZƏLİŞLƏRİ BAŞLAYIR === -->
     <link rel="icon" type="image/png" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
 
-    <!-- Google SEO üçün yeni schema kodu - Google axtarışında logosu göstərilməsi üçün -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -34,13 +32,11 @@
     }
     </script>
     
-    <!-- Open Graph meta tags - Sosial media və Google üçün -->
     <meta property="og:title" content="AxtarGet - Gələcəyin Rəqəmsal Həlləri">
     <meta property="og:description" content="Web sayt hazırlama, SMM, AI xidmətləri və daha çoxu">
     <meta property="og:image" content="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
     <meta property="og:url" content="https://axtarget.xyz/">
     <meta property="og:type" content="website">
-    <!-- === LOQO DÜZƏLİŞLƏRİ BİTİR === -->
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-62M9RVVRTY"></script>
     <script>
@@ -64,7 +60,6 @@
             --font-heading: 'Manrope', sans-serif;
         }
 
-        /* Gündüz modu dəyişənləri */
         .light-mode {
             --background: #f0f4f8;
             --glass-bg: rgba(255, 255, 255, 0.7);
@@ -118,7 +113,6 @@
 
         .content-overlay { position: relative; z-index: 1; }
 
-        /* Header üçün şəffaf fon */
         #header {
             background: rgba(5, 8, 14, 0.1);
             backdrop-filter: blur(10px);
@@ -142,7 +136,6 @@
             background: rgba(240, 244, 248, 0.8);
         }
 
-        /* Gündüz/Gece Modu Düyməsi - Header içində */
         .theme-toggle-container {
             display: flex;
             align-items: center;
@@ -160,7 +153,6 @@
             color: var(--text-primary);
         }
 
-        /* The switch - the box around the slider */
         .switch {
             font-size: 17px;
             position: relative;
@@ -169,14 +161,12 @@
             height: 2em;
         }
 
-        /* Hide default HTML checkbox */
         .switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
 
-        /* The slider */
         .slider {
             --background: #28096b;
             position: absolute;
@@ -213,7 +203,6 @@
             box-shadow: inset 15px -4px 0px 15px #fff000;
         }
 
-        /* YENİ KART DİZAYNI */
         .feature-card {
             display: flex;
             align-items: center;
@@ -306,7 +295,6 @@
             transition: color 0.8s ease;
         }
         
-        /* YENİ "DAVAM ET" BUTONU - ANİMASİYALI */
         .box {
             width: 140px;
             height: auto;
@@ -382,7 +370,6 @@
             margin-top: 1rem;
         }
         
-        /* Alternativ kartlar (məlumat solda, şəkil sağda) */
         .feature-card.reverse {
             flex-direction: row-reverse;
         }
@@ -415,7 +402,6 @@
             transform: translateY(0);
         }
         
-        /* Mobile Side-Panel Menu */
         .mobile-menu-container {
             position: fixed; 
             top: 0; 
@@ -470,7 +456,6 @@
             box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
         
-        /* YENİ AXTARMA ÇUBUĞU STİLLƏRİ - IZGARA OLMADAN */
         .search-container {
             position: relative;
             max-width: 500px;
@@ -832,7 +817,6 @@
             font-size: 0.95rem;
         }
         
-        /* YENİ HAQQIMIZDA BÖLMƏSİ */
         .about-section {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -899,7 +883,6 @@
             font-style: italic;
         }
         
-        /* YENİ TV EFEKTLİ VİDEO KONTEYNERİ */
         .tv-container {
             position: relative;
             max-width: 800px;
@@ -962,7 +945,6 @@
             border-radius: 5px 5px 0 0;
         }
         
-        /* YENİ İLETİŞİM KARTLARI */
         .contact-card {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -1005,7 +987,6 @@
             box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
         }
         
-        /* Responsive üçün düzəlişlər */
         @media (max-width: 1024px) {
             .feature-card, .feature-card.reverse {
                 flex-direction: column;
@@ -1085,7 +1066,6 @@
     
     <canvas id="matrix-canvas"></canvas>
 
-    <!-- Header -->
     <header id="header" class="fixed top-0 left-0 w-full p-4 z-50 transition-all duration-300">
         <div class="container mx-auto flex justify-between items-center max-w-7xl px-4">
             <a href="index.html" class="flex items-center gap-3">
@@ -1093,7 +1073,6 @@
                 <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
             </a>
             
-            <!-- Gündüz/Gece Modu Düyməsi - Header içində -->
             <div class="theme-toggle-container">
                 <span class="theme-label">Gece</span>
                 <label class="switch">
@@ -1117,7 +1096,6 @@
         </div>
     </header>
 
-    <!-- Mobile Side-Panel Menu -->
     <div id="mobile-menu-container" class="mobile-menu-container">
         <button id="mobile-menu-close-button" class="absolute top-6 right-6 text-3xl text-gray-400 hover:text-red-500 transition-transform duration-300 hover:rotate-90">
             <i class="fas fa-times"></i>
@@ -1134,7 +1112,6 @@
             <a href="digital-products.html">Rəqəmsal Məhsullar</a>
             <a href="#contact">Əlaqə</a>
             
-            <!-- Mobil menyuda axtarış -->
             <div class="p-4 border-b border-gray-800">
                 <div class="search-container">
                     <div id="poda">
@@ -1208,7 +1185,6 @@
     </div>
 
     <main>
-        <!-- Hero Section -->
         <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
             <div id="globe-container"></div>
             <div class="content-overlay container mx-auto px-6 lg:px-8 max-w-7xl text-center">
@@ -1225,7 +1201,6 @@
                     </a>
                 </div>
                 
-                <!-- Axtarış konteyneri - anında nəticə göstərmə -->
                 <div class="search-container max-w-2xl mx-auto mt-10 fade-in" style="transition-delay: 0.6s;">
                     <div id="poda">
                         <div class="glow"></div>
@@ -1296,7 +1271,6 @@
             </div>
         </section>
 
-        <!-- Products Section -->
         <section id="products" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-16">
@@ -1306,7 +1280,6 @@
                     </p>
                 </div>
                 
-                <!-- Yeni Kart Dizaynı -->
                 <a href="https://web.axtarget.xyz" class="feature-card reverse fade-in">
                     <div class="card-content">
                         <span class="card-tag">Dizayn</span>
@@ -1341,7 +1314,6 @@
                         </div>
                     </a>
                     
-                    <!-- Şəkil Redaktəsi Xidməti -->
                     <a href="photo.html" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Dizayn</span>
@@ -1358,7 +1330,6 @@
                         </div>
                     </a>
                     
-                    <!-- Takipçi Xidməti -->
                     <a href="follower-service.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">SMM</span>
@@ -1375,7 +1346,6 @@
                         </div>
                     </a>
                     
-                    <!-- AxtarGet AI -->
                     <a href="https://ai.axtarget.xyz" target="_blank" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">AI</span>
@@ -1392,7 +1362,6 @@
                         </div>
                     </a>
                     
-                    <!-- Rəqəmsal Məhsullar -->
                     <a href="digital-products.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Premium</span>
@@ -1409,7 +1378,6 @@
                         </div>
                     </a>
                     
-                    <!-- Biznesini Paylaş -->
                     <a href="share-business.html" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Marketinq</span>
@@ -1426,7 +1394,6 @@
                         </div>
                     </a>
                     
-                    <!-- QR kod yarat -->
                     <a href="qr.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Tool</span>
@@ -1443,7 +1410,6 @@
                         </div>
                     </a>
                     
-                    <!-- İş Elanları -->
                     <a href="https://vakansiya.axtarget.xyz" class="feature-card reverse fade-in">
                         <div class="card-content">
                             <span class="card-tag">Karyera</span>
@@ -1469,7 +1435,6 @@
                         </div>
                     </a>
                     
-                    <!-- Anonim Mesajlaşma -->
                     <a href="https://axtarget.xyz/anonim.html" class="feature-card fade-in">
                         <div class="card-content">
                             <span class="card-tag">Təhlükəsizlik</span>
@@ -1556,7 +1521,6 @@
             </div>
         </section>
 
-        <!-- Why Us Section -->
         <section id="services" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-16">
@@ -1585,7 +1549,6 @@
             </div>
         </section>
 
-        <!-- Haqqımızda Section -->
         <section id="about" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="about-section fade-in">
@@ -1644,7 +1607,6 @@
             </div>
         </section>
 
-        <!-- Contact Section -->
         <section id="contact" class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-5xl text-center">
                 <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="AxtarGet Logo" class="w-24 h-24 rounded-full border-4 border-primary shadow-lg shadow-primary/30 mx-auto mb-8 fade-in">
@@ -1678,7 +1640,6 @@
             </div>
         </section>
 
-        <!-- Video Bölməsi - Əlaqədən Sonra -->
         <section class="py-24 content-overlay">
             <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
                 <div class="text-center mb-12">
@@ -1688,7 +1649,6 @@
                     </p>
                 </div>
                 
-                <!-- TV Efektli Video -->
                 <div class="tv-container fade-in" style="transition-delay: 0.2s;">
                     <div class="tv-screen">
                         <iframe 
@@ -1705,7 +1665,6 @@
         </section>
     </main>
 
-    <!-- Footer -->
     <footer class="border-t border-gray-800/50 mt-20 content-overlay">
         <div class="container mx-auto max-w-7xl px-6 lg:px-8 py-8 text-center text-text-muted">
             <p>&copy; 2025 AxtarGet. Bütün hüquqlar qorunur.</p>
@@ -1716,16 +1675,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Gündüz/Gece modu funksiyası
             const themeToggle = document.getElementById('theme-toggle');
             const body = document.body;
             
-            // Sayt HƏMİŞƏ qaranlıq modda açılsın
             body.classList.remove('light-mode');
             themeToggle.checked = false;
             localStorage.setItem('theme', 'dark');
             
-            // Mod dəyişikliyi (istifadəçi əl ilə dəyişsə belə)
             themeToggle.addEventListener('change', () => {
                 if (themeToggle.checked) {
                     body.classList.add('light-mode');
@@ -1736,7 +1692,6 @@
                 }
             });
 
-            // Header scroll effekti
             const header = document.getElementById('header');
             window.addEventListener('scroll', () => {
                 if (window.scrollY > 50) {
@@ -1746,7 +1701,6 @@
                 }
             });
 
-            // Mobil menyu
             const hamburgerButton = document.getElementById('hamburger-button');
             const mobileMenuContainer = document.getElementById('mobile-menu-container');
             const mobileMenuCloseButton = document.getElementById('mobile-menu-close-button');
@@ -1769,7 +1723,6 @@
                 });
             });
 
-            // Fade-in animasiyası
             const fadeInElements = document.querySelectorAll('.fade-in');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -1781,7 +1734,6 @@
             }, { threshold: 0.1 });
             fadeInElements.forEach(element => observer.observe(element));
 
-            // Globe with continent outlines from points
             const container = document.getElementById('globe-container');
             if(container) {
                 const scene = new THREE.Scene();
@@ -1866,7 +1818,6 @@
                 });
             }
             
-            // Matrix Rain Effect
             const matrixCanvas = document.getElementById('matrix-canvas');
             if (matrixCanvas) {
                 const ctx = matrixCanvas.getContext('2d');
@@ -1987,13 +1938,11 @@
                 }
                 
                 const results = searchData.filter(item => {
-                    // Başlıq və açıqlama üzrə axtarış
                     if (item.title.toLowerCase().includes(normalizedQuery) || 
                         item.description.toLowerCase().includes(normalizedQuery)) {
                         return true;
                     }
                     
-                    // Açar sözlər üzrə axtarış
                     return item.keywords.some(keyword => 
                         keyword.toLowerCase().includes(normalizedQuery)
                     );
@@ -2002,7 +1951,6 @@
                 displayResults(results, resultsContainer);
             }
             
-            // Nəticələri göstər
             function displayResults(results, container) {
                 container.innerHTML = '';
                 
@@ -2032,7 +1980,6 @@
                 container.classList.add('show');
             }
             
-            // Axtarış konteynerləri üçün event listener-lar
             const searchInputs = [
                 { input: 'hero-search-input', results: 'hero-search-results' },
                 { input: 'mobile-search-input', results: 'mobile-search-results' }
@@ -2043,12 +1990,10 @@
                 const resultsElement = document.getElementById(results);
                 
                 if (inputElement && resultsElement) {
-                    // Yazarkən axtarış (input event)
                     inputElement.addEventListener('input', (e) => {
                         performSearch(e.target.value, resultsElement);
                     });
                     
-                    // Enter düyməsi ilə axtarış
                     inputElement.addEventListener('keypress', (e) => {
                         if (e.key === 'Enter') {
                             performSearch(e.target.value, resultsElement);
@@ -2061,7 +2006,6 @@
                         }
                     });
                     
-                    // Axtarış ikonuna klik
                     const searchButton = document.getElementById(input.replace('input', 'button'));
                     if (searchButton) {
                         searchButton.addEventListener('click', () => {
@@ -2075,7 +2019,6 @@
                         });
                     }
                     
-                    // Sənfdən kənarına klikləndikdə nəticələri gizlət
                     document.addEventListener('click', (e) => {
                         if (!inputElement.contains(e.target) && !resultsElement.contains(e.target)) {
                             resultsElement.classList.remove('show');
