@@ -23,7 +23,7 @@
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Axtarget Studio</h1>
-                    <p class="text-slate-500 text-[9px] tracking-widest uppercase">Compact v2.0</p>
+                    <p class="text-slate-500 text-[9px] tracking-widest uppercase">HD Ultra v2.1</p>
                 </div>
                 <div id="status" class="hidden flex items-center gap-2 bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-[9px] font-bold">
                     <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> REC <span id="timer">00:00</span>
@@ -70,7 +70,7 @@
 
             <div class="space-y-4">
                 <div>
-                    <label class="text-[9px] text-slate-500 font-bold uppercase mb-2 block tracking-wider">Keyfiyyət</label>
+                    <label class="text-[9px] text-slate-500 font-bold uppercase mb-2 block tracking-wider">Keyfiyyət (Bitreyt Artırıldı)</label>
                     <div class="grid grid-cols-2 gap-1.5">
                         <button class="quality-btn p-1.5 border border-white/10 rounded-md text-[10px]" data-val="2160">4K</button>
                         <button class="quality-btn p-1.5 border border-white/10 rounded-md text-[10px]" data-val="1440">2K</button>
@@ -110,7 +110,7 @@
         const btnRec = document.getElementById('record-btn'), btnStop = document.getElementById('stop-btn');
         const setPanel = document.getElementById('settings-panel'), setToggle = document.getElementById('settings-toggle');
         const camCheck = document.getElementById('cam-check'), vWebcam = document.getElementById('webcam');
-        const vScreen = document.createElement('video'); // Gizli ekran videosu
+        const vScreen = document.createElement('video'); 
 
         setToggle.onclick = () => setPanel.classList.remove('hidden');
         document.getElementById('close-settings').onclick = () => setPanel.classList.add('hidden');
@@ -126,7 +126,9 @@
         camCheck.onchange = async () => {
             if (camCheck.checked) {
                 try {
-                    wStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    wStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { width: 1280, height: 720, frameRate: 30 } 
+                    });
                     vWebcam.srcObject = wStream;
                     vWebcam.classList.remove('hidden');
                     document.getElementById('cam-pos-box').classList.remove('hidden');
@@ -148,18 +150,24 @@
         document.getElementById('pos-left').onclick = () => updateCamPos('left');
         document.getElementById('pos-right').onclick = () => updateCamPos('right');
 
-        // Görüntüləri birləşdirən funksiya
         function drawMixedFrame() {
+            // Yüksək keyfiyyət üçün hamarlaşdırma
+            mixerCtx.imageSmoothingEnabled = true;
+            mixerCtx.imageSmoothingQuality = 'high';
+            
             mixerCtx.drawImage(vScreen, 0, 0, mixerCanvas.width, mixerCanvas.height);
             
             if (camCheck.checked && vWebcam.readyState === 4) {
-                const camWidth = mixerCanvas.width * 0.2; // Kamera ölçüsü ekranın 20%-i
+                const camWidth = mixerCanvas.width * 0.2;
                 const camHeight = (vWebcam.videoHeight / vWebcam.videoWidth) * camWidth;
-                let x = currentCamPos === 'right' ? mixerCanvas.width - camWidth - 20 : 20;
-                let y = mixerCanvas.height - camHeight - 20;
+                let x = currentCamPos === 'right' ? mixerCanvas.width - camWidth - 30 : 30;
+                let y = mixerCanvas.height - camHeight - 30;
 
-                // Kamera güzgü effektini qeydə də tətbiq etmək (istəyə görə)
                 mixerCtx.save();
+                // Kölgə effekti əlavə edirik ki, kamera daha net görünsün
+                mixerCtx.shadowColor = "rgba(0,0,0,0.5)";
+                mixerCtx.shadowBlur = 20;
+                
                 mixerCtx.translate(x + camWidth, y);
                 mixerCtx.scale(-1, 1);
                 mixerCtx.drawImage(vWebcam, 0, 0, camWidth, camHeight);
@@ -170,24 +178,25 @@
         btnRec.onclick = async () => {
             try {
                 const sStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { width: { ideal: (quality * 16) / 9 }, height: { ideal: quality } },
+                    video: { 
+                        width: { ideal: quality === 2160 ? 3840 : (quality === 1080 ? 1920 : 1280) },
+                        height: { ideal: quality },
+                        frameRate: { ideal: 60 } // FPS artırıldı
+                    },
                     audio: true
                 });
 
                 vScreen.srcObject = sStream;
-                vScreen.play();
+                vScreen.onloadedmetadata = () => vScreen.play();
 
-                // Canvas ölçülərini ekran ölçüsü ilə eyniləşdir
                 const settings = sStream.getVideoTracks()[0].getSettings();
                 mixerCanvas.width = settings.width;
                 mixerCanvas.height = settings.height;
 
-                // Mikser döngüsünü başlat
-                mixInterval = setInterval(drawMixedFrame, 1000/30); // 30 FPS
+                mixInterval = setInterval(drawMixedFrame, 1000/60); 
 
-                const mixedStream = mixerCanvas.captureStream(30);
+                const mixedStream = mixerCanvas.captureStream(60);
                 
-                // Audio kanallarını birləşdir
                 let audioTracks = [];
                 if (sStream.getAudioTracks().length > 0) audioTracks.push(sStream.getAudioTracks()[0]);
                 if (document.getElementById('mic-check').checked) {
@@ -202,7 +211,13 @@
                     ...audioTracks
                 ]);
 
-                mediaRecorder = new MediaRecorder(finalStream, { mimeType: 'video/webm;codecs=vp9' });
+                // Video bitreytini kəskin şəkildə artırırıq (8Mbps - 15Mbps arası)
+                const options = { 
+                    mimeType: 'video/webm;codecs=vp9',
+                    videoBitsPerSecond: 15000000 
+                };
+                
+                mediaRecorder = new MediaRecorder(finalStream, options);
                 chunks = [];
                 mediaRecorder.ondataavailable = e => chunks.push(e.data);
                 mediaRecorder.onstop = () => {
@@ -233,7 +248,7 @@
 
                 sStream.getVideoTracks()[0].onended = () => mediaRecorder.stop();
             } catch (err) {
-                console.error("Qeyd zamanı xəta:", err);
+                console.error("Qeyd xətası:", err);
             }
         };
 
@@ -247,7 +262,7 @@
         document.getElementById('download-btn').onclick = () => {
             const a = document.createElement('a');
             a.href = document.getElementById('preview').src;
-            a.download = 'axtarget_record.webm';
+            a.download = 'axtarget_hd_record.webm';
             a.click();
         };
     </script>
