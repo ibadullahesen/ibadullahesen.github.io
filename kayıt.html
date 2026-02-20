@@ -11,7 +11,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; height: 100vh; overflow: hidden; margin: 0; display: flex; align-items: center; justify-content: center; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .webcam-preview { width: 120px; height: 90px; border-radius: 8px; border: 2px solid #3b82f6; position: absolute; z-index: 50; object-fit: cover; transition: 0.3s; transform: scaleX(-1); }
-        /* scaleX(-1) istifadəçini güzgü kimi göstərir, əgər düz görmək istəsən scaleX(1) et */
         .pos-bottom-left { bottom: 10px; left: 10px; }
         .pos-bottom-right { bottom: 10px; right: 10px; }
         .quality-btn.active { background: #3b82f6; border-color: #60a5fa; }
@@ -31,6 +30,7 @@
                 </div>
             </div>
 
+            <!-- Monitor Hissəsi -->
             <div class="relative w-full aspect-video bg-slate-900 rounded-lg mb-4 border border-white/5 flex items-center justify-center overflow-hidden mx-auto">
                 <video id="preview" class="w-full h-full object-contain hidden" controls></video>
                 <div id="blank" class="text-slate-700 flex flex-col items-center">
@@ -40,6 +40,7 @@
                 <video id="webcam" class="webcam-preview hidden pos-bottom-right" autoplay muted></video>
             </div>
 
+            <!-- İdarəetmə Düymələri -->
             <div class="flex items-center gap-2">
                 <button id="record-btn" class="flex-[3] bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20">
                     <i class="fas fa-circle text-[6px]"></i> Ekranı Kaydet
@@ -59,6 +60,7 @@
         </div>
     </div>
 
+    <!-- Ayarlar Paneli -->
     <div id="settings-panel" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
         <div class="glass w-full max-w-xs rounded-[16px] p-4">
             <div class="flex justify-between items-center mb-4">
@@ -95,12 +97,20 @@
         </div>
     </div>
 
+    <!-- Mikser üçün gizli Canvas -->
+    <canvas id="mixer-canvas" style="display:none;"></canvas>
+
     <script>
         let mediaRecorder, chunks = [], timer, start, mStream, wStream, quality = 1080;
+        let mixerCanvas = document.getElementById('mixer-canvas');
+        let mixerCtx = mixerCanvas.getContext('2d');
+        let mixInterval;
+        let currentCamPos = 'right';
 
         const btnRec = document.getElementById('record-btn'), btnStop = document.getElementById('stop-btn');
         const setPanel = document.getElementById('settings-panel'), setToggle = document.getElementById('settings-toggle');
         const camCheck = document.getElementById('cam-check'), vWebcam = document.getElementById('webcam');
+        const vScreen = document.createElement('video'); // Gizli ekran videosu
 
         setToggle.onclick = () => setPanel.classList.remove('hidden');
         document.getElementById('close-settings').onclick = () => setPanel.classList.add('hidden');
@@ -129,6 +139,7 @@
         };
 
         const updateCamPos = (side) => {
+            currentCamPos = side;
             vWebcam.className = `webcam-preview pos-bottom-${side}`;
             document.getElementById('pos-left').classList.toggle('bg-blue-600', side === 'left');
             document.getElementById('pos-right').classList.toggle('bg-blue-600', side === 'right');
@@ -137,24 +148,65 @@
         document.getElementById('pos-left').onclick = () => updateCamPos('left');
         document.getElementById('pos-right').onclick = () => updateCamPos('right');
 
+        // Görüntüləri birləşdirən funksiya
+        function drawMixedFrame() {
+            mixerCtx.drawImage(vScreen, 0, 0, mixerCanvas.width, mixerCanvas.height);
+            
+            if (camCheck.checked && vWebcam.readyState === 4) {
+                const camWidth = mixerCanvas.width * 0.2; // Kamera ölçüsü ekranın 20%-i
+                const camHeight = (vWebcam.videoHeight / vWebcam.videoWidth) * camWidth;
+                let x = currentCamPos === 'right' ? mixerCanvas.width - camWidth - 20 : 20;
+                let y = mixerCanvas.height - camHeight - 20;
+
+                // Kamera güzgü effektini qeydə də tətbiq etmək (istəyə görə)
+                mixerCtx.save();
+                mixerCtx.translate(x + camWidth, y);
+                mixerCtx.scale(-1, 1);
+                mixerCtx.drawImage(vWebcam, 0, 0, camWidth, camHeight);
+                mixerCtx.restore();
+            }
+        }
+
         btnRec.onclick = async () => {
             try {
                 const sStream = await navigator.mediaDevices.getDisplayMedia({
                     video: { width: { ideal: (quality * 16) / 9 }, height: { ideal: quality } },
                     audio: true
                 });
-                let tracks = [...sStream.getTracks()];
+
+                vScreen.srcObject = sStream;
+                vScreen.play();
+
+                // Canvas ölçülərini ekran ölçüsü ilə eyniləşdir
+                const settings = sStream.getVideoTracks()[0].getSettings();
+                mixerCanvas.width = settings.width;
+                mixerCanvas.height = settings.height;
+
+                // Mikser döngüsünü başlat
+                mixInterval = setInterval(drawMixedFrame, 1000/30); // 30 FPS
+
+                const mixedStream = mixerCanvas.captureStream(30);
+                
+                // Audio kanallarını birləşdir
+                let audioTracks = [];
+                if (sStream.getAudioTracks().length > 0) audioTracks.push(sStream.getAudioTracks()[0]);
                 if (document.getElementById('mic-check').checked) {
                     try {
                         const m = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        tracks = [...tracks, ...m.getAudioTracks()];
+                        audioTracks.push(m.getAudioTracks()[0]);
                     } catch {}
                 }
-                mStream = new MediaStream(tracks);
-                mediaRecorder = new MediaRecorder(mStream, { mimeType: 'video/webm;codecs=vp9' });
+
+                const finalStream = new MediaStream([
+                    ...mixedStream.getVideoTracks(),
+                    ...audioTracks
+                ]);
+
+                mediaRecorder = new MediaRecorder(finalStream, { mimeType: 'video/webm;codecs=vp9' });
                 chunks = [];
                 mediaRecorder.ondataavailable = e => chunks.push(e.data);
                 mediaRecorder.onstop = () => {
+                    clearInterval(mixInterval);
                     const b = new Blob(chunks, { type: 'video/webm' });
                     document.getElementById('preview').src = URL.createObjectURL(b);
                     document.getElementById('preview').classList.remove('hidden');
@@ -164,20 +216,25 @@
                     btnStop.classList.add('hidden');
                     btnRec.classList.remove('hidden');
                     clearInterval(timer);
-                    mStream.getTracks().forEach(t => t.stop());
+                    sStream.getTracks().forEach(t => t.stop());
                 };
+
                 mediaRecorder.start();
                 btnRec.classList.add('hidden');
                 btnStop.classList.remove('hidden');
                 document.getElementById('status').classList.remove('hidden');
                 document.getElementById('result-btns').classList.add('hidden');
+                
                 start = Date.now();
                 timer = setInterval(() => {
                     const d = new Date(Date.now() - start);
                     document.getElementById('timer').textContent = d.toISOString().substr(14, 5);
                 }, 1000);
+
                 sStream.getVideoTracks()[0].onended = () => mediaRecorder.stop();
-            } catch {}
+            } catch (err) {
+                console.error("Qeyd zamanı xəta:", err);
+            }
         };
 
         btnStop.onclick = () => mediaRecorder.stop();
@@ -190,7 +247,7 @@
         document.getElementById('download-btn').onclick = () => {
             const a = document.createElement('a');
             a.href = document.getElementById('preview').src;
-            a.download = 'record.webm';
+            a.download = 'axtarget_record.webm';
             a.click();
         };
     </script>
