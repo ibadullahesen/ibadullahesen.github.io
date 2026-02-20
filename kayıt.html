@@ -3,117 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Axtarget Studio</title>
+    <title>Axtarget Recorder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: white; height: 100vh; overflow: hidden; margin: 0; display: flex; align-items: center; justify-content: center; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .webcam-preview { width: 120px; height: 90px; border-radius: 8px; border: 2px solid #3b82f6; position: absolute; z-index: 50; object-fit: cover; transition: 0.3s; transform: scaleX(-1); }
-        .pos-bottom-left { bottom: 10px; left: 10px; }
-        .pos-bottom-right { bottom: 10px; right: 10px; }
-        .quality-btn.active { background: #3b82f6; border-color: #60a5fa; }
+        body { background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        .webcam-preview { width: 150px; border-radius: 8px; position: absolute; bottom: 10px; right: 10px; transform: scaleX(-1); border: 2px solid #3b82f6; }
+        .quality-btn.active { background: #3b82f6; }
     </style>
 </head>
 <body>
 
-    <div class="relative w-full max-w-xl px-4">
-        <div class="glass rounded-[20px] p-5 shadow-2xl relative">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-emerald-400">Axtarget Studio</h1>
-                    <p class="text-slate-500 text-[9px] tracking-widest uppercase">HD Ultra v2.1</p>
-                </div>
-                <div id="status" class="hidden flex items-center gap-2 bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-[9px] font-bold">
-                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></span> REC <span id="timer">00:00</span>
-                </div>
-            </div>
-
-            <!-- Monitor Hissəsi -->
-            <div class="relative w-full aspect-video bg-slate-900 rounded-lg mb-4 border border-white/5 flex items-center justify-center overflow-hidden mx-auto">
-                <video id="preview" class="w-full h-full object-contain hidden" controls></video>
-                <div id="blank" class="text-slate-700 flex flex-col items-center">
-                    <i class="fas fa-desktop text-2xl mb-2 opacity-20"></i>
-                    <p class="text-[10px] italic opacity-40 font-medium">Video gözlənilir...</p>
-                </div>
-                <video id="webcam" class="webcam-preview hidden pos-bottom-right" autoplay muted></video>
-            </div>
-
-            <!-- İdarəetmə Düymələri -->
-            <div class="flex items-center gap-2">
-                <button id="record-btn" class="flex-[3] bg-blue-600 hover:bg-blue-500 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-900/20">
-                    <i class="fas fa-circle text-[6px]"></i> Ekranı Kaydet
-                </button>
-                <button id="stop-btn" class="hidden flex-[3] bg-red-600 hover:bg-red-500 py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-2 transition-all">
-                    <i class="fas fa-stop text-[6px]"></i> Durdur
-                </button>
-                <button id="settings-toggle" class="flex-1 h-9 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg flex items-center justify-center transition-all">
-                    <i class="fas fa-cog text-xs"></i>
-                </button>
-            </div>
-
-            <div id="result-btns" class="hidden mt-3 flex gap-2">
-                <button id="download-btn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 py-2 rounded-lg font-bold text-[10px]">Videonun Yüklə</button>
-                <button id="delete-btn" class="w-10 h-8 bg-white/5 hover:bg-red-500/20 border border-white/10 rounded-lg text-xs flex items-center justify-center"><i class="fas fa-trash"></i></button>
-            </div>
+    <div class="w-full max-w-lg p-6 bg-slate-800 rounded-xl shadow-xl">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-bold">Axtarget Recorder</h1>
+            <div id="status" class="hidden text-red-500 font-bold animate-pulse">● REC <span id="timer">00:00</span></div>
         </div>
-    </div>
 
-    <!-- Ayarlar Paneli -->
-    <div id="settings-panel" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="glass w-full max-w-xs rounded-[16px] p-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-sm font-bold">Ayarlar</h2>
-                <button id="close-settings" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xs"></i></button>
+        <div class="relative aspect-video bg-black rounded-lg mb-4 overflow-hidden">
+            <video id="preview" class="w-full h-full hidden" controls></video>
+            <div id="blank" class="h-full flex items-center justify-center text-slate-500 text-sm italic">Video yoxdur</div>
+            <video id="webcam" class="webcam-preview hidden" autoplay muted></video>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <div class="flex flex-col gap-2">
+                <label class="text-xs text-slate-400">Keyfiyyət</label>
+                <div class="flex gap-1">
+                    <button class="quality-btn px-2 py-1 bg-slate-700 rounded text-xs active" data-val="1080">1080p</button>
+                    <button class="quality-btn px-2 py-1 bg-slate-700 rounded text-xs" data-val="720">720p</button>
+                </div>
             </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[9px] text-slate-500 font-bold uppercase mb-2 block tracking-wider">Keyfiyyət (Bitreyt Artırıldı)</label>
-                    <div class="grid grid-cols-2 gap-1.5">
-                        <button class="quality-btn p-1.5 border border-white/10 rounded-md text-[10px]" data-val="2160">4K</button>
-                        <button class="quality-btn p-1.5 border border-white/10 rounded-md text-[10px]" data-val="1440">2K</button>
-                        <button class="quality-btn active p-1.5 border border-white/10 rounded-md text-[10px]" data-val="1080">1080p</button>
-                        <button class="quality-btn p-1.5 border border-white/10 rounded-md text-[10px]" data-val="720">720p</button>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between p-2 bg-white/5 rounded-md border border-white/10">
-                    <span class="text-[11px]">Veb-kamera</span>
-                    <input type="checkbox" id="cam-check" class="w-3.5 h-3.5 accent-blue-500 cursor-pointer">
-                </div>
-
-                <div id="cam-pos-box" class="hidden grid grid-cols-2 gap-1.5">
-                    <button id="pos-left" class="p-1.5 bg-white/5 border border-white/10 rounded-md text-[9px]">Sol Aşağı</button>
-                    <button id="pos-right" class="p-1.5 bg-blue-600 border border-blue-500 rounded-md text-[9px]">Sağ Aşağı</button>
-                </div>
-
-                <div class="flex items-center justify-between p-2 bg-white/5 rounded-md border border-white/10">
-                    <span class="text-[11px]">Mikrofon Səsi</span>
-                    <input type="checkbox" id="mic-check" checked class="w-3.5 h-3.5 accent-blue-500 cursor-pointer">
+            <div class="flex flex-col gap-2">
+                <label class="text-xs text-slate-400">Seçimlər</label>
+                <div class="flex gap-4 items-center h-full">
+                    <label class="text-xs flex items-center gap-1"><input type="checkbox" id="cam-check"> Kamera</label>
+                    <label class="text-xs flex items-center gap-1"><input type="checkbox" id="mic-check" checked> Mik</label>
                 </div>
             </div>
         </div>
+
+        <div class="flex gap-2">
+            <button id="record-btn" class="flex-1 bg-blue-600 p-3 rounded font-bold">Qeydə Başla</button>
+            <button id="stop-btn" class="hidden flex-1 bg-red-600 p-3 rounded font-bold">Durdur</button>
+        </div>
+
+        <div id="result-btns" class="hidden mt-4 flex gap-2">
+            <button id="download-btn" class="flex-1 bg-green-600 p-2 rounded text-sm font-bold">Yüklə</button>
+            <button id="delete-btn" class="bg-slate-700 p-2 rounded text-sm"><i class="fas fa-trash"></i></button>
+        </div>
     </div>
 
-    <!-- Mikser üçün gizli Canvas -->
     <canvas id="mixer-canvas" style="display:none;"></canvas>
 
     <script>
         let mediaRecorder, chunks = [], timer, start, mStream, wStream, quality = 1080;
-        let mixerCanvas = document.getElementById('mixer-canvas');
-        let mixerCtx = mixerCanvas.getContext('2d');
-        let mixInterval;
-        let currentCamPos = 'right';
-
-        const btnRec = document.getElementById('record-btn'), btnStop = document.getElementById('stop-btn');
-        const setPanel = document.getElementById('settings-panel'), setToggle = document.getElementById('settings-toggle');
-        const camCheck = document.getElementById('cam-check'), vWebcam = document.getElementById('webcam');
-        const vScreen = document.createElement('video'); 
-
-        setToggle.onclick = () => setPanel.classList.remove('hidden');
-        document.getElementById('close-settings').onclick = () => setPanel.classList.add('hidden');
+        const mixerCanvas = document.getElementById('mixer-canvas');
+        const mixerCtx = mixerCanvas.getContext('2d');
+        const vWebcam = document.getElementById('webcam'), vScreen = document.createElement('video');
 
         document.querySelectorAll('.quality-btn').forEach(b => {
             b.onclick = () => {
@@ -123,122 +70,80 @@
             }
         });
 
-        camCheck.onchange = async () => {
-            if (camCheck.checked) {
+        document.getElementById('cam-check').onchange = async (e) => {
+            if (e.target.checked) {
                 try {
-                    wStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { width: 1280, height: 720, frameRate: 30 } 
-                    });
+                    wStream = await navigator.mediaDevices.getUserMedia({ video: true });
                     vWebcam.srcObject = wStream;
                     vWebcam.classList.remove('hidden');
-                    document.getElementById('cam-pos-box').classList.remove('hidden');
-                } catch { camCheck.checked = false; }
+                } catch { e.target.checked = false; }
             } else {
                 if (wStream) wStream.getTracks().forEach(t => t.stop());
                 vWebcam.classList.add('hidden');
-                document.getElementById('cam-pos-box').classList.add('hidden');
             }
         };
 
-        const updateCamPos = (side) => {
-            currentCamPos = side;
-            vWebcam.className = `webcam-preview pos-bottom-${side}`;
-            document.getElementById('pos-left').classList.toggle('bg-blue-600', side === 'left');
-            document.getElementById('pos-right').classList.toggle('bg-blue-600', side === 'right');
-        };
-
-        document.getElementById('pos-left').onclick = () => updateCamPos('left');
-        document.getElementById('pos-right').onclick = () => updateCamPos('right');
-
-        function drawMixedFrame() {
-            // Yüksək keyfiyyət üçün hamarlaşdırma
-            mixerCtx.imageSmoothingEnabled = true;
-            mixerCtx.imageSmoothingQuality = 'high';
-            
+        function drawFrame() {
             mixerCtx.drawImage(vScreen, 0, 0, mixerCanvas.width, mixerCanvas.height);
-            
-            if (camCheck.checked && vWebcam.readyState === 4) {
-                const camWidth = mixerCanvas.width * 0.2;
-                const camHeight = (vWebcam.videoHeight / vWebcam.videoWidth) * camWidth;
-                let x = currentCamPos === 'right' ? mixerCanvas.width - camWidth - 30 : 30;
-                let y = mixerCanvas.height - camHeight - 30;
-
+            if (document.getElementById('cam-check').checked && vWebcam.readyState === 4) {
+                const cw = mixerCanvas.width * 0.2;
+                const ch = (vWebcam.videoHeight / vWebcam.videoWidth) * cw;
                 mixerCtx.save();
-                // Kölgə effekti əlavə edirik ki, kamera daha net görünsün
-                mixerCtx.shadowColor = "rgba(0,0,0,0.5)";
-                mixerCtx.shadowBlur = 20;
-                
-                mixerCtx.translate(x + camWidth, y);
+                mixerCtx.translate(mixerCanvas.width - cw - 20 + cw, mixerCanvas.height - ch - 20);
                 mixerCtx.scale(-1, 1);
-                mixerCtx.drawImage(vWebcam, 0, 0, camWidth, camHeight);
+                mixerCtx.drawImage(vWebcam, 0, 0, cw, ch);
                 mixerCtx.restore();
             }
         }
 
-        btnRec.onclick = async () => {
+        document.getElementById('record-btn').onclick = async () => {
             try {
                 const sStream = await navigator.mediaDevices.getDisplayMedia({
-                    video: { 
-                        width: { ideal: quality === 2160 ? 3840 : (quality === 1080 ? 1920 : 1280) },
-                        height: { ideal: quality },
-                        frameRate: { ideal: 60 } // FPS artırıldı
-                    },
+                    video: { width: { ideal: 1920 }, height: { ideal: quality } },
                     audio: true
                 });
-
                 vScreen.srcObject = sStream;
-                vScreen.onloadedmetadata = () => vScreen.play();
+                vScreen.play();
 
                 const settings = sStream.getVideoTracks()[0].getSettings();
                 mixerCanvas.width = settings.width;
                 mixerCanvas.height = settings.height;
 
-                mixInterval = setInterval(drawMixedFrame, 1000/60); 
-
-                const mixedStream = mixerCanvas.captureStream(60);
+                const interval = setInterval(drawFrame, 1000/30);
+                const mixedStream = mixerCanvas.captureStream(30);
                 
-                let audioTracks = [];
-                if (sStream.getAudioTracks().length > 0) audioTracks.push(sStream.getAudioTracks()[0]);
+                let tracks = [...mixedStream.getVideoTracks()];
+                if (sStream.getAudioTracks().length > 0) tracks.push(sStream.getAudioTracks()[0]);
                 if (document.getElementById('mic-check').checked) {
-                    try {
-                        const m = await navigator.mediaDevices.getUserMedia({ audio: true });
-                        audioTracks.push(m.getAudioTracks()[0]);
-                    } catch {}
+                    const m = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    tracks.push(m.getAudioTracks()[0]);
                 }
 
-                const finalStream = new MediaStream([
-                    ...mixedStream.getVideoTracks(),
-                    ...audioTracks
-                ]);
-
-                // Video bitreytini kəskin şəkildə artırırıq (8Mbps - 15Mbps arası)
-                const options = { 
-                    mimeType: 'video/webm;codecs=vp9',
-                    videoBitsPerSecond: 15000000 
-                };
+                mediaRecorder = new MediaRecorder(new MediaStream(tracks), { 
+                    mimeType: 'video/webm;codecs=vp9', 
+                    videoBitsPerSecond: 8000000 
+                });
                 
-                mediaRecorder = new MediaRecorder(finalStream, options);
-                chunks = [];
                 mediaRecorder.ondataavailable = e => chunks.push(e.data);
                 mediaRecorder.onstop = () => {
-                    clearInterval(mixInterval);
+                    clearInterval(interval);
                     const b = new Blob(chunks, { type: 'video/webm' });
                     document.getElementById('preview').src = URL.createObjectURL(b);
                     document.getElementById('preview').classList.remove('hidden');
                     document.getElementById('blank').classList.add('hidden');
                     document.getElementById('result-btns').classList.remove('hidden');
                     document.getElementById('status').classList.add('hidden');
-                    btnStop.classList.add('hidden');
-                    btnRec.classList.remove('hidden');
+                    document.getElementById('stop-btn').classList.add('hidden');
+                    document.getElementById('record-btn').classList.remove('hidden');
                     clearInterval(timer);
                     sStream.getTracks().forEach(t => t.stop());
                 };
 
+                chunks = [];
                 mediaRecorder.start();
-                btnRec.classList.add('hidden');
-                btnStop.classList.remove('hidden');
+                document.getElementById('record-btn').classList.add('hidden');
+                document.getElementById('stop-btn').classList.remove('hidden');
                 document.getElementById('status').classList.remove('hidden');
-                document.getElementById('result-btns').classList.add('hidden');
                 
                 start = Date.now();
                 timer = setInterval(() => {
@@ -247,24 +152,17 @@
                 }, 1000);
 
                 sStream.getVideoTracks()[0].onended = () => mediaRecorder.stop();
-            } catch (err) {
-                console.error("Qeyd xətası:", err);
-            }
+            } catch (err) {}
         };
 
-        btnStop.onclick = () => mediaRecorder.stop();
-        document.getElementById('delete-btn').onclick = () => {
-            document.getElementById('preview').src = "";
-            document.getElementById('preview').classList.add('hidden');
-            document.getElementById('blank').classList.remove('hidden');
-            document.getElementById('result-btns').classList.add('hidden');
-        };
+        document.getElementById('stop-btn').onclick = () => mediaRecorder.stop();
         document.getElementById('download-btn').onclick = () => {
             const a = document.createElement('a');
             a.href = document.getElementById('preview').src;
-            a.download = 'axtarget_hd_record.webm';
+            a.download = 'record.webm';
             a.click();
         };
+        document.getElementById('delete-btn').onclick = () => location.reload();
     </script>
 </body>
 </html>
