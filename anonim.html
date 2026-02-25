@@ -18,48 +18,43 @@
     <meta name="geo.placename" content="Baku">
     <meta name="geo.position" content="40.409264;49.867092">
     <meta name="ICBM" content="40.409264, 49.867092">
-    
-    <!-- Dil Seçimi için Meta Tag -->
     <meta name="supported-languages" content="az, tr">
-    
-    <!-- Mobil Optimizasyon -->
     <meta name="format-detection" content="telephone=no">
     <meta name="HandheldFriendly" content="true">
     <meta name="MobileOptimized" content="width">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta property="og:title" content="AxtarGet Chat - Pulsuz Online Anonim Chat Platforması | Azərbaycan Chat Saytı">
+    <meta property="og:description" content="AxtarGet ilə pulsuz online chat edin. Yeni insanlarla tanış olun, söhbət edin. Heç bir qeydiyyat yoxdur, dərhal başlayın. Azərbaycanda ən yaxşı chat platforması.">
+    <meta property="og:image" content="https://axtarget.com/og-image.png">
+    <meta property="og:url" content="https://axtarget.com/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AxtarGet Chat - Pulsuz Online Chat Platforması">
+    <meta name="twitter:description" content="Yeni insanlarla tanış olun, söhbət edin. Heç bir qeydiyyat yoxdur.">
+    <meta name="twitter:image" content="https://axtarget.com/og-image.png">
 
-   <!-- Google tag (gtag.js) -->
-     <script async src="https://www.googletagmanager.com/gtag/js?id=G-62M9RVVRTY"></script>
-      <script>
-     window.dataLayer = window.dataLayer || [];
-     function gtag(){dataLayer.push(arguments);}
-     gtag('js', new Date());
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-62M9RVVRTY"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-62M9RVVRTY');
+    </script>
 
-     gtag('config', 'G-62M9RVVRTY');
-</script>
-    
-    <!-- Site Doğrulama (Google Search Console için) -->
-    <!-- <meta name="google-site-verification" content="GOOGLE_SITE_VERIFICATION_KODUNUZ"> -->
-    
-    <!-- Canonical & Alternatif URL'ler -->
     <link rel="canonical" href="https://axtarget.com/">
     <link rel="alternate" hreflang="az" href="https://axtarget.com/">
     <link rel="alternate" hreflang="tr" href="https://axtarget.com/tr/">
     <link rel="alternate" hreflang="az-AZ" href="https://axtarget.com/">
     <link rel="alternate" hreflang="x-default" href="https://axtarget.com/">
     
-    <!-- Hız Optimizasyonu -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://www.gstatic.com">
     <link rel="dns-prefetch" href="https://www.gstatic.com">
     
-    <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    
-    <!-- JSON-LD Structured Data (Google için kritik!) -->
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -249,7 +244,6 @@
             color: #f59e0b;
         }
         
-        /* SEO için optimized hidden content */
         .seo-content {
             position: absolute;
             width: 1px;
@@ -262,7 +256,6 @@
             border: 0;
         }
         
-        /* Typing indicator styles */
         .typing-dots {
             display: inline-flex;
             align-items: center;
@@ -296,7 +289,6 @@
             }
         }
         
-        /* WhatsApp balonu üçün üslublar */
         .whatsapp-ballon {
             position: fixed;
             bottom: 20px;
@@ -338,7 +330,6 @@
             }
         }
         
-        /* WhatsApp tooltip */
         .whatsapp-tooltip {
             position: absolute;
             right: 70px;
@@ -359,7 +350,6 @@
             opacity: 1;
         }
         
-        /* Dil Seçimi Stilleri */
         .language-selector {
             position: fixed;
             top: 20px;
@@ -1057,8 +1047,10 @@
         let typingTimeout = null;
         let renderedMessageIds = new Set();
         let isMatched = false;
+        let blockedUsers = new Map();
 
         const MATCHING_SECONDS = 20;
+        const BLOCK_DURATION = 60000;
 
         function initializeFirebase() {
             try {
@@ -1222,8 +1214,12 @@
             try {
                 matchingChannel.subscribe('match-request', (message) => {
                     if (message.data.userId !== userId && !isMatched) {
+                        const incomingUserId = message.data.userId;
+                        if (blockedUsers.has(incomingUserId)) {
+                            return;
+                        }
                         isMatched = true;
-                        partnerId = message.data.userId;
+                        partnerId = incomingUserId;
                         partnerLanguage = message.data.language || 'az';
                         chatId = 'chat-' + userId + '-' + partnerId;
                         
@@ -1260,8 +1256,12 @@
 
                 matchingChannel.subscribe('match-response', (message) => {
                     if (message.data.partnerId === userId && !isMatched) {
+                        const incomingUserId = message.data.userId;
+                        if (blockedUsers.has(incomingUserId)) {
+                            return;
+                        }
                         isMatched = true;
-                        partnerId = message.data.userId;
+                        partnerId = incomingUserId;
                         partnerLanguage = message.data.language || 'az';
                         chatId = message.data.chatId;
                         
@@ -1336,6 +1336,13 @@
                     userId: userId
                 });
                 channel.detach();
+            }
+
+            if (partnerId) {
+                blockedUsers.set(partnerId, true);
+                setTimeout(() => {
+                    blockedUsers.delete(partnerId);
+                }, BLOCK_DURATION);
             }
 
             chatId = null;
