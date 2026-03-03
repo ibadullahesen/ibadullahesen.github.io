@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <script src="https://quge5.com/88/tag.min.js" data-zone="215747" async data-cfasync="false"></script>
-    
     <title>AxtarGet Chat - Pulsuz Online Anonim Chat Platforması | Azərbaycan Chat Saytı</title>
     <meta name="description" content="AxtarGet ilə pulsuz online chat edin. Yeni insanlarla tanış olun, söhbət edin. Heç bir qeydiyyat yoxdur, dərhal başlayın. Azərbaycanda ən yaxşı chat platforması.">
     <meta name="keywords" content="pulsuz chat, online chat, Azərbaycan chat, yeni insanlarla tanış olmaq, dost axtarmaq, virtual tanışlıq, söhbət etmək, random chat, chat otağı, online söhbət">
@@ -442,6 +440,28 @@
         .arrow.rotated {
             transform: rotate(180deg);
         }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #06b6d4;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #0891b2;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-primary text-white min-h-screen">
@@ -763,30 +783,7 @@
         </div>
     </div>
 
-    <style>
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #1e293b;
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #06b6d4;
-            border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #0891b2;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
-
+    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
     <script>
         // DİL YÖNETİMİ
         let currentLanguage = 'az';
@@ -1030,11 +1027,11 @@
         };
     </script>
 
-    <script src="https://cdn.ably.io/lib/ably.min.js"></script>
     <script>
         const ablyApiKey = "bAIUwA.MY6Tlg:Fhf5Dfowu3VfhiRTpJapq0-JF3VgI7RWiC-Eo7Qbvp0";
         let ably, channel, matchingChannel;
         
+        // USER IDENTIFIER - localStorage ilə saxlayırıq
         let userId = null;
         let userName = null;
         let userLanguage = null;
@@ -1047,14 +1044,48 @@
         let renderedMessageIds = new Set();
         let isMatched = false;
         let blockedUsers = new Map();
+        let lastPartners = new Map(); // Son 10 partneri saat cinsindən saxlayırıq
 
         const MATCHING_SECONDS = 20;
-        const BLOCK_DURATION = 60000;
+        const BLOCK_DURATION = 10000; // 10 saniye
+        const USER_STORAGE_KEY = 'axtarget_user_id';
+        const PARTNERS_STORAGE_KEY = 'axtarget_partners';
+
+        function generateUserID() {
+            return 'user-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+        }
+
+        function getUserID() {
+            let stored = localStorage.getItem(USER_STORAGE_KEY);
+            if (!stored) {
+                stored = generateUserID();
+                localStorage.setItem(USER_STORAGE_KEY, stored);
+            }
+            return stored;
+        }
+
+        function canChatWith(partnerId) {
+            const partners = JSON.parse(localStorage.getItem(PARTNERS_STORAGE_KEY) || '{}');
+            if (partners[partnerId]) {
+                const blockTime = partners[partnerId];
+                const now = Date.now();
+                if (now - blockTime < BLOCK_DURATION) {
+                    return false; // Hələ 10 saniyelik timeout davam edir
+                }
+            }
+            return true;
+        }
+
+        function blockPartner(partnerId) {
+            const partners = JSON.parse(localStorage.getItem(PARTNERS_STORAGE_KEY) || '{}');
+            partners[partnerId] = Date.now();
+            localStorage.setItem(PARTNERS_STORAGE_KEY, JSON.stringify(partners));
+        }
 
         function initializeFirebase() {
             try {
                 ably = new Ably.Realtime(ablyApiKey);
-                userId = 'user-' + Math.random().toString(36).substr(2, 9);
+                userId = getUserID();
                 isAuthReady = true;
             } catch (e) {
                 console.error("Ably xətası:", e);
@@ -1214,9 +1245,12 @@
                 matchingChannel.subscribe('match-request', (message) => {
                     if (message.data.userId !== userId && !isMatched) {
                         const incomingUserId = message.data.userId;
-                        if (blockedUsers.has(incomingUserId)) {
+                        
+                        // 10 saniye timeout kontrol et
+                        if (!canChatWith(incomingUserId)) {
                             return;
                         }
+                        
                         isMatched = true;
                         partnerId = incomingUserId;
                         partnerLanguage = message.data.language || 'az';
@@ -1256,9 +1290,12 @@
                 matchingChannel.subscribe('match-response', (message) => {
                     if (message.data.partnerId === userId && !isMatched) {
                         const incomingUserId = message.data.userId;
-                        if (blockedUsers.has(incomingUserId)) {
+                        
+                        // 10 saniye timeout kontrol et
+                        if (!canChatWith(incomingUserId)) {
                             return;
                         }
+                        
                         isMatched = true;
                         partnerId = incomingUserId;
                         partnerLanguage = message.data.language || 'az';
@@ -1338,10 +1375,7 @@
             }
 
             if (partnerId) {
-                blockedUsers.set(partnerId, true);
-                setTimeout(() => {
-                    blockedUsers.delete(partnerId);
-                }, BLOCK_DURATION);
+                blockPartner(partnerId); // 10 saniye block et
             }
 
             chatId = null;
