@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AxtarGet - Gələcəyin Rəqəmsal Həlləri</title>
+
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+    
     <link rel="icon" type="image/png" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
     <link rel="apple-touch-icon" href="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
 
@@ -30,7 +33,7 @@
       }
     }
     </script>
-
+    
     <meta property="og:title" content="AxtarGet - Gələcəyin Rəqəmsal Həlləri">
     <meta property="og:description" content="Web sayt hazırlama, SMM, AI xidmətləri və daha çoxu">
     <meta property="og:image" content="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg">
@@ -42,1651 +45,2251 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
+
         gtag('config', 'G-62M9RVVRTY');
     </script>
 
     <style>
         :root {
-            --bg: #030712;
-            --bg-secondary: #0a0f1e;
-            --glass: rgba(15, 23, 42, 0.4);
-            --glass-strong: rgba(15, 23, 42, 0.7);
-            --border: rgba(56, 229, 183, 0.15);
-            --border-hover: rgba(56, 229, 183, 0.5);
-            --text: #f1f5f9;
-            --text-muted: #94a3b8;
+            --background: #05080E;
+            --glass-bg: rgba(15, 23, 42, 0.5);
+            --border: rgba(56, 229, 183, 0.2);
+            --text-primary: #F1F5F9;
+            --text-muted: #94A3B8;
             --primary: #38E5B7;
-            --primary-dim: rgba(56, 229, 183, 0.15);
-            --secondary: #818cf8;
-            --accent: #f472b6;
+            --primary-hover: #10B981;
             --font-body: 'Inter', sans-serif;
-            --font-heading: 'Space Grotesk', sans-serif;
-            --font-display: 'Manrope', sans-serif;
+            --font-heading: 'Manrope', sans-serif;
         }
 
         .light-mode {
-            --bg: #f8fafc;
-            --bg-secondary: #e2e8f0;
-            --glass: rgba(255, 255, 255, 0.5);
-            --glass-strong: rgba(255, 255, 255, 0.8);
-            --border: rgba(56, 229, 183, 0.25);
-            --border-hover: rgba(56, 229, 183, 0.6);
-            --text: #0f172a;
-            --text-muted: #475569;
-            --primary-dim: rgba(56, 229, 183, 0.1);
+            --background: #f0f4f8;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --border: rgba(56, 229, 183, 0.3);
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --primary: #38E5B7;
+            --primary-hover: #10B981;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
             font-family: var(--font-body);
-            background: var(--bg);
-            color: var(--text);
+            background-color: var(--background);
+            color: var(--text-primary);
             overflow-x: hidden;
-            transition: background 0.6s ease, color 0.6s ease;
-            cursor: none;
+            transition: background-color 0.8s ease, color 0.8s ease;
         }
 
-        @media (max-width: 1024px) {
-            body { cursor: auto; }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
-
-        /* ── Cursor ── */
-        .cursor-dot {
-            width: 8px; height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
+        #matrix-canvas {
             position: fixed;
-            pointer-events: none;
-            z-index: 99999;
-            transition: transform 0.1s ease;
-            mix-blend-mode: difference;
-        }
-        .cursor-ring {
-            width: 40px; height: 40px;
-            border: 1.5px solid var(--primary);
-            border-radius: 50%;
-            position: fixed;
-            pointer-events: none;
-            z-index: 99998;
-            transition: all 0.15s ease-out;
-            mix-blend-mode: difference;
-        }
-        .cursor-ring.hover {
-            width: 60px; height: 60px;
-            border-color: var(--accent);
-            background: rgba(244, 114, 182, 0.1);
-        }
-        @media (max-width: 1024px) {
-            .cursor-dot, .cursor-ring { display: none; }
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 1;
+            transition: opacity 0.8s ease;
         }
 
-        /* ── Animated BG ── */
-        #bg-canvas {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            opacity: 0.6;
-            transition: opacity 0.6s ease;
-        }
-        .light-mode #bg-canvas { opacity: 0.15; }
-
-        .grain {
-            position: fixed;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-            animation: grainShift 8s steps(10) infinite;
-        }
-        @keyframes grainShift {
-            0%, 100% { transform: translate(0, 0); }
-            10% { transform: translate(-5%, -10%); }
-            20% { transform: translate(-15%, 5%); }
-            30% { transform: translate(7%, -25%); }
-            40% { transform: translate(-5%, 25%); }
-            50% { transform: translate(-15%, 10%); }
-            60% { transform: translate(15%, 0%); }
-            70% { transform: translate(0%, 15%); }
-            80% { transform: translate(3%, 35%); }
-            90% { transform: translate(-10%, 10%); }
+        .light-mode #matrix-canvas {
+            opacity: 0;
         }
 
-        .content-wrap { position: relative; z-index: 2; }
-
-        /* ── Header ── */
-        #header {
-            position: fixed; top: 0; left: 0; width: 100%;
-            z-index: 1000;
-            padding: 1rem 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        #header.scrolled {
-            padding: 0.6rem 0;
-            background: var(--glass-strong);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-        }
-        .nav-link {
-            position: relative;
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            font-weight: 500;
-            letter-spacing: 0.02em;
-            transition: color 0.3s ease;
-            text-decoration: none;
-            padding: 0.25rem 0;
-        }
-        .nav-link::after {
-            content: '';
+        #globe-container {
             position: absolute;
-            bottom: -2px; left: 0;
-            width: 0; height: 2px;
-            background: var(--primary);
-            transition: width 0.3s ease;
-            border-radius: 1px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.5;
+            mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+            -webkit-mask-image: radial-gradient(circle at center, white 20%, transparent 70%);
+            transition: opacity 0.8s ease;
         }
-        .nav-link:hover { color: var(--primary); }
-        .nav-link:hover::after { width: 100%; }
 
-        /* ── Theme Toggle ── */
-        .theme-switch {
-            width: 52px; height: 28px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 14px;
-            position: relative;
-            cursor: pointer;
-            border: 1px solid var(--border);
+        .light-mode #globe-container {
+            opacity: 0.2;
+        }
+
+        .content-overlay { position: relative; z-index: 1; }
+
+        #header {
+            background: rgba(5, 8, 14, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
-        .light-mode .theme-switch {
-            background: rgba(0,0,0,0.1);
-        }
-        .theme-switch .thumb {
-            width: 22px; height: 22px;
-            background: var(--primary);
-            border-radius: 50%;
-            position: absolute;
-            top: 2px; left: 2px;
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
-            color: var(--bg);
-            box-shadow: 0 0 10px rgba(56, 229, 183, 0.5);
-        }
-        .light-mode .theme-switch .thumb {
-            transform: translateX(24px);
+
+        #header.scrolled {
+            background: rgba(5, 8, 14, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
 
-        /* ── Hero ── */
-        .hero-badge {
-            display: inline-flex;
+        .light-mode #header {
+            background: rgba(240, 244, 248, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .light-mode #header.scrolled {
+            background: rgba(240, 244, 248, 0.8);
+        }
+
+        .theme-toggle-container {
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1.25rem;
-            background: var(--primary-dim);
+        }
+
+        .theme-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .theme-label {
+            color: var(--text-primary);
+        }
+
+        .switch {
+            font-size: 17px;
+            position: relative;
+            display: inline-block;
+            width: 3.5em;
+            height: 2em;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            --background: #28096b;
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--background);
+            transition: .5s;
+            border-radius: 30px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 1.4em;
+            width: 1.4em;
+            border-radius: 50%;
+            left: 10%;
+            bottom: 15%;
+            box-shadow: inset 8px -4px 0px 0px #fff000;
+            background: var(--background);
+            transition: .5s;
+        }
+
+        input:checked + .slider {
+            background-color: #522ba7;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(100%);
+            box-shadow: inset 15px -4px 0px 15px #fff000;
+        }
+
+        .feature-card {
+            display: flex;
+            align-items: center;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, background-color 0.8s ease, border-color 0.8s ease;
+            position: relative;
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+        
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: scale(0);
+            transition: transform 0.6s ease;
+            pointer-events: none;
+        }
+        
+        .feature-card:hover:before {
+            transform: scale(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(56, 229, 183, 0.5);
+        }
+        
+        .card-content {
+            flex: 1;
+            padding: 2.5rem;
+            position: relative;
+        }
+        
+        .card-image {
+            flex: 0 0 40%;
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .feature-card:hover .card-image img {
+            transform: scale(1.05);
+        }
+        
+        .card-tag {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary) 0%, #10B981 100%);
+            color: #05080E;
+            padding: 0.5rem 1rem;
             border-radius: 9999px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.875rem;
             letter-spacing: 0.05em;
             text-transform: uppercase;
-            backdrop-filter: blur(10px);
-        }
-        .hero-badge .pulse-dot {
-            width: 8px; height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.5); }
-        }
-
-        .hero-title {
-            font-family: var(--font-display);
-            font-weight: 800;
-            line-height: 0.95;
-            letter-spacing: -0.03em;
-        }
-        .hero-title .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradientShift 4s ease infinite;
-        }
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        /* ── 3D Cards ── */
-        .tilt-card {
-            position: relative;
-            transform-style: preserve-3d;
-            perspective: 1000px;
-            transition: transform 0.1s ease-out;
-        }
-        .tilt-card .card-inner {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 1.5rem;
-            overflow: hidden;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-            transform-style: preserve-3d;
-        }
-        .tilt-card:hover .card-inner {
-            border-color: var(--border-hover);
-            box-shadow:
-                0 25px 50px rgba(0, 0, 0, 0.3),
-                0 0 30px rgba(56, 229, 183, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-        .tilt-card .card-shine {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            border-radius: 1.5rem;
-            z-index: 10;
-        }
-        .tilt-card:hover .card-shine { opacity: 1; }
-
-        .card-tag {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            padding: 0.4rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--bg);
-            box-shadow: 0 0 20px rgba(56, 229, 183, 0.3);
-        }
-
-        .card-arrow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: gap 0.3s ease;
-            text-decoration: none;
-        }
-        .card-arrow:hover { gap: 1rem; }
-
-        .card-image-wrap {
-            position: relative;
-            overflow: hidden;
-            height: 240px;
-        }
-        .card-image-wrap img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .tilt-card:hover .card-image-wrap img {
-            transform: scale(1.08);
-        }
-        .card-image-wrap::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 60%;
-            background: linear-gradient(to top, var(--bg), transparent);
-            pointer-events: none;
-        }
-
-        /* ── Floating Elements ── */
-        .float-element {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.15;
-            animation: floatAnim 20s infinite ease-in-out;
-            pointer-events: none;
-        }
-        @keyframes floatAnim {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(30px, -50px) scale(1.1); }
-            50% { transform: translate(-20px, 20px) scale(0.9); }
-            75% { transform: translate(50px, 30px) scale(1.05); }
-        }
-
-        /* ── Stats ── */
-        .stat-card {
-            text-align: center;
-            padding: 2rem;
-            position: relative;
-        }
-        .stat-card::after {
-            content: '';
-            position: absolute;
-            right: 0; top: 20%; height: 60%;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, var(--border), transparent);
-        }
-        .stat-card:last-child::after { display: none; }
-        .stat-number {
-            font-family: var(--font-display);
-            font-size: 3rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-        }
-
-        /* ── Search ── */
-        .modern-search {
-            position: relative;
-            max-width: 560px;
-            margin: 0 auto;
-        }
-        .modern-search input {
-            width: 100%;
-            padding: 1rem 1.25rem 1rem 3.5rem;
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            color: var(--text);
-            font-size: 1rem;
-            font-family: var(--font-body);
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        .modern-search input::placeholder { color: var(--text-muted); }
-        .modern-search input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(56, 229, 183, 0.15), 0 10px 40px rgba(0,0,0,0.2);
-        }
-        .modern-search .search-icon {
-            position: absolute;
-            left: 1.1rem; top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            transition: color 0.3s ease;
-            font-size: 1rem;
-        }
-        .modern-search input:focus ~ .search-icon { color: var(--primary); }
-        .search-results-dropdown {
-            position: absolute;
-            top: calc(100% + 0.5rem);
-            left: 0; right: 0;
-            background: var(--glass-strong);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            max-height: 350px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-        }
-        .search-results-dropdown.show { display: block; }
-        .sr-item {
-            padding: 1rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .sr-item:hover {
-            background: var(--primary-dim);
-            padding-left: 1.5rem;
-        }
-        .sr-item:last-child { border-bottom: none; }
-        .sr-title { font-weight: 600; color: var(--text); font-size: 0.9rem; }
-        .sr-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
-        .sr-empty { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
-
-        /* ── Service Cards ── */
-        .service-card {
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 1.25rem;
-            padding: 2rem;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 3px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
-        }
-        .service-card:hover::before { transform: scaleX(1); }
-        .service-card:hover {
-            transform: translateY(-8px);
-            border-color: var(--border-hover);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 20px rgba(56,229,183,0.1);
-        }
-        .service-icon {
-            width: 60px; height: 60px;
-            border-radius: 1rem;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
-            background: var(--primary-dim);
-            color: var(--primary);
-            border: 1px solid var(--border);
-            transition: all 0.4s ease;
-            margin-bottom: 1.25rem;
-        }
-        .service-card:hover .service-icon {
-            transform: rotateY(180deg);
-            background: var(--primary);
-            color: var(--bg);
-            box-shadow: 0 0 25px rgba(56,229,183,0.5);
-        }
-
-        /* ── About ── */
-        .about-glass {
-            background: var(--glass);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: 2rem;
-            padding: 3rem;
-            position: relative;
-            overflow: hidden;
-        }
-        .about-glass::before {
-            content: '';
-            position: absolute;
-            top: -50%; right: -50%;
-            width: 100%; height: 100%;
-            background: radial-gradient(circle, var(--primary-dim), transparent 70%);
-            pointer-events: none;
-        }
-
-        /* ── Contact ── */
-        .contact-card {
-            background: var(--glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border);
-            border-radius: 1.25rem;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .contact-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--border-hover);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(56,229,183,0.15);
-        }
-        .contact-icon-box {
-            width: 70px; height: 70px;
-            border-radius: 1.25rem;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.75rem;
-            background: var(--primary-dim);
-            color: var(--primary);
-            border: 1px solid var(--border);
-            transition: all 0.4s ease;
             margin-bottom: 1rem;
+            box-shadow: 0 0 15px rgba(56, 229, 183, 0.4);
         }
-        .contact-card:hover .contact-icon-box {
-            transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 0 25px rgba(56,229,183,0.5);
+        
+        .card-title {
+            font-size: 2rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            transition: color 0.8s ease;
         }
-
-        /* ── TV ── */
-        .tv-wrap {
-            max-width: 800px;
-            margin: 0 auto;
-            border-radius: 1.5rem;
-            overflow: hidden;
-            box-shadow: 0 0 0 12px #1a1a2e, 0 0 0 14px #333, 0 30px 80px rgba(0,0,0,0.6);
+        
+        .card-description {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            transition: color 0.8s ease;
+        }
+        
+        .box {
+            width: 140px;
+            height: auto;
+            float: left;
+            transition: .5s linear;
             position: relative;
-        }
-        .tv-screen { position: relative; width: 100%; padding-bottom: 56.25%; background: #000; overflow: hidden; }
-        .tv-screen iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-        .tv-stand {
-            width: 100px; height: 35px;
-            background: linear-gradient(to bottom, #2a2a3e, #1a1a2e);
-            margin: 0 auto;
-            border-radius: 0 0 8px 8px;
+            display: block;
+            overflow: hidden;
+            padding: 15px;
+            text-align: center;
+            margin: 0 5px;
+            background: transparent;
+            text-transform: uppercase;
+            font-weight: 900;
+            color: var(--text-primary);
+            cursor: pointer;
         }
 
-        /* ── Ad Modal ── */
-        .ad-modal-overlay {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px);
-            z-index: 10000;
-            display: none;
+        .box:before {
+            position: absolute;
+            content: '';
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 100%;
+            border-bottom: 4px solid transparent;
+            border-left: 4px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(100%);
+        }
+
+        .box:after {
+            position: absolute;
+            content: '';
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            border-top: 4px solid transparent;
+            border-right: 4px solid transparent;
+            box-sizing: border-box;
+            transform: translateX(-100%);
+        }
+
+        .feature-card:hover .box {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .feature-card:hover .box:before {
+            border-color: var(--primary);
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .3s;
+        }
+
+        .feature-card:hover .box:after {
+            border-color: var(--primary);
+            height: 100%;
+            transform: translateX(0);
+            transition: .3s transform linear, .3s height linear .5s;
+        }
+
+        .card-link {
+            display: inline-flex;
             justify-content: center;
             align-items: center;
-        }
-        .ad-modal-overlay.show { display: flex; }
-        .ad-modal-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            max-width: 380px;
-            width: 90%;
-            text-align: center;
-            animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            color: var(--text);
-        }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        /* ── Mobile Menu ── */
-        .mobile-menu {
-            position: fixed; top: 0; right: 0;
-            width: 320px; max-width: 85vw;
-            height: 100vh;
-            background: var(--glass-strong);
-            backdrop-filter: blur(30px);
-            border-left: 1px solid var(--border);
-            z-index: 10001;
-            transform: translateX(100%);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex;
-            flex-direction: column;
-        }
-        .mobile-menu.open { transform: translateX(0); }
-        .mobile-menu a {
-            display: block;
-            padding: 1rem 2rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 1rem;
+            color: var(--text-primary);
             text-decoration: none;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.2s ease;
+            cursor: pointer;
+            outline: none;
+            border: none;
+            background: transparent;
+            margin-top: 1rem;
         }
-        .mobile-menu a:hover {
-            color: var(--primary);
-            background: var(--primary-dim);
-            padding-left: 2.5rem;
+        
+        .feature-card.reverse {
+            flex-direction: row-reverse;
         }
 
-        /* ── Animations ── */
-        .reveal {
-            opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        .btn-primary {
+            background-image: linear-gradient(45deg, var(--primary) 0%, #10B981 100%);
+            color: #05080E;
+            border-radius: 9999px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.4);
         }
-        .reveal.visible {
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 35px rgba(56, 229, 183, 0.7);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-hover); }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .fade-in.appear {
             opacity: 1;
             transform: translateY(0);
         }
-        .reveal-left {
-            opacity: 0;
-            transform: translateX(-60px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal-left.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        .reveal-right {
-            opacity: 0;
-            transform: translateX(60px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal-right.visible {
-            opacity: 1;
-            transform: translateX(0);
-        }
-        .reveal-scale {
-            opacity: 0;
-            transform: scale(0.85);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal-scale.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .stagger-1 { transition-delay: 0.05s !important; }
-        .stagger-2 { transition-delay: 0.1s !important; }
-        .stagger-3 { transition-delay: 0.15s !important; }
-        .stagger-4 { transition-delay: 0.2s !important; }
-        .stagger-5 { transition-delay: 0.25s !important; }
-        .stagger-6 { transition-delay: 0.3s !important; }
-
-        /* ── Section Heading ── */
-        .section-label {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-        .section-label::before {
-            content: '';
-            width: 24px; height: 2px;
-            background: var(--primary);
-            border-radius: 1px;
-        }
-        .section-title {
-            font-family: var(--font-display);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            line-height: 1.1;
-            color: var(--text);
-        }
-
-        /* ── Globe ── */
-        #globe-container {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 0;
-            opacity: 0.4;
-            mask-image: radial-gradient(circle at center, white 15%, transparent 65%);
-            -webkit-mask-image: radial-gradient(circle at center, white 15%, transparent 65%);
-            transition: opacity 0.6s ease;
-        }
-        .light-mode #globe-container { opacity: 0.15; }
-
-        /* ── Btn ── */
-        .btn-glow {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.875rem 2rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--bg);
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(56, 229, 183, 0.3);
-            border: none;
-            cursor: pointer;
-        }
-        .btn-glow:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 0 40px rgba(56, 229, 183, 0.5);
-        }
-        .btn-outline {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.875rem 2rem;
-            background: transparent;
-            color: var(--text);
-            border: 1px solid var(--border);
-            border-radius: 9999px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: var(--primary-dim);
-        }
-
-        /* ── Marquee ── */
-        .marquee-track {
+        
+        .mobile-menu-container {
+            position: fixed; 
+            top: 0; 
+            right: 0; 
+            width: 320px; 
+            max-width: 80vw;
+            height: 100vh;
+            background: rgba(5, 8, 14, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border);
+            z-index: 100;
+            transform: translateX(100%); 
+            transition: transform 0.5s cubic-bezier(0.6, 0.05, 0.28, 0.91);
             display: flex;
-            animation: marquee 30s linear infinite;
-            width: max-content;
+            flex-direction: column;
+            overflow-y: auto;
         }
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .mobile-menu-container.open { 
+            transform: translateX(0); 
         }
-        .marquee-item {
-            white-space: nowrap;
-            padding: 0 2rem;
-            font-family: var(--font-display);
-            font-size: 1.25rem;
+        .mobile-menu-container nav {
+            padding-top: 6rem;
+            flex-grow: 1;
+        }
+        .mobile-menu-container a {
+            display: block;
+            padding: 1rem 2.5rem;
+            font-family: var(--font-heading);
+            font-size: 1.25rem; 
             font-weight: 700;
             color: var(--text-muted);
-            opacity: 0.3;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            transition: color 0.3s ease, background-color 0.3s ease;
+            border-bottom: 1px solid var(--border);
         }
-        .marquee-item .dot {
-            width: 6px; height: 6px;
-            background: var(--primary);
-            border-radius: 50%;
-            opacity: 0.5;
+        .mobile-menu-container a:hover { 
+            color: var(--primary); 
+            background-color: rgba(56, 229, 183, 0.05);
         }
 
+        .service-icon-wrapper {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--primary);
+            transition: all 0.4s ease;
+        }
+        .glass-card:hover .service-icon-wrapper {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
+        }
+        
+        .search-container {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .white, .border, .darkBorderBg, .glow {
+            max-height: 70px;
+            max-width: 314px;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            overflow: hidden;
+            z-index: -1;
+            border-radius: 12px;
+            filter: blur(3px);
+        }
+        
+        .input {
+            background-color: #010201;
+            border: none;
+            width: 301px;
+            height: 56px;
+            border-radius: 10px;
+            color: white;
+            padding-inline: 59px;
+            font-size: 18px;
+        }
+        
+        #poda {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            width: 314px;
+            height: 70px;
+            margin: 0 auto;
+        }
+        
+        .input::placeholder {
+            color: #c0b9c0;
+        }
+        
+        .input:focus {
+            outline: none;
+        }
+        
+        #main:focus-within > #input-mask {
+            display: none;
+        }
+        
+        #input-mask {
+            pointer-events: none;
+            width: 100px;
+            height: 20px;
+            position: absolute;
+            background: linear-gradient(90deg, transparent, black);
+            top: 18px;
+            left: 70px;
+        }
+        
+        #pink-mask {
+            pointer-events: none;
+            width: 30px;
+            height: 20px;
+            position: absolute;
+            background: #cf30aa;
+            top: 10px;
+            left: 5px;
+            filter: blur(20px);
+            opacity: 0.8;
+            transition: all 2s;
+        }
+        
+        #main:hover > #pink-mask {
+            opacity: 0;
+        }
+        
+        .white {
+            max-height: 63px;
+            max-width: 307px;
+            border-radius: 10px;
+            filter: blur(2px);
+        }
+        
+        .white::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(83deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            filter: brightness(1.4);
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0) 0%,
+                #a099d8,
+                rgba(0, 0, 0, 0) 8%,
+                rgba(0, 0, 0, 0) 50%,
+                #dfa2da,
+                rgba(0, 0, 0, 0) 58%
+            );
+            transition: all 2s;
+        }
+        
+        .border {
+            max-height: 59px;
+            max-width: 303px;
+            border-radius: 11px;
+            filter: blur(0.5px);
+        }
+        
+        .border::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(70deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            filter: brightness(1.3);
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                #1c191c,
+                #402fb5 5%,
+                #1c191c 14%,
+                #1c191c 50%,
+                #cf30aa 60%,
+                #1c191c 64%
+            );
+            transition: all 2s;
+        }
+        
+        .darkBorderBg {
+            max-height: 65px;
+            max-width: 312px;
+        }
+        
+        .darkBorderBg::before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(82deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0),
+                #18116a,
+                rgba(0, 0, 0, 0) 10%,
+                rgba(0, 0, 0, 0) 50%,
+                #6e1b60,
+                rgba(0, 0, 0, 0) 60%
+            );
+            transition: all 2s;
+        }
+        
+        #poda:hover > .darkBorderBg::before {
+            transform: translate(-50%, -50%) rotate(-98deg);
+        }
+        
+        #poda:hover > .glow::before {
+            transform: translate(-50%, -50%) rotate(-120deg);
+        }
+        
+        #poda:hover > .white::before {
+            transform: translate(-50%, -50%) rotate(-97deg);
+        }
+        
+        #poda:hover > .border::before {
+            transform: translate(-50%, -50%) rotate(-110deg);
+        }
+        
+        #poda:focus-within > .darkBorderBg::before {
+            transform: translate(-50%, -50%) rotate(442deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .glow::before {
+            transform: translate(-50%, -50%) rotate(420deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .white::before {
+            transform: translate(-50%, -50%) rotate(443deg);
+            transition: all 4s;
+        }
+        
+        #poda:focus-within > .border::before {
+            transform: translate(-50%, -50%) rotate(430deg);
+            transition: all 4s;
+        }
+        
+        .glow {
+            overflow: hidden;
+            filter: blur(30px);
+            opacity: 0.4;
+            max-height: 130px;
+            max-width: 354px;
+        }
+        
+        .glow:before {
+            content: "";
+            z-index: -2;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(60deg);
+            position: absolute;
+            width: 999px;
+            height: 999px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(
+                #000,
+                #402fb5 5%,
+                #000 38%,
+                #000 50%,
+                #cf30aa 60%,
+                #000 87%
+            );
+            transition: all 2s;
+        }
+        
+        @keyframes rotate {
+            100% {
+                transform: translate(-50%, -50%) rotate(450deg);
+            }
+        }
+        
+        #filter-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            max-height: 40px;
+            max-width: 38px;
+            height: 100%;
+            width: 100%;
+            isolation: isolate;
+            overflow: hidden;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #161329, black, #1d1b4b);
+            border: 1px solid transparent;
+        }
+        
+        .filterBorder {
+            height: 42px;
+            width: 40px;
+            position: absolute;
+            overflow: hidden;
+            top: 7px;
+            right: 7px;
+            border-radius: 10px;
+        }
+        
+        .filterBorder::before {
+            content: "";
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(90deg);
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            filter: brightness(1.35);
+            background-image: conic-gradient(
+                rgba(0, 0, 0, 0),
+                #3d3a4f,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(0, 0, 0, 0) 50%,
+                #3d3a4f,
+                rgba(0, 0, 0, 0) 100%
+            );
+            animation: rotate 4s linear infinite;
+        }
+        
+        #main {
+            position: relative;
+        }
+        
+        #search-icon {
+            position: absolute;
+            left: 20px;
+            top: 15px;
+        }
+        
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-top: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .search-results.show {
+            display: block;
+        }
+        
+        .search-result-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(56, 229, 183, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .search-result-item:hover {
+            background-color: rgba(56, 229, 183, 0.15);
+            padding-left: 2rem;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .search-result-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            font-size: 0.95rem;
+        }
+        
+        .search-result-description {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+        
+        .no-results {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+        
+        .about-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            transition: all 0.4s ease;
+        }
+
+        .about-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(56, 229, 183, 0.5);
+        }
+
+        .about-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            font-family: var(--font-heading);
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .about-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .about-highlight {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .about-list {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .about-list li {
+            margin-bottom: 0.8rem;
+            position: relative;
+        }
+
+        .about-list li:before {
+            content: "▸";
+            color: var(--primary);
+            font-weight: bold;
+            position: absolute;
+            left: -1.2rem;
+        }
+
+        .mission-statement {
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .tv-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+            border: 15px solid #1a1a1a;
+            background: #1a1a1a;
+        }
+        
+        .tv-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .tv-screen {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            overflow: hidden;
+            background: #000;
+        }
+        
+        .tv-screen iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .tv-stand {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 40px;
+            background: #333;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tv-stand:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .contact-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        
+        .contact-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(56, 229, 183, 0.2);
+        }
+        
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(56, 229, 183, 0.1), rgba(56, 229, 183, 0));
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            transition: all 0.4s ease;
+        }
+        
+        .contact-card:hover .contact-icon {
+            transform: rotate(15deg) scale(1.1);
+            box-shadow: 0 0 20px rgba(56, 229, 183, 0.5);
+        }
+        
+        @media (max-width: 1024px) {
+            .feature-card, .feature-card.reverse {
+                flex-direction: column;
+            }
+            
+            .card-image {
+                flex: 0 0 250px;
+                width: 100%;
+            }
+            
+            #poda {
+                width: 280px;
+            }
+            
+            .input {
+                width: 270px;
+            }
+            
+            .about-section {
+                padding: 2rem;
+                margin: 1rem;
+            }
+            
+            .tv-container {
+                max-width: 90%;
+                border-width: 10px;
+            }
+        }
+        
         @media (max-width: 768px) {
-            .stat-card::after { display: none; }
-            .stat-number { font-size: 2.25rem; }
-            .about-glass { padding: 1.5rem; }
+            .theme-toggle-container {
+                margin-left: auto;
+                margin-right: 1rem;
+            }
+            
+            .theme-label {
+                display: none;
+            }
+
+            .about-title {
+                font-size: 2rem;
+            }
+
+            .about-content {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .tv-container {
+                border-width: 8px;
+            }
+            
+            .tv-stand {
+                width: 80px;
+                height: 30px;
+                bottom: -30px;
+            }
+            
+            .tv-stand:before {
+                width: 60px;
+                height: 8px;
+                top: -8px;
+            }
+            
+            .theme-toggle-container {
+                margin-right: 0.5rem;
+            }
+
+            .about-section {
+                padding: 1.5rem;
+            }
         }
     </style>
 </head>
 <body class="antialiased">
+    
+    <canvas id="matrix-canvas"></canvas>
 
-    <!-- Custom Cursor -->
-    <div class="cursor-dot" id="cursorDot"></div>
-    <div class="cursor-ring" id="cursorRing"></div>
-
-    <!-- Background -->
-    <canvas id="bg-canvas"></canvas>
-    <div class="grain"></div>
-
-    <!-- Floating Orbs -->
-    <div class="float-element" style="width:400px;height:400px;background:var(--primary);top:10%;left:-5%;animation-delay:0s;"></div>
-    <div class="float-element" style="width:350px;height:350px;background:var(--secondary);top:60%;right:-8%;animation-delay:-7s;"></div>
-    <div class="float-element" style="width:300px;height:300px;background:var(--accent);bottom:10%;left:30%;animation-delay:-14s;"></div>
-
-    <!-- Ad Modal -->
-    <div class="ad-modal-overlay" id="adModal">
-        <div class="ad-modal-box">
-            <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
-                <i class="fab fa-whatsapp" style="font-size:1.5rem;color:var(--primary);"></i>
-            </div>
-            <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:0.5rem;">WhatsApp ilə əlaqə</h3>
-            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Reklam yerləşdirmək üçün bizimlə əlaqə saxlamaq istəyirsiniz?</p>
-            <div style="display:flex;gap:0.75rem;">
-                <button onclick="window.open('https://wa.me/994606006162','_blank')" style="flex:1;padding:0.75rem;background:linear-gradient(135deg,#25D366,#128C7E);border:none;color:white;border-radius:0.75rem;cursor:pointer;font-weight:600;font-family:var(--font-body);transition:transform 0.2s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">Davam et</button>
-                <button onclick="closeAdModal()" style="flex:1;padding:0.75rem;background:var(--glass);border:1px solid var(--border);color:var(--text);border-radius:0.75rem;cursor:pointer;font-weight:600;font-family:var(--font-body);transition:all 0.2s ease;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">Ləğv et</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div style="padding:1.5rem 2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
-            <span style="font-family:var(--font-display);font-weight:800;font-size:1.25rem;">AxtarGet</span>
-            <button onclick="closeMobileMenu()" style="background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;transition:all 0.3s ease;" onmouseover="this.style.color='#ef4444';this.style.transform='rotate(90deg)'" onmouseout="this.style.color='var(--text-muted)';this.style.transform='rotate(0)'"><i class="fas fa-times"></i></button>
-        </div>
-        <nav style="flex:1;overflow-y:auto;padding-top:1rem;">
-            <a href="#hero" onclick="closeMobileMenu()">Ana Səhifə</a>
-            <a href="#products" onclick="closeMobileMenu()">Xidmətlər</a>
-            <a href="#services" onclick="closeMobileMenu()">Niyə Biz?</a>
-            <a href="#about" onclick="closeMobileMenu()">Haqqımızda</a>
-            <a href="share-business.html" onclick="closeMobileMenu()">Biznesini Paylaş</a>
-            <a href="prmiumCV.html" onclick="closeMobileMenu()">CV Hazırla</a>
-            <a href="follower-service.html" onclick="closeMobileMenu()">Takipçi Xidməti</a>
-            <a href="https://ai.axtarget.xyz" target="_blank" onclick="closeMobileMenu()">AxtarGet AI</a>
-            <a href="digital-products.html" onclick="closeMobileMenu()">Rəqəmsal Məhsullar</a>
-            <a href="#contact" onclick="closeMobileMenu()">Əlaqə</a>
-        </nav>
-        <div style="padding:1.5rem 2rem;border-top:1px solid var(--border);">
-            <div class="modern-search">
-                <input type="text" placeholder="Axtar..." id="mobileSearchInput">
-                <i class="fas fa-search search-icon"></i>
-                <div class="search-results-dropdown" id="mobileSearchResults"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <header id="header">
-        <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;">
-            <a href="index.html" style="display:flex;align-items:center;gap:0.75rem;text-decoration:none;">
-                <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="Logo" style="width:40px;height:40px;border-radius:50%;border:2px solid var(--primary);box-shadow:0 0 15px rgba(56,229,183,0.3);">
-                <span style="font-family:var(--font-display);font-weight:800;font-size:1.35rem;color:var(--text);">AxtarGet</span>
+    <header id="header" class="fixed top-0 left-0 w-full p-4 z-50 transition-all duration-300">
+        <div class="container mx-auto flex justify-between items-center max-w-7xl px-4">
+            <a href="index.html" class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="AxtarGet Logo" class="w-10 h-10 rounded-full border-2 border-primary shadow-lg shadow-primary/20">
+                <span class="text-2xl font-bold font-heading text-white">AxtarGet</span>
             </a>
-
-            <nav style="display:flex;align-items:center;gap:2rem;" class="hidden lg:flex">
-                <a href="#services" class="nav-link">Niyə Biz?</a>
-                <a href="follower-service.html" class="nav-link">Takipçi</a>
-                <a href="https://ai.axtarget.xyz" target="_blank" class="nav-link">AxtarGet AI</a>
-                <a href="digital-products.html" class="nav-link">Rəqəmsal Məhsullar</a>
-                <a href="#about" class="nav-link">Haqqımızda</a>
-                <a href="#contact" class="nav-link">Əlaqə</a>
-            </nav>
-
-            <div style="display:flex;align-items:center;gap:1rem;">
-                <div class="theme-switch" id="themeSwitch" onclick="toggleTheme()">
-                    <div class="thumb"><i class="fas fa-moon" id="themeIcon"></i></div>
-                </div>
-                <button id="hamburgerBtn" onclick="openMobileMenu()" class="lg:hidden" style="background:none;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:0.25rem;">
-                    <i class="fas fa-bars-staggered"></i>
-                </button>
+            
+            <div class="theme-toggle-container">
+                <span class="theme-label">Gece</span>
+                <label class="switch">
+                    <input type="checkbox" id="theme-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="theme-label">Gündüz</span>
             </div>
+            
+            <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
+                <a href="#services" class="text-gray-300 hover:text-primary transition-colors">Niyə Biz?</a>
+                <a href="follower-service.html" class="text-gray-300 hover:text-primary transition-colors">Takipçi Xidməti</a>
+                <a href="https://ai.axtarget.xyz" target="_blank" class="text-gray-300 hover:text-primary transition-colors">AxtarGet AI</a>
+                <a href="digital-products.html" class="text-gray-300 hover:text-primary transition-colors">Rəqəmsal Məhsullar</a>
+                <a href="#about" class="text-gray-300 hover:text-primary transition-colors">Haqqımızda</a>
+                <a href="#contact" class="text-gray-300 hover:text-primary transition-colors">Əlaqə</a>
+            </nav>
+            <button id="hamburger-button" class="md:hidden text-2xl text-white">
+                <i class="fas fa-bars-staggered"></i>
+            </button>
         </div>
     </header>
 
-    <div class="content-wrap">
-        <!-- Hero -->
-        <section id="hero" style="min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+    <div id="mobile-menu-container" class="mobile-menu-container">
+        <button id="mobile-menu-close-button" class="absolute top-6 right-6 text-3xl text-gray-400 hover:text-red-500 transition-transform duration-300 hover:rotate-90">
+            <i class="fas fa-times"></i>
+        </button>
+        <nav>
+            <a href="#hero">Ana Səhifə</a>
+            <a href="#products">Xidmətlər</a>
+            <a href="#services">Niyə Biz?</a>
+            <a href="#about">Haqqımızda</a>
+            <a href="share-business.html">Biznesini Paylaş</a>
+            <a href="prmiumCV.html">CV Hazırla</a>
+            <a href="follower-service.html">Takipçi Xidməti</a>
+            <a href="https://ai.axtarget.xyz" target="_blank">AxtarGet AI</a>
+            <a href="digital-products.html">Rəqəmsal Məhsullar</a>
+            <a href="#contact">Əlaqə</a>
+            
+            <div class="p-4 border-b border-gray-800">
+                <div class="search-container">
+                    <div id="poda">
+                        <div class="glow"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="white"></div>
+                        <div class="border"></div>
+                        <div id="main">
+                            <input placeholder="Axtar Get..." type="text" name="text" class="input" id="mobile-search-input" />
+                            <div id="input-mask"></div>
+                            <div id="pink-mask"></div>
+                            <div class="filterBorder"></div>
+                            <div id="filter-icon">
+                                <svg
+                                    preserveAspectRatio="none"
+                                    height="27"
+                                    width="27"
+                                    viewBox="4.8 4.56 14.832 15.408"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M8.16 6.65002H15.83C16.47 6.65002 16.99 7.17002 16.99 7.81002V9.09002C16.99 9.56002 16.7 10.14 16.41 10.43L13.91 12.64C13.56 12.93 13.33 13.51 13.33 13.98V16.48C13.33 16.83 13.1 17.29 12.81 17.47L12 17.98C11.24 18.45 10.2 17.92 10.2 16.99V13.91C10.2 13.5 9.97 12.98 9.73 12.69L7.52 10.36C7.23 10.08 7 9.55002 7 9.20002V7.87002C7 7.17002 7.52 6.65002 8.16 6.65002Z"
+                                        stroke="#d6d6e6"
+                                        stroke-width="1"
+                                        stroke-miterlimit="10"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <div id="search-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linejoin="round"
+                                    stroke-linecap="round"
+                                    height="24"
+                                    fill="none"
+                                    class="feather feather-search"
+                                >
+                                    <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                                    <line
+                                        stroke="url(#searchl)"
+                                        y2="16.65"
+                                        y1="22"
+                                        x2="16.65"
+                                        x1="22"
+                                    ></line>
+                                    <defs>
+                                        <linearGradient gradientTransform="rotate(50)" id="search">
+                                            <stop stop-color="#f8e7f8" offset="0%"></stop>
+                                            <stop stop-color="#b6a9b7" offset="50%"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="searchl">
+                                            <stop stop-color="#b6a9b7" offset="0%"></stop>
+                                            <stop stop-color="#837484" offset="50%"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="mobile-search-results" class="search-results"></div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <main>
+        <section id="hero" class="relative h-screen flex items-center justify-center overflow-hidden">
             <div id="globe-container"></div>
-            <div style="max-width:1280px;margin:0 auto;padding:8rem 1.5rem 4rem;text-align:center;position:relative;z-index:2;">
-                <div class="hero-badge reveal" style="margin-bottom:2rem;">
-                    <span class="pulse-dot"></span>
-                    Rəqəmsal Dünyada Yeni Era
-                </div>
-
-                <h1 class="hero-title reveal stagger-1" style="font-size:clamp(3rem,8vw,6.5rem);margin-bottom:1.5rem;">
-                    Gələcəyi<br>
-                    <span class="gradient-text">Kodlaşdırırıq</span>
+            <div class="content-overlay container mx-auto px-6 lg:px-8 max-w-7xl text-center">
+                <h1 class="text-5xl md:text-7xl lg:text-8xl font-extrabold font-heading leading-tight mb-6 fade-in" style="text-shadow: 0 5px 30px rgba(0,0,0,0.5); color: var(--text-primary);">
+                    Gələcəyi <span class="text-primary">Kodlaşdırırıq</span>
                 </h1>
-
-                <p class="reveal stagger-2" style="max-width:640px;margin:0 auto 2.5rem;font-size:1.1rem;line-height:1.7;color:var(--text-muted);">
-                    Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti.
+                <p class="text-lg md:text-xl max-w-3xl mx-auto mb-10 fade-in" style="transition-delay: 0.2s; color: var(--text-muted);">
+                    Biznesiniz üçün sadəcə bir veb-sayt deyil, rəqəmsal dünyada unudulmaz bir imza yaradırıq. İnnovasiya, strategiya və texnologiyanın vəhdəti ilə tanış olun.
                 </p>
-
-                <div class="reveal stagger-3" style="display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:3rem;">
-                    <a href="#products" class="btn-glow">
-                        <i class="fas fa-rocket"></i> Xidmətlərimiz
-                    </a>
-                    <a href="#about" class="btn-outline">
-                        <i class="fas fa-play"></i> Daha ətraflı
+                
+                <div class="fade-in" style="transition-delay: 0.4s;">
+                    <a href="#products" class="btn-primary px-10 py-4 text-lg inline-block">
+                        <i class="fas fa-rocket mr-2"></i> Xidmətlərimizə Keçid
                     </a>
                 </div>
-
-                <div class="modern-search reveal stagger-4">
-                    <input type="text" placeholder="Xidmət axtarın..." id="heroSearchInput">
-                    <i class="fas fa-search search-icon"></i>
-                    <div class="search-results-dropdown" id="heroSearchResults"></div>
+                
+                <div class="search-container max-w-2xl mx-auto mt-10 fade-in" style="transition-delay: 0.6s;">
+                    <div id="poda">
+                        <div class="glow"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="darkBorderBg"></div>
+                        <div class="white"></div>
+                        <div class="border"></div>
+                        <div id="main">
+                            <input placeholder="Axtar Get..." type="text" name="text" class="input" id="hero-search-input" />
+                            <div id="input-mask"></div>
+                            <div id="pink-mask"></div>
+                            <div class="filterBorder"></div>
+                            <div id="filter-icon">
+                                <svg
+                                    preserveAspectRatio="none"
+                                    height="27"
+                                    width="27"
+                                    viewBox="4.8 4.56 14.832 15.408"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M8.16 6.65002H15.83C16.47 6.65002 16.99 7.17002 16.99 7.81002V9.09002C16.99 9.56002 16.7 10.14 16.41 10.43L13.91 12.64C13.56 12.93 13.33 13.51 13.33 13.98V16.48C13.33 16.83 13.1 17.29 12.81 17.47L12 17.98C11.24 18.45 10.2 17.92 10.2 16.99V13.91C10.2 13.5 9.97 12.98 9.73 12.69L7.52 10.36C7.23 10.08 7 9.55002 7 9.20002V7.87002C7 7.17002 7.52 6.65002 8.16 6.65002Z"
+                                        stroke="#d6d6e6"
+                                        stroke-width="1"
+                                        stroke-miterlimit="10"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <div id="search-icon">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2"
+                                    stroke-linejoin="round"
+                                    stroke-linecap="round"
+                                    height="24"
+                                    fill="none"
+                                    class="feather feather-search"
+                                >
+                                    <circle stroke="url(#search)" r="8" cy="11" cx="11"></circle>
+                                    <line
+                                        stroke="url(#searchl)"
+                                        y2="16.65"
+                                        y1="22"
+                                        x2="16.65"
+                                        x1="22"
+                                    ></line>
+                                    <defs>
+                                        <linearGradient gradientTransform="rotate(50)" id="search">
+                                            <stop stop-color="#f8e7f8" offset="0%"></stop>
+                                            <stop stop-color="#b6a9b7" offset="50%"></stop>
+                                        </linearGradient>
+                                        <linearGradient id="searchl">
+                                            <stop stop-color="#b6a9b7" offset="0%"></stop>
+                                            <stop stop-color="#837484" offset="50%"></stop>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="hero-search-results" class="search-results"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Marquee -->
-        <div style="overflow:hidden;padding:1.5rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);opacity:0.5;">
-            <div class="marquee-track">
-                <span class="marquee-item"><span class="dot"></span>Web Sayt Hazırlama</span>
-                <span class="marquee-item"><span class="dot"></span>AI Xidmətləri</span>
-                <span class="marquee-item"><span class="dot"></span>SMM & Takipçi</span>
-                <span class="marquee-item"><span class="dot"></span>Şəkil Redaktəsi</span>
-                <span class="marquee-item"><span class="dot"></span>Premium CV</span>
-                <span class="marquee-item"><span class="dot"></span>Rəqəmsal Məhsullar</span>
-                <span class="marquee-item"><span class="dot"></span>QR Kod Generator</span>
-                <span class="marquee-item"><span class="dot"></span>Anonim Chat</span>
-                <span class="marquee-item"><span class="dot"></span>Web Sayt Hazırlama</span>
-                <span class="marquee-item"><span class="dot"></span>AI Xidmətləri</span>
-                <span class="marquee-item"><span class="dot"></span>SMM & Takipçi</span>
-                <span class="marquee-item"><span class="dot"></span>Şəkil Redaktəsi</span>
-                <span class="marquee-item"><span class="dot"></span>Premium CV</span>
-                <span class="marquee-item"><span class="dot"></span>Rəqəmsal Məhsullar</span>
-                <span class="marquee-item"><span class="dot"></span>QR Kod Generator</span>
-                <span class="marquee-item"><span class="dot"></span>Anonim Chat</span>
-            </div>
+        <section id="products" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Xidmət Ekosistemimiz</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
+                        Rəqəmsal dünyada ehtiyacınız olan hər şey bir ünvanda.
+                    </p>
+                </div>
+                
+                <a href="https://web.axtarget.xyz" class="feature-card reverse fade-in">
+                    <div class="card-content">
+                        <span class="card-tag">Dizayn</span>
+                        <h3 class="card-title">Web sayt hazırlama xidməti</h3>
+                        <p class="card-description">web saytınızı biz hazırlayaq. Güclü seo, güclü dizayn, ucuz qiymət. Sayıtınızın qiymətini hesablayıb dərhal sifariş verə bilərsiniz</p>
+                        <div class="card-link">
+                            <span class="box">
+                                Davam et
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-image">
+                        <img src="https://i.postimg.cc/FsqjkjvZ/opt1-scaled.jpg" alt="Şəkil Redaktəsi">
+                    </div>
+                </a>
+                
+<div class="feature-card fade-in" style="cursor:pointer;" onclick="openAdCard()">
+    <div class="card-content" style="text-align:center;">
+        <span class="card-tag">Reklam</span>
+        <h3 class="card-title">Burada sizin reklamınız ola bilər</h3>
+        <p class="card-description">
+            Bizim platformada reklam yerləşdirərək daha çox müştəri qazanın.
+        </p>
+        <div class="card-link">
+            <span class="box">
+                Ətraflı
+            </span>
         </div>
+    </div>
+</div>
 
-        <!-- Stats -->
-        <section style="padding:4rem 0;">
-            <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;">
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:1.5rem;overflow:hidden;">
-                    <div class="stat-card reveal stagger-1">
-                        <div class="stat-number" data-target="50">0</div>
-                        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;font-weight:500;">Aktiv Layihə</div>
-                    </div>
-                    <div class="stat-card reveal stagger-2">
-                        <div class="stat-number" data-target="500">0</div>
-                        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;font-weight:500;">Müştəri</div>
-                    </div>
-                    <div class="stat-card reveal stagger-3">
-                        <div class="stat-number" data-target="12">0</div>
-                        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;font-weight:500;">Xidmət Növü</div>
-                    </div>
-                    <div class="stat-card reveal stagger-4">
-                        <div class="stat-number" data-target="99">0</div>
-                        <div style="color:var(--text-muted);font-size:0.85rem;margin-top:0.5rem;font-weight:500;">Müştəri Razılığı %</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<!-- WhatsApp Təsdiq Kartı -->
+<div id="adModal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        background:#fff;
+        padding:30px;
+        border-radius:12px;
+        text-align:center;
+        max-width:350px;
+        width:90%;
+        animation:fadeIn 0.3s ease;
+        color:#000;
+    ">
+        <h3 style="color:#000;">WhatsApp-dan yazmaq istəyirsiniz?</h3>
+        <p style="color:#000;">Reklam üçün bizimlə əlaqə saxlamaq istəyirsiniz?</p>
 
-        <!-- Products -->
-        <section id="products" style="padding:6rem 0;">
-            <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;">
-                <div style="text-align:center;margin-bottom:4rem;">
-                    <div class="section-label reveal">Ekosistem</div>
-                    <h2 class="section-title reveal stagger-1" style="font-size:clamp(2rem,5vw,3.5rem);">Xidmət Ekosistemimiz</h2>
-                    <p class="reveal stagger-2" style="color:var(--text-muted);max-width:560px;margin:1rem auto 0;font-size:1.05rem;">Rəqəmsal dünyada ehtiyacınız olan hər şey bir ünvanda.</p>
-                </div>
+        <div style="margin-top:20px; display:flex; justify-content:space-between; gap:10px;">
+            <button onclick="goWhatsApp()" style="
+                flex:1;
+                padding:10px;
+                background:#25D366;
+                border:none;
+                color:white;
+                border-radius:8px;
+                cursor:pointer;
+            ">Davam et</button>
 
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1.5rem;">
+            <button onclick="closeAdCard()" style="
+                flex:1;
+                padding:10px;
+                background:#ccc;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+                color:#000;
+            ">Ləğv et</button>
+        </div>
+    </div>
+</div>
 
-                    <!-- Web Sayt -->
-                    <a href="https://web.axtarget.xyz" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/FsqjkjvZ/opt1-scaled.jpg" alt="Web Sayt">
+<script>
+function openAdCard() {
+    document.getElementById("adModal").style.display = "flex";
+}
+
+function closeAdCard() {
+    document.getElementById("adModal").style.display = "none";
+}
+
+function goWhatsApp() {
+    window.open("https://wa.me/994606006162", "_blank");
+}
+</script>
+                
+                <div class="space-y-12">
+                    <!-- Premium CV Hazırla -->
+                    <a href="prmiumCV.html" class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Premium</span>
+                            <h3 class="card-title">Premium CV Hazırla</h3>
+                            <p class="card-description">Arzuladığınız işə qəbul üçün peşəkar CV lazımdır? Düzgün ünvandasınız. Rəqiblərinizdən fərqlənin, premium keyfiyyətli CV ilə ilk təəssüratdan qalib olun.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-code" style="font-size:0.65rem;"></i> Dizayn</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Web Sayt Hazırlama</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Güclü SEO, güclü dizayn, ucuz qiymətlə peşəkar veb saytlar.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/qvztVKYZ/rush-resume-template-2.jpg" alt="Premium CV Hazırlama">
+                        </div>
+                    </a>
+                    
+                    <a href="photo.html" class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Dizayn</span>
+                            <h3 class="card-title">Şəkil Redaktəsi Xidməti</h3>
+                            <p class="card-description">Şəkillərinizi peşəkar səviyyəyə qaldırın! Rəng korreksiyası, arxa fonun silinməsi, retuş və digər qrafik dizayn xidmətləri ilə fotolarınıza unikal görünüş bəxş edin.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/sfbfQL0N/cerceveli-poster-renkli-geometrik-sekillerle-arka-plan-jpg.png" alt="Şəkil Redaktəsi">
+                        </div>
+                    </a>
+                    
+                    <a href="follower-service.html" class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">SMM</span>
+                            <h3 class="card-title">Takipçi Xidməti</h3>
+                            <p class="card-description">Fenomen olmaq bir addım uzaqlıqda! İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü ən sərfəli qiymətlərlə zirvəyə daşıyın.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/L6S7bBJb/2025032713351869129.jpg" alt="Takipçi Xidməti">
                         </div>
                     </a>
 
-                    <!-- Ad Slot 1 -->
-                    <div class="tilt-card reveal stagger-2" onclick="openAdModal()" style="cursor:pointer;">
-                        <div class="card-inner" style="display:flex;align-items:center;justify-content:center;min-height:380px;text-align:center;padding:2rem;">
-                            <div class="card-shine"></div>
-                            <div>
-                                <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:1px dashed var(--border);">
-                                    <i class="fas fa-bullhorn" style="color:var(--primary);font-size:1.25rem;"></i>
-                                </div>
-                                <span class="card-tag" style="margin-bottom:1rem;">Reklam</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Burada Reklamınız</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;">Platformamızda reklam yerləşdirərək daha çox müştəri qazanın.</p>
+                    <!-- REKLAM KARTI -->
+<div class="feature-card fade-in" style="cursor:pointer;" onclick="openAdCard()">
+    <div class="card-content" style="text-align:center;">
+        <span class="card-tag">Reklam</span>
+        <h3 class="card-title">Burada sizin reklamınız ola bilər</h3>
+        <p class="card-description">
+            Bizim platformada reklam yerləşdirərək daha çox müştəri qazanın.
+        </p>
+        <div class="card-link">
+            <span class="box">
+                Ətraflı
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Təsdiq Kartı -->
+<div id="adModal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        background:#fff;
+        padding:30px;
+        border-radius:12px;
+        text-align:center;
+        max-width:350px;
+        width:90%;
+        animation:fadeIn 0.3s ease;
+        color:#000;
+    ">
+        <h3 style="color:#000;">WhatsApp-dan yazmaq istəyirsiniz?</h3>
+        <p style="color:#000;">Reklam üçün bizimlə əlaqə saxlamaq istəyirsiniz?</p>
+
+        <div style="margin-top:20px; display:flex; justify-content:space-between; gap:10px;">
+            <button onclick="goWhatsApp()" style="
+                flex:1;
+                padding:10px;
+                background:#25D366;
+                border:none;
+                color:white;
+                border-radius:8px;
+                cursor:pointer;
+            ">Davam et</button>
+
+            <button onclick="closeAdCard()" style="
+                flex:1;
+                padding:10px;
+                background:#ccc;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+                color:#000;
+            ">Ləğv et</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAdCard() {
+    document.getElementById("adModal").style.display = "flex";
+}
+
+function closeAdCard() {
+    document.getElementById("adModal").style.display = "none";
+}
+
+function goWhatsApp() {
+    window.open("https://wa.me/994606006162", "_blank");
+}
+</script>
+                    
+                    <a href="https://ai.axtarget.xyz" target="_blank" class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">AI</span>
+                            <h3 class="card-title">AxtarGet AI</h3>
+                            <p class="card-description">AxtarGet AI-nin gücü ilə yaradıcılığınızın sərhədlərini aşın. Mətn yazın, şəkil yaradın, kompleks problemləri həll edin – süni intellekt hər an yanınızdadır.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Premium CV -->
-                    <a href="prmiumCV.html" class="tilt-card reveal stagger-3" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/qvztVKYZ/rush-resume-template-2.jpg" alt="CV">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-crown" style="font-size:0.65rem;"></i> Premium</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Premium CV Hazırla</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Peşəkar CV ilə rəqiblərinizdən fərqlənin, ilk təəssüratdan qalib olun.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Şəkil Redaktəsi -->
-                    <a href="photo.html" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/sfbfQL0N/cerceveli-poster-renkli-geometrik-sekillerle-arka-plan-jpg.png" alt="Photo">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-wand-magic-sparkles" style="font-size:0.65rem;"></i> Dizayn</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Şəkil Redaktəsi</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Rəng korreksiyası, fon silinməsi, retuş və digər qrafik dizayn xidmətləri.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Takipçi -->
-                    <a href="follower-service.html" class="tilt-card reveal stagger-2" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/L6S7bBJb/2025032713351869129.jpg" alt="Takipçi">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-chart-line" style="font-size:0.65rem;"></i> SMM</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Takipçi Xidməti</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">İzlənmə, bəyəni və digər SMM xidmətləri ilə sosial media gücünüzü zirvəyə daşıyın.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Ad Slot 2 -->
-                    <div class="tilt-card reveal stagger-3" onclick="openAdModal()" style="cursor:pointer;">
-                        <div class="card-inner" style="display:flex;align-items:center;justify-content:center;min-height:380px;text-align:center;padding:2rem;">
-                            <div class="card-shine"></div>
-                            <div>
-                                <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:1px dashed var(--border);">
-                                    <i class="fas fa-bullhorn" style="color:var(--primary);font-size:1.25rem;"></i>
-                                </div>
-                                <span class="card-tag" style="margin-bottom:1rem;">Reklam</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Burada Reklamınız</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;">Platformamızda reklam yerləşdirərək daha çox müştəri qazanın.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI -->
-                    <a href="https://ai.axtarget.xyz" target="_blank" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/pX0ZJDzk/ai-concept-with-spin-lines-effect-background-3d-rendering-video.jpg" alt="AI">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-robot" style="font-size:0.65rem;"></i> AI</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">AxtarGet AI</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Mətn yazın, şəkil yaradın, problemləri həll edin – AI hər an yanınızdadır.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Rəqəmsal Məhsullar -->
-                    <a href="digital-products.html" class="tilt-card reveal stagger-2" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/MTKH5jyQ/Bm7K3Sm-L7x-V4x-Cp-BKag-Mg-P.jpg" alt="Digital">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-gem" style="font-size:0.65rem;"></i> Premium</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Rəqəmsal Məhsullar</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/pX0ZJDzk/ai-concept-with-spin-lines-effect-background-3d-rendering-video.jpg" alt="AxtarGet AI">
                         </div>
                     </a>
-
-                    <!-- Biznes Paylaş -->
-                    <a href="share-business.html" class="tilt-card reveal stagger-3" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/DysG8L5w/depositphotos-52467319-stock-photo-business-people-working-in-office.webp" alt="Business">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-handshake" style="font-size:0.65rem;"></i> Marketinq</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Biznesini Paylaş</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət!</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
+                    
+                    <a href="digital-products.html" class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Premium</span>
+                            <h3 class="card-title">Rəqəmsal Məhsullar</h3>
+                            <p class="card-description">Əyləncə və məhsuldarlıq dünyasına bir addımla daxil olun. Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesablarını ən münasib qiymətə əldə edin.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
                         </div>
-                    </a>
-
-                    <!-- QR -->
-                    <a href="qr.html" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/zfPvdGp0/a-guide-to-qr-codes-and-how-to-scan-qr-codes-3.jpg" alt="QR">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-qrcode" style="font-size:0.65rem;"></i> Tool</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">QR Kod Yarat</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Öz QR kodunuzu asanlıqla yaradın. Sadə və sürətli.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/MTKH5jyQ/Bm7K3Sm-L7x-V4x-Cp-BKag-Mg-P.jpg" alt="Rəqəmsal Məhsullar">
                         </div>
                     </a>
-
-                    <!-- İş Elanları -->
-                    <a href="https://vakansiya.axtarget.xyz" class="tilt-card reveal stagger-2" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/kXnCbdvt/01JWFWAS7M72K1623JC6JDV20V.jpg" alt="Jobs">
+                    
+                    <a href="share-business.html" class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Marketinq</span>
+                            <h3 class="card-title">Biznesini Paylaş</h3>
+                            <p class="card-description">Biznesinizi geniş kütlələrə tanıtmaq üçün unikal fürsət! Bizimlə paylaşın, hədəf auditoriyanıza daha sürətli və effektiv şəkildə çatmağınıza dəstək olaq.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-briefcase" style="font-size:0.65rem;"></i> Karyera</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">İş Elanları</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1rem;">Özünə uyğun iş tapmaq üçün vakansiyalarımıza bax.</p>
-                                <button onclick="event.preventDefault();event.stopPropagation();window.open('https://github.com/ibadullahesen/app/releases/download/v1.0/AxtarGet.4.apk','_blank')" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.6rem 1.25rem;background:linear-gradient(135deg,#3b82f6,#6366f1);color:white;border:none;border-radius:9999px;font-weight:600;font-size:0.85rem;cursor:pointer;transition:all 0.3s ease;box-shadow:0 0 15px rgba(59,130,246,0.3);font-family:var(--font-body);margin-bottom:0.75rem;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                    <i class="fas fa-download"></i> Aplikasiya Yüklə
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/DysG8L5w/depositphotos-52467319-stock-photo-business-people-working-in-office.webp" alt="Biznesini Paylaş">
+                        </div>
+                    </a>
+                    
+                    <a href="qr.html" class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Tool</span>
+                            <h3 class="card-title">QR kod yarat</h3>
+                            <p class="card-description">Öz QR kodunu asanlıqla yaratmaq üçün bu səhifəyə keçid et. Sadə və sürətli.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/zfPvdGp0/a-guide-to-qr-codes-and-how-to-scan-qr-codes-3.jpg" alt="QR kod yarat">
+                        </div>
+                    </a>
+                    
+                    <a href="https://vakansiya.axtarget.xyz" class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Karyera</span>
+                            <h3 class="card-title">İş Elanları</h3>
+                            <p class="card-description">Özünə uyğun iş tapmaq və karyerana başlamaq üçün vakansiyalarımıza bax. Yeni fürsətlər səni gözləyir!</p>
+                            <div class="mt-6">
+                                <button
+                                    onclick="window.open('https://github.com/ibadullahesen/app/releases/download/v1.0/AxtarGet.4.apk', '_blank')"
+                                    class="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition duration-300 shadow-lg shadow-blue-600/50"
+                                >
+                                    <i class="fa-solid fa-download mr-2"></i>
+                                    Aplikasiyamızı yüklə
                                 </button>
-                                <br>
-                                <span class="card-arrow">Bütün elanlar <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
                             </div>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/kXnCbdvt/01JWFWAS7M72K1623JC6JDV20V.jpg" alt="İş Elanları">
                         </div>
                     </a>
 
-                    <!-- Ad Slot 3 -->
-                    <div class="tilt-card reveal stagger-3" onclick="openAdModal()" style="cursor:pointer;">
-                        <div class="card-inner" style="display:flex;align-items:center;justify-content:center;min-height:380px;text-align:center;padding:2rem;">
-                            <div class="card-shine"></div>
-                            <div>
-                                <div style="width:60px;height:60px;border-radius:50%;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;border:1px dashed var(--border);">
-                                    <i class="fas fa-bullhorn" style="color:var(--primary);font-size:1.25rem;"></i>
-                                </div>
-                                <span class="card-tag" style="margin-bottom:1rem;">Reklam</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Burada Reklamınız</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;">Platformamızda reklam yerləşdirərək daha çox müştəri qazanın.</p>
+                    <!-- REKLAM KARTI -->
+<div class="feature-card fade-in" style="cursor:pointer;" onclick="openAdCard()">
+    <div class="card-content" style="text-align:center;">
+        <span class="card-tag">Reklam</span>
+        <h3 class="card-title">Burada sizin reklamınız ola bilər</h3>
+        <p class="card-description">
+            Bizim platformada reklam yerləşdirərək daha çox müştəri qazanın.
+        </p>
+        <div class="card-link">
+            <span class="box">
+                Ətraflı
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- WhatsApp Təsdiq Kartı -->
+<div id="adModal" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+    <div style="
+        background:#fff;
+        padding:30px;
+        border-radius:12px;
+        text-align:center;
+        max-width:350px;
+        width:90%;
+        animation:fadeIn 0.3s ease;
+        color:#000;
+    ">
+        <h3 style="color:#000;">WhatsApp-dan yazmaq istəyirsiniz?</h3>
+        <p style="color:#000;">Reklam üçün bizimlə əlaqə saxlamaq istəyirsiniz?</p>
+
+        <div style="margin-top:20px; display:flex; justify-content:space-between; gap:10px;">
+            <button onclick="goWhatsApp()" style="
+                flex:1;
+                padding:10px;
+                background:#25D366;
+                border:none;
+                color:white;
+                border-radius:8px;
+                cursor:pointer;
+            ">Davam et</button>
+
+            <button onclick="closeAdCard()" style="
+                flex:1;
+                padding:10px;
+                background:#ccc;
+                border:none;
+                border-radius:8px;
+                cursor:pointer;
+                color:#000;
+            ">Ləğv et</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAdCard() {
+    document.getElementById("adModal").style.display = "flex";
+}
+
+function closeAdCard() {
+    document.getElementById("adModal").style.display = "none";
+}
+
+function goWhatsApp() {
+    window.open("https://wa.me/994606006162", "_blank");
+}
+</script>
+                    
+                    <a href="https://axtarget.xyz/anonim.html" class="feature-card fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">Təhlükəsizlik</span>
+                            <h3 class="card-title">Anonim Mesajlaşma</h3>
+                            <p class="card-description">Heç kimin kim olduğunu bilmədən bir-birinizlə sərbəst yazışın. Tam anonim, təhlükəsiz və sadə mesajlaşma platforması.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/ZnbQCJzL/pngtree-an-anonymous-hacker-with-computer-image-16301009.jpg" alt="Anonim Mesajlaşma">
+                        </div>
+                    </a>
+
+                    <a href="html.html" class="feature-card reverse fade-in">
+                        <div class="card-content">
+                            <span class="card-tag">dizayn</span>
+                            <h3 class="card-title">HTML/CSS/JavaScript Redaktoru</h3>
+                            <p class="card-description">HTML,CSS,JavaScript Redaktoru ilə siz hazırladığınız faylın önizləməsinə baxa və düzəlişlər edə biləsiniz. Tamamilə pulsuz şekildə isdifadə edin.</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/jS6xhkXm/programming-3173456-1920.jpg" alt="Biznesini Paylaş">
+                        </div>
+                    </a>
+                    
+                    
+                     <a href="https://pdf.axtarget.xyz/" class="feature-card reverse fade-in">
+                         
+                        <div class="card-content">
+                            <span class="card-tag">tool</span>
+                            <h3 class="card-title">PDF-dən Word-ə Çevirici</h3>
+                            <p class="card-description">PDF fayllarınızı Word formatına çevirmək üçün bu alətdən istifadə edin. Tamamilə pulsuz!</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/dt5tQQGt/how-to-convert-pdf-to-word-cover.jpg" alt="Biznesini Paylaş">
+                        </div>
+                         
+                    </a>
+                    <a href="https://link.axtarget.xyz/" class="feature-card fade-in">
+                        
+                         <div class="card-content">
+                            <span class="card-tag">Tool</span>
+                            <h3 class="card-title">Link qısaldıcı</h3>
+                            <p class="card-description">Linkinizi qısaldın. Linkə toxunma statistikasına baxın</p>
+                            <div class="card-link">
+                            <span class="box">
+                                Davam et
+                            </span>
                         </div>
                     </div>
+                    <div class="card-image">
+                         <img src="https://i.postimg.cc/fRx3JkDM/1-FQd-APXYZrwxz-Qtuww3Dr5Q.jpg">
+                      </div>
 
-                    <!-- Anonim -->
-                    <a href="https://axtarget.xyz/anonim.html" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/ZnbQCJzL/pngtree-an-anonymous-hacker-with-computer-image-16301009.jpg" alt="Anonim">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-user-secret" style="font-size:0.65rem;"></i> Təhlükəsizlik</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Anonim Mesajlaşma</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Tam anonim, təhlükəsiz və sadə mesajlaşma platforması.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
+                    <a href="https://axtarget.xyz/kay%C4%B1t.html" class="feature-card reverse fade-in">
+                            
+                       <div class="card-content">
+                            <span class="card-tag">tool</span>
+                            <h3 class="card-title">Ekran kaydedici</h3>
+                            <p class="card-description">Ekran, oyun və başqa hərşeyin vidiosunu qeydə alın. Tamamilə pulsuz!</p>
+                            <div class="card-link">
+                                <span class="box">
+                                    Davam et
+                                </span>
                             </div>
                         </div>
-                    </a>
-
-                    <!-- HTML Editor -->
-                    <a href="html.html" class="tilt-card reveal stagger-2" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/jS6xhkXm/programming-3173456-1920.jpg" alt="Editor">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-laptop-code" style="font-size:0.65rem;"></i> Dizayn</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">HTML/CSS/JS Redaktoru</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Kod yazın, canlı önizləyin, düzəlişlər edin. Tamamilə pulsuz.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
+                        <div class="card-image">
+                            <img src="https://i.postimg.cc/3N7Dq10x/recording-sign-illustration-png.png" alt="Biznesini Paylaş">
                         </div>
-                    </a>
 
-                    <!-- PDF -->
-                    <a href="https://pdf.axtarget.xyz/" class="tilt-card reveal stagger-3" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/dt5tQQGt/how-to-convert-pdf-to-word-cover.jpg" alt="PDF">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-file-pdf" style="font-size:0.65rem;"></i> Tool</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">PDF → Word Çevirici</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">PDF fayllarınızı Word formatına çevirin. Tamamilə pulsuz!</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
+                        <a href="https://axtarget.xyz/apps.html" class="feature-card fade-in">
+                        
+                         <div class="card-content">
+                            <span class="card-tag">Market</span>
+                            <h3 class="card-title">AxtarGet Mağaza</h3>
+                            <p class="card-description">Mağazadan mobil və pc üçün faylları tam pulsuz yükleyin.</p>
+                            <div class="card-link">
+                            <span class="box">
+                                Davam et
+                            </span>
                         </div>
-                    </a>
-
-                    <!-- Link Shortener -->
-                    <a href="https://link.axtarget.xyz/" class="tilt-card reveal stagger-1" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/fRx3JkDM/1-FQd-APXYZrwxz-Qtuww3Dr5Q.jpg" alt="Link">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-link" style="font-size:0.65rem;"></i> Tool</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Link Qısaldıcı</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Linkinizi qısaldın, toxunma statistikasına baxın.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Screen Recorder -->
-                    <a href="https://axtarget.xyz/kay%C4%B1t.html" class="tilt-card reveal stagger-2" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/3N7Dq10x/recording-sign-illustration-png.png" alt="Record">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-circle-dot" style="font-size:0.65rem;"></i> Tool</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">Ekran Qeydedici</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Ekran, oyun və digər məzmunun videosunu qeyd edin. Pulsuz!</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- Store -->
-                    <a href="https://axtarget.xyz/apps.html" class="tilt-card reveal stagger-3" style="text-decoration:none;color:inherit;display:block;">
-                        <div class="card-inner">
-                            <div class="card-shine"></div>
-                            <div class="card-image-wrap">
-                                <img src="https://i.postimg.cc/sxF9HGr1/Gemini-Generated-Image-n7u3prn7u3prn7u3.png" alt="Store">
-                            </div>
-                            <div style="padding:1.75rem;">
-                                <span class="card-tag"><i class="fas fa-store" style="font-size:0.65rem;"></i> Market</span>
-                                <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.35rem;margin:1rem 0 0.5rem;">AxtarGet Mağaza</h3>
-                                <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.6;margin-bottom:1.25rem;">Mobil və PC üçün faylları tam pulsuz yükləyin.</p>
-                                <span class="card-arrow">Daha ətraflı <i class="fas fa-arrow-right" style="font-size:0.8rem;"></i></span>
-                            </div>
-                        </div>
-                    </a>
-
+                    </div>
+                    <div class="card-image">
+                         <img src="https://i.postimg.cc/sxF9HGr1/Gemini-Generated-Image-n7u3prn7u3prn7u3.png">
+                      </div>
+                   </a>
                 </div>
             </div>
         </section>
 
-        <!-- Why Us -->
-        <section id="services" style="padding:6rem 0;">
-            <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;">
-                <div style="text-align:center;margin-bottom:4rem;">
-                    <div class="section-label reveal">Fərqləndiricilər</div>
-                    <h2 class="section-title reveal stagger-1" style="font-size:clamp(2rem,5vw,3.5rem);">Niyə Biz?</h2>
-                    <p class="reveal stagger-2" style="color:var(--text-muted);max-width:560px;margin:1rem auto 0;font-size:1.05rem;">İdeyadan icraya, hər mərhələdə yanınızdayıq.</p>
+        <section id="services" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Niyə Biz?</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
+                        İdeyadan icraya, hər mərhələdə yanınızdayıq.
+                    </p>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;">
-                    <div class="service-card reveal stagger-1">
-                        <div class="service-icon"><i class="fas fa-satellite-dish"></i></div>
-                        <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:0.75rem;">Strateji Veb Həllər</h3>
-                        <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7;">Brendinizin DNT-sini analiz edərək, hədəflərinizə ən uyğun veb-platformaları dizayn və inkişaf etdiririk.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 fade-in">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-satellite-dish"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">Strateji Veb Həllər</h3>
+                        <p class="text-text-muted">Brendinizin DNT-sini analiz edərək, hədəflərinizə ən uyğun veb-platformaları dizayn və inkişaf etdiririk.</p>
                     </div>
-                    <div class="service-card reveal stagger-2">
-                        <div class="service-icon"><i class="fas fa-microchip"></i></div>
-                        <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:0.75rem;">AI & Avtomatlaşdırma</h3>
-                        <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7;">Təkrarçı işləri ağıllı botlara həvalə edin, məlumatlarınızı dərin analiz edin.</p>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.15s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-microchip"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">AI & Avtomatlaşdırma</h3>
+                        <p class="text-text-muted">Təkrarçı işləri ağıllı botlara həvalə edin, məlumatlarınızı dərin analiz edin və müştəri təcrübəsini süni intellektlə zənginləşdirin.</p>
                     </div>
-                    <div class="service-card reveal stagger-3">
-                        <div class="service-icon"><i class="fas fa-chart-pie"></i></div>
-                        <h3 style="font-family:var(--font-display);font-weight:700;font-size:1.25rem;margin-bottom:0.75rem;">İntellektual E-Ticarət</h3>
-                        <p style="color:var(--text-muted);font-size:0.9rem;line-height:1.7;">Fərdiləşdirilmiş təkliflər və analizlərlə satışlarınızı artıran dinamik platforma.</p>
+                    <div class="glass-card p-8 fade-in" style="transition-delay: 0.3s;">
+                        <div class="service-icon-wrapper mb-6"><i class="fas fa-chart-pie"></i></div>
+                        <h3 class="text-2xl font-bold font-heading mb-3">İntellektual E-Ticarət</h3>
+                        <p class="text-text-muted">Sadəcə bir onlayn mağaza deyil, fərdiləşdirilmiş təkliflər və analizlərlə satışlarınızı artıran dinamik bir ticarət platforması.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- About -->
-        <section id="about" style="padding:6rem 0;">
-            <div style="max-width:900px;margin:0 auto;padding:0 1.5rem;">
-                <div class="about-glass reveal">
-                    <div style="text-align:center;margin-bottom:2.5rem;">
-                        <div class="section-label reveal" style="justify-content:center;">Haqqımızda</div>
-                        <h2 class="section-title reveal stagger-1" style="font-size:clamp(1.75rem,4vw,2.75rem);">AxtarGet</h2>
-                    </div>
-
-                    <div style="color:var(--text);font-size:1rem;line-height:1.8;position:relative;z-index:1;">
-                        <p><strong>AxtarGet</strong> — <span style="color:var(--primary);font-weight:600;">İbadulla Hasanov</span> tərəfindən yaradılmış innovativ rəqəmsal platformadır.</p>
-
-                        <div style="background:linear-gradient(135deg,var(--primary-dim),transparent);border:1px solid var(--border);border-radius:1rem;padding:1.5rem;margin:1.5rem 0;text-align:center;font-style:italic;color:var(--text);">
+        <section id="about" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="about-section fade-in">
+                    <h2 class="about-title">AxtarGet Haqqında</h2>
+                    
+                    <div class="about-content">
+                        <p><strong>AxtarGet</strong> - <span class="about-highlight">İbadulla Hasanov</span> tərəfindən yaradılmış innovativ rəqəmsal platformadır. Bizim əsas məqsədimiz istifadəçilərə pulsuz və keyfiyyətli xidmətlər təqdim etməkdir.</p>
+                        
+                        <div class="mission-statement">
                             "Biz etibarlı, şəffaf və istifadəçi dostu xidmətlər təqdim edirik."
                         </div>
 
-                        <h3 style="color:var(--primary);margin:2rem 0 0.75rem;font-family:var(--font-display);">🎯 Bizim Məqsədimiz</h3>
-                        <p>Biz sadəcə veb-sayt yaratmırıq. Rəqəmsal dünyada <span style="color:var(--primary);font-weight:600;">unudulmaz təcrübələr</span> yaradırıq.</p>
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🎯 Bizim Məqsədimiz Nədir?</h3>
+                        <p>Biz sadəcə veb-sayt yaratmırıq. Biz rəqəmsal dünyada <span class="about-highlight">unudulmaz təcrübələr</span> yaradırıq. Hər bir layihə bizim üçün unikaldır və maksimum diqqətlə hazırlanır.</p>
 
-                        <h3 style="color:var(--primary);margin:2rem 0 0.75rem;font-family:var(--font-display);">🆓 Pulsuz Xidmətlərimiz</h3>
-                        <ul style="list-style:none;padding:0;margin:0.75rem 0 0 0;">
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>AxtarGet AI</strong> — Süni intellekt köməkçisi</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>HTML/CSS/JS Redaktoru</strong> — Kod yazma aləti</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>QR Kod Generatoru</strong> — QR kod yaradın</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Anonim Mesajlaşma</strong> — Gizli chat</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Premium CV</strong> — Peşəkar CV şablonları</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Şəkil Redaktəsi</strong> — Fotoşop xidmətləri</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>İş Elanları</strong> — Karyera fürsətləri</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Biznes Paylaşım</strong> — Biznesinizi tanıdın</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>PDF → Word</strong> — Format çevirici</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Link Qısaldıcı</strong> — Statistika ilə</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Ekran Qeydedici</strong> — Pulsuz kaydedici</li>
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🆓 Pulsuz Xidmətlərimiz:</h3>
+                        <ul class="about-list">
+                            <li><strong>AxtarGet AI</strong> - Süni intellekt köməkçisi</li>
+                            <li><strong>HTML/CSS/JavaScript Redaktoru</strong> - Kod yazma və test etmə aləti</li>
+                            <li><strong>QR Kod Generatoru</strong> - Öz QR kodunuzu yaradın</li>
+                            <li><strong>Anonim Mesajlaşma</strong> - Təhlükəsiz və gizli chat</li>
+                            <li><strong>Premium CV Hazırlama</strong> - Peşəkar CV şablonları</li>
+                            <li><strong>Şəkil Redaktəsi</strong> - Əsas fotoşop xidmətləri</li>
+                            <li><strong>İş Elanları Platforması</strong> - Karyera fürsətləri</li>
+                            <li><strong>Biznes Paylaşım Platforması</strong> - Biznesinizi tanıdın</li>
+                            <li><strong>PDF-dən Word-ə Çevirici</strong> - PDF fayllarınızı Word formatına çevirin</li>
+                            <li><strong>Link qısaldıcı</strong> - Linkinizi qısaldın. Linkə toxunma statistikasına baxın</li>
+                            <li><strong>Ekran kaydet</strong> - Yüksək keyfiyyətli kaydedici ilə rahatlığı kəşf edin</li>
                         </ul>
 
-                        <h3 style="color:var(--primary);margin:2rem 0 0.75rem;font-family:var(--font-display);">💎 Premium Xidmətlərimiz</h3>
-                        <ul style="list-style:none;padding:0;">
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Takipçi Xidməti</strong> — Sosial media böyümə</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Rəqəmsal Məhsullar</strong> — Premium hesablar</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Veb Sayt Hazırlama</strong> — Peşəkar saytlar</li>
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">💎 Premium Xidmətlərimiz:</h3>
+                        <ul class="about-list">
+                            <li><strong>Takipçi Xidməti</strong> - Sosial media böyümə</li>
+                            <li><strong>Rəqəmsal Məhsullar</strong> - Netflix, Spotify, ChatGPT hesabları</li>
+                            <li><strong>Veb Sayt Hazırlama</strong> - Peşəkar veb saytlar</li>
                         </ul>
 
-                        <h3 style="color:var(--primary);margin:2rem 0 0.75rem;font-family:var(--font-display);">🚀 Niyə Bizi Seçməlisiniz?</h3>
-                        <ul style="list-style:none;padding:0;">
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Şəffaf</strong> — Açıq qiymətlər</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Etibarlı</strong> — 100% təminat</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Yenilikçi</strong> — Ən son texnologiyalar</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Sürət</strong> — Qısa müddətdə tamamlanır</li>
-                            <li style="padding:0.4rem 0;padding-left:1.5rem;position:relative;"><span style="position:absolute;left:0;color:var(--primary);">▸</span> <strong>Müştəri Məmnuniyyəti</strong> — Hər müştəri vacibdir</li>
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🚀 Niyə Bizi Seçməlisiniz?</h3>
+                        <p>Çünki biz:</p>
+                        <ul class="about-list">
+                            <li><strong>Şəffafıq</strong> - Bütün qiymətlər açıq şəkildə göstərilir</li>
+                            <li><strong>Etibarlılıq</strong> - 100% təminat və dəstək</li>
+                            <li><strong>Yenilikçilik</strong> - Ən son texnologiyalardan istifadə</li>
+                            <li><strong>Sürət</strong> - Sifarişlər ən qısa müddətdə tamamlanır</li>
+                            <li><strong>Müştəri Məmnuniyyəti</strong> - Hər müştəri bizim üçün vacibdir</li>
                         </ul>
 
-                        <p style="text-align:center;margin-top:2.5rem;font-weight:700;font-family:var(--font-display);font-size:1.1rem;">
-                            <span style="color:var(--primary);">AxtarGet</span> — Gələcəyin Texnologiyaları, Bu Gün!
+                        <h3 style="color: var(--primary); margin: 2rem 0 1rem 0;">🌟 Bizim Fəlsəfəmiz:</h3>
+                        <p>"Ən yaxşı investisiya - <span class="about-highlight">özünüzə etdiyiniz investisiyadır</span>. Biz sizə bu investisiyanı daha səmərəli etməyə kömək edirik."</p>
+
+                        <p style="margin-top: 2rem; text-align: center; font-weight: 600;">
+                            <span class="about-highlight">AxtarGet</span> - Gələcəyin Texnologiyaları, Bu Gün!
                         </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Video -->
-        <section style="padding:6rem 0;">
-            <div style="max-width:1280px;margin:0 auto;padding:0 1.5rem;">
-                <div style="text-align:center;margin-bottom:3rem;">
-                    <div class="section-label reveal" style="justify-content:center;">Video</div>
-                    <h2 class="section-title reveal stagger-1" style="font-size:clamp(2rem,5vw,3.5rem);">Təqdimat Videosu</h2>
+        <section id="contact" class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-5xl text-center">
+                <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="AxtarGet Logo" class="w-24 h-24 rounded-full border-4 border-primary shadow-lg shadow-primary/30 mx-auto mb-8 fade-in">
+                <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">Növbəti Böyük Addımı Birlikdə Atmağa Hazırsınız?</h2>
+                <p class="text-lg mt-4 mb-12 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
+                    Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək və ideyanızı rəqəmsal reallığa çevirək.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 fade-in" style="transition-delay: 0.2s;">
+                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <span class="text-xl font-bold">WhatsApp</span>
+                        <span class="text-text-muted text-sm mt-2">060-600-61-62</span>
+                    </a>
+                    <a href="mailto:contact@axtarget.xyz" target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
+                        <span class="text-xl font-bold">Email</span>
+                        <span class="text-text-muted text-sm mt-2">contact@axtarget.xyz</span>
+                    </a>
+                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fab fa-instagram"></i>
+                        </div>
+                        <span class="text-xl font-bold">Instagram</span>
+                        <span class="text-text-muted text-sm mt-2">@ibadulla_hasanov_official</span>
+                    </a>
                 </div>
-                <div class="tv-wrap reveal-scale">
+            </div>
+        </section>
+
+        <section class="py-24 content-overlay">
+            <div class="container mx-auto px-6 lg:px-8 max-w-7xl">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-extrabold font-heading fade-in" style="color: var(--text-primary);">AxtarGet Təqdimat Videosu</h2>
+                    <p class="text-lg mt-4 max-w-3xl mx-auto fade-in" style="transition-delay: 0.1s; color: var(--text-muted);">
+                        Bizim xidmətlərimiz və vizyonumuz haqqında daha ətraflı məlumat əldə edin.
+                    </p>
+                </div>
+                
+                <div class="tv-container fade-in" style="transition-delay: 0.2s;">
                     <div class="tv-screen">
-                        <iframe src="https://www.youtube.com/embed/qBbF_wrr73M?si=g4TGI6vfasaHyRwl&rel=0&modestbranding=1" title="AxtarGet Video" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+                        <iframe 
+                            src="https://www.youtube.com/embed/qBbF_wrr73M?si=g4TGI6vfasaHyRwl&autoplay=0&rel=0&modestbranding=1&controls=1"
+                            title="AxtarGet Təqdimat Videosu"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
                     </div>
                     <div class="tv-stand"></div>
                 </div>
             </div>
         </section>
+    </main>
 
-        <!-- Contact -->
-        <section id="contact" style="padding:6rem 0;">
-            <div style="max-width:1000px;margin:0 auto;padding:0 1.5rem;text-align:center;">
-                <img src="https://i.postimg.cc/1zQS7wYc/Whats-App-Image-2025-10-31-at-12-00-55.jpg" alt="Logo" style="width:80px;height:80px;border-radius:50%;border:3px solid var(--primary);box-shadow:0 0 25px rgba(56,229,183,0.3);margin:0 auto 2rem;" class="reveal-scale">
-
-                <div class="section-label reveal" style="justify-content:center;">Əlaqə</div>
-                <h2 class="section-title reveal stagger-1" style="font-size:clamp(1.75rem,4vw,2.75rem);margin-bottom:1rem;">Birlikdə Böyük Addım Ataq</h2>
-                <p class="reveal stagger-2" style="color:var(--text-muted);max-width:560px;margin:0 auto 3rem;font-size:1.05rem;">Qeyri-adi bir layihə fikriniz var? Gəlin müzakirə edək.</p>
-
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;">
-                    <a href="https://wa.me/994606006162?text=Salam,%20veb%20sayt%20qurmaq%20istəyirəm." target="_blank" class="contact-card reveal stagger-1">
-                        <div class="contact-icon-box"><i class="fab fa-whatsapp"></i></div>
-                        <span style="font-weight:700;font-size:1.1rem;">WhatsApp</span>
-                        <span style="color:var(--text-muted);font-size:0.85rem;margin-top:0.3rem;">060-600-61-62</span>
-                    </a>
-                    <a href="mailto:contact@axtarget.xyz" target="_blank" class="contact-card reveal stagger-2">
-                        <div class="contact-icon-box"><i class="fas fa-envelope-open-text"></i></div>
-                        <span style="font-weight:700;font-size:1.1rem;">Email</span>
-                        <span style="color:var(--text-muted);font-size:0.85rem;margin-top:0.3rem;">contact@axtarget.xyz</span>
-                    </a>
-                    <a href="https://www.instagram.com/ibadulla_hasanov_official" target="_blank" class="contact-card reveal stagger-3">
-                        <div class="contact-icon-box"><i class="fab fa-instagram"></i></div>
-                        <span style="font-weight:700;font-size:1.1rem;">Instagram</span>
-                        <span style="color:var(--text-muted);font-size:0.85rem;margin-top:0.3rem;">@ibadulla_hasanov_official</span>
-                    </a>
-                </div>
+    <footer class="border-t border-gray-800/50 mt-20 content-overlay">
+      <div class="container mx-auto max-w-7xl px-6 lg:px-8 py-8 text-center text-text-muted">
+            <p>&copy; 2026 AxtarGet. Bütün hüquqlar qorunur.</p>
+            <p class="text-sm mt-2">Ibadulla Hasanov tərəfindən hazırlandı.</p>
+        
+            <div class="mt-4">
+            <a href="privacy.html" class="text-sm hover:text-white transition-colors underline">Privacy Policy</a>
             </div>
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <footer style="border-top:1px solid var(--border);position:relative;z-index:2;">
-        <div style="max-width:1280px;margin:0 auto;padding:2rem 1.5rem;text-align:center;">
-            <p style="color:var(--text-muted);font-size:0.9rem;">&copy; 2026 AxtarGet. Bütün hüquqlar qorunur.</p>
-            <p style="color:var(--text-muted);font-size:0.8rem;margin-top:0.5rem;">İbadulla Hasanov tərəfindən hazırlandı.</p>
-            <a href="privacy.html" style="color:var(--text-muted);font-size:0.8rem;text-decoration:underline;margin-top:0.5rem;display:inline-block;transition:color 0.3s ease;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-muted)'">Privacy Policy</a>
-        </div>
-    </footer>
-
+          </div>
+      </footer>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-
-        // ── Theme ──
-        const themeSwitch = document.getElementById('themeSwitch');
-        const themeIcon = document.getElementById('themeIcon');
-        let isLight = false;
-
-        function toggleTheme() {
-            isLight = !isLight;
-            document.body.classList.toggle('light-mode', isLight);
-            themeIcon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
-        }
-
-        // ── Custom Cursor ──
-        const dot = document.getElementById('cursorDot');
-        const ring = document.getElementById('cursorRing');
-        let mx = 0, my = 0, rx = 0, ry = 0;
-
-        document.addEventListener('mousemove', e => {
-            mx = e.clientX; my = e.clientY;
-            dot.style.left = mx - 4 + 'px';
-            dot.style.top = my - 4 + 'px';
-        });
-
-        function animateRing() {
-            rx += (mx - rx) * 0.15;
-            ry += (my - ry) * 0.15;
-            ring.style.left = rx - 20 + 'px';
-            ring.style.top = ry - 20 + 'px';
-            requestAnimationFrame(animateRing);
-        }
-        animateRing();
-
-        document.querySelectorAll('a, button, .tilt-card, input').forEach(el => {
-            el.addEventListener('mouseenter', () => ring.classList.add('hover'));
-            el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-        });
-
-        // ── Header Scroll ──
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            header.classList.toggle('scrolled', window.scrollY > 50);
-        });
-
-        // ── Mobile Menu ──
-        window.openMobileMenu = () => document.getElementById('mobileMenu').classList.add('open');
-        window.closeMobileMenu = () => document.getElementById('mobileMenu').classList.remove('open');
-
-        // ── Ad Modal ──
-        window.openAdModal = () => document.getElementById('adModal').classList.add('show');
-        window.closeAdModal = () => document.getElementById('adModal').classList.remove('show');
-        document.getElementById('adModal').addEventListener('click', e => {
-            if (e.target === e.currentTarget) closeAdModal();
-        });
-
-        // ── Reveal Animations ──
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-        document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(el => {
-            revealObserver.observe(el);
-        });
-
-        // ── 3D Tilt Cards ──
-        document.querySelectorAll('.tilt-card').forEach(card => {
-            const inner = card.querySelector('.card-inner');
-            const shine = card.querySelector('.card-shine');
-
-            card.addEventListener('mousemove', e => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const cx = rect.width / 2;
-                const cy = rect.height / 2;
-                const rotateX = ((y - cy) / cy) * -8;
-                const rotateY = ((x - cx) / cx) * 8;
-
-                inner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02,1.02,1.02)`;
-
-                if (shine) {
-                    shine.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(56,229,183,0.15), transparent 60%)`;
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            
+            body.classList.remove('light-mode');
+            themeToggle.checked = false;
+            localStorage.setItem('theme', 'dark');
+            
+            themeToggle.addEventListener('change', () => {
+                if (themeToggle.checked) {
+                    body.classList.add('light-mode');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    body.classList.remove('light-mode');
+                    localStorage.setItem('theme', 'dark');
                 }
             });
 
-            card.addEventListener('mouseleave', () => {
-                inner.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1,1,1)';
-                inner.style.transition = 'transform 0.5s ease';
-                setTimeout(() => inner.style.transition = '', 500);
-            });
-
-            card.addEventListener('mouseenter', () => {
-                inner.style.transition = 'none';
-            });
-        });
-
-        // ── Animated Counters ──
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    const target = parseInt(el.dataset.target);
-                    let current = 0;
-                    const increment = target / 60;
-                    const timer = setInterval(() => {
-                        current += increment;
-                        if (current >= target) {
-                            current = target;
-                            clearInterval(timer);
-                        }
-                        el.textContent = Math.round(current) + (target === 99 ? '%' : '+');
-                    }, 25);
-                    counterObserver.unobserve(el);
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
                 }
             });
-        }, { threshold: 0.5 });
 
-        document.querySelectorAll('.stat-number').forEach(el => counterObserver.observe(el));
+            const hamburgerButton = document.getElementById('hamburger-button');
+            const mobileMenuContainer = document.getElementById('mobile-menu-container');
+            const mobileMenuCloseButton = document.getElementById('mobile-menu-close-button');
+            const mobileMenuLinks = mobileMenuContainer.querySelectorAll('a');
 
-        // ── Background Canvas (Animated Gradient Mesh) ──
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        let w, h;
-        const blobs = [
-            { x: 0.3, y: 0.2, r: 300, color: 'rgba(56, 229, 183, 0.08)', vx: 0.0003, vy: 0.0002 },
-            { x: 0.7, y: 0.6, r: 350, color: 'rgba(129, 140, 248, 0.06)', vx: -0.0002, vy: 0.0003 },
-            { x: 0.5, y: 0.8, r: 280, color: 'rgba(244, 114, 182, 0.05)', vx: 0.0001, vy: -0.0002 },
-            { x: 0.2, y: 0.5, r: 320, color: 'rgba(56, 229, 183, 0.04)', vx: -0.0003, vy: -0.0001 },
-        ];
-
-        function resizeCanvas() {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function drawBg(t) {
-            ctx.fillStyle = isLight ? '#f8fafc' : '#030712';
-            ctx.fillRect(0, 0, w, h);
-
-            blobs.forEach(b => {
-                b.x += b.vx;
-                b.y += b.vy;
-                if (b.x < 0.1 || b.x > 0.9) b.vx *= -1;
-                if (b.y < 0.1 || b.y > 0.9) b.vy *= -1;
-
-                const gradient = ctx.createRadialGradient(b.x * w, b.y * h, 0, b.x * w, b.y * h, b.r);
-                gradient.addColorStop(0, b.color);
-                gradient.addColorStop(1, 'transparent');
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, w, h);
-            });
-
-            requestAnimationFrame(drawBg);
-        }
-        drawBg();
-
-        // ── 3D Globe ──
-        const globeContainer = document.getElementById('globe-container');
-        if (globeContainer) {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, globeContainer.clientWidth / globeContainer.clientHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
-            globeContainer.appendChild(renderer.domElement);
-            camera.position.z = 4;
-            let globe = null;
-            let gmx = 0;
-
-            new THREE.TextureLoader().load(
-                'https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthbump1k.jpg',
-                function(texture) {
-                    const img = texture.image;
-                    const c = document.createElement('canvas');
-                    c.width = img.width; c.height = img.height;
-                    const cx = c.getContext('2d');
-                    cx.drawImage(img, 0, 0);
-                    const d = cx.getImageData(0, 0, c.width, c.height);
-                    const verts = [];
-                    const r = 2;
-                    for (let y = 0; y < c.height; y += 4) {
-                        for (let x = 0; x < c.width; x += 4) {
-                            if (d.data[(y * c.width + x) * 4] > 60) {
-                                const phi = (90 - (y / c.height) * 180) * (Math.PI / 180);
-                                const theta = ((x / c.width) * 360 - 180) * (Math.PI / 180);
-                                verts.push(r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
-                            }
+            hamburgerButton.addEventListener('click', () => mobileMenuContainer.classList.add('open'));
+            mobileMenuCloseButton.addEventListener('click', () => mobileMenuContainer.classList.remove('open'));
+            
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({ behavior: 'smooth' });
                         }
                     }
-                    const geo = new THREE.BufferGeometry();
-                    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-                    const mat = new THREE.PointsMaterial({ color: 0x38E5B7, size: 0.015 });
-                    globe = new THREE.Points(geo, mat);
-                    scene.add(globe);
-                }
-            );
-
-            function animateGlobe() {
-                requestAnimationFrame(animateGlobe);
-                if (globe) globe.rotation.y += 0.001 + (gmx * 0.005);
-                renderer.render(scene, camera);
-            }
-            animateGlobe();
-
-            window.addEventListener('mousemove', e => { gmx = (e.clientX / window.innerWidth) - 0.5; });
-            window.addEventListener('resize', () => {
-                camera.aspect = globeContainer.clientWidth / globeContainer.clientHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(globeContainer.clientWidth, globeContainer.clientHeight);
+                    mobileMenuContainer.classList.remove('open');
+                });
             });
-        }
 
-        // ── Search ──
-        const searchData = [
-            { title: "Takipçi Xidməti", desc: "Sosial media hesablarınız üçün izlənmə, bəyəni və SMM xidmətləri", url: "follower-service.html", kw: ["takipci","takipçi","izlənmə","bəyəni","follower","smm","sosial media","instagram","tiktok","youtube"] },
-            { title: "Şəkil Redaktəsi", desc: "Peşəkar səviyyədə şəkil redaktəsi və qrafik dizayn", url: "photo.html", kw: ["şəkil","redaktə","foto","photo","edit","qrafik","dizayn","retuş","fon"] },
-            { title: "Premium CV Hazırla", desc: "Peşəkar CV hazırlanması ilə işə qəbul şansınızı artırın", url: "prmiumCV.html", kw: ["cv","premium cv","iş","vakansiya","karyera","rezume"] },
-            { title: "AxtarGet AI", desc: "Süni intellekt ilə mətn yazın, şəkil yaradın", url: "https://ai.axtarget.xyz", kw: ["ai","süni intellekt","chatgpt","mətn","şəkil"] },
-            { title: "Rəqəmsal Məhsullar", desc: "Netflix, Exxen, ChatGPT kimi premium hesablar", url: "digital-products.html", kw: ["rəqəmsal","məhsul","netflix","exxen","chatgpt","spotify","premium","hesab"] },
-            { title: "Biznesini Paylaş", desc: "Biznesinizi geniş auditoriyaya çatdırın", url: "share-business.html", kw: ["biznes","paylaş","tanıt","reklam","marketinq"] },
-            { title: "QR Kod Yarat", desc: "Öz QR kodunuzu asanlıqla yaradın", url: "qr.html", kw: ["qr","qr kod","qrcode","kod yarat","generator"] },
-            { title: "İş Elanları", desc: "Özünüzə uyğun iş tapmaq üçün vakansiyalar", url: "https://vakansiya.axtarget.xyz", kw: ["iş","vakansiya","elan","karyera"] },
-            { title: "Web Sayt Hazırlama", desc: "Güclü SEO, dizayn, ucuz qiymətlə veb sayt", url: "https://web.axtarget.xyz", kw: ["web","sayt","website","hazırla","vebsayt","seo","dizayn"] },
-            { title: "HTML/CSS/JS Redaktoru", desc: "Kod yazın və canlı önizləyin", url: "html.html", kw: ["html","css","javascript","kod","redaktor","editor","program"] },
-            { title: "Anonim Mesajlaşma", desc: "Tam anonim, təhlükəsiz mesajlaşma", url: "https://axtarget.xyz/anonim.html", kw: ["anonim","mesaj","chat","gizli"] },
-            { title: "PDF → Word Çevirici", desc: "PDF fayllarını Word formatına çevirin", url: "https://pdf.axtarget.xyz/", kw: ["pdf","word","çevir","converter"] },
-            { title: "Link Qısaldıcı", desc: "Linkinizi qısaldın və statistikaya baxın", url: "https://link.axtarget.xyz/", kw: ["link","qısald","short","url"] },
-            { title: "Ekran Qeydedici", desc: "Ekran və oyun videolarını qeyd edin", url: "https://axtarget.xyz/kay%C4%B1t.html", kw: ["ekran","qeyd","record","screen","video"] },
-            { title: "AxtarGet Mağaza", desc: "Mobil və PC üçün pulsuz fayllar", url: "https://axtarget.xyz/apps.html", kw: ["mağaza","store","app","yüklə","download","pulsuz"] },
-        ];
+            const fadeInElements = document.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appear');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            fadeInElements.forEach(element => observer.observe(element));
 
-        function doSearch(q, container) {
-            const nq = q.toLowerCase().trim();
-            if (nq.length < 1) { container.classList.remove('show'); return; }
-            const results = searchData.filter(item =>
-                item.title.toLowerCase().includes(nq) ||
-                item.desc.toLowerCase().includes(nq) ||
-                item.kw.some(k => k.includes(nq))
-            );
-            container.innerHTML = '';
-            if (!results.length) {
-                container.innerHTML = '<div class="sr-empty">Nəticə tapılmadı</div>';
-            } else {
-                results.forEach(r => {
-                    const d = document.createElement('div');
-                    d.className = 'sr-item';
-                    d.innerHTML = `<div class="sr-title">${r.title}</div><div class="sr-desc">${r.desc}</div>`;
-                    d.addEventListener('click', () => window.open(r.url, r.url.startsWith('http') ? '_blank' : '_self'));
-                    container.appendChild(d);
+            const container = document.getElementById('globe-container');
+            if(container) {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+                
+                camera.position.z = 4;
+                let globeObject = null;
+                let mouseX = 0;
+
+                const loader = new THREE.TextureLoader();
+                loader.load(
+                    'https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthbump1k.jpg',
+                    function (texture) {
+                        const image = texture.image;
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        const context = canvas.getContext('2d');
+                        context.drawImage(image, 0, 0);
+                        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+                        const vertices = [];
+                        const radius = 2;
+
+                        for (let y = 0; y < canvas.height; y+=4) {
+                            for (let x = 0; x < canvas.width; x+=4) {
+                                const index = (y * canvas.width + x) * 4;
+                                const r = imageData.data[index];
+
+                                if (r > 60) {
+                                    const phi = (90 - (y / canvas.height) * 180) * (Math.PI / 180);
+                                    const theta = ((x / canvas.width) * 360 - 180) * (Math.PI / 180);
+
+                                    vertices.push(
+                                        radius * Math.sin(phi) * Math.cos(theta),
+                                        radius * Math.cos(phi),
+                                        radius * Math.sin(phi) * Math.sin(theta)
+                                    );
+                                }
+                            }
+                        }
+                        
+                        const geometry = new THREE.BufferGeometry();
+                        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                        const material = new THREE.PointsMaterial({
+                            color: 0x38E5B7,
+                            size: 0.015
+                        });
+
+                        globeObject = new THREE.Points(geometry, material);
+                        scene.add(globeObject);
+                    }
+                );
+                
+                function animate() {
+                    requestAnimationFrame(animate);
+                    if (globeObject) {
+                        globeObject.rotation.y += 0.001 + (mouseX * 0.005);
+                    }
+                    renderer.render(scene, camera);
+                }
+                animate();
+                
+                function onMouseMove(event) {
+                    mouseX = (event.clientX / window.innerWidth) - 0.5;
+                }
+                
+                function onMouseOut(event) {
+                    mouseX = 0;
+                }
+
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseout', onMouseOut);
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
                 });
             }
-            container.classList.add('show');
-        }
+            
+            const matrixCanvas = document.getElementById('matrix-canvas');
+            if (matrixCanvas) {
+                const ctx = matrixCanvas.getContext('2d');
+                matrixCanvas.width = window.innerWidth;
+                matrixCanvas.height = window.innerHeight;
 
-        [['heroSearchInput','heroSearchResults'],['mobileSearchInput','mobileSearchResults']].forEach(([iid, rid]) => {
-            const inp = document.getElementById(iid);
-            const res = document.getElementById(rid);
-            if (!inp || !res) return;
-            inp.addEventListener('input', e => doSearch(e.target.value, res));
-            inp.addEventListener('keypress', e => {
-                if (e.key === 'Enter' && res.children[0]?.classList.contains('sr-item')) res.children[0].click();
-            });
-            document.addEventListener('click', e => {
-                if (!inp.contains(e.target) && !res.contains(e.target)) res.classList.remove('show');
+                let katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+                katakana += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+                const characters = katakana.split('');
+
+                const fontSize = 16;
+                const columns = matrixCanvas.width / fontSize;
+                const drops = [];
+                for (let x = 0; x < columns; x++) {
+                    drops[x] = 1;
+                }
+
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(5, 8, 14, 0.12)';
+                    ctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+                    ctx.fillStyle = 'rgba(56, 229, 183, 0.3)';
+                    ctx.font = fontSize + 'px monospace';
+
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = characters[Math.floor(Math.random() * characters.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+
+                setInterval(drawMatrix, 40);
+
+                window.addEventListener('resize', () => {
+                    matrixCanvas.width = window.innerWidth;
+                    matrixCanvas.height = window.innerHeight;
+                });
+            }
+            
+            const searchData = [
+                {
+                    title: "Takipçi Xidməti",
+                    description: "Sosial media hesablarınız üçün izlənmə, bəyəni və digər SMM xidmətləri",
+                    url: "follower-service.html",
+                    keywords: ["takipci", "takipçi", "izlənmə", "bəyəni", "follower", "followers", "smm", "sosial media", "instagram", "tiktok", "youtube"]
+                },
+                {
+                    title: "Şəkil Redaktəsi Xidməti",
+                    description: "Şəkillərinizin peşəkar səviyyədə redaktəsi və qrafik dizayn xidmətləri",
+                    url: "photo.html",
+                    keywords: ["şəkil", "redakte", "redaktə", "foto", "photo", "edit", "redaktəsi", "redakte", "qrafik", "dizayn", "retuş", "fon silme"]
+                },
+                {
+                    title: "Premium CV Hazırla",
+                    description: "Peşəkar CV hazırlanması xidməti ilə işə qəbul şansınızı artırın",
+                    url: "prmiumCV.html",
+                    keywords: ["cv", "cv hazırla", "premium cv", "iş", "vakansiya", "karyera", "rezume", "cv yaz", "cv yarat"]
+                },
+                {
+                    title: "AxtarGet AI",
+                    description: "Süni intellekt ilə mətn yazın, şəkil yaradın və problemləri həll edin",
+                    url: "https://ai.axtarget.xyz",
+                    keywords: ["ai", "süni intellekt", "axtarget ai", "chatgpt", "mətn", "şəkil yarat", "problem həll"]
+                },
+                {
+                    title: "Rəqəmsal Məhsullar",
+                    description: "Netflix, Exxen, ChatGPT kimi premium xidmətlərin hesabları",
+                    url: "digital-products.html",
+                    keywords: ["rəqəmsal", "məhsul", "netflix", "exxen", "chatgpt", "spotify", "premium", "hesab", "abunə"]
+                },
+                {
+                    title: "Biznesini Paylaş",
+                    description: "Biznesinizi geniş auditoriyaya çatdırmaq üçün fürsət",
+                    url: "share-business.html",
+                    keywords: ["biznes", "paylaş", "tanıt", "reklam", "marketinq", "biznesini paylaş"]
+                },
+                {
+                    title: "QR kod yarat",
+                    description: "Öz QR kodunuzu asanlıqla yaradın",
+                    url: "qr.html",
+                    keywords: ["qr", "qr kod", "qrcode", "kod yarat", "qr generator"]
+                },
+                {
+                    title: "İş Elanları",
+                    description: "Özünüzə uyğun iş tapmaq üçün vakansiyalar",
+                    url: "https://vakansiya.axtarget.xyz",
+                    keywords: ["iş", "vakansiya", "elan", "karyera", "iş elanları", "iş axtarırəm"]
+                },
+                {
+                    title: "Web sayt hazırlama xidməti",
+                    description: "Güclü SEO, güclü dizayn, ucuz qiymət ilə web sayt hazırlama",
+                    url: "https://web.axtarget.xyz",
+                    keywords: ["web", "sayt", "website", "hazırla", "yaradı", "vebsayt", "web sayt", "seo", "dizayn"]
+                },
+                {
+                    title: "HTML/CSS/JavaScript Redaktoru",
+                    description: "HTML, CSS, JavaScript kodlarını yazın və canlı önizləyin",
+                    url: "html.html",
+                    keywords: ["html", "css", "javascript", "kod", "redaktər", "editor", "program"]
+                },
+                {
+                    title: "Anonim Mesajlaşma",
+                    description: "Tam anonim, təhlükəsiz mesajlaşma platforması",
+                    url: "https://axtarget.xyz/anonim.html",
+                    keywords: ["anonim", "mesaj", "chat", "yaz", "istifadəçi", "gizli"]
+                }
+            ];
+
+            function performSearch(query, resultsContainer) {
+                const normalizedQuery = query.toLowerCase().trim();
+                
+                // 1 hərfdən başlayaraq axtarış göstər
+                if (normalizedQuery.length < 1) {
+                    resultsContainer.classList.remove('show');
+                    return;
+                }
+                
+                const results = searchData.filter(item => {
+                    if (item.title.toLowerCase().includes(normalizedQuery) || 
+                        item.description.toLowerCase().includes(normalizedQuery)) {
+                        return true;
+                    }
+                    
+                    return item.keywords.some(keyword => 
+                        keyword.toLowerCase().includes(normalizedQuery)
+                    );
+                });
+                
+                displayResults(results, resultsContainer);
+            }
+            
+            function displayResults(results, container) {
+                container.innerHTML = '';
+                
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="no-results">Heç bir nəticə tapılmadı</div>';
+                } else {
+                    results.forEach(result => {
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'search-result-item';
+                        resultElement.innerHTML = `
+                            <div class="search-result-title">${result.title}</div>
+                            <div class="search-result-description">${result.description}</div>
+                        `;
+                        
+                        resultElement.addEventListener('click', () => {
+                            if (result.url.startsWith('http')) {
+                                window.open(result.url, '_blank');
+                            } else {
+                                window.location.href = result.url;
+                            }
+                        });
+                        
+                        container.appendChild(resultElement);
+                    });
+                }
+                
+                container.classList.add('show');
+            }
+            
+            const searchInputs = [
+                { input: 'hero-search-input', results: 'hero-search-results' },
+                { input: 'mobile-search-input', results: 'mobile-search-results' }
+            ];
+            
+            searchInputs.forEach(({ input, results }) => {
+                const inputElement = document.getElementById(input);
+                const resultsElement = document.getElementById(results);
+                
+                if (inputElement && resultsElement) {
+                    inputElement.addEventListener('input', (e) => {
+                        performSearch(e.target.value, resultsElement);
+                    });
+                    
+                    inputElement.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            performSearch(e.target.value, resultsElement);
+                            if (resultsElement.children.length > 0) {
+                                const firstResult = resultsElement.children[0];
+                                if (firstResult.classList.contains('search-result-item')) {
+                                    firstResult.click();
+                                }
+                            }
+                        }
+                    });
+                    
+                    const searchButton = document.getElementById(input.replace('input', 'button'));
+                    if (searchButton) {
+                        searchButton.addEventListener('click', () => {
+                            performSearch(inputElement.value, resultsElement);
+                            if (resultsElement.children.length > 0) {
+                                const firstResult = resultsElement.children[0];
+                                if (firstResult.classList.contains('search-result-item')) {
+                                    firstResult.click();
+                                }
+                            }
+                        });
+                    }
+                    
+                    document.addEventListener('click', (e) => {
+                        if (!inputElement.contains(e.target) && !resultsElement.contains(e.target)) {
+                            resultsElement.classList.remove('show');
+                        }
+                    });
+                }
             });
         });
-    });
     </script>
     <script src="https://pl28828760.effectivegatecpm.com/4d/fc/3a/4dfc3a10614ebcc8532be1da4f74103d.js"></script>
 </body>
 </html>
+
